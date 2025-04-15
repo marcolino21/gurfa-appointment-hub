@@ -35,9 +35,9 @@ import { toast } from '@/hooks/use-toast';
 const Products: React.FC = () => {
   const { products, brands, categories, loading } = useProductsData();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedFormat, setSelectedFormat] = useState<string>('');
+  const [selectedBrand, setSelectedBrand] = useState<string>('all_brands');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all_categories');
+  const [selectedFormat, setSelectedFormat] = useState<string>('all_formats');
   const [showProductForm, setShowProductForm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
 
@@ -48,9 +48,9 @@ const Products: React.FC = () => {
                           product.barcode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           false;
     
-    const matchesBrand = !selectedBrand || product.brand === selectedBrand;
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
-    const matchesFormat = !selectedFormat || product.format === selectedFormat;
+    const matchesBrand = selectedBrand === 'all_brands' || product.brand === selectedBrand;
+    const matchesCategory = selectedCategory === 'all_categories' || product.category === selectedCategory;
+    const matchesFormat = selectedFormat === 'all_formats' || product.format === selectedFormat;
     
     return matchesSearch && matchesBrand && matchesCategory && matchesFormat;
   });
@@ -129,7 +129,7 @@ const Products: React.FC = () => {
                 <SelectValue placeholder="Brand" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i brand</SelectItem>
+                <SelectItem value="all_brands">Tutti i brand</SelectItem>
                 {brands.map(brand => (
                   <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
                 ))}
@@ -143,7 +143,7 @@ const Products: React.FC = () => {
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutte le categorie</SelectItem>
+                <SelectItem value="all_categories">Tutte le categorie</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
                 ))}
@@ -157,7 +157,7 @@ const Products: React.FC = () => {
                 <SelectValue placeholder="Formato" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i formati</SelectItem>
+                <SelectItem value="all_formats">Tutti i formati</SelectItem>
                 {uniqueFormats.map(format => format && (
                   <SelectItem key={format} value={format}>{format}</SelectItem>
                 ))}
