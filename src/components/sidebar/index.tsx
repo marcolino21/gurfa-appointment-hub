@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { ChevronLeft, ChevronRight, Package2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Package2, BarChart3 } from 'lucide-react';
 
 import SidebarItem from './SidebarItem';
 import SidebarItemWithSubmenu from './SidebarItemWithSubmenu';
-import { sidebarItems, adminSidebarItems, magazzinoSubItems } from './SidebarData';
+import { sidebarItems, adminSidebarItems, magazzinoSubItems, statisticheSubItems } from './SidebarData';
 
 const Sidebar: React.FC = () => {
   const { user } = useAuth();
@@ -40,16 +40,42 @@ const Sidebar: React.FC = () => {
       
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid gap-1 px-2">
-          {sidebarItems.map((item) => (
-            <SidebarItem 
-              key={item.href}
-              icon={item.icon} 
-              label={item.label} 
-              href={item.href} 
-              isActive={location.pathname === item.href}
-              isCollapsed={isCollapsed}
-            />
-          ))}
+          {sidebarItems.map((item, index) => {
+            // Inserisce il componente Statistiche prima di Comunicazioni
+            if (index === 7) {
+              return (
+                <React.Fragment key={`stats-fragment`}>
+                  <SidebarItemWithSubmenu 
+                    key="statistiche"
+                    icon={BarChart3} 
+                    label="Statistiche" 
+                    isActive={location.pathname.includes('/statistiche')}
+                    subItems={statisticheSubItems}
+                    isCollapsed={isCollapsed}
+                  />
+                  <SidebarItem 
+                    key={item.href}
+                    icon={item.icon} 
+                    label={item.label} 
+                    href={item.href} 
+                    isActive={location.pathname === item.href}
+                    isCollapsed={isCollapsed}
+                  />
+                </React.Fragment>
+              );
+            }
+            
+            return (
+              <SidebarItem 
+                key={item.href}
+                icon={item.icon} 
+                label={item.label} 
+                href={item.href} 
+                isActive={location.pathname === item.href}
+                isCollapsed={isCollapsed}
+              />
+            );
+          })}
           
           <SidebarItemWithSubmenu 
             icon={Package2} 

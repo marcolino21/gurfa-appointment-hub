@@ -16,13 +16,29 @@ import {
   CreditCard,
   Box,
   UploadCloud,
-  AlertOctagon
+  AlertOctagon,
+  LineChart,
+  FileBarChart,
+  ListChecks,
+  UserRound,
+  ShoppingBag,
+  ClipboardList
 } from 'lucide-react';
 
 export const magazzinoSubItems = [
   { icon: Box, label: "Prodotti", href: "/magazzino/prodotti" },
   { icon: UploadCloud, label: "Ordini", href: "/magazzino/ordini" },
   { icon: AlertOctagon, label: "Sotto Scorta", href: "/magazzino/sottoscorta" }
+];
+
+export const statisticheSubItems = [
+  { icon: LineChart, label: "Analisi Andamento", href: "/statistiche/analisi-andamento" },
+  { icon: FileBarChart, label: "Report Azienda", href: "/statistiche/report-azienda" },
+  { icon: ListChecks, label: "Corrispettivi", href: "/statistiche/corrispettivi" },
+  { icon: UserRound, label: "Report Collaboratori", href: "/statistiche/collaboratori" },
+  { icon: Users, label: "Report Clienti", href: "/statistiche/clienti" },
+  { icon: ShoppingBag, label: "Report Magazzino", href: "/statistiche/magazzino" },
+  { icon: ClipboardList, label: "Report Inventario", href: "/statistiche/inventario" }
 ];
 
 export const sidebarItems = [
@@ -60,11 +76,6 @@ export const sidebarItems = [
     icon: Users2, 
     label: "Staff", 
     href: "/staff"
-  },
-  { 
-    icon: BarChart3, 
-    label: "Statistiche", 
-    href: "/statistiche"
   },
   { 
     icon: MessageSquare, 
