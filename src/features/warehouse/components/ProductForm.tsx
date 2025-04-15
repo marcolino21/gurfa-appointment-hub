@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -32,6 +32,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Product, ProductBrand, ProductCategory } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Il nome del prodotto è richiesto'),
@@ -40,6 +41,7 @@ const productSchema = z.object({
   barcode: z.string().optional(),
   brand: z.string().optional(),
   category: z.string().optional(),
+  customCategory: z.string().optional(),
   price: z.coerce.number().min(0, 'Il prezzo deve essere maggiore o uguale a 0'),
   costPrice: z.coerce.number().min(0, 'Il prezzo di costo deve essere maggiore o uguale a 0').optional(),
   stockQuantity: z.coerce.number().int().min(0, 'La quantità deve essere un intero positivo'),
@@ -66,6 +68,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   categories,
 }) => {
   const isEditing = !!product;
+  const [useCustomCategory, setUseCustomCategory] = useState(false);
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -76,6 +79,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       barcode: product.barcode || '',
       brand: product.brand || '',
       category: product.category || '',
+      customCategory: '',
       price: product.price || 0,
       costPrice: product.costPrice || 0,
       stockQuantity: product.stockQuantity || 0,
@@ -88,10 +92,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: '',
       price: 0,
       stockQuantity: 0,
+      customCategory: '',
     },
   });
 
   const onSubmit = (values: z.infer<typeof productSchema>) => {
+    // If using custom category, replace the category value with the custom one
+    const finalValues = { ...values };
+    
+    if (useCustomCategory && values.customCategory) {
+      finalValues.category = values.customCategory;
+    }
+    
     // In a real app, this would call a create/update API
     toast({
       title: isEditing ? "Prodotto aggiornato" : "Prodotto aggiunto",
@@ -163,28 +175,62 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoria</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+              {!useCustomCategory ? (
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex justify-between items-center">
+                        <FormLabel>Categoria</FormLabel>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">Categoria personalizzata</span>
+                          <Switch 
+                            checked={useCustomCategory} 
+                            onCheckedChange={setUseCustomCategory}
+                          />
+                        </div>
+                      </div>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona una categoria" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map(category => (
+                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <FormField
+                  control={form.control}
+                  name="customCategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex justify-between items-center">
+                        <FormLabel>Categoria personalizzata</FormLabel>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">Usa lista</span>
+                          <Switch 
+                            checked={useCustomCategory} 
+                            onCheckedChange={setUseCustomCategory}
+                          />
+                        </div>
+                      </div>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona una categoria" />
-                        </SelectTrigger>
+                        <Input {...field} placeholder="Scrivi categoria personalizzata" />
                       </FormControl>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               
               <FormField
                 control={form.control}
