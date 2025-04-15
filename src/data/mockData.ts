@@ -1,4 +1,4 @@
-import { User, Salon, UserRole, Client, Service, ServiceCategory, StaffMember } from '../types';
+import { User, Salon, UserRole, Client, Service, ServiceCategory, StaffMember, Subscription } from '../types';
 
 // Mock users for development
 export const MOCK_USERS: Record<string, User & { password: string }> = {
