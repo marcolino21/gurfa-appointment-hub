@@ -13,6 +13,14 @@ const MOCK_USERS = {
     role: 'super_admin' as UserRole,
     isActive: true
   },
+  'admin@gurfa.app': {
+    id: '4',
+    email: 'admin@gurfa.app',
+    name: 'Admin Demo',
+    password: 'password',
+    role: 'super_admin' as UserRole,
+    isActive: true
+  },
   'azienda@gurfa.com': {
     id: '2',
     email: 'azienda@gurfa.com',
