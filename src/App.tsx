@@ -17,12 +17,13 @@ import Services from "./pages/Services";
 import Subscriptions from "./pages/Subscriptions";
 import Staff from "./pages/Staff";
 import Professionals from "./pages/Professionals";
+import Expenses from "./pages/Expenses"; // Import the new Expenses page
 import WarehouseIndex from "./pages/warehouse";
 import Products from "./pages/warehouse/Products";
 import Orders from "./pages/warehouse/Orders";
 import LowStock from "./pages/warehouse/LowStock";
 import NotFound from "./pages/NotFound";
-import Communications from "./pages/Communications"; // Aggiunta della nuova pagina
+import Communications from "./pages/Communications";
 
 // Import delle pagine delle statistiche
 import StatisticsIndex from "./pages/statistics";
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="staff" element={<Staff />} />
                 <Route path="professionisti" element={<Professionals />} />
                 <Route path="comunicazioni" element={<Communications />} />
+                <Route path="spese" element={<Expenses />} /> {/* Add the new Expenses route */}
                 
                 {/* Rotte statistiche */}
                 <Route path="statistiche" element={<StatisticsIndex />} />
