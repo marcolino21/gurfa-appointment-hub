@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartIcon } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 
 interface ReportPlaceholderProps {
   title: string;
@@ -19,7 +19,7 @@ const ReportPlaceholder: React.FC<ReportPlaceholderProps> = ({ title, descriptio
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center h-60">
           <div className="mb-4 p-4 rounded-full bg-gray-100">
-            <ChartIcon className="h-8 w-8 text-gray-400" />
+            <BarChart3 className="h-8 w-8 text-gray-400" />
           </div>
           <p className="text-center text-muted-foreground">
             Questa sezione è in fase di sviluppo.<br />
