@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +18,9 @@ import {
   Receipt,
   Settings,
   ChevronDown,
-  LucideIcon
+  LucideIcon,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -28,6 +30,7 @@ interface SidebarItemProps {
   isActive?: boolean;
   hasSubmenu?: boolean;
   onClick?: () => void;
+  isCollapsed?: boolean;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ 
@@ -36,7 +39,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   href, 
   isActive = false,
   hasSubmenu = false, 
-  onClick
+  onClick,
+  isCollapsed = false
 }) => {
   return (
     <Link
@@ -46,10 +50,15 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         isActive ? "bg-blue-500 text-white hover:bg-blue-600" : "text-sidebar-foreground"
       )}
       onClick={onClick}
+      title={isCollapsed ? label : undefined}
     >
-      <Icon className="h-4 w-4" />
-      <span className="flex-1">{label}</span>
-      {hasSubmenu && <ChevronDown className="h-4 w-4" />}
+      <Icon className="h-4 w-4 flex-shrink-0" />
+      {!isCollapsed && (
+        <>
+          <span className="flex-1">{label}</span>
+          {hasSubmenu && <ChevronDown className="h-4 w-4" />}
+        </>
+      )}
     </Link>
   );
 };
@@ -58,11 +67,29 @@ const Sidebar: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
   const isSuperAdmin = user?.role === 'super_admin';
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
   return (
-    <aside className="border-r flex flex-col w-60 bg-white">
-      <div className="p-6 border-b">
-        <h2 className="text-xl font-semibold text-center">Gurfa</h2>
+    <aside className={cn(
+      "border-r flex flex-col bg-white transition-all duration-300 ease-in-out", 
+      isCollapsed ? "w-16" : "w-60"
+    )}>
+      <div className={cn(
+        "p-6 border-b flex items-center", 
+        isCollapsed ? "justify-center" : "justify-between"
+      )}>
+        {!isCollapsed && <h2 className="text-xl font-semibold">Gurfa</h2>}
+        <button 
+          onClick={toggleSidebar}
+          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+        </button>
       </div>
       
       <div className="flex-1 overflow-auto py-2">
@@ -72,6 +99,7 @@ const Sidebar: React.FC = () => {
             label="Dashboard" 
             href="/dashboard" 
             isActive={location.pathname === '/dashboard'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -79,6 +107,7 @@ const Sidebar: React.FC = () => {
             label="Appuntamenti" 
             href="/appuntamenti" 
             isActive={location.pathname === '/appuntamenti'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -86,6 +115,7 @@ const Sidebar: React.FC = () => {
             label="Rubrica Clienti" 
             href="/clienti" 
             isActive={location.pathname === '/clienti'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -93,6 +123,7 @@ const Sidebar: React.FC = () => {
             label="Servizi" 
             href="/servizi" 
             isActive={location.pathname === '/servizi'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -100,6 +131,7 @@ const Sidebar: React.FC = () => {
             label="Abbonamenti" 
             href="/abbonamenti" 
             isActive={location.pathname === '/abbonamenti'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -107,6 +139,7 @@ const Sidebar: React.FC = () => {
             label="Professionisti" 
             href="/professionisti" 
             isActive={location.pathname === '/professionisti'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -114,6 +147,7 @@ const Sidebar: React.FC = () => {
             label="Staff" 
             href="/staff" 
             isActive={location.pathname === '/staff'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -121,7 +155,8 @@ const Sidebar: React.FC = () => {
             label="Magazzino" 
             href="/magazzino" 
             isActive={location.pathname === '/magazzino'}
-            hasSubmenu
+            hasSubmenu={!isCollapsed}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -129,7 +164,8 @@ const Sidebar: React.FC = () => {
             label="Statistiche" 
             href="/statistiche" 
             isActive={location.pathname === '/statistiche'}
-            hasSubmenu
+            hasSubmenu={!isCollapsed}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -137,6 +173,7 @@ const Sidebar: React.FC = () => {
             label="Comunicazioni" 
             href="/comunicazioni" 
             isActive={location.pathname === '/comunicazioni'}
+            isCollapsed={isCollapsed}
           />
           
           <SidebarItem 
@@ -144,6 +181,7 @@ const Sidebar: React.FC = () => {
             label="Spese" 
             href="/spese" 
             isActive={location.pathname === '/spese'}
+            isCollapsed={isCollapsed}
           />
           
           {isSuperAdmin && (
@@ -153,6 +191,7 @@ const Sidebar: React.FC = () => {
                 label="Utenti" 
                 href="/utenti" 
                 isActive={location.pathname === '/utenti'}
+                isCollapsed={isCollapsed}
               />
               
               <SidebarItem 
@@ -160,6 +199,7 @@ const Sidebar: React.FC = () => {
                 label="Freelance" 
                 href="/freelance" 
                 isActive={location.pathname === '/freelance'}
+                isCollapsed={isCollapsed}
               />
             </>
           )}
@@ -169,6 +209,7 @@ const Sidebar: React.FC = () => {
             label="Impostazioni" 
             href="/impostazioni" 
             isActive={location.pathname === '/impostazioni'}
+            isCollapsed={isCollapsed}
           />
         </nav>
       </div>

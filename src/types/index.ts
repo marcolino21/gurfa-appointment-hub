@@ -31,6 +31,67 @@ export interface Appointment {
   status: 'confirmed' | 'completed' | 'cancelled' | 'pending';
 }
 
+export interface Client {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  email?: string;
+  gender: 'M' | 'F' | 'O';
+  salonId: string;
+  address?: string;
+  city?: string;
+  zipCode?: string;
+  dateOfBirth?: string;
+  height?: number;
+  weight?: number;
+  fiscalCode?: string;
+  loyaltyCode?: string;
+  notes?: string;
+  isPrivate: boolean;
+  appointmentsCount?: number;
+  lastAppointment?: string;
+  averageSpending?: number;
+  visitFrequency?: string;
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  duration: number;
+  price: number;
+  color: string;
+  salonId: string;
+  assignedStaffIds: string[];
+}
+
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  color: string;
+  salonId: string;
+}
+
+export interface StaffMember {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  additionalPhone?: string;
+  country?: string;
+  birthDate?: string;
+  position?: string;
+  color?: string;
+  salonId: string;
+  isActive: boolean;
+  showInCalendar: boolean;
+  assignedServiceIds: string[];
+  avatar?: string;
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;

@@ -12,6 +12,10 @@ import Dashboard from "./pages/Dashboard";
 import Appointments from "./pages/Appointments";
 import Users from "./pages/Users";
 import Freelance from "./pages/Freelance";
+import Clients from "./pages/Clients";
+import Services from "./pages/Services";
+import Staff from "./pages/Staff";
+import Professionals from "./pages/Professionals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +34,10 @@ const App = () => (
                 <Route index element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="appuntamenti" element={<Appointments />} />
+                <Route path="clienti" element={<Clients />} />
+                <Route path="servizi" element={<Services />} />
+                <Route path="staff" element={<Staff />} />
+                <Route path="professionisti" element={<Professionals />} />
                 <Route path="utenti" element={<Users />} />
                 <Route path="freelance" element={<Freelance />} />
                 {/* Altri percorsi da aggiungere nelle fasi future */}
