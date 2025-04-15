@@ -69,12 +69,15 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   });
 
   const handleSubmit = (data: ExpenseFormValues) => {
-    // Ensure all required fields are present when passing to onSubmit
+    // Explicitly include all required fields to satisfy TypeScript
     onSubmit({
-      ...data,
-      salonId,
-      // Convert description from possibly undefined to possibly empty string
+      name: data.name,
+      category: data.category,
+      amount: data.amount,
+      frequency: data.frequency,
+      date: data.date,
       description: data.description || "",
+      salonId,
     });
   };
 
