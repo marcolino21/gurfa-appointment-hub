@@ -17,6 +17,8 @@ import Services from "./pages/Services";
 import Subscriptions from "./pages/Subscriptions";
 import Staff from "./pages/Staff";
 import Professionals from "./pages/Professionals";
+import WarehouseIndex from "./pages/warehouse";
+import Products from "./pages/warehouse/Products";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,10 @@ const App = () => (
                 <Route path="abbonamenti" element={<Subscriptions />} />
                 <Route path="staff" element={<Staff />} />
                 <Route path="professionisti" element={<Professionals />} />
+                <Route path="magazzino" element={<WarehouseIndex />} />
+                <Route path="magazzino/prodotti" element={<Products />} />
+                <Route path="magazzino/ordini" element={<NotFound />} />
+                <Route path="magazzino/sottoscorta" element={<NotFound />} />
                 <Route path="utenti" element={<Users />} />
                 <Route path="freelance" element={<Freelance />} />
                 {/* Altri percorsi da aggiungere nelle fasi future */}
