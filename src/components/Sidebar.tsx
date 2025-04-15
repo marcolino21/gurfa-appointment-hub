@@ -20,7 +20,8 @@ import {
   ChevronDown,
   LucideIcon,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CreditCard
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -127,7 +128,7 @@ const Sidebar: React.FC = () => {
           />
           
           <SidebarItem 
-            icon={Clock} 
+            icon={CreditCard} 
             label="Abbonamenti" 
             href="/abbonamenti" 
             isActive={location.pathname === '/abbonamenti'}

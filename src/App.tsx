@@ -14,6 +14,7 @@ import Users from "./pages/Users";
 import Freelance from "./pages/Freelance";
 import Clients from "./pages/Clients";
 import Services from "./pages/Services";
+import Subscriptions from "./pages/Subscriptions";
 import Staff from "./pages/Staff";
 import Professionals from "./pages/Professionals";
 import NotFound from "./pages/NotFound";
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="appuntamenti" element={<Appointments />} />
                 <Route path="clienti" element={<Clients />} />
                 <Route path="servizi" element={<Services />} />
+                <Route path="abbonamenti" element={<Subscriptions />} />
                 <Route path="staff" element={<Staff />} />
                 <Route path="professionisti" element={<Professionals />} />
                 <Route path="utenti" element={<Users />} />
