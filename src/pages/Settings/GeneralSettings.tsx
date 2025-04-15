@@ -11,9 +11,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const GeneralSettings = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [calendarType, setCalendarType] = React.useState("scorrimento");
   
   return (
     <div className="space-y-8">
@@ -93,10 +95,12 @@ const GeneralSettings = () => {
                     className="w-full h-auto" 
                   />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="scorrimento" id="scorrimento" checked />
-                  <Label htmlFor="scorrimento">Calendario a Scorrimento</Label>
-                </div>
+                <RadioGroup value={calendarType} onValueChange={setCalendarType}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="scorrimento" id="scorrimento" />
+                    <Label htmlFor="scorrimento">Calendario a Scorrimento</Label>
+                  </div>
+                </RadioGroup>
               </div>
               
               <div className="border rounded-md p-4 flex flex-col items-center">
@@ -107,10 +111,12 @@ const GeneralSettings = () => {
                     className="w-full h-auto" 
                   />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="mensile" id="mensile" />
-                  <Label htmlFor="mensile">Calendario Mensile</Label>
-                </div>
+                <RadioGroup value={calendarType} onValueChange={setCalendarType}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="mensile" id="mensile" />
+                    <Label htmlFor="mensile">Calendario Mensile</Label>
+                  </div>
+                </RadioGroup>
               </div>
             </div>
           </CardContent>
