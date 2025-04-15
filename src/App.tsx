@@ -17,7 +17,8 @@ import Services from "./pages/Services";
 import Subscriptions from "./pages/Subscriptions";
 import Staff from "./pages/Staff";
 import Professionals from "./pages/Professionals";
-import Expenses from "./pages/Expenses"; // Import the new Expenses page
+import Expenses from "./pages/Expenses";
+import Settings from "./pages/Settings"; // Import the new Settings page
 import WarehouseIndex from "./pages/warehouse";
 import Products from "./pages/warehouse/Products";
 import Orders from "./pages/warehouse/Orders";
@@ -54,7 +55,8 @@ const App = () => (
                 <Route path="staff" element={<Staff />} />
                 <Route path="professionisti" element={<Professionals />} />
                 <Route path="comunicazioni" element={<Communications />} />
-                <Route path="spese" element={<Expenses />} /> {/* Add the new Expenses route */}
+                <Route path="spese" element={<Expenses />} />
+                <Route path="impostazioni" element={<Settings />} /> {/* Add the new Settings route */}
                 
                 {/* Rotte statistiche */}
                 <Route path="statistiche" element={<StatisticsIndex />} />

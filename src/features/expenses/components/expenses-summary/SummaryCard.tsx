@@ -7,6 +7,8 @@ interface SummaryCardProps {
   value: string | number;
   icon: ReactNode;
   valueClassName?: string;
+  bgColor?: string;
+  iconClassName?: string;
 }
 
 export const SummaryCard: React.FC<SummaryCardProps> = ({
@@ -14,16 +16,18 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   value,
   icon,
   valueClassName = '',
+  bgColor = 'bg-white',
+  iconClassName = 'bg-primary-50',
 }) => {
   return (
-    <Card>
+    <Card className={bgColor}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
             <h3 className={`text-2xl font-bold ${valueClassName}`}>{value}</h3>
           </div>
-          <div className="h-12 w-12 rounded-lg bg-opacity-20 flex items-center justify-center">
+          <div className={`h-12 w-12 rounded-lg ${iconClassName} flex items-center justify-center`}>
             {icon}
           </div>
         </div>
