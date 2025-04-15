@@ -69,9 +69,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   });
 
   const handleSubmit = (data: ExpenseFormValues) => {
+    // Ensure all required fields are present when passing to onSubmit
     onSubmit({
       ...data,
       salonId,
+      // Convert description from possibly undefined to possibly empty string
+      description: data.description || "",
     });
   };
 
