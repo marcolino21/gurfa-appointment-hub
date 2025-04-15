@@ -1,41 +1,44 @@
 
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { format } from "date-fns";
 
 const GeneralSettings = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [activityType, setActivityType] = React.useState("unisex");
   const [calendarType, setCalendarType] = React.useState("scorrimento");
   
+  // Placeholder for future activity types
+  const activityTypes = [
+    { value: "unisex", label: "Unisex" },
+    { value: "uomo", label: "Uomo" },
+    { value: "donna", label: "Donna" },
+    // Add more activity types as needed
+  ];
+
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Tipo di salone</h2>
+        <h2 className="text-xl font-semibold">Tipo di attività</h2>
         <Card>
           <CardContent className="p-6">
-            <RadioGroup defaultValue="unisex" className="flex flex-wrap gap-6">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="unisex" id="unisex" />
-                <Label htmlFor="unisex">Unisex</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="uomo" id="uomo" />
-                <Label htmlFor="uomo">Uomo</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="donna" id="donna" />
-                <Label htmlFor="donna">Donna</Label>
-              </div>
+            <RadioGroup 
+              value={activityType} 
+              onValueChange={setActivityType} 
+              className="flex flex-wrap gap-6"
+            >
+              {activityTypes.map((type) => (
+                <div key={type.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={type.value} id={type.value} />
+                  <Label htmlFor={type.value}>{type.label}</Label>
+                </div>
+              ))}
             </RadioGroup>
           </CardContent>
         </Card>
