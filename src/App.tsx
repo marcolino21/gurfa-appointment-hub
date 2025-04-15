@@ -22,6 +22,7 @@ import Products from "./pages/warehouse/Products";
 import Orders from "./pages/warehouse/Orders";
 import LowStock from "./pages/warehouse/LowStock";
 import NotFound from "./pages/NotFound";
+import Communications from "./pages/Communications"; // Aggiunta della nuova pagina
 
 // Import delle pagine delle statistiche
 import StatisticsIndex from "./pages/statistics";
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="abbonamenti" element={<Subscriptions />} />
                 <Route path="staff" element={<Staff />} />
                 <Route path="professionisti" element={<Professionals />} />
+                <Route path="comunicazioni" element={<Communications />} />
                 
                 {/* Rotte statistiche */}
                 <Route path="statistiche" element={<StatisticsIndex />} />
