@@ -19,9 +19,9 @@ import { Plus, Search, Receipt } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Expense } from '@/features/expenses/types';
 import { useExpensesData } from '@/features/expenses/hooks/useExpensesData';
-import { ExpensesTable } from '@/features/expenses/components/ExpensesTable';
+import { ExpensesTable } from '@/features/expenses/components/expenses-table';
 import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
-import { ExpensesSummary } from '@/features/expenses/components/ExpensesSummary';
+import { ExpensesSummary } from '@/features/expenses/components/expenses-summary';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Expenses: React.FC = () => {
