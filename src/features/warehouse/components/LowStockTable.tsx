@@ -76,8 +76,8 @@ export const LowStockTable: React.FC<LowStockTableProps> = ({ products }) => {
                 <TableCell>€ {product.price.toFixed(2)}</TableCell>
                 <TableCell>
                   <StockIndicator 
-                    stockQuantity={product.stockQuantity} 
-                    lowStockThreshold={product.lowStockThreshold || 0} 
+                    quantity={product.stockQuantity} 
+                    threshold={product.lowStockThreshold || 0} 
                   />
                 </TableCell>
                 <TableCell className="text-right">

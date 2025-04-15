@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -16,11 +15,13 @@ import { toast } from '@/hooks/use-toast';
 interface CsvImportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onImportSuccess?: (updatedProducts: any[]) => void;
 }
 
 export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   open,
   onOpenChange,
+  onImportSuccess,
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -83,6 +84,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
         title: "Importazione completata",
         description: `${file.name} è stato importato con successo.`,
       });
+      
+      // Call the onImportSuccess callback if provided
+      if (onImportSuccess) {
+        // Mock updated products data
+        const mockUpdatedProducts = [
+          { id: 'p1', name: 'Product 1', stockQuantity: 25 },
+          { id: 'p2', name: 'Product 2', stockQuantity: 30 }
+        ];
+        onImportSuccess(mockUpdatedProducts);
+      }
       
       // Reset after success
       setTimeout(() => {
