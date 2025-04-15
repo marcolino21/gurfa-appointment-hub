@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -103,8 +102,20 @@ const Clients = () => {
 
     const newClient: Client = {
       id: `c${Math.random().toString(36).substr(2, 9)}`,
-      ...data,
-      salonId: currentSalonId
+      firstName: data.firstName,
+      lastName: data.lastName,
+      gender: data.gender,
+      isPrivate: data.isPrivate,
+      salonId: currentSalonId,
+      phone: data.phone,
+      email: data.email,
+      address: data.address,
+      city: data.city,
+      zipCode: data.zipCode,
+      dateOfBirth: data.dateOfBirth,
+      fiscalCode: data.fiscalCode,
+      loyaltyCode: data.loyaltyCode,
+      notes: data.notes,
     };
 
     setClients([...clients, newClient]);
@@ -120,7 +131,22 @@ const Clients = () => {
     if (!selectedClient) return;
 
     const updatedClients = clients.map(client => 
-      client.id === selectedClient.id ? { ...client, ...data } : client
+      client.id === selectedClient.id ? { 
+        ...client,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        gender: data.gender,
+        isPrivate: data.isPrivate,
+        phone: data.phone,
+        email: data.email,
+        address: data.address,
+        city: data.city,
+        zipCode: data.zipCode,
+        dateOfBirth: data.dateOfBirth,
+        fiscalCode: data.fiscalCode,
+        loyaltyCode: data.loyaltyCode,
+        notes: data.notes,
+      } : client
     );
 
     setClients(updatedClients);

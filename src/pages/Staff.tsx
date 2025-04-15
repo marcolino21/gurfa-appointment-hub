@@ -110,10 +110,23 @@ const Staff = () => {
   const handleAddStaff = (data: StaffFormValues) => {
     if (!currentSalonId) return;
 
+    // Create staff with required fields explicitly defined
     const newStaff: StaffMember = {
       id: `staff${Math.random().toString(36).substr(2, 9)}`,
-      ...data,
-      salonId: currentSalonId
+      firstName: data.firstName,
+      lastName: data.lastName || '', // Ensure it's never undefined
+      email: data.email,
+      isActive: data.isActive,
+      showInCalendar: data.showInCalendar, 
+      salonId: currentSalonId,
+      // Optional fields
+      phone: data.phone,
+      additionalPhone: data.additionalPhone,
+      country: data.country,
+      birthDate: data.birthDate,
+      position: data.position, 
+      color: data.color,
+      assignedServiceIds: data.assignedServiceIds,
     };
 
     setStaffMembers([...staffMembers, newStaff]);
@@ -129,7 +142,21 @@ const Staff = () => {
     if (!selectedStaff) return;
 
     const updatedStaff = staffMembers.map(staff => 
-      staff.id === selectedStaff.id ? { ...staff, ...data } : staff
+      staff.id === selectedStaff.id ? {
+        ...staff,
+        firstName: data.firstName,
+        lastName: data.lastName || '',
+        email: data.email,
+        isActive: data.isActive,
+        showInCalendar: data.showInCalendar,
+        phone: data.phone,
+        additionalPhone: data.additionalPhone,
+        country: data.country,
+        birthDate: data.birthDate,
+        position: data.position,
+        color: data.color,
+        assignedServiceIds: data.assignedServiceIds,
+      } : staff
     );
 
     setStaffMembers(updatedStaff);

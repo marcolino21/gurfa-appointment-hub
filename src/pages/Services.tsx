@@ -106,10 +106,18 @@ const Services = () => {
   const handleAddService = (data: ServiceFormValues) => {
     if (!currentSalonId) return;
 
+    // Create service with required fields explicitly defined
     const newService: Service = {
       id: `s${Math.random().toString(36).substr(2, 9)}`,
-      ...data,
-      salonId: currentSalonId
+      name: data.name,
+      category: data.category, 
+      duration: data.duration,
+      price: data.price,
+      color: data.color,
+      salonId: currentSalonId,
+      // Optional fields
+      description: data.description,
+      assignedStaffIds: data.assignedStaffIds,
     };
 
     setServices([...services, newService]);
@@ -125,7 +133,16 @@ const Services = () => {
     if (!selectedService) return;
 
     const updatedServices = services.map(service => 
-      service.id === selectedService.id ? { ...service, ...data } : service
+      service.id === selectedService.id ? { 
+        ...service,
+        name: data.name,
+        category: data.category,
+        duration: data.duration,
+        price: data.price,
+        color: data.color,
+        description: data.description,
+        assignedStaffIds: data.assignedStaffIds,
+      } : service
     );
 
     setServices(updatedServices);
