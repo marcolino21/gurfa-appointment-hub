@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
@@ -52,16 +53,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Navigation: ({ onPreviousClick, onNextClick, className }) => (
-          <div className={cn(className, "flex items-center")}>
-            <button onClick={onPreviousClick} className={buttonVariants({ variant: "outline" })}>
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button onClick={onNextClick} className={buttonVariants({ variant: "outline" })}>
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )
+        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
+        IconRight: () => <ChevronRight className="h-4 w-4" />
       }}
       {...props}
     />
