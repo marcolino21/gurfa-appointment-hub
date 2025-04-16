@@ -1,12 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { StaffMember, Service } from '@/types';
 import { MOCK_STAFF, MOCK_SERVICES } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 import { StaffFormValues, WorkScheduleDay } from '../types';
 
+// Create a global variable to persist staff data across page navigations
+if (!window.globalStaffData) {
+  window.globalStaffData = { ...MOCK_STAFF };
+}
+
 export const useStaffData = (salonId: string | null) => {
+  // Use the global variable for initial state instead of directly from MOCK_STAFF
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(
-    salonId ? MOCK_STAFF[salonId] || [] : []
+    salonId ? window.globalStaffData[salonId] || [] : []
   );
   const [services, setServices] = useState<Service[]>(
     salonId ? MOCK_SERVICES[salonId] || [] : []
@@ -16,7 +23,7 @@ export const useStaffData = (salonId: string | null) => {
   // Aggiorna i membri dello staff quando cambia il salonId
   useEffect(() => {
     if (salonId) {
-      setStaffMembers(MOCK_STAFF[salonId] || []);
+      setStaffMembers(window.globalStaffData[salonId] || []);
       setServices(MOCK_SERVICES[salonId] || []);
     }
   }, [salonId]);
@@ -60,14 +67,20 @@ export const useStaffData = (salonId: string | null) => {
 
     console.log("New staff object:", newStaff);
 
-    // Update local state and mock data
+    // Update local state 
     setStaffMembers(prev => [...prev, newStaff]);
     
-    // Update mock data for persistence between pages
+    // Update both our global variable AND the MOCK_STAFF for persistence
+    if (!window.globalStaffData[effectiveSalonId]) {
+      window.globalStaffData[effectiveSalonId] = [];
+    }
+    window.globalStaffData[effectiveSalonId] = [...window.globalStaffData[effectiveSalonId], newStaff];
+    
+    // Also update the original MOCK_STAFF for compatibility
     if (!MOCK_STAFF[effectiveSalonId]) {
       MOCK_STAFF[effectiveSalonId] = [];
     }
-    MOCK_STAFF[effectiveSalonId] = [...MOCK_STAFF[effectiveSalonId], newStaff];
+    MOCK_STAFF[effectiveSalonId] = [...window.globalStaffData[effectiveSalonId]];
     
     toast({
       title: 'Membro dello staff aggiunto',
@@ -116,10 +129,12 @@ export const useStaffData = (salonId: string | null) => {
       } : staff
     );
 
+    // Update local state
     setStaffMembers(updatedStaff);
     
-    // Update mock data for persistence
-    if (salonId && MOCK_STAFF[salonId]) {
+    // Update both global variable and MOCK_STAFF
+    if (salonId) {
+      window.globalStaffData[salonId] = updatedStaff;
       MOCK_STAFF[salonId] = updatedStaff;
     }
     
@@ -131,10 +146,13 @@ export const useStaffData = (salonId: string | null) => {
 
   const deleteStaff = (staffId: string) => {
     const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
+    
+    // Update local state
     setStaffMembers(updatedStaff);
     
-    // Aggiorniamo anche il mock data
-    if (salonId && MOCK_STAFF[salonId]) {
+    // Update both global variable and MOCK_STAFF
+    if (salonId) {
+      window.globalStaffData[salonId] = updatedStaff;
       MOCK_STAFF[salonId] = updatedStaff;
     }
     
@@ -148,10 +166,13 @@ export const useStaffData = (salonId: string | null) => {
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, isActive } : staff
     );
+    
+    // Update local state
     setStaffMembers(updatedStaff);
     
-    // Aggiorniamo anche il mock data
-    if (salonId && MOCK_STAFF[salonId]) {
+    // Update both global variable and MOCK_STAFF
+    if (salonId) {
+      window.globalStaffData[salonId] = updatedStaff;
       MOCK_STAFF[salonId] = updatedStaff;
     }
     
@@ -165,10 +186,13 @@ export const useStaffData = (salonId: string | null) => {
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, showInCalendar } : staff
     );
+    
+    // Update local state
     setStaffMembers(updatedStaff);
     
-    // Aggiorniamo anche il mock data
-    if (salonId && MOCK_STAFF[salonId]) {
+    // Update both global variable and MOCK_STAFF
+    if (salonId) {
+      window.globalStaffData[salonId] = updatedStaff;
       MOCK_STAFF[salonId] = updatedStaff;
     }
     
@@ -188,3 +212,10 @@ export const useStaffData = (salonId: string | null) => {
     toggleCalendarVisibility,
   };
 };
+
+// Add a type declaration for our global variable
+declare global {
+  interface Window {
+    globalStaffData: Record<string, StaffMember[]>;
+  }
+}
