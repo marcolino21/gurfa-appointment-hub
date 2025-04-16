@@ -10,7 +10,8 @@ export const initialState: AppointmentState = {
   filters: {
     status: null,
     dateRange: [null, null],
-    search: ''
+    staffId: null,
+    search: null
   },
   currentAppointment: null
 };

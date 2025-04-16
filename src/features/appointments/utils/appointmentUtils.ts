@@ -94,12 +94,17 @@ export const MOCK_APPOINTMENTS = generateMockAppointments();
 
 // Function to filter appointments
 export const filterAppointments = (filters: AppointmentState['filters']) => (appointment: Appointment): boolean => {
-  // Filtra per stato
+  // Filter by status
   if (filters.status && filters.status !== 'all' && appointment.status !== filters.status) {
     return false;
   }
 
-  // Filtra per intervallo di date
+  // Filter by staff member
+  if (filters.staffId && appointment.staffId !== filters.staffId) {
+    return false;
+  }
+
+  // Filter by date range
   const [startDate, endDate] = filters.dateRange;
   const appointmentDate = new Date(appointment.start);
 
@@ -108,7 +113,7 @@ export const filterAppointments = (filters: AppointmentState['filters']) => (app
   }
 
   if (endDate) {
-    // Imposta endDate a fine giornata per inclusività
+    // Set endDate to end of day for inclusivity
     const endOfDay = new Date(endDate);
     endOfDay.setHours(23, 59, 59, 999);
     if (appointmentDate > endOfDay) {
@@ -116,7 +121,7 @@ export const filterAppointments = (filters: AppointmentState['filters']) => (app
     }
   }
 
-  // Filtra per testo di ricerca
+  // Filter by search term (client name, service, notes)
   if (filters.search) {
     const searchLower = filters.search.toLowerCase();
     return (

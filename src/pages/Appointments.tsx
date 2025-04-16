@@ -33,7 +33,7 @@ const Appointments: React.FC = () => {
   // Apply filters when search term or status filter changes
   useEffect(() => {
     setFilters({
-      search: searchTerm,
+      search: searchTerm || null,
       status: statusFilter === 'all' ? null : statusFilter
     });
   }, [searchTerm, statusFilter, setFilters]);
