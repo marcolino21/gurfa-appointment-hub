@@ -35,12 +35,14 @@ const Staff = () => {
   });
 
   const handleAddStaff = (data: StaffFormValues) => {
+    console.log("Aggiunta nuovo membro dello staff:", data);
     addStaff(data);
     setIsAddDialogOpen(false);
   };
 
   const handleEditStaff = (data: StaffFormValues) => {
     if (selectedStaff) {
+      console.log("Modifica membro dello staff:", data);
       editStaff(selectedStaff.id, data);
       setIsEditDialogOpen(false);
     }

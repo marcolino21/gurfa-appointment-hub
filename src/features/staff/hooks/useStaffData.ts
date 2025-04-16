@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StaffMember, Service } from '@/types';
 import { MOCK_STAFF, MOCK_SERVICES } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
@@ -14,17 +14,35 @@ export const useStaffData = (salonId: string | null) => {
   );
   const { toast } = useToast();
 
+  // Aggiorna i membri dello staff quando cambia il salonId
+  useEffect(() => {
+    if (salonId) {
+      setStaffMembers(MOCK_STAFF[salonId] || []);
+      setServices(MOCK_SERVICES[salonId] || []);
+    }
+  }, [salonId]);
+
   const addStaff = (data: StaffFormValues) => {
-    if (!salonId) return;
+    if (!salonId) {
+      console.error("Errore: salonId non definito");
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiungere il membro dello staff: salonId non definito',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    console.log("Adding staff with data:", data);
 
     // Ensure workSchedule days and isWorking are properly defined
     const workSchedule: WorkScheduleDay[] = data.workSchedule.map(day => ({
       day: day.day,
       isWorking: Boolean(day.isWorking),
-      startTime: day.startTime,
-      endTime: day.endTime,
-      breakStart: day.breakStart,
-      breakEnd: day.breakEnd,
+      startTime: day.startTime || '',
+      endTime: day.endTime || '',
+      breakStart: day.breakStart || '',
+      breakEnd: day.breakEnd || '',
     }));
 
     // Create staff with required fields explicitly defined
@@ -33,19 +51,21 @@ export const useStaffData = (salonId: string | null) => {
       firstName: data.firstName,
       lastName: data.lastName || '', // Ensure it's never undefined
       email: data.email,
-      isActive: data.isActive,
-      showInCalendar: data.showInCalendar, 
+      isActive: Boolean(data.isActive),
+      showInCalendar: Boolean(data.showInCalendar), 
       salonId: salonId,
       // Optional fields
-      phone: data.phone,
-      additionalPhone: data.additionalPhone,
-      country: data.country,
-      birthDate: data.birthDate,
-      position: data.position, 
-      color: data.color,
-      assignedServiceIds: data.assignedServiceIds,
+      phone: data.phone || '',
+      additionalPhone: data.additionalPhone || '',
+      country: data.country || 'Italia',
+      birthDate: data.birthDate || '',
+      position: data.position || '', 
+      color: data.color || '#9b87f5',
+      assignedServiceIds: Array.isArray(data.assignedServiceIds) ? data.assignedServiceIds : [],
       workSchedule: workSchedule,
     };
+
+    console.log("New staff object:", newStaff);
 
     // Update local state and mock data
     setStaffMembers(prev => [...prev, newStaff]);
@@ -66,14 +86,23 @@ export const useStaffData = (salonId: string | null) => {
   };
 
   const editStaff = (staffId: string, data: StaffFormValues) => {
+    if (!salonId) {
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare il membro dello staff: salonId non definito',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     // Ensure workSchedule days and isWorking are properly defined
     const workSchedule: WorkScheduleDay[] = data.workSchedule.map(day => ({
       day: day.day,
       isWorking: Boolean(day.isWorking),
-      startTime: day.startTime,
-      endTime: day.endTime,
-      breakStart: day.breakStart,
-      breakEnd: day.breakEnd,
+      startTime: day.startTime || '',
+      endTime: day.endTime || '',
+      breakStart: day.breakStart || '',
+      breakEnd: day.breakEnd || '',
     }));
 
     const updatedStaff = staffMembers.map(staff => 
@@ -82,15 +111,15 @@ export const useStaffData = (salonId: string | null) => {
         firstName: data.firstName,
         lastName: data.lastName || '',
         email: data.email,
-        isActive: data.isActive,
-        showInCalendar: data.showInCalendar,
-        phone: data.phone,
-        additionalPhone: data.additionalPhone,
-        country: data.country,
-        birthDate: data.birthDate,
-        position: data.position,
-        color: data.color,
-        assignedServiceIds: data.assignedServiceIds,
+        isActive: Boolean(data.isActive),
+        showInCalendar: Boolean(data.showInCalendar),
+        phone: data.phone || '',
+        additionalPhone: data.additionalPhone || '',
+        country: data.country || 'Italia',
+        birthDate: data.birthDate || '',
+        position: data.position || '',
+        color: data.color || '#9b87f5',
+        assignedServiceIds: Array.isArray(data.assignedServiceIds) ? data.assignedServiceIds : [],
         workSchedule: workSchedule,
       } : staff
     );

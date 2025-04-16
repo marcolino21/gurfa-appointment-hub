@@ -56,6 +56,21 @@ const StaffDialogs: React.FC<StaffDialogsProps> = ({
           <StaffForm 
             services={services}
             onSubmit={onAddStaff}
+            defaultValues={{
+              firstName: '',
+              lastName: '',
+              email: '',
+              phone: '',
+              additionalPhone: '',
+              country: 'Italia',
+              birthDate: '',
+              position: '',
+              color: '#9b87f5',
+              isActive: true,
+              showInCalendar: true,
+              assignedServiceIds: [],
+              workSchedule: defaultWorkSchedule,
+            }}
           />
         </DialogContent>
       </Dialog>
