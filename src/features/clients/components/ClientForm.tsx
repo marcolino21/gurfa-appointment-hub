@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Form,
   FormControl,
@@ -13,13 +13,15 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Link } from 'react-router-dom';
 import { UseFormReturn } from 'react-hook-form';
 import { ClientFormValues } from '../types';
 import { Textarea } from '@/components/ui/textarea';
+import { Link2 } from 'lucide-react';
 
 interface ClientFormProps {
   clientForm: UseFormReturn<ClientFormValues>;
-  onSubmit: (data: ClientFormValues) => void;
+  onSubmit: (data: ClientFormValues, createProject?: boolean) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   selectedClient: any | null;
@@ -34,10 +36,16 @@ const ClientForm: React.FC<ClientFormProps> = ({
 }) => {
   // Get the current value of isPrivate to conditionally render fields
   const isPrivate = clientForm.watch('isPrivate');
+  const [connectProject, setConnectProject] = useState(false);
+  
+  const handleSubmit = (data: ClientFormValues) => {
+    onSubmit(data, connectProject);
+    setConnectProject(false);
+  };
   
   return (
     <Form {...clientForm}>
-      <form onSubmit={clientForm.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={clientForm.handleSubmit(handleSubmit)} className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-1 md:grid-cols-2">
             <TabsTrigger value="dati-personali">Dati Personali</TabsTrigger>
@@ -363,11 +371,23 @@ const ClientForm: React.FC<ClientFormProps> = ({
           </TabsContent>
         </Tabs>
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="outline">Annulla</Button>
-          </DialogClose>
-          <Button type="submit">{selectedClient ? 'Salva modifiche' : 'Aggiungi cliente'}</Button>
+        <DialogFooter className="flex justify-between">
+          <Button 
+            type="button" 
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => setConnectProject(true)}
+          >
+            <Link2 size={16} />
+            Collega Progetto
+          </Button>
+          
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">Annulla</Button>
+            </DialogClose>
+            <Button type="submit">{selectedClient ? 'Salva modifiche' : 'Aggiungi cliente'}</Button>
+          </div>
         </DialogFooter>
       </form>
     </Form>

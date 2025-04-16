@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
   CardContent, 
@@ -25,6 +26,7 @@ import { useClientsData } from '@/features/clients/hooks/useClientsData';
 import { clientSchema, ClientFormValues } from '@/features/clients/types';
 
 const Clients = () => {
+  const navigate = useNavigate();
   const {
     filteredClients,
     searchTerm,
@@ -88,6 +90,17 @@ const Clients = () => {
     });
     setActiveTab('dati-personali');
     setIsEditDialogOpen(true);
+  };
+  
+  const handleAddClientSubmit = (data: ClientFormValues, createProject?: boolean) => {
+    const newClient = handleAddClient(data);
+    setIsAddDialogOpen(false);
+    clientForm.reset();
+    
+    // If createProject is true, navigate to the project creation page with client ID
+    if (createProject && newClient) {
+      navigate(`/progetti/nuovo?clientId=${newClient.id}`);
+    }
   };
 
   return (
@@ -153,11 +166,7 @@ const Clients = () => {
           </DialogHeader>
           <ClientForm
             clientForm={clientForm}
-            onSubmit={(data) => {
-              handleAddClient(data);
-              setIsAddDialogOpen(false);
-              clientForm.reset();
-            }}
+            onSubmit={handleAddClientSubmit}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             selectedClient={null}
