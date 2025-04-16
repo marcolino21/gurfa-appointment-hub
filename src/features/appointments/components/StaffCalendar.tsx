@@ -34,7 +34,10 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const resources = staffMembers.map(staff => ({
     id: staff.id,
     title: `${staff.firstName} ${staff.lastName}`,
-    color: staff.color
+    color: staff.color,
+    extendedProps: {
+      color: staff.color
+    }
   }));
 
   // Quando non ci sono membri dello staff visibili
@@ -112,7 +115,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           }}
           viewDidMount={(arg) => {
             // Rimuove le date dai nomi delle colonne per sostituirle con i nomi dello staff
-            if (view !== 'dayGridMonth') {
+            // Corretto il controllo per evitare errori di tipo: view === 'timeGridDay' || view === 'timeGridWeek'
+            if (view === 'timeGridDay' || view === 'timeGridWeek') {
               const headerCells = document.querySelectorAll('.fc-col-header-cell');
               headerCells.forEach((cell: any) => {
                 // Rimuove completamente la data dalla cella dell'intestazione
