@@ -3,13 +3,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { StaffMember } from '@/types';
 
-// Use the global staff data if available
-declare global {
-  interface Window {
-    globalStaffData?: Record<string, StaffMember[]>;
-  }
-}
-
 export const useStaffAppointments = () => {
   const { currentSalonId } = useAuth();
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);

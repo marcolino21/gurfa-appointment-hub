@@ -1,16 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
 import { MOCK_STAFF } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-
-// Access the global staff data
-declare global {
-  interface Window {
-    globalStaffData?: Record<string, StaffMember[]>;
-  }
-}
 
 export const useProfessionalsData = (salonId: string | null) => {
   const globalStaffData = window.globalStaffData || MOCK_STAFF;
