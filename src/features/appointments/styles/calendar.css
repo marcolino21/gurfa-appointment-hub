@@ -2,7 +2,8 @@
 /* Stili per il calendario personalizzato */
 
 /* Staff header with initials and name */
-.staff-header-content {
+.staff-header-content,
+.staff-footer-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,6 +43,18 @@
   text-overflow: ellipsis;
 }
 
+/* Staff column footer */
+.staff-column-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #f8f9fa;
+  border-top: 1px solid #ddd;
+  z-index: 3;
+  padding: 4px 0;
+}
+
 /* Nasconde le date nelle intestazioni quando usiamo la vista risorse */
 .fc-timegrid-slot-label-frame {
   text-align: right;
@@ -54,6 +67,7 @@
 /* Aggiunge un bordo sottile tra le colonne per migliorare la separazione visiva */
 .fc-timegrid-col, .fc-daygrid-day {
   border-left: 1px solid #f0f0f0 !important;
+  position: relative; /* For absolute positioning of the footer */
 }
 
 /* Migliora l'aspetto degli eventi sul calendario */
