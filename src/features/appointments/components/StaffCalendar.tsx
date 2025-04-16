@@ -30,13 +30,23 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const calendarRef = useRef<any>(null);
   const { toast } = useToast();
 
+  // Get initials for each staff member
+  const getInitials = (firstName: string, lastName: string) => {
+    const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
+    const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
+    return `${firstInitial}${lastInitial}`;
+  };
+
   // Preparazione delle risorse (staff) per il calendario
   const resources = staffMembers.map(staff => ({
     id: staff.id,
     title: `${staff.firstName} ${staff.lastName}`,
     color: staff.color,
     extendedProps: {
-      color: staff.color
+      color: staff.color,
+      initials: getInitials(staff.firstName, staff.lastName),
+      firstName: staff.firstName,
+      lastName: staff.lastName
     }
   }));
 
@@ -100,29 +110,45 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           eventDrop={onEventDrop}
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
           resourceLabelDidMount={({ el, resource }) => {
-            // Sostituiamo il testo delle intestazioni con i nomi dello staff
-            el.innerText = resource.title || '';
+            const resourceData = resource.extendedProps as { 
+              color?: string,
+              initials?: string,
+              firstName?: string,
+              lastName?: string
+            } || {};
             
-            // Aggiunge stile all'intestazione
+            // Create a custom header layout with initials and name
+            const headerContent = document.createElement('div');
+            headerContent.className = 'staff-header-content';
+            
+            // Add initials circle
+            const initialsCircle = document.createElement('div');
+            initialsCircle.className = 'staff-initials-circle';
+            initialsCircle.innerText = resourceData.initials || '';
+            initialsCircle.style.backgroundColor = resourceData.color || '#9b87f5';
+            
+            // Add staff name div
+            const staffName = document.createElement('div');
+            staffName.className = 'staff-name';
+            staffName.innerText = `${resourceData.firstName || ''} ${resourceData.lastName || ''}`;
+            
+            // Append elements
+            headerContent.appendChild(initialsCircle);
+            headerContent.appendChild(staffName);
+            
+            // Clear existing content and add our custom content
+            el.innerHTML = '';
+            el.appendChild(headerContent);
             el.classList.add('fc-staff-header');
-            
-            // Aggiunge un colore di sfondo basato sul colore dello staff
-            // Type assertion to access custom properties
-            const resourceWithColor = resource.extendedProps as { color?: string } || {};
-            if (resourceWithColor.color) {
-              el.style.borderLeft = `3px solid ${resourceWithColor.color}`;
-            }
           }}
           viewDidMount={(arg) => {
             // Rimuove le date dai nomi delle colonne per sostituirle con i nomi dello staff
-            // Corretto il controllo per evitare errori di tipo: view === 'timeGridDay' || view === 'timeGridWeek'
             if (view === 'timeGridDay' || view === 'timeGridWeek') {
               const headerCells = document.querySelectorAll('.fc-col-header-cell');
               headerCells.forEach((cell: any) => {
                 // Rimuove completamente la data dalla cella dell'intestazione
                 const staffHeader = cell.querySelector('.fc-staff-header');
                 if (staffHeader) {
-                  // Sostituisci l'intero contenuto con il nome dello staff
                   cell.querySelector('.fc-scrollgrid-sync-inner').innerHTML = '';
                   cell.querySelector('.fc-scrollgrid-sync-inner').appendChild(staffHeader);
                 }
