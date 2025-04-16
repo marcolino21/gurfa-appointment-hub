@@ -1,4 +1,3 @@
-
 import { useToast } from '@/hooks/use-toast';
 import { Service } from '@/types';
 import { ServiceFormValues } from '../types';
@@ -29,6 +28,7 @@ export const useServiceOperations = (
       color: data.color,
       salonId: currentSalonId,
       assignedStaffIds: data.assignedStaffIds || [],
+      assignedServiceIds: [],
       // Optional fields
       description: data.description,
     };
@@ -55,6 +55,8 @@ export const useServiceOperations = (
         color: data.color,
         description: data.description,
         assignedStaffIds: data.assignedStaffIds,
+        // Keep the existing assignedServiceIds
+        assignedServiceIds: service.assignedServiceIds,
       } : service
     );
 

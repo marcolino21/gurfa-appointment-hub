@@ -151,7 +151,8 @@ export const MOCK_SERVICES: Record<string, Service[]> = {
       price: 25,
       color: '#9b87f5',
       salonId: 'sa1',
-      assignedStaffIds: ['staff1', 'staff2']
+      assignedStaffIds: ['staff1', 'staff2'],
+      assignedServiceIds: []
     },
     {
       id: 's2',
@@ -163,7 +164,8 @@ export const MOCK_SERVICES: Record<string, Service[]> = {
       price: 35,
       color: '#9b87f5',
       salonId: 'sa1',
-      assignedStaffIds: ['staff1', 'staff3']
+      assignedStaffIds: ['staff1', 'staff3'],
+      assignedServiceIds: []
     },
     {
       id: 's3',
@@ -175,7 +177,8 @@ export const MOCK_SERVICES: Record<string, Service[]> = {
       price: 50,
       color: '#F97316',
       salonId: 'sa1',
-      assignedStaffIds: ['staff3']
+      assignedStaffIds: ['staff3'],
+      assignedServiceIds: []
     },
     {
       id: 's4',
@@ -187,7 +190,8 @@ export const MOCK_SERVICES: Record<string, Service[]> = {
       price: 20,
       color: '#D946EF',
       salonId: 'sa1',
-      assignedStaffIds: ['staff4']
+      assignedStaffIds: ['staff4'],
+      assignedServiceIds: []
     }
   ]
 };
