@@ -10,6 +10,7 @@ export const serviceSchema = z.object({
   price: z.number().min(0, { message: 'Il prezzo non può essere negativo' }),
   color: z.string(),
   assignedStaffIds: z.array(z.string()),
+  customCategory: z.string().optional(),
 });
 
 export type ServiceFormValues = z.infer<typeof serviceSchema>;
