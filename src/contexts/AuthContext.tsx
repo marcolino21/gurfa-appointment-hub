@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { AuthState, User } from '../types';
+import { AuthState, User, Salon } from '../types';
 import { authReducer, initialState } from '../reducers/authReducer';
 import { useAuthService } from '../hooks/useAuthService';
 
@@ -9,6 +9,7 @@ interface AuthContextType extends AuthState {
   logout: () => void;
   setCurrentSalon: (salonId: string) => void;
   resetPassword: (email: string) => Promise<boolean>;
+  addSalon: (salon: Salon) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,13 +57,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return resetPasswordService(email, dispatch);
   };
 
+  const addSalon = (salon: Salon) => {
+    // Aggiungiamo un ID univoco se non presente
+    const salonToAdd = {
+      ...salon,
+      id: salon.id || `salon-${Date.now()}`,
+    };
+    dispatch({ type: 'ADD_SALON', payload: salonToAdd });
+  };
+
   return (
     <AuthContext.Provider value={{
       ...state,
       login,
       logout,
       setCurrentSalon,
-      resetPassword
+      resetPassword,
+      addSalon
     }}>
       {children}
     </AuthContext.Provider>

@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Store } from 'lucide-react';
+import { LogOut, User, Store, PlusCircle } from 'lucide-react';
 import { Salon } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -14,6 +14,7 @@ import {
   DialogTitle, 
   DialogDescription 
 } from '@/components/ui/dialog';
+import ActivityDialog from './ActivityDialog';
 
 const Header: React.FC = () => {
   const { user, logout, currentSalonId, salons, setCurrentSalon } = useAuth();
@@ -22,6 +23,7 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [businessName, setBusinessName] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
 
   // Check if we're on the settings page
   const isSettingsPage = location.pathname === '/impostazioni';
@@ -54,6 +56,10 @@ const Header: React.FC = () => {
     setIsDialogOpen(true);
   };
 
+  const openActivityDialog = () => {
+    setIsActivityDialogOpen(true);
+  };
+
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
   
   // Use the business name from settings if available, otherwise use the salon name
@@ -77,6 +83,16 @@ const Header: React.FC = () => {
               </div>
             )}
           </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={openActivityDialog}
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Aggiungi attività</span>
+          </Button>
         </div>
         
         <div className="flex items-center gap-4">
@@ -131,6 +147,11 @@ const Header: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      <ActivityDialog 
+        open={isActivityDialogOpen} 
+        onOpenChange={setIsActivityDialogOpen} 
+      />
     </>
   );
 };
