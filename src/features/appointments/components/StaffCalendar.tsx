@@ -95,14 +95,6 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           droppable={true}
           eventDrop={onEventDrop}
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
-          resourceLabelDidMount={(info) => {
-            // Personalizziamo l'etichetta della risorsa con il nome dello staff
-            const staffId = info.resource.id;
-            const staff = staffMembers.find(s => s.id === staffId);
-            if (staff) {
-              info.el.innerText = `${staff.firstName} ${staff.lastName || ''}`;
-            }
-          }}
         />
       )}
     </div>
