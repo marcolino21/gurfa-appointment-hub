@@ -95,6 +95,12 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           droppable={true}
           eventDrop={onEventDrop}
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
+          resourceLabelContent={({ resource }) => {
+            // Display staff name instead of day name
+            return {
+              html: `<div class="fc-daygrid-day-top">${resource.title}</div>`
+            };
+          }}
         />
       )}
     </div>

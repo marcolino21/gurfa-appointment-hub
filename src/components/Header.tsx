@@ -25,18 +25,19 @@ const Header: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
 
-  // Check if we're on the settings page
+  // Check if we're on the settings page or appointments page
   const isSettingsPage = location.pathname === '/impostazioni';
+  const isAppointmentsPage = location.pathname === '/appuntamenti';
 
   useEffect(() => {
-    // If on settings page, try to get business name from localStorage
-    if (isSettingsPage) {
+    // Try to get business name from localStorage for both settings and appointments pages
+    if (isSettingsPage || isAppointmentsPage) {
       const savedBusinessName = localStorage.getItem('salon_business_name');
       if (savedBusinessName) {
         setBusinessName(savedBusinessName);
       }
     }
-  }, [isSettingsPage]);
+  }, [isSettingsPage, isAppointmentsPage]);
 
   const handleLogout = () => {
     logout();
@@ -63,7 +64,9 @@ const Header: React.FC = () => {
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
   
   // Use the business name from settings if available, otherwise use the salon name
-  const displayName = isSettingsPage && businessName ? businessName : currentSalon?.name;
+  const displayName = (isSettingsPage || isAppointmentsPage) && businessName 
+    ? businessName 
+    : currentSalon?.name;
 
   return (
     <>
