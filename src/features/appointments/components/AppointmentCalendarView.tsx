@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Appointment, StaffMember } from '@/types';
 import StaffCalendar from '@/features/appointments/components/StaffCalendar';
+import '../styles/calendar.css';  // Import custom calendar styles
 
 interface AppointmentCalendarViewProps {
   visibleStaff: StaffMember[];

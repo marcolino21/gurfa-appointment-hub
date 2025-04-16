@@ -8,6 +8,7 @@ import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import itLocale from '@fullcalendar/core/locales/it';
 import { StaffMember, Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import StaffCalendarHeader from './StaffCalendarHeader';
 
 interface StaffCalendarProps {
   staffMembers: StaffMember[];
@@ -50,6 +51,9 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   return (
     <div className="h-[calc(100vh-320px)]">
+      {/* Aggiungiamo l'intestazione personalizzata per lo staff */}
+      <StaffCalendarHeader staffMembers={staffMembers} view={view} />
+      
       {view === 'dayGridMonth' ? (
         <FullCalendar
           ref={calendarRef}
@@ -95,11 +99,31 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           droppable={true}
           eventDrop={onEventDrop}
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
-          resourceLabelContent={({ resource }) => {
-            // Display staff name instead of day name
-            return {
-              html: `<div class="fc-daygrid-day-top">${resource.title}</div>`
-            };
+          resourceLabelDidMount={({ el, resource }) => {
+            // Sostituiamo il testo delle intestazioni con i nomi dello staff
+            el.innerText = resource.title || '';
+            
+            // Aggiunge stile all'intestazione
+            el.classList.add('fc-staff-header');
+            
+            // Aggiunge un colore di sfondo basato sul colore dello staff
+            if (resource.color) {
+              el.style.borderLeft = `3px solid ${resource.color}`;
+            }
+          }}
+          viewDidMount={(arg) => {
+            // Rimuove le date dai nomi delle colonne per vista a risorse
+            if (view !== 'dayGridMonth') {
+              const headerCells = document.querySelectorAll('.fc-col-header-cell');
+              headerCells.forEach((cell: any) => {
+                // Rimuove la data dalla cella
+                const staffHeader = cell.querySelector('.fc-staff-header');
+                if (staffHeader) {
+                  cell.querySelector('.fc-scrollgrid-sync-inner').innerHTML = '';
+                  cell.querySelector('.fc-scrollgrid-sync-inner').appendChild(staffHeader);
+                }
+              });
+            }
           }}
         />
       )}

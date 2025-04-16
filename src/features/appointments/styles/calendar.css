@@ -1,0 +1,38 @@
+
+/* Stili per il calendario personalizzato */
+
+.fc-staff-header {
+  padding: 6px 4px;
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Nasconde le date nelle intestazioni quando usiamo la vista risorse */
+.fc-timegrid-slot-label-frame {
+  text-align: right;
+}
+
+.fc-col-header-cell {
+  background-color: #f8f9fa;
+}
+
+/* Aggiunge un bordo sottile tra le colonne per migliorare la separazione visiva */
+.fc-timegrid-col, .fc-daygrid-day {
+  border-left: 1px solid #f0f0f0 !important;
+}
+
+/* Migliora l'aspetto degli eventi sul calendario */
+.fc-event {
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: 1px;
+}
+
+/* Stile per il contenitore del calendario */
+.fc {
+  height: 100%;
+  width: 100%;
+}

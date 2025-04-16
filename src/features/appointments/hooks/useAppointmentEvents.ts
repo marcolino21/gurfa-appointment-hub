@@ -14,6 +14,8 @@ interface CalendarEvent {
   extendedProps: {
     status: string;
     staffId?: string;
+    clientName: string;
+    service?: string;
   };
 }
 
@@ -30,10 +32,12 @@ export const useAppointmentEvents = () => {
       end: appointment.end,
       backgroundColor: getEventColor(appointment.status),
       borderColor: getEventColor(appointment.status),
-      resourceId: appointment.staffId,
+      resourceId: appointment.staffId,  // This is critical for staff resource mapping
       extendedProps: {
         status: appointment.status,
-        staffId: appointment.staffId
+        staffId: appointment.staffId,
+        clientName: appointment.clientName,
+        service: appointment.service
       }
     }));
     

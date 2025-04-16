@@ -16,7 +16,7 @@ const Appointments: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   
   const { setFilters, currentAppointment } = useAppointments();
-  const { visibleStaff } = useStaffAppointments();
+  const { visibleStaff, refreshVisibleStaff } = useStaffAppointments();
   const { events } = useAppointmentEvents();
   
   const {
@@ -37,6 +37,11 @@ const Appointments: React.FC = () => {
       status: statusFilter === 'all' ? null : statusFilter
     });
   }, [searchTerm, statusFilter, setFilters]);
+  
+  // Refresh staff visibility when component mounts
+  useEffect(() => {
+    refreshVisibleStaff();
+  }, [refreshVisibleStaff]);
   
   return (
     <div className="space-y-4">

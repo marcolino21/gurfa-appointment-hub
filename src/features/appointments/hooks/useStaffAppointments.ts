@@ -1,15 +1,16 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { StaffMember } from '@/types';
 import { getSalonStaff } from '@/features/staff/utils/staffDataUtils';
+import { BUSINESS_NAME_CHANGE_EVENT } from '@/utils/businessNameEvents';
 
 export const useStaffAppointments = () => {
   const { currentSalonId } = useAuth();
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
   
-  // Initial load and react to currentSalonId changes
-  useEffect(() => {
+  // Function to get visible staff
+  const fetchVisibleStaff = useCallback(() => {
     if (currentSalonId) {
       // Get staff from global data and filter only those visible in calendar
       const allStaff = getSalonStaff(currentSalonId);
@@ -17,51 +18,39 @@ export const useStaffAppointments = () => {
         staff.isActive && staff.showInCalendar
       );
       
-      console.log("Staff visible in calendar (initial):", staffVisibleInCalendar);
+      console.log("Staff visible in calendar:", staffVisibleInCalendar);
       setVisibleStaff(staffVisibleInCalendar);
     }
   }, [currentSalonId]);
+  
+  // Initial load and react to currentSalonId changes
+  useEffect(() => {
+    fetchVisibleStaff();
+  }, [fetchVisibleStaff]);
   
   // Listen for staff data updates
   useEffect(() => {
     const handleStaffDataUpdate = (event: CustomEvent) => {
       if (currentSalonId && event.detail.salonId === currentSalonId) {
-        const allStaff = getSalonStaff(currentSalonId);
-        const staffVisibleInCalendar = allStaff.filter(staff => 
-          staff.isActive && staff.showInCalendar
-        );
-        
-        console.log("Staff visible in calendar (updated via event):", staffVisibleInCalendar);
-        setVisibleStaff(staffVisibleInCalendar);
+        fetchVisibleStaff();
       }
     };
 
-    // Add event listener
+    // Listen to any staff changes
     window.addEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
     
-    // Regular polling as a fallback
-    const intervalId = setInterval(() => {
-      if (currentSalonId) {
-        const allStaff = getSalonStaff(currentSalonId);
-        const staffVisibleInCalendar = allStaff.filter(staff => 
-          staff.isActive && staff.showInCalendar
-        );
-        
-        if (JSON.stringify(staffVisibleInCalendar) !== JSON.stringify(visibleStaff)) {
-          console.log("Staff visible in calendar (updated via polling):", staffVisibleInCalendar);
-          setVisibleStaff(staffVisibleInCalendar);
-        }
-      }
-    }, 2000);
+    // Also listen to business name changes as a trigger to recheck staff
+    window.addEventListener(BUSINESS_NAME_CHANGE_EVENT, fetchVisibleStaff as EventListener);
     
     // Clean up
     return () => {
       window.removeEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
-      clearInterval(intervalId);
+      window.removeEventListener(BUSINESS_NAME_CHANGE_EVENT, fetchVisibleStaff as EventListener);
     };
-  }, [currentSalonId, visibleStaff]);
+  }, [currentSalonId, fetchVisibleStaff]);
 
   return { 
-    visibleStaff
+    visibleStaff,
+    refreshVisibleStaff: fetchVisibleStaff
   };
 };
