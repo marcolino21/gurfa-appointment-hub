@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon, TrashIcon, PlusCircle } from "lucide-react";
+import ActivityDialog from '@/components/ActivityDialog';
 
 interface User {
   id: string;
@@ -30,55 +30,61 @@ const UsersSettings = () => {
     }
   ]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
   
   return (
     <div className="space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Utenti attivi</h2>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>AGGIUNGI UTENTE</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>NUOVO UTENTE</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">NOME</Label>
-                  <Input id="name" placeholder="Nome utente" />
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => setIsActivityDialogOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi attività
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>AGGIUNGI UTENTE</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>NUOVO UTENTE</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">NOME</Label>
+                    <Input id="name" placeholder="Nome utente" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="surname">COGNOME</Label>
+                    <Input id="surname" placeholder="Cognome utente" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">EMAIL</Label>
+                    <Input id="email" type="email" placeholder="Email utente" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">RUOLO (info)</Label>
+                    <Select>
+                      <SelectTrigger id="role">
+                        <SelectValue placeholder="Seleziona un ruolo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="titolare">Titolare</SelectItem>
+                        <SelectItem value="receptionist">Receptionist</SelectItem>
+                        <SelectItem value="dipendente">Dipendente</SelectItem>
+                        <SelectItem value="commercialista">Commercialista</SelectItem>
+                        <SelectItem value="manager">Manager con permessi ridotti</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="surname">COGNOME</Label>
-                  <Input id="surname" placeholder="Cognome utente" />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annulla</Button>
+                  <Button onClick={() => setIsDialogOpen(false)}>Salva</Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">EMAIL</Label>
-                  <Input id="email" type="email" placeholder="Email utente" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">RUOLO (info)</Label>
-                  <Select>
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Seleziona un ruolo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="titolare">Titolare</SelectItem>
-                      <SelectItem value="receptionist">Receptionist</SelectItem>
-                      <SelectItem value="dipendente">Dipendente</SelectItem>
-                      <SelectItem value="commercialista">Commercialista</SelectItem>
-                      <SelectItem value="manager">Manager con permessi ridotti</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annulla</Button>
-                <Button onClick={() => setIsDialogOpen(false)}>Salva</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         
         <Card>
@@ -127,63 +133,10 @@ const UsersSettings = () => {
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Autorizzazioni</h2>
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <p>Questo sistema di autorizzazioni ti permette di gestire l'accesso alle diverse funzionalità del software per ogni utente.</p>
-              
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Ruolo</TableHead>
-                    <TableHead>Gestione Calendario</TableHead>
-                    <TableHead>Gestione Clienti</TableHead>
-                    <TableHead>Gestione Servizi</TableHead>
-                    <TableHead>Fatturazione</TableHead>
-                    <TableHead>Gestione Utenti</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Titolare</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Receptionist</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Dipendente</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Commercialista</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                    <TableCell className="text-green-500">✓</TableCell>
-                    <TableCell className="text-red-500">✗</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ActivityDialog 
+        open={isActivityDialogOpen} 
+        onOpenChange={setIsActivityDialogOpen} 
+      />
     </div>
   );
 };

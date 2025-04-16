@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Store, PlusCircle } from 'lucide-react';
+import { LogOut, User, Store } from 'lucide-react';
 import { Salon } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -26,13 +25,11 @@ const Header: React.FC = () => {
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
 
   useEffect(() => {
-    // Get business name from localStorage
     const savedBusinessName = localStorage.getItem('salon_business_name');
     if (savedBusinessName) {
       setBusinessName(savedBusinessName);
     }
     
-    // Set up a listener for storage changes to update business name
     const handleStorageChange = () => {
       const updatedBusinessName = localStorage.getItem('salon_business_name');
       setBusinessName(updatedBusinessName);
@@ -69,7 +66,6 @@ const Header: React.FC = () => {
 
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
   
-  // Always use the business name from localStorage if available
   const displayName = businessName || currentSalon?.name;
 
   return (
@@ -90,16 +86,6 @@ const Header: React.FC = () => {
               </div>
             )}
           </div>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center gap-1"
-            onClick={openActivityDialog}
-          >
-            <PlusCircle className="h-4 w-4" />
-            <span>Aggiungi attività</span>
-          </Button>
         </div>
         
         <div className="flex items-center gap-4">
