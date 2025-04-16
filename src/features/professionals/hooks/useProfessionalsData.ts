@@ -1,13 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
 import { MOCK_STAFF } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { getSalonStaff, updateStaffData } from '@/features/staff/utils/staffDataUtils';
 
 export const useProfessionalsData = (salonId: string | null) => {
-  const globalStaffData = window.globalStaffData || MOCK_STAFF;
   const [professionals, setProfessionals] = useState<StaffMember[]>(
-    salonId ? globalStaffData[salonId] || [] : []
+    salonId ? getSalonStaff(salonId) : []
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -18,9 +19,9 @@ export const useProfessionalsData = (salonId: string | null) => {
   // Update professionals when salonId changes
   useEffect(() => {
     if (salonId) {
-      setProfessionals(globalStaffData[salonId] || []);
+      setProfessionals(getSalonStaff(salonId));
     }
-  }, [salonId, globalStaffData]);
+  }, [salonId, window.globalStaffData[salonId || '']]);
 
   const filteredProfessionals = professionals.filter(professional => {
     const fullName = `${professional.firstName} ${professional.lastName}`.toLowerCase();
@@ -38,10 +39,8 @@ export const useProfessionalsData = (salonId: string | null) => {
     setProfessionals(updatedProfessionals);
     
     // Update global staff data
-    if (salonId && window.globalStaffData) {
-      window.globalStaffData[salonId] = updatedProfessionals;
-      // Also update the original MOCK_STAFF for compatibility
-      MOCK_STAFF[salonId] = updatedProfessionals;
+    if (salonId) {
+      updateStaffData(salonId, updatedProfessionals);
     }
     
     const professional = professionals.find(p => p.id === professionalId);
@@ -60,10 +59,8 @@ export const useProfessionalsData = (salonId: string | null) => {
     setProfessionals(updatedProfessionals);
     
     // Update global staff data
-    if (salonId && window.globalStaffData) {
-      window.globalStaffData[salonId] = updatedProfessionals;
-      // Also update the original MOCK_STAFF for compatibility
-      MOCK_STAFF[salonId] = updatedProfessionals;
+    if (salonId) {
+      updateStaffData(salonId, updatedProfessionals);
     }
     
     toast({

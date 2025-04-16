@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { StaffMember } from '@/types';
+import { getSalonStaff } from '@/features/staff/utils/staffDataUtils';
 
 export const useStaffAppointments = () => {
   const { currentSalonId } = useAuth();
@@ -9,9 +10,8 @@ export const useStaffAppointments = () => {
   
   useEffect(() => {
     if (currentSalonId) {
-      // Recupera lo staff dal global data o dal MOCK_STAFF e filtra solo quelli visibili in agenda
-      const globalStaffData = window.globalStaffData || {};
-      const allStaff = globalStaffData[currentSalonId] || [];
+      // Get staff from global data and filter only those visible in calendar
+      const allStaff = getSalonStaff(currentSalonId);
       const staffVisibleInCalendar = allStaff.filter(staff => 
         staff.isActive && staff.showInCalendar
       );
@@ -19,7 +19,7 @@ export const useStaffAppointments = () => {
       console.log("Staff visibile in agenda:", staffVisibleInCalendar);
       setVisibleStaff(staffVisibleInCalendar);
     }
-  }, [currentSalonId]); // La dipendenza sarà ricalcolata automaticamente quando lo staff cambia
+  }, [currentSalonId, window.globalStaffData[currentSalonId || '']]);
 
   return { 
     visibleStaff
