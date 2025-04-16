@@ -1,5 +1,6 @@
+
 import { useToast } from '@/hooks/use-toast';
-import { Service } from '@/types';
+import { Service } from '@/types/services';
 import { ServiceFormValues } from '../types';
 
 /**
