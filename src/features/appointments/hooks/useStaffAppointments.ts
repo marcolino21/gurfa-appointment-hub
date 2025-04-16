@@ -18,7 +18,7 @@ export const useStaffAppointments = () => {
       
       setVisibleStaff(staffVisibleInCalendar);
     }
-  }, [currentSalonId, MOCK_STAFF]); // Aggiunta dipendenza MOCK_STAFF per reagire ai cambiamenti
+  }, [currentSalonId, MOCK_STAFF[currentSalonId]]); // Aggiungiamo dipendenza diretta ai dati
 
   return { 
     visibleStaff

@@ -45,6 +45,12 @@ const Staff = () => {
   const handleAddStaff = (data: StaffFormValues) => {
     console.log("Aggiunta nuovo membro dello staff:", data);
     
+    // Ensure showInCalendar is true by default for all new staff members
+    const staffData: StaffFormValues = {
+      ...data,
+      showInCalendar: true
+    };
+    
     if (!currentSalonId) {
       toast({
         title: 'Attenzione',
@@ -53,7 +59,7 @@ const Staff = () => {
       });
     }
     
-    addStaff(data);
+    addStaff(staffData);
     setIsAddDialogOpen(false);
   };
 
