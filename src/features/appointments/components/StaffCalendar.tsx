@@ -34,7 +34,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const resources = staffMembers.map(staff => ({
     id: staff.id,
     title: `${staff.firstName} ${staff.lastName}`,
-    color: staff.color
+    staffColor: staff.color // Aggiunto staffColor per conservare il colore dello staff
   }));
 
   // Quando non ci sono membri dello staff visibili
@@ -106,14 +106,15 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
             // Aggiunge stile all'intestazione
             el.classList.add('fc-staff-header');
             
-            // Aggiunge un colore di sfondo basato sul colore dello staff
-            if (resource.color) {
-              el.style.borderLeft = `3px solid ${resource.color}`;
+            // Utilizza staffColor invece di color per accedere al colore dello staff
+            const staffColor = resource.extendedProps?.staffColor;
+            if (staffColor) {
+              el.style.borderLeft = `3px solid ${staffColor}`;
             }
           }}
           viewDidMount={(arg) => {
             // Rimuove le date dai nomi delle colonne per vista a risorse
-            if (view !== 'dayGridMonth') {
+            if (view === 'timeGridDay' || view === 'timeGridWeek') {
               const headerCells = document.querySelectorAll('.fc-col-header-cell');
               headerCells.forEach((cell: any) => {
                 // Rimuove la data dalla cella

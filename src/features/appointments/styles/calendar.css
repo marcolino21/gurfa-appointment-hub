@@ -36,3 +36,9 @@
   height: 100%;
   width: 100%;
 }
+
+/* Colori per le intestazioni dello staff */
+.fc-resource-timeline .fc-resource-group,
+.fc-resource-timeline .fc-resource-cell {
+  background-color: #f9fafb;
+}
