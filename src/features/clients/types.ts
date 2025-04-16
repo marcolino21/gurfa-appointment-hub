@@ -16,6 +16,11 @@ export const clientSchema = z.object({
   loyaltyCode: z.string().optional(),
   notes: z.string().optional(),
   isPrivate: z.boolean(),
+  // Business fields
+  companyName: z.string().optional(),
+  vatNumber: z.string().optional(),
+  sdiCode: z.string().optional(),
+  pecEmail: z.string().email({ message: 'PEC non valida' }).optional().or(z.literal('')),
 });
 
 export type ClientFormValues = z.infer<typeof clientSchema>;

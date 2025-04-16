@@ -56,6 +56,11 @@ const Clients = () => {
       loyaltyCode: '',
       notes: '',
       isPrivate: true,
+      // Business fields
+      companyName: '',
+      vatNumber: '',
+      sdiCode: '',
+      pecEmail: '',
     }
   });
 
@@ -75,6 +80,11 @@ const Clients = () => {
       loyaltyCode: client.loyaltyCode || '',
       notes: client.notes || '',
       isPrivate: client.isPrivate,
+      // Business fields
+      companyName: client.companyName || '',
+      vatNumber: client.vatNumber || '',
+      sdiCode: client.sdiCode || '',
+      pecEmail: client.pecEmail || '',
     });
     setActiveTab('dati-personali');
     setIsEditDialogOpen(true);
@@ -111,6 +121,11 @@ const Clients = () => {
                 loyaltyCode: '',
                 notes: '',
                 isPrivate: true,
+                // Business fields
+                companyName: '',
+                vatNumber: '',
+                sdiCode: '',
+                pecEmail: '',
               });
               setActiveTab('dati-personali');
               setIsAddDialogOpen(true);

@@ -1,4 +1,3 @@
-
 export type UserRole = 'super_admin' | 'azienda' | 'freelance';
 
 export interface User {
@@ -53,6 +52,11 @@ export interface Client {
   lastAppointment?: string;
   averageSpending?: number;
   visitFrequency?: string;
+  // Business fields
+  companyName?: string;
+  vatNumber?: string;
+  sdiCode?: string;
+  pecEmail?: string;
 }
 
 export interface Service {
@@ -65,7 +69,7 @@ export interface Service {
   price: number;
   color: string;
   salonId: string;
-  assignedStaffIds: string[];
+  assignedServiceIds: string[];
 }
 
 export interface ServiceCategory {

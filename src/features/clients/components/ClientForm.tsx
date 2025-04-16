@@ -32,6 +32,9 @@ const ClientForm: React.FC<ClientFormProps> = ({
   setActiveTab,
   selectedClient
 }) => {
+  // Get the current value of isPrivate to conditionally render fields
+  const isPrivate = clientForm.watch('isPrivate');
+  
   return (
     <Form {...clientForm}>
       <form onSubmit={clientForm.handleSubmit(onSubmit)} className="space-y-4">
@@ -76,15 +79,95 @@ const ClientForm: React.FC<ClientFormProps> = ({
             </div>
 
             <div className="space-y-4">
+              {!isPrivate && (
+                <div className="space-y-4 border p-4 rounded-md bg-slate-50">
+                  <h3 className="font-medium">Dati Aziendali</h3>
+                  
+                  <FormField
+                    control={clientForm.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ragione Sociale</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Ragione Sociale" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={clientForm.control}
+                      name="vatNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Partita IVA</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Partita IVA" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={clientForm.control}
+                      name="fiscalCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Codice Fiscale</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Codice Fiscale" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={clientForm.control}
+                      name="sdiCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Codice SDI</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Codice SDI" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={clientForm.control}
+                      name="pecEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>PEC</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="email" placeholder="Indirizzo PEC" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={clientForm.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cognome</FormLabel>
+                      <FormLabel>{isPrivate ? 'Cognome' : 'Cognome Referente'}</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Cognome" />
+                        <Input {...field} placeholder={isPrivate ? 'Cognome' : 'Cognome Referente'} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -96,9 +179,9 @@ const ClientForm: React.FC<ClientFormProps> = ({
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome</FormLabel>
+                      <FormLabel>{isPrivate ? 'Nome' : 'Nome Referente'}</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Nome" />
+                        <Input {...field} placeholder={isPrivate ? 'Nome' : 'Nome Referente'} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,67 +261,73 @@ const ClientForm: React.FC<ClientFormProps> = ({
                 )}
               />
 
+              {isPrivate && (
+                <FormField
+                  control={clientForm.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sesso</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="M" id="M" />
+                            <label htmlFor="M">M</label>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <RadioGroupItem value="F" id="F" />
+                            <label htmlFor="F">F</label>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <RadioGroupItem value="O" id="O" />
+                            <label htmlFor="O">Altro</label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="dettagli-aggiuntivi" className="space-y-4 mt-4">
+            {isPrivate && (
               <FormField
                 control={clientForm.control}
-                name="gender"
+                name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sesso</FormLabel>
+                    <FormLabel>Data di nascita</FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="M" id="M" />
-                          <label htmlFor="M">M</label>
-                        </div>
-                        <div className="flex items-center space-x-2 ml-4">
-                          <RadioGroupItem value="F" id="F" />
-                          <label htmlFor="F">F</label>
-                        </div>
-                        <div className="flex items-center space-x-2 ml-4">
-                          <RadioGroupItem value="O" id="O" />
-                          <label htmlFor="O">Altro</label>
-                        </div>
-                      </RadioGroup>
+                      <Input {...field} type="date" placeholder="GG/MM/AAAA" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-          </TabsContent>
+            )}
 
-          <TabsContent value="dettagli-aggiuntivi" className="space-y-4 mt-4">
-            <FormField
-              control={clientForm.control}
-              name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data di nascita</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="date" placeholder="GG/MM/AAAA" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={clientForm.control}
-              name="fiscalCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Codice fiscale</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Codice fiscale" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {isPrivate && (
+              <FormField
+                control={clientForm.control}
+                name="fiscalCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Codice fiscale</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Codice fiscale" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={clientForm.control}

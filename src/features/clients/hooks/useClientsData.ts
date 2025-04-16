@@ -17,7 +17,8 @@ export const useClientsData = () => {
 
   const filteredClients = clients.filter(client => {
     const fullName = `${client.firstName} ${client.lastName}`.toLowerCase();
-    return fullName.includes(searchTerm.toLowerCase());
+    const companyName = client.companyName?.toLowerCase() || '';
+    return fullName.includes(searchTerm.toLowerCase()) || companyName.includes(searchTerm.toLowerCase());
   });
 
   const handleAddClient = (data: ClientFormValues) => {
@@ -39,12 +40,17 @@ export const useClientsData = () => {
       fiscalCode: data.fiscalCode,
       loyaltyCode: data.loyaltyCode,
       notes: data.notes,
+      // Business fields
+      companyName: data.companyName,
+      vatNumber: data.vatNumber,
+      sdiCode: data.sdiCode,
+      pecEmail: data.pecEmail,
     };
 
     setClients([...clients, newClient]);
     toast({
       title: 'Cliente aggiunto',
-      description: `${newClient.firstName} ${newClient.lastName} è stato aggiunto con successo`,
+      description: `${data.isPrivate ? `${newClient.firstName} ${newClient.lastName}` : newClient.companyName} è stato aggiunto con successo`,
     });
     
     return newClient;
@@ -69,13 +75,18 @@ export const useClientsData = () => {
         fiscalCode: data.fiscalCode,
         loyaltyCode: data.loyaltyCode,
         notes: data.notes,
+        // Business fields
+        companyName: data.companyName,
+        vatNumber: data.vatNumber,
+        sdiCode: data.sdiCode,
+        pecEmail: data.pecEmail,
       } : client
     );
 
     setClients(updatedClients);
     toast({
       title: 'Cliente modificato',
-      description: `${data.firstName} ${data.lastName} è stato modificato con successo`,
+      description: `${data.isPrivate ? `${data.firstName} ${data.lastName}` : data.companyName} è stato modificato con successo`,
     });
     
     return selectedClient;
