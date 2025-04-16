@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,6 +39,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       category: selectedService.category,
       description: selectedService.description || '',
       duration: selectedService.duration,
+      tempoDiPosa: selectedService.tempoDiPosa || 0,
       price: selectedService.price,
       color: selectedService.color,
       assignedStaffIds: selectedService.assignedStaffIds || [],
@@ -47,6 +49,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       category: categories.length > 0 ? categories[0].id : '',
       description: '',
       duration: 30,
+      tempoDiPosa: 0,
       price: 0,
       color: categories.length > 0 ? categories[0].color : '#9b87f5',
       assignedStaffIds: [],
@@ -187,13 +190,13 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={serviceForm.control}
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Durata</FormLabel>
+                    <FormLabel>Durata (lavorazione)</FormLabel>
                     <Select 
                       onValueChange={(value) => field.onChange(parseInt(value))} 
                       defaultValue={field.value.toString()}
@@ -210,6 +213,37 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                         <SelectItem value="60">1 ora</SelectItem>
                         <SelectItem value="90">1 ora 30 minuti</SelectItem>
                         <SelectItem value="120">2 ore</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={serviceForm.control}
+                name="tempoDiPosa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tempo di posa</FormLabel>
+                    <Select 
+                      onValueChange={(value) => field.onChange(parseInt(value))} 
+                      defaultValue={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona tempo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="0">Nessuna posa</SelectItem>
+                        <SelectItem value="5">5 minuti</SelectItem>
+                        <SelectItem value="10">10 minuti</SelectItem>
+                        <SelectItem value="15">15 minuti</SelectItem>
+                        <SelectItem value="20">20 minuti</SelectItem>
+                        <SelectItem value="30">30 minuti</SelectItem>
+                        <SelectItem value="45">45 minuti</SelectItem>
+                        <SelectItem value="60">1 ora</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

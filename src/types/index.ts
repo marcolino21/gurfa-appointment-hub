@@ -61,6 +61,7 @@ export interface Service {
   category: string;
   description?: string;
   duration: number;
+  tempoDiPosa: number;
   price: number;
   color: string;
   salonId: string;
