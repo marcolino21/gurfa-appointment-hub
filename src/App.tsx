@@ -14,11 +14,13 @@ import Users from "./pages/Users";
 import Freelance from "./pages/Freelance";
 import Clients from "./pages/Clients";
 import Services from "./pages/Services";
+import Projects from "./pages/Projects";
+import NewProject from "./pages/NewProject";
 import Subscriptions from "./pages/Subscriptions";
 import Staff from "./pages/Staff";
 import Professionals from "./pages/Professionals";
 import Expenses from "./pages/Expenses";
-import Settings from "./pages/Settings"; // Import the new Settings page
+import Settings from "./pages/Settings";
 import WarehouseIndex from "./pages/warehouse";
 import Products from "./pages/warehouse/Products";
 import Orders from "./pages/warehouse/Orders";
@@ -50,13 +52,15 @@ const App = () => (
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="appuntamenti" element={<Appointments />} />
                 <Route path="clienti" element={<Clients />} />
+                <Route path="progetti" element={<Projects />} />
+                <Route path="progetti/nuovo" element={<NewProject />} />
                 <Route path="servizi" element={<Services />} />
                 <Route path="abbonamenti" element={<Subscriptions />} />
                 <Route path="staff" element={<Staff />} />
                 <Route path="professionisti" element={<Professionals />} />
                 <Route path="comunicazioni" element={<Communications />} />
                 <Route path="spese" element={<Expenses />} />
-                <Route path="impostazioni" element={<Settings />} /> {/* Add the new Settings route */}
+                <Route path="impostazioni" element={<Settings />} />
                 
                 {/* Rotte statistiche */}
                 <Route path="statistiche" element={<StatisticsIndex />} />

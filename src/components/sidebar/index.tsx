@@ -40,9 +40,23 @@ const Sidebar: React.FC = () => {
       
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid gap-1 px-2">
-          {sidebarItems.map((item, index) => {
-            // Inserisce il componente Statistiche prima di Comunicazioni
-            if (index === 7) {
+          {sidebarItems.map((item) => {
+            // Check if the item has subItems
+            if (item.subItems) {
+              return (
+                <SidebarItemWithSubmenu 
+                  key={item.href}
+                  icon={item.icon} 
+                  label={item.label} 
+                  isActive={location.pathname.startsWith(item.href)}
+                  subItems={item.subItems}
+                  isCollapsed={isCollapsed}
+                />
+              );
+            }
+            
+            // Check if it's the position for Statistics
+            if (item.label === "Comunicazioni") {
               return (
                 <React.Fragment key={`stats-fragment`}>
                   <SidebarItemWithSubmenu 
@@ -65,6 +79,7 @@ const Sidebar: React.FC = () => {
               );
             }
             
+            // Return regular sidebar item
             return (
               <SidebarItem 
                 key={item.href}

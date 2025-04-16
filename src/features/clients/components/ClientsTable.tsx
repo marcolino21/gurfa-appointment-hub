@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Client } from '@/types';
 import { Edit, Trash2 } from 'lucide-react';
+import CreateProjectButton from '@/features/projects/components/CreateProjectButton';
 
 interface ClientsTableProps {
   clients: Client[];
@@ -42,6 +43,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, onEdit, onDelete }
               <TableCell>{client.gender}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  <CreateProjectButton clientId={client.id} />
                   <Button variant="ghost" size="icon" onClick={() => onEdit(client)}>
                     <Edit className="h-4 w-4" />
                   </Button>

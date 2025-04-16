@@ -22,7 +22,8 @@ import {
   ListChecks,
   UserRound,
   ShoppingBag,
-  ClipboardList
+  ClipboardList,
+  Folders
 } from 'lucide-react';
 
 export const magazzinoSubItems = [
@@ -41,6 +42,11 @@ export const statisticheSubItems = [
   { icon: ClipboardList, label: "Report Inventario", href: "/statistiche/inventario" }
 ];
 
+export const clientiSubItems = [
+  { icon: Users, label: "Clienti", href: "/clienti" },
+  { icon: Folders, label: "Progetti", href: "/progetti" }
+];
+
 export const sidebarItems = [
   { 
     icon: LayoutDashboard, 
@@ -55,7 +61,8 @@ export const sidebarItems = [
   { 
     icon: Users, 
     label: "Rubrica Clienti", 
-    href: "/clienti"
+    href: "/clienti",
+    subItems: clientiSubItems
   },
   { 
     icon: Package, 
