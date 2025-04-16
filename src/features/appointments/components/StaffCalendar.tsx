@@ -8,7 +8,7 @@ import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import itLocale from '@fullcalendar/core/locales/it';
 import { StaffMember, Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import StaffCalendarHeader from './StaffCalendarHeader';
+import '../styles/calendar.css';
 
 interface StaffCalendarProps {
   staffMembers: StaffMember[];
@@ -51,9 +51,6 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   return (
     <div className="h-[calc(100vh-320px)]">
-      {/* Aggiungiamo l'intestazione personalizzata per lo staff */}
-      <StaffCalendarHeader staffMembers={staffMembers} view={view} />
-      
       {view === 'dayGridMonth' ? (
         <FullCalendar
           ref={calendarRef}
@@ -112,13 +109,14 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
             }
           }}
           viewDidMount={(arg) => {
-            // Rimuove le date dai nomi delle colonne per vista a risorse
+            // Rimuove le date dai nomi delle colonne per sostituirle con i nomi dello staff
             if (view !== 'dayGridMonth') {
               const headerCells = document.querySelectorAll('.fc-col-header-cell');
               headerCells.forEach((cell: any) => {
-                // Rimuove la data dalla cella
+                // Rimuove completamente la data dalla cella dell'intestazione
                 const staffHeader = cell.querySelector('.fc-staff-header');
                 if (staffHeader) {
+                  // Sostituisci l'intero contenuto con il nome dello staff
                   cell.querySelector('.fc-scrollgrid-sync-inner').innerHTML = '';
                   cell.querySelector('.fc-scrollgrid-sync-inner').appendChild(staffHeader);
                 }

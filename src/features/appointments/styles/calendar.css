@@ -36,3 +36,15 @@
   height: 100%;
   width: 100%;
 }
+
+/* Ensure column headers don't show date info */
+.fc .fc-col-header-cell-cushion {
+  display: none;
+}
+
+/* Make staff headers more prominent */
+.fc-staff-header {
+  font-weight: 700;
+  padding: 8px 4px;
+  color: #333;
+}
