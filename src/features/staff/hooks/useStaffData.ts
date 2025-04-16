@@ -3,7 +3,7 @@ import { useStaffMembers } from './useStaffMembers';
 import { useStaffActions } from './useStaffActions';
 
 export const useStaffData = (salonId: string | null) => {
-  const { staffMembers, setStaffMembers, services } = useStaffMembers(salonId);
+  const { staffMembers, setStaffMembers, services, hasSalon } = useStaffMembers(salonId);
   
   const {
     addStaff,
@@ -21,5 +21,6 @@ export const useStaffData = (salonId: string | null) => {
     deleteStaff,
     toggleStaffStatus,
     toggleCalendarVisibility,
+    hasSalon
   };
 };

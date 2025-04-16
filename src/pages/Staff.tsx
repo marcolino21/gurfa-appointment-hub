@@ -13,6 +13,8 @@ import { StaffFormValues } from '@/features/staff/types';
 import StaffHeader from '@/features/staff/components/StaffHeader';
 import StaffDialogs from '@/features/staff/components/StaffDialogs';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 const Staff = () => {
   const { currentSalonId } = useAuth();
@@ -24,7 +26,8 @@ const Staff = () => {
     editStaff, 
     deleteStaff, 
     toggleStaffStatus, 
-    toggleCalendarVisibility 
+    toggleCalendarVisibility,
+    hasSalon 
   } = useStaffData(currentSalonId);
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,6 +88,15 @@ const Staff = () => {
   };
 
   const openAddDialog = () => {
+    if (!currentSalonId) {
+      toast({
+        title: 'Attenzione',
+        description: 'Nessun salone selezionato. Seleziona un salone dall\'header in alto prima di aggiungere membri dello staff.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setSelectedStaff(null);
     setIsAddDialogOpen(true);
   };
@@ -100,6 +112,15 @@ const Staff = () => {
           />
         </CardHeader>
         <CardContent>
+          {!hasSalon && (
+            <Alert className="mb-4">
+              <Info className="h-4 w-4" />
+              <AlertTitle>Nessun salone selezionato</AlertTitle>
+              <AlertDescription>
+                Per gestire lo staff, seleziona un salone dall'header in alto.
+              </AlertDescription>
+            </Alert>
+          )}
           <StaffTable 
             staffMembers={filteredStaff}
             onEdit={openEditDialog}

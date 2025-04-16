@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 import { StaffMember, Service } from '@/types';
 import { MOCK_SERVICES } from '@/data/mockData';
 import { getSalonStaff } from '../utils/staffDataUtils';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * Hook for managing staff members and services data
  */
 export const useStaffMembers = (salonId: string | null) => {
+  const { toast } = useToast();
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(
     salonId ? getSalonStaff(salonId) : []
   );
@@ -15,6 +17,17 @@ export const useStaffMembers = (salonId: string | null) => {
   const [services, setServices] = useState<Service[]>(
     salonId ? MOCK_SERVICES[salonId] || [] : []
   );
+
+  // Check if salonId exists and show toast if not
+  useEffect(() => {
+    if (!salonId) {
+      toast({
+        title: 'Nessun salone selezionato',
+        description: 'Seleziona un salone dall\'header in alto per gestire lo staff',
+        variant: 'destructive',
+      });
+    }
+  }, [salonId, toast]);
 
   // Update staff members when salonId changes
   useEffect(() => {
@@ -62,6 +75,7 @@ export const useStaffMembers = (salonId: string | null) => {
   return { 
     staffMembers, 
     setStaffMembers,
-    services 
+    services,
+    hasSalon: !!salonId
   };
 };
