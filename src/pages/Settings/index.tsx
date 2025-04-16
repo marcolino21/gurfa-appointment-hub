@@ -1,16 +1,20 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 import ProfileSettings from './ProfileSettings';
 import BillingSettings from './BillingSettings';
 import GeneralSettings from './GeneralSettings';
 import ShowcaseSettings from './ShowcaseSettings';
 import UsersSettings from './UsersSettings';
 import { useAuth } from '@/contexts/AuthContext';
+import ActivityDialog from '@/components/ActivityDialog';
 
 const Settings = () => {
   const { user } = useAuth();
+  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -40,6 +44,13 @@ const Settings = () => {
               <TabsTrigger value="users" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
                 Utenti
               </TabsTrigger>
+              <Button 
+                variant="ghost" 
+                className="ml-2 py-3" 
+                onClick={() => setIsActivityDialogOpen(true)}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi attività
+              </Button>
             </TabsList>
             
             <TabsContent value="profile" className="p-6">
@@ -64,6 +75,11 @@ const Settings = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      <ActivityDialog 
+        open={isActivityDialogOpen} 
+        onOpenChange={setIsActivityDialogOpen} 
+      />
     </div>
   );
 };

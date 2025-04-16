@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,6 @@ import {
   DialogTitle, 
   DialogDescription 
 } from '@/components/ui/dialog';
-import ActivityDialog from './ActivityDialog';
 
 const Header: React.FC = () => {
   const { user, logout, currentSalonId, salons, setCurrentSalon } = useAuth();
@@ -22,7 +22,6 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [businessName, setBusinessName] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
 
   useEffect(() => {
     const savedBusinessName = localStorage.getItem('salon_business_name');
@@ -58,10 +57,6 @@ const Header: React.FC = () => {
 
   const openSalonSelector = () => {
     setIsDialogOpen(true);
-  };
-
-  const openActivityDialog = () => {
-    setIsActivityDialogOpen(true);
   };
 
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
@@ -140,11 +135,6 @@ const Header: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-      
-      <ActivityDialog 
-        open={isActivityDialogOpen} 
-        onOpenChange={setIsActivityDialogOpen} 
-      />
     </>
   );
 };
