@@ -15,4 +15,12 @@ export interface StaffMember {
   showInCalendar: boolean;
   assignedServiceIds: string[];
   avatar?: string;
+  workSchedule?: {
+    day: string;
+    isWorking: boolean;
+    startTime?: string;
+    endTime?: string;
+    breakStart?: string;
+    breakEnd?: string;
+  }[];
 }

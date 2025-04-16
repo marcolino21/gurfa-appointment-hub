@@ -34,6 +34,7 @@ export const useStaffData = (salonId: string | null) => {
       position: data.position, 
       color: data.color,
       assignedServiceIds: data.assignedServiceIds,
+      workSchedule: data.workSchedule,
     };
 
     // Aggiorniamo sia lo state locale che i dati mockati
@@ -70,6 +71,7 @@ export const useStaffData = (salonId: string | null) => {
         position: data.position,
         color: data.color,
         assignedServiceIds: data.assignedServiceIds,
+        workSchedule: data.workSchedule,
       } : staff
     );
 

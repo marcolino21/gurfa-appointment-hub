@@ -14,7 +14,16 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
       isActive: true,
       showInCalendar: true,
       assignedServiceIds: ['s1', 's2'],
-      color: '#9b87f5'
+      color: '#9b87f5',
+      workSchedule: [
+        { day: 'Lunedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Martedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Mercoledì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Giovedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Venerdì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '13:00', breakStart: '', breakEnd: '' },
+        { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+      ]
     },
     {
       id: 'staff2',
@@ -25,7 +34,16 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
       isActive: true,
       showInCalendar: true,
       assignedServiceIds: ['s1'],
-      color: '#F97316'
+      color: '#F97316',
+      workSchedule: [
+        { day: 'Lunedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Martedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Mercoledì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Giovedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Venerdì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '13:00', breakStart: '', breakEnd: '' },
+        { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+      ]
     },
     {
       id: 'staff3',
@@ -36,7 +54,16 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
       isActive: true,
       showInCalendar: true,
       assignedServiceIds: ['s2', 's3'],
-      color: '#0EA5E9'
+      color: '#0EA5E9',
+      workSchedule: [
+        { day: 'Lunedì', isWorking: true, startTime: '10:00', endTime: '19:00', breakStart: '14:00', breakEnd: '15:00' },
+        { day: 'Martedì', isWorking: true, startTime: '10:00', endTime: '19:00', breakStart: '14:00', breakEnd: '15:00' },
+        { day: 'Mercoledì', isWorking: true, startTime: '10:00', endTime: '19:00', breakStart: '14:00', breakEnd: '15:00' },
+        { day: 'Giovedì', isWorking: true, startTime: '10:00', endTime: '19:00', breakStart: '14:00', breakEnd: '15:00' },
+        { day: 'Venerdì', isWorking: true, startTime: '10:00', endTime: '19:00', breakStart: '14:00', breakEnd: '15:00' },
+        { day: 'Sabato', isWorking: true, startTime: '10:00', endTime: '15:00', breakStart: '', breakEnd: '' },
+        { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+      ]
     },
     {
       id: 'staff4',
@@ -47,7 +74,16 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
       isActive: true,
       showInCalendar: false,
       assignedServiceIds: ['s4'],
-      color: '#D946EF'
+      color: '#D946EF',
+      workSchedule: [
+        { day: 'Lunedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Martedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Mercoledì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Giovedì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Venerdì', isWorking: true, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Sabato', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+        { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+      ]
     },
     {
       id: 'staff5',
@@ -59,7 +95,16 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
       isActive: false,
       showInCalendar: false,
       assignedServiceIds: [],
-      color: '#F2FCE2'
+      color: '#F2FCE2',
+      workSchedule: [
+        { day: 'Lunedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Martedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Mercoledì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Giovedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Venerdì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+        { day: 'Sabato', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+        { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
+      ]
     }
   ]
 };

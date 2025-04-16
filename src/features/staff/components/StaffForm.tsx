@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import WorkScheduleTab from './WorkScheduleTab';
 
 type StaffFormProps = {
   defaultValues?: StaffFormValues;
@@ -35,31 +36,47 @@ const StaffForm: React.FC<StaffFormProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('profilo');
 
+  // Inizializza i valori di default per l'orario di lavoro se non esistono
+  const initialWorkSchedule = [
+    { day: 'Lunedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Martedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Mercoledì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Giovedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Venerdì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Domenica', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+  ];
+
+  const formDefaultValues = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    additionalPhone: '',
+    country: 'Italia',
+    birthDate: '',
+    position: '',
+    color: '#9b87f5',
+    isActive: true,
+    showInCalendar: true,
+    assignedServiceIds: [],
+    workSchedule: initialWorkSchedule,
+    ...defaultValues
+  };
+
   const staffForm = useForm<StaffFormValues>({
     resolver: zodResolver(staffSchema),
-    defaultValues: defaultValues || {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      additionalPhone: '',
-      country: 'Italia',
-      birthDate: '',
-      position: '',
-      color: '#9b87f5',
-      isActive: true,
-      showInCalendar: true,
-      assignedServiceIds: [],
-    }
+    defaultValues: formDefaultValues
   });
 
   return (
     <Form {...staffForm}>
       <form onSubmit={staffForm.handleSubmit(onSubmit)} className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
             <TabsTrigger value="profilo">Profilo</TabsTrigger>
             <TabsTrigger value="servizi">Servizi</TabsTrigger>
+            <TabsTrigger value="orario">Orario</TabsTrigger>
             <TabsTrigger value="impostazioni">Impostazioni</TabsTrigger>
           </TabsList>
           
@@ -248,6 +265,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
                 )}
               />
             </div>
+          </TabsContent>
+
+          <TabsContent value="orario" className="space-y-4 mt-4">
+            <WorkScheduleTab staffForm={staffForm} />
           </TabsContent>
 
           <TabsContent value="impostazioni" className="space-y-4 mt-4">

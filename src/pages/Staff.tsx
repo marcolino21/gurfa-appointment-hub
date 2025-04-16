@@ -61,6 +61,17 @@ const Staff = () => {
     setIsEditDialogOpen(true);
   };
 
+  // Inizializza un workSchedule di default per nuovi membri dello staff
+  const defaultWorkSchedule = [
+    { day: 'Lunedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Martedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Mercoledì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Giovedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Venerdì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    { day: 'Domenica', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+  ];
+
   return (
     <div className="container mx-auto py-6">
       <Card>
@@ -96,7 +107,7 @@ const Staff = () => {
       </Card>
 
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Aggiungi membro del team</DialogTitle>
             <DialogDescription>
@@ -111,7 +122,7 @@ const Staff = () => {
       </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Modifica membro del team</DialogTitle>
             <DialogDescription>
@@ -133,6 +144,7 @@ const Staff = () => {
                 isActive: selectedStaff.isActive,
                 showInCalendar: selectedStaff.showInCalendar,
                 assignedServiceIds: selectedStaff.assignedServiceIds || [],
+                workSchedule: selectedStaff.workSchedule || defaultWorkSchedule,
               }}
               services={services}
               onSubmit={handleEditStaff}
