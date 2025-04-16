@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { StaffMember, Service } from '@/types';
 import { MOCK_STAFF, MOCK_SERVICES } from '@/data/mockData';
@@ -23,17 +22,11 @@ export const useStaffData = (salonId: string | null) => {
   }, [salonId]);
 
   const addStaff = (data: StaffFormValues) => {
-    if (!salonId) {
-      console.error("Errore: salonId non definito");
-      toast({
-        title: 'Errore',
-        description: 'Impossibile aggiungere il membro dello staff: salonId non definito',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    // Verifichiamo se salonId è definito, altrimenti usiamo un ID temporaneo
+    const effectiveSalonId = salonId || 'temp_salon_id';
+    
     console.log("Adding staff with data:", data);
+    console.log("Current salonId:", effectiveSalonId);
 
     // Ensure workSchedule days and isWorking are properly defined
     const workSchedule: WorkScheduleDay[] = data.workSchedule.map(day => ({
@@ -53,7 +46,7 @@ export const useStaffData = (salonId: string | null) => {
       email: data.email,
       isActive: Boolean(data.isActive),
       showInCalendar: Boolean(data.showInCalendar), 
-      salonId: salonId,
+      salonId: effectiveSalonId,
       // Optional fields
       phone: data.phone || '',
       additionalPhone: data.additionalPhone || '',
@@ -71,11 +64,10 @@ export const useStaffData = (salonId: string | null) => {
     setStaffMembers(prev => [...prev, newStaff]);
     
     // Update mock data for persistence between pages
-    if (MOCK_STAFF[salonId]) {
-      MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
-    } else {
-      MOCK_STAFF[salonId] = [newStaff];
+    if (!MOCK_STAFF[effectiveSalonId]) {
+      MOCK_STAFF[effectiveSalonId] = [];
     }
+    MOCK_STAFF[effectiveSalonId] = [...MOCK_STAFF[effectiveSalonId], newStaff];
     
     toast({
       title: 'Membro dello staff aggiunto',

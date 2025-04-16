@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -12,9 +12,11 @@ import { useStaffData } from '@/features/staff/hooks/useStaffData';
 import { StaffFormValues } from '@/features/staff/types';
 import StaffHeader from '@/features/staff/components/StaffHeader';
 import StaffDialogs from '@/features/staff/components/StaffDialogs';
+import { useToast } from '@/hooks/use-toast';
 
 const Staff = () => {
   const { currentSalonId } = useAuth();
+  const { toast } = useToast();
   const { 
     staffMembers, 
     services, 
@@ -24,10 +26,16 @@ const Staff = () => {
     toggleStaffStatus, 
     toggleCalendarVisibility 
   } = useStaffData(currentSalonId);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+
+  useEffect(() => {
+    // Log the current salonId to help with debugging
+    console.log("Current salonId in Staff component:", currentSalonId);
+  }, [currentSalonId]);
 
   const filteredStaff = staffMembers.filter(staff => {
     const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
@@ -36,6 +44,15 @@ const Staff = () => {
 
   const handleAddStaff = (data: StaffFormValues) => {
     console.log("Aggiunta nuovo membro dello staff:", data);
+    
+    if (!currentSalonId) {
+      toast({
+        title: 'Attenzione',
+        description: 'Nessun salone selezionato. Il membro dello staff sarà associato a un ID temporaneo.',
+        variant: 'warning',
+      });
+    }
+    
     addStaff(data);
     setIsAddDialogOpen(false);
   };
