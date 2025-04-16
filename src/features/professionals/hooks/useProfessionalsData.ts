@@ -1,27 +1,45 @@
 
 import { useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
-import { MOCK_STAFF } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { getSalonStaff, updateStaffData } from '@/features/staff/utils/staffDataUtils';
 
 export const useProfessionalsData = (salonId: string | null) => {
-  const [professionals, setProfessionals] = useState<StaffMember[]>(
-    salonId ? getSalonStaff(salonId) : []
-  );
+  const [professionals, setProfessionals] = useState<StaffMember[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedProfessional, setSelectedProfessional] = useState<StaffMember | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Update professionals when salonId changes
+  // Update professionals when salonId changes or global staff data changes
   useEffect(() => {
     if (salonId) {
-      setProfessionals(getSalonStaff(salonId));
+      // Get fresh data from global storage
+      const staffData = getSalonStaff(salonId);
+      console.log("Professionals data refreshed:", staffData);
+      setProfessionals(staffData);
+    } else {
+      setProfessionals([]);
     }
-  }, [salonId, window.globalStaffData[salonId || '']]);
+  }, [salonId]);
+
+  // Add a second effect to listen for changes to the global staff data
+  useEffect(() => {
+    const checkForUpdates = () => {
+      if (salonId) {
+        const staffData = getSalonStaff(salonId);
+        setProfessionals(staffData);
+      }
+    };
+
+    // Check for updates every second
+    const intervalId = setInterval(checkForUpdates, 1000);
+    
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, [salonId]);
 
   const filteredProfessionals = professionals.filter(professional => {
     const fullName = `${professional.firstName} ${professional.lastName}`.toLowerCase();

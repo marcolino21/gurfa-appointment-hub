@@ -24,3 +24,12 @@ export interface StaffMember {
     breakEnd?: string;
   }[];
 }
+
+// Extend Window interface to include our global staff data
+declare global {
+  interface Window {
+    globalStaffData: {
+      [salonId: string]: StaffMember[];
+    };
+  }
+}
