@@ -104,8 +104,10 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
             el.classList.add('fc-staff-header');
             
             // Aggiunge un colore di sfondo basato sul colore dello staff
-            if (resource.color) {
-              el.style.borderLeft = `3px solid ${resource.color}`;
+            // Type assertion to access custom properties
+            const resourceWithColor = resource.extendedProps as { color?: string } || {};
+            if (resourceWithColor.color) {
+              el.style.borderLeft = `3px solid ${resourceWithColor.color}`;
             }
           }}
           viewDidMount={(arg) => {
