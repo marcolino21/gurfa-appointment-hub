@@ -36,7 +36,16 @@ export const useStaffData = (salonId: string | null) => {
       assignedServiceIds: data.assignedServiceIds,
     };
 
-    setStaffMembers([...staffMembers, newStaff]);
+    // Aggiorniamo sia lo state locale che i dati mockati
+    setStaffMembers(prev => [...prev, newStaff]);
+    
+    // Aggiorniamo anche il mock data per mantenere la persistenza tra le pagine
+    if (MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
+    } else {
+      MOCK_STAFF[salonId] = [newStaff];
+    }
+    
     toast({
       title: 'Membro dello staff aggiunto',
       description: `${newStaff.firstName} ${newStaff.lastName} è stato aggiunto con successo`,
@@ -65,6 +74,12 @@ export const useStaffData = (salonId: string | null) => {
     );
 
     setStaffMembers(updatedStaff);
+    
+    // Aggiorniamo anche il mock data
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
+    
     toast({
       title: 'Membro dello staff modificato',
       description: `${data.firstName} ${data.lastName} è stato modificato con successo`,
@@ -74,6 +89,12 @@ export const useStaffData = (salonId: string | null) => {
   const deleteStaff = (staffId: string) => {
     const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
     setStaffMembers(updatedStaff);
+    
+    // Aggiorniamo anche il mock data
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
+    
     toast({
       title: 'Membro dello staff eliminato',
       description: 'Il membro dello staff è stato eliminato con successo',
@@ -86,6 +107,11 @@ export const useStaffData = (salonId: string | null) => {
     );
     setStaffMembers(updatedStaff);
     
+    // Aggiorniamo anche il mock data
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
+    
     toast({
       title: isActive ? 'Membro dello staff attivato' : 'Membro dello staff disattivato',
       description: `Il membro dello staff è stato ${isActive ? 'attivato' : 'disattivato'} con successo`,
@@ -97,6 +123,11 @@ export const useStaffData = (salonId: string | null) => {
       staff.id === staffId ? { ...staff, showInCalendar } : staff
     );
     setStaffMembers(updatedStaff);
+    
+    // Aggiorniamo anche il mock data
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
     
     toast({
       title: showInCalendar ? 'Visibile in agenda' : 'Nascosto dall\'agenda',
