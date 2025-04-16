@@ -5,9 +5,9 @@ import { it } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Appointment } from '@/types';
+import { AppointmentState, AppointmentContextType } from '../types/appointmentContext';
 import { appointmentReducer, initialState } from '../reducers/appointmentReducer';
 import { filterAppointments, MOCK_APPOINTMENTS } from '../utils/appointmentUtils';
-import { AppointmentContextType } from '../types/appointmentContext';
 
 export const useAppointmentProvider = (): AppointmentContextType => {
   const [state, dispatch] = useReducer(appointmentReducer, initialState);
