@@ -1,10 +1,25 @@
 
 import { useState, useEffect } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
+import { Appointment } from '@/types';
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: Date | string;
+  end: Date | string;
+  backgroundColor: string;
+  borderColor: string;
+  resourceId?: string;
+  extendedProps: {
+    status: string;
+    staffId?: string;
+  };
+}
 
 export const useAppointmentEvents = () => {
   const { filteredAppointments } = useAppointments();
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   
   useEffect(() => {
     // Transform appointments into calendar events

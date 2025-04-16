@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useStaffAppointments } from '@/features/appointments/hooks/useStaffAppointments';
-import AppointmentDialog from '@/components/AppointmentDialog';
-import AppointmentHeader from '@/features/appointments/components/AppointmentHeader';
-import AppointmentFilters from '@/features/appointments/components/AppointmentFilters';
-import AppointmentCalendarView from '@/features/appointments/components/AppointmentCalendarView';
+import { 
+  AppointmentHeader, 
+  AppointmentFilters,
+  AppointmentCalendarView,
+  AppointmentDialog
+} from '@/features/appointments/components';
 import { useAppointmentEvents } from '@/features/appointments/hooks/useAppointmentEvents';
 import { useAppointmentHandlers } from '@/features/appointments/hooks/useAppointmentHandlers';
 
