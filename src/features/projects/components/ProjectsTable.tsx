@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Table, 
@@ -19,7 +18,7 @@ interface ProjectsTableProps {
   getCategoryById: (categoryId: string) => ProjectCategory | undefined;
   getSubcategoryById: (categoryId: string, subcategoryId: string) => ProjectCategory | undefined;
   onEdit: (project: Project) => void;
-  onDelete: (projectId: string) => void;
+  onDelete: (project: Project) => void;
   onViewDetails: (project: Project) => void;
   expandedProjectIds: string[];
   toggleProjectExpansion: (projectId: string) => void;
@@ -134,7 +133,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       <Button variant="ghost" size="icon" onClick={() => onEdit(project)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onDelete(project.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => onDelete(project)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
