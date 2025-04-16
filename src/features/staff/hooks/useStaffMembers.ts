@@ -20,7 +20,7 @@ export const useStaffMembers = (salonId: string | null) => {
   useEffect(() => {
     if (salonId) {
       const freshData = getSalonStaff(salonId);
-      console.log("Staff members refreshed:", freshData);
+      console.log("Staff members refreshed on salonId change:", freshData);
       setStaffMembers(freshData);
       setServices(MOCK_SERVICES[salonId] || []);
     } else {
@@ -28,23 +28,35 @@ export const useStaffMembers = (salonId: string | null) => {
     }
   }, [salonId]);
 
-  // Add a second effect to check for changes in global data
+  // Listen for custom staffDataUpdated event
   useEffect(() => {
-    // Only set up the interval if we have a salonId
-    if (!salonId) return;
-
-    const checkForUpdates = () => {
-      const freshData = getSalonStaff(salonId);
-      if (JSON.stringify(freshData) !== JSON.stringify(staffMembers)) {
+    const handleStaffDataUpdate = (event: CustomEvent) => {
+      if (salonId && event.detail.salonId === salonId) {
+        const freshData = getSalonStaff(salonId);
+        console.log("Staff data updated via event:", freshData);
         setStaffMembers(freshData);
       }
     };
 
-    // Check for updates every second
-    const intervalId = setInterval(checkForUpdates, 1000);
+    // Add event listener
+    window.addEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
     
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId);
+    // Regular polling as a fallback
+    const intervalId = setInterval(() => {
+      if (salonId) {
+        const freshData = getSalonStaff(salonId);
+        if (JSON.stringify(freshData) !== JSON.stringify(staffMembers)) {
+          console.log("Staff data updated via polling:", freshData);
+          setStaffMembers(freshData);
+        }
+      }
+    }, 2000);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
+      clearInterval(intervalId);
+    };
   }, [salonId, staffMembers]);
 
   return { 

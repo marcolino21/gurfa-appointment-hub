@@ -33,7 +33,7 @@ export const useStaffActions = (
 
     // Create staff with required fields explicitly defined
     const newStaff: StaffMember = {
-      id: `staff${Math.random().toString(36).substr(2, 9)}`,
+      id: `staff${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`,
       firstName: data.firstName,
       lastName: data.lastName || '',
       email: data.email,
@@ -120,15 +120,22 @@ export const useStaffActions = (
   };
 
   const deleteStaff = (staffId: string) => {
+    if (!salonId) {
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il membro dello staff: salonId non definito',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
     
     // Update local state
     setStaffMembers(updatedStaff);
     
     // Update global storage
-    if (salonId) {
-      updateStaffData(salonId, updatedStaff);
-    }
+    updateStaffData(salonId, updatedStaff);
     
     toast({
       title: 'Membro dello staff eliminato',
@@ -137,6 +144,15 @@ export const useStaffActions = (
   };
 
   const toggleStaffStatus = (staffId: string, isActive: boolean) => {
+    if (!salonId) {
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare lo stato: salonId non definito',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, isActive } : staff
     );
@@ -145,9 +161,7 @@ export const useStaffActions = (
     setStaffMembers(updatedStaff);
     
     // Update global storage
-    if (salonId) {
-      updateStaffData(salonId, updatedStaff);
-    }
+    updateStaffData(salonId, updatedStaff);
     
     toast({
       title: isActive ? 'Membro dello staff attivato' : 'Membro dello staff disattivato',
@@ -156,6 +170,15 @@ export const useStaffActions = (
   };
 
   const toggleCalendarVisibility = (staffId: string, showInCalendar: boolean) => {
+    if (!salonId) {
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare la visibilità: salonId non definito',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, showInCalendar } : staff
     );
@@ -164,9 +187,7 @@ export const useStaffActions = (
     setStaffMembers(updatedStaff);
     
     // Update global storage
-    if (salonId) {
-      updateStaffData(salonId, updatedStaff);
-    }
+    updateStaffData(salonId, updatedStaff);
     
     toast({
       title: showInCalendar ? 'Visibile in agenda' : 'Nascosto dall\'agenda',

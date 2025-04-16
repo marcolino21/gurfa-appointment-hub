@@ -11,7 +11,7 @@ if (!window.globalStaffData) {
     if (savedData) {
       window.globalStaffData = JSON.parse(savedData);
     } else {
-      localStorage.setItem('staffData', JSON.stringify(MOCK_STAFF));
+      localStorage.setItem('staffData', JSON.stringify(window.globalStaffData));
     }
   } catch (error) {
     console.error("Error accessing localStorage:", error);
@@ -26,7 +26,7 @@ export const getSalonStaff = (salonId: string | null): StaffMember[] => {
   
   // First check in window.globalStaffData
   if (window.globalStaffData && window.globalStaffData[salonId]) {
-    return window.globalStaffData[salonId];
+    return [...window.globalStaffData[salonId]];
   }
   
   // Fallback to localStorage
@@ -37,7 +37,7 @@ export const getSalonStaff = (salonId: string | null): StaffMember[] => {
       if (parsedData[salonId]) {
         // Update global data
         window.globalStaffData = parsedData;
-        return parsedData[salonId];
+        return [...parsedData[salonId]];
       }
     }
   } catch (error) {
@@ -45,7 +45,7 @@ export const getSalonStaff = (salonId: string | null): StaffMember[] => {
   }
   
   // Final fallback to mock data
-  return MOCK_STAFF[salonId] || [];
+  return MOCK_STAFF[salonId] ? [...MOCK_STAFF[salonId]] : [];
 };
 
 /**
@@ -54,11 +54,14 @@ export const getSalonStaff = (salonId: string | null): StaffMember[] => {
 export const updateStaffData = (salonId: string | null, updatedStaff: StaffMember[]): void => {
   if (!salonId) return;
   
+  console.log("Updating staff data for salon:", salonId, updatedStaff);
+  
   // Update global variable
   if (!window.globalStaffData) {
     window.globalStaffData = {};
   }
-  window.globalStaffData[salonId] = updatedStaff;
+  
+  window.globalStaffData[salonId] = [...updatedStaff];
   
   // Also update localStorage for persistence
   try {
@@ -75,10 +78,11 @@ export const updateStaffData = (salonId: string | null, updatedStaff: StaffMembe
     
     localStorage.setItem('staffData', JSON.stringify(updatedData));
     console.log("Staff data saved to localStorage:", updatedData);
+    
+    // Dispatch a custom event to notify other components about the data change
+    const event = new CustomEvent('staffDataUpdated', { detail: { salonId } });
+    window.dispatchEvent(event);
   } catch (error) {
     console.error("Error saving to localStorage:", error);
   }
-  
-  // Also update MOCK_STAFF for compatibility
-  MOCK_STAFF[salonId] = updatedStaff;
 };

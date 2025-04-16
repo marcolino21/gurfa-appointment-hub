@@ -18,28 +18,43 @@ export const useProfessionalsData = (salonId: string | null) => {
     if (salonId) {
       // Get fresh data from global storage
       const staffData = getSalonStaff(salonId);
-      console.log("Professionals data refreshed:", staffData);
+      console.log("Professionals data refreshed on salonId change:", staffData);
       setProfessionals(staffData);
     } else {
       setProfessionals([]);
     }
   }, [salonId]);
 
-  // Add a second effect to listen for changes to the global staff data
+  // Listen for custom staffDataUpdated event
   useEffect(() => {
-    const checkForUpdates = () => {
-      if (salonId) {
-        const staffData = getSalonStaff(salonId);
-        setProfessionals(staffData);
+    const handleStaffDataUpdate = (event: CustomEvent) => {
+      if (salonId && event.detail.salonId === salonId) {
+        const freshData = getSalonStaff(salonId);
+        console.log("Professionals data updated via event:", freshData);
+        setProfessionals(freshData);
       }
     };
 
-    // Check for updates every second
-    const intervalId = setInterval(checkForUpdates, 1000);
+    // Add event listener
+    window.addEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
     
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, [salonId]);
+    // Regular polling as a fallback
+    const intervalId = setInterval(() => {
+      if (salonId) {
+        const freshData = getSalonStaff(salonId);
+        if (JSON.stringify(freshData) !== JSON.stringify(professionals)) {
+          console.log("Professionals data updated via polling:", freshData);
+          setProfessionals(freshData);
+        }
+      }
+    }, 2000);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
+      clearInterval(intervalId);
+    };
+  }, [salonId, professionals]);
 
   const filteredProfessionals = professionals.filter(professional => {
     const fullName = `${professional.firstName} ${professional.lastName}`.toLowerCase();
@@ -47,6 +62,15 @@ export const useProfessionalsData = (salonId: string | null) => {
   });
 
   const handleToggleActive = (professionalId: string) => {
+    if (!salonId) {
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare lo stato: salonId non definito',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     const updatedProfessionals = professionals.map(pro => {
       if (pro.id === professionalId) {
         return { ...pro, isActive: !pro.isActive };
@@ -57,9 +81,7 @@ export const useProfessionalsData = (salonId: string | null) => {
     setProfessionals(updatedProfessionals);
     
     // Update global staff data
-    if (salonId) {
-      updateStaffData(salonId, updatedProfessionals);
-    }
+    updateStaffData(salonId, updatedProfessionals);
     
     const professional = professionals.find(p => p.id === professionalId);
     const newStatus = !professional?.isActive;
@@ -71,15 +93,20 @@ export const useProfessionalsData = (salonId: string | null) => {
   };
 
   const handleDelete = () => {
-    if (!selectedProfessional) return;
+    if (!selectedProfessional || !salonId) {
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il professionista: informazioni mancanti',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const updatedProfessionals = professionals.filter(pro => pro.id !== selectedProfessional.id);
     setProfessionals(updatedProfessionals);
     
     // Update global staff data
-    if (salonId) {
-      updateStaffData(salonId, updatedProfessionals);
-    }
+    updateStaffData(salonId, updatedProfessionals);
     
     toast({
       title: 'Professionista eliminato',

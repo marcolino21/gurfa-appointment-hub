@@ -36,6 +36,11 @@ const Staff = () => {
     // Log the current salonId to help with debugging
     console.log("Current salonId in Staff component:", currentSalonId);
   }, [currentSalonId]);
+  
+  // Log staff members whenever they change for debugging
+  useEffect(() => {
+    console.log("Staff members in Staff component:", staffMembers);
+  }, [staffMembers]);
 
   const filteredStaff = staffMembers.filter(staff => {
     const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
@@ -43,7 +48,16 @@ const Staff = () => {
   });
 
   const handleAddStaff = (data: StaffFormValues) => {
-    console.log("Aggiunta nuovo membro dello staff:", data);
+    console.log("Adding new staff member:", data);
+    
+    if (!currentSalonId) {
+      toast({
+        title: 'Attenzione',
+        description: 'Nessun salone selezionato. Seleziona un salone prima di aggiungere membri dello staff.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     // Ensure showInCalendar is true by default for all new staff members
     const staffData: StaffFormValues = {
@@ -51,21 +65,15 @@ const Staff = () => {
       showInCalendar: true
     };
     
-    if (!currentSalonId) {
-      toast({
-        title: 'Attenzione',
-        description: 'Nessun salone selezionato. Il membro dello staff sarà associato a un ID temporaneo.',
-        variant: 'default', // Changed from 'warning' to 'default'
-      });
-    }
+    const newStaff = addStaff(staffData);
+    console.log("New staff member added:", newStaff);
     
-    addStaff(staffData);
     setIsAddDialogOpen(false);
   };
 
   const handleEditStaff = (data: StaffFormValues) => {
     if (selectedStaff) {
-      console.log("Modifica membro dello staff:", data);
+      console.log("Editing staff member:", data);
       editStaff(selectedStaff.id, data);
       setIsEditDialogOpen(false);
     }
