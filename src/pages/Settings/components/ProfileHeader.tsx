@@ -1,28 +1,54 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Pencil, Download } from "lucide-react";
-import { useToast } from '@/hooks/use-toast';
+import { Pencil, Download, Camera } from "lucide-react";
 
 interface ProfileHeaderProps {
   businessName: string;
   address: string;
   handleSaveProfile: () => void;
+  profileImage: string | null;
+  onFileUpload: (file: File) => void;
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ 
   businessName, 
   address, 
-  handleSaveProfile 
+  handleSaveProfile,
+  profileImage,
+  onFileUpload
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      onFileUpload(files[0]);
+    }
+  };
+  
   return (
     <div className="flex flex-col md:flex-row gap-8">
-      <div className="flex-shrink-0">
-        <Avatar className="w-24 h-24">
-          <AvatarImage src="/lovable-uploads/af963a36-81dd-4b66-ae94-4567f5f8d150.png" alt={businessName} />
+      <div className="flex-shrink-0 relative">
+        <Avatar className="w-24 h-24 cursor-pointer" onClick={handleAvatarClick}>
+          <AvatarImage src={profileImage || "/lovable-uploads/19614d1f-2829-41dc-adfc-940ca688a2f2.png"} alt={businessName} />
           <AvatarFallback>{businessName?.slice(0, 2).toUpperCase()}</AvatarFallback>
+          <div className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 cursor-pointer">
+            <Camera className="h-4 w-4" />
+          </div>
         </Avatar>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          accept="image/*" 
+          onChange={handleFileChange} 
+          className="hidden" 
+        />
       </div>
       
       <div className="flex-1 space-y-6">

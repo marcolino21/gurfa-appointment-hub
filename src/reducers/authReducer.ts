@@ -34,7 +34,8 @@ export type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_SALONS'; payload: any[] }
-  | { type: 'ADD_SALON'; payload: any };
+  | { type: 'ADD_SALON'; payload: any }
+  | { type: 'UPDATE_SALON'; payload: { salonId: string; updatedSalon: any } };
 
 export const initialState: AuthState = {
   user: null,
@@ -92,6 +93,15 @@ export const authReducer = (state: AuthState, action: AuthAction): AuthState => 
       return {
         ...state,
         salons: [...state.salons, action.payload],
+      };
+    case 'UPDATE_SALON':
+      return {
+        ...state,
+        salons: state.salons.map(salon => 
+          salon.id === action.payload.salonId 
+            ? { ...salon, ...action.payload.updatedSalon }
+            : salon
+        ),
       };
     default:
       return state;

@@ -3,6 +3,7 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ProfileFormProps {
   formData: {
@@ -16,14 +17,16 @@ interface ProfileFormProps {
     codiceFiscale: string;
     sedeLegale: string;
   };
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSaveProfile: () => void;
+  isLoading?: boolean;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ 
   formData, 
   handleChange, 
-  handleSaveProfile 
+  handleSaveProfile,
+  isLoading = false 
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -32,7 +35,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Input 
           id="ragioneSociale" 
           value={formData.ragioneSociale} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -41,7 +44,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Input 
           id="phone" 
           value={formData.phone} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -50,7 +53,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Input 
           id="email" 
           value={formData.email} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -59,7 +62,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Input 
           id="piva" 
           value={formData.piva} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -67,9 +70,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Label htmlFor="iban">IBAN</Label>
         <Input 
           id="iban" 
-          placeholder="Inserisci IBAN" 
           value={formData.iban} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -77,9 +79,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Label htmlFor="codiceFiscale">CODICE FISCALE</Label>
         <Input 
           id="codiceFiscale" 
-          placeholder="Inserisci codice fiscale" 
           value={formData.codiceFiscale} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -88,7 +89,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Input 
           id="sedeLegale" 
           value={formData.sedeLegale} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
@@ -97,22 +98,27 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         <Input 
           id="businessName" 
           value={formData.businessName} 
-          onChange={handleChange} 
+          onChange={handleChange}
         />
       </div>
       
       <div className="space-y-2 col-span-2">
         <Label htmlFor="address">INDIRIZZO ATTIVITÀ</Label>
-        <Input 
+        <Textarea 
           id="address" 
           value={formData.address} 
-          onChange={handleChange} 
+          onChange={handleChange}
+          rows={3}
         />
       </div>
       
       <div className="col-span-2">
-        <Button onClick={handleSaveProfile} className="mt-4">
-          Salva modifiche
+        <Button 
+          onClick={handleSaveProfile} 
+          className="mt-4"
+          disabled={isLoading}
+        >
+          {isLoading ? "Salvataggio..." : "Salva modifiche"}
         </Button>
       </div>
     </div>

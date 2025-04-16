@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
 import { StaffFormValues } from '../types';
 import { useStaffData } from './useStaffData';
@@ -14,6 +14,15 @@ export const useStaffProvider = (salonId: string | null) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [businessName, setBusinessName] = useState<string | null>(null);
+
+  // Get business name from localStorage
+  useEffect(() => {
+    const savedBusinessName = localStorage.getItem('salon_business_name');
+    if (savedBusinessName) {
+      setBusinessName(savedBusinessName);
+    }
+  }, []);
 
   // Handle Add Staff
   const handleAddStaff = (data: StaffFormValues) => {
@@ -62,5 +71,6 @@ export const useStaffProvider = (salonId: string | null) => {
     handleToggleStatus,
     handleToggleCalendarVisibility,
     hasSalon,
+    businessName,
   };
 };

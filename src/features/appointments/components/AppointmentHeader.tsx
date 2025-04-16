@@ -21,6 +21,18 @@ const AppointmentHeader: React.FC<AppointmentHeaderProps> = ({
     if (savedBusinessName) {
       setBusinessName(savedBusinessName);
     }
+    
+    // Set up a listener for storage changes to update business name
+    const handleStorageChange = () => {
+      const updatedBusinessName = localStorage.getItem('salon_business_name');
+      setBusinessName(updatedBusinessName);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   return (

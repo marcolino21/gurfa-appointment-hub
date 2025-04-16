@@ -10,6 +10,7 @@ interface AuthContextType extends AuthState {
   setCurrentSalon: (salonId: string) => void;
   resetPassword: (email: string) => Promise<boolean>;
   addSalon: (salon: Salon) => void;
+  updateSalonInfo: (salonId: string, updatedSalon: Salon) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'ADD_SALON', payload: salonToAdd });
   };
 
+  const updateSalonInfo = (salonId: string, updatedSalon: Salon) => {
+    // Update the salon in the state
+    dispatch({ 
+      type: 'UPDATE_SALON', 
+      payload: { 
+        salonId,
+        updatedSalon
+      } 
+    });
+  };
+
   return (
     <AuthContext.Provider value={{
       ...state,
@@ -91,7 +103,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       setCurrentSalon,
       resetPassword,
-      addSalon
+      addSalon,
+      updateSalonInfo
     }}>
       {children}
     </AuthContext.Provider>

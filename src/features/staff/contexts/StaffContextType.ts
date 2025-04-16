@@ -22,4 +22,5 @@ export interface StaffContextType {
   handleToggleStatus: (staffId: string, isActive: boolean) => void;
   handleToggleCalendarVisibility: (staffId: string, showInCalendar: boolean) => void;
   hasSalon: boolean;
+  businessName: string | null;
 }
