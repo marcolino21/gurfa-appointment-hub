@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StaffMember, Service } from '@/types';
 import { MOCK_STAFF, MOCK_SERVICES } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
-import { StaffFormValues } from '../types';
+import { StaffFormValues, WorkScheduleDay } from '../types';
 
 export const useStaffData = (salonId: string | null) => {
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(
@@ -16,6 +16,16 @@ export const useStaffData = (salonId: string | null) => {
 
   const addStaff = (data: StaffFormValues) => {
     if (!salonId) return;
+
+    // Ensure workSchedule days and isWorking are properly defined
+    const workSchedule: WorkScheduleDay[] = data.workSchedule.map(day => ({
+      day: day.day,
+      isWorking: Boolean(day.isWorking),
+      startTime: day.startTime,
+      endTime: day.endTime,
+      breakStart: day.breakStart,
+      breakEnd: day.breakEnd,
+    }));
 
     // Create staff with required fields explicitly defined
     const newStaff: StaffMember = {
@@ -34,13 +44,13 @@ export const useStaffData = (salonId: string | null) => {
       position: data.position, 
       color: data.color,
       assignedServiceIds: data.assignedServiceIds,
-      workSchedule: data.workSchedule,
+      workSchedule: workSchedule,
     };
 
-    // Aggiorniamo sia lo state locale che i dati mockati
+    // Update local state and mock data
     setStaffMembers(prev => [...prev, newStaff]);
     
-    // Aggiorniamo anche il mock data per mantenere la persistenza tra le pagine
+    // Update mock data for persistence between pages
     if (MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
     } else {
@@ -56,6 +66,16 @@ export const useStaffData = (salonId: string | null) => {
   };
 
   const editStaff = (staffId: string, data: StaffFormValues) => {
+    // Ensure workSchedule days and isWorking are properly defined
+    const workSchedule: WorkScheduleDay[] = data.workSchedule.map(day => ({
+      day: day.day,
+      isWorking: Boolean(day.isWorking),
+      startTime: day.startTime,
+      endTime: day.endTime,
+      breakStart: day.breakStart,
+      breakEnd: day.breakEnd,
+    }));
+
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? {
         ...staff,
@@ -71,13 +91,13 @@ export const useStaffData = (salonId: string | null) => {
         position: data.position,
         color: data.color,
         assignedServiceIds: data.assignedServiceIds,
-        workSchedule: data.workSchedule,
+        workSchedule: workSchedule,
       } : staff
     );
 
     setStaffMembers(updatedStaff);
     
-    // Aggiorniamo anche il mock data
+    // Update mock data for persistence
     if (salonId && MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
