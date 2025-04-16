@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PlusCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,16 @@ interface ProductsHeaderProps {
 }
 
 export const ProductsHeader: React.FC<ProductsHeaderProps> = ({ onAddProduct }) => {
+  const [businessName, setBusinessName] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Get the business name from localStorage
+    const savedBusinessName = localStorage.getItem('salon_business_name');
+    if (savedBusinessName) {
+      setBusinessName(savedBusinessName);
+    }
+  }, []);
+  
   const handleExportCsv = () => {
     toast({
       title: "Esportazione avviata",
@@ -27,7 +37,9 @@ export const ProductsHeader: React.FC<ProductsHeaderProps> = ({ onAddProduct }) 
 
   return (
     <div className="flex justify-between items-center">
-      <h1 className="text-3xl font-bold text-blue-900">Prodotti</h1>
+      <h1 className="text-3xl font-bold text-blue-900">
+        Prodotti {businessName && `- ${businessName}`}
+      </h1>
       <div className="flex gap-2">
         <Button onClick={onAddProduct} className="bg-indigo-600 hover:bg-indigo-700">
           <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi nuovo prodotto

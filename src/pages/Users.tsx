@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import ActivityDialog from '@/components/ActivityDialog';
 
 const Users = () => {
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
+  const [businessName, setBusinessName] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Get the business name from localStorage
+    const savedBusinessName = localStorage.getItem('salon_business_name');
+    if (savedBusinessName) {
+      setBusinessName(savedBusinessName);
+    }
+  }, []);
   
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Utenti</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Utenti {businessName && `- ${businessName}`}
+          </h1>
           <p className="text-muted-foreground">Gestisci gli utenti e le attività.</p>
         </div>
         

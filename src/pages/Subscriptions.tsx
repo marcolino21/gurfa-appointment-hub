@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -21,6 +21,16 @@ import { SubscriptionsTable } from '@/features/subscriptions/components/Subscrip
 import { SubscriptionForm } from '@/features/subscriptions/components/SubscriptionForm';
 
 const Subscriptions = () => {
+  const [businessName, setBusinessName] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Get the business name from localStorage
+    const savedBusinessName = localStorage.getItem('salon_business_name');
+    if (savedBusinessName) {
+      setBusinessName(savedBusinessName);
+    }
+  }, []);
+  
   const {
     clients,
     services,
@@ -45,7 +55,7 @@ const Subscriptions = () => {
     <div className="container mx-auto py-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Abbonamenti</CardTitle>
+          <CardTitle>Abbonamenti {businessName && `- ${businessName}`}</CardTitle>
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />

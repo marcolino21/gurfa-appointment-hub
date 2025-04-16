@@ -41,16 +41,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  // Update localStorage when salon changes
+  useEffect(() => {
+    if (state.currentSalonId) {
+      const currentSalon = state.salons.find(salon => salon.id === state.currentSalonId);
+      if (currentSalon?.name) {
+        localStorage.setItem('salon_business_name', currentSalon.name);
+      }
+    }
+  }, [state.currentSalonId, state.salons]);
+
   const login = async (email: string, password: string): Promise<void> => {
     return loginService(email, password, dispatch);
   };
 
   const logout = () => {
     logoutService(dispatch);
+    // Clear business name from localStorage on logout
+    localStorage.removeItem('salon_business_name');
   };
 
   const setCurrentSalon = (salonId: string) => {
     dispatch({ type: 'SET_CURRENT_SALON', payload: salonId });
+    
+    // Update the business name in localStorage when changing salons
+    const salon = state.salons.find(s => s.id === salonId);
+    if (salon) {
+      localStorage.setItem('salon_business_name', salon.name);
+    }
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {
