@@ -49,7 +49,7 @@ const Staff = () => {
       toast({
         title: 'Attenzione',
         description: 'Nessun salone selezionato. Il membro dello staff sarà associato a un ID temporaneo.',
-        variant: 'warning',
+        variant: 'default', // Changed from 'warning' to 'default'
       });
     }
     
