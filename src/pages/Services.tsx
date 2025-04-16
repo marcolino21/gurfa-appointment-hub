@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-react';
 import { useServicesData } from '@/features/services/hooks/useServicesData';
 import { ServicesTable } from '@/features/services/components/ServicesTable';
-import { ServiceForm } from '@/features/services/components/ServiceForm';
+import { ServiceForm } from '@/features/services/components/service-form';
 
 const Services = () => {
   const {
