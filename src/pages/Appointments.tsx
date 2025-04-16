@@ -1,10 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import itLocale from '@fullcalendar/core/locales/it';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import AppointmentDialog from '@/components/AppointmentDialog';
 import { CalendarPlus, Search, Filter } from 'lucide-react';
 import { Appointment } from '@/types';
+import { useStaffAppointments } from '@/features/appointments/hooks/useStaffAppointments';
+import StaffCalendar from '@/features/appointments/components/StaffCalendar';
 
 const Appointments: React.FC = () => {
-  const calendarRef = useRef<any>(null);
   const [isAppointmentDialogOpen, setIsAppointmentDialogOpen] = useState(false);
   const [calendarView, setCalendarView] = useState<'timeGridWeek' | 'timeGridDay' | 'dayGridMonth'>('timeGridWeek');
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,7 +29,11 @@ const Appointments: React.FC = () => {
   
   const { currentSalonId } = useAuth();
   
-  useEffect(() => {
+  // Utilizziamo il nuovo hook per ottenere i membri dello staff visibili in agenda
+  const { visibleStaff } = useStaffAppointments();
+  
+  // Filtriamo gli appuntamenti
+  React.useEffect(() => {
     // Applica i filtri quando cambiano i valori di ricerca o stato
     setFilters({
       search: searchTerm,
@@ -43,12 +43,20 @@ const Appointments: React.FC = () => {
   
   const handleDateSelect = (selectInfo: any) => {
     if (currentSalonId) {
+      // Se è una vista con staff, determiniamo lo staffId
+      let staffId = undefined;
+      
+      if (selectInfo.resource) {
+        staffId = selectInfo.resource.id;
+      }
+      
       const newAppointment: Partial<Appointment> = {
         title: '',
         start: selectInfo.startStr,
         end: selectInfo.endStr,
         clientName: '',
         salonId: currentSalonId,
+        staffId: staffId,
         status: 'pending'
       };
       
@@ -68,10 +76,14 @@ const Appointments: React.FC = () => {
   const handleEventDrop = (dropInfo: any) => {
     const appointment = filteredAppointments.find(app => app.id === dropInfo.event.id);
     if (appointment) {
+      // Aggiorniamo anche lo staff se l'evento è trascinato su una risorsa diversa
+      const staffId = dropInfo.newResource ? dropInfo.newResource.id : appointment.staffId;
+      
       const updatedAppointment = {
         ...appointment,
         start: dropInfo.event.startStr,
-        end: dropInfo.event.endStr
+        end: dropInfo.event.endStr,
+        staffId
       };
       setCurrentAppointment(updatedAppointment);
       setIsAppointmentDialogOpen(true);
@@ -81,22 +93,11 @@ const Appointments: React.FC = () => {
   const handleAddAppointment = () => {
     if (!currentSalonId) return;
     
-    const calendarApi = calendarRef.current?.getApi();
-    let start = new Date();
-    let end = new Date(start.getTime() + 60 * 60 * 1000); // +1 ora
-    
-    if (calendarApi) {
-      // Ottieni la data attualmente visualizzata nel calendario
-      const currentDate = calendarApi.getDate();
-      
-      // Imposta l'orario di inizio alle 9:00 della data corrente del calendario
-      start = new Date(currentDate);
-      start.setHours(9, 0, 0, 0);
-      
-      // Imposta l'orario di fine alle 10:00 della stessa data
-      end = new Date(start);
-      end.setHours(10, 0, 0, 0);
-    }
+    const date = new Date();
+    const start = new Date(date);
+    start.setHours(9, 0, 0, 0);
+    const end = new Date(start);
+    end.setHours(10, 0, 0, 0);
     
     const newAppointment: Partial<Appointment> = {
       title: '',
@@ -104,6 +105,7 @@ const Appointments: React.FC = () => {
       end: end.toISOString(),
       clientName: '',
       salonId: currentSalonId,
+      staffId: visibleStaff.length > 0 ? visibleStaff[0].id : undefined,
       status: 'pending'
     };
     
@@ -121,7 +123,7 @@ const Appointments: React.FC = () => {
     }
   };
   
-  // Prepara gli eventi per il calendario
+  // Prepara gli eventi per il calendario con l'assegnazione dello staff
   const events = filteredAppointments.map(appointment => ({
     id: appointment.id,
     title: `${appointment.clientName} - ${appointment.service || ''}`,
@@ -129,8 +131,10 @@ const Appointments: React.FC = () => {
     end: appointment.end,
     backgroundColor: getEventColor(appointment.status),
     borderColor: getEventColor(appointment.status),
+    resourceId: appointment.staffId,  // Assegnazione alla risorsa (staff)
     extendedProps: {
-      status: appointment.status
+      status: appointment.status,
+      staffId: appointment.staffId
     }
   }));
   
@@ -198,82 +202,36 @@ const Appointments: React.FC = () => {
             </div>
             
             <TabsContent value="day" className="m-0">
-              <div className="h-[calc(100vh-320px)]">
-                <FullCalendar
-                  ref={calendarRef}
-                  plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
-                  initialView="timeGridDay"
-                  headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: ''
-                  }}
-                  locale={itLocale}
-                  events={events}
-                  slotMinTime="08:00:00"
-                  slotMaxTime="20:00:00"
-                  allDaySlot={false}
-                  selectMirror={true}
-                  dayMaxEvents={true}
-                  weekends={true}
-                  selectable={true}
-                  select={handleDateSelect}
-                  eventClick={handleEventClick}
-                  editable={true}
-                  droppable={true}
-                  eventDrop={handleEventDrop}
-                />
-              </div>
+              <StaffCalendar
+                staffMembers={visibleStaff}
+                events={events}
+                view="timeGridDay"
+                onEventClick={handleEventClick}
+                onEventDrop={handleEventDrop}
+                onDateSelect={handleDateSelect}
+              />
             </TabsContent>
+            
             <TabsContent value="week" className="m-0">
-              <div className="h-[calc(100vh-320px)]">
-                <FullCalendar
-                  ref={calendarRef}
-                  plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
-                  initialView="timeGridWeek"
-                  headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: ''
-                  }}
-                  locale={itLocale}
-                  events={events}
-                  slotMinTime="08:00:00"
-                  slotMaxTime="20:00:00"
-                  allDaySlot={false}
-                  selectMirror={true}
-                  dayMaxEvents={true}
-                  weekends={true}
-                  selectable={true}
-                  select={handleDateSelect}
-                  eventClick={handleEventClick}
-                  editable={true}
-                  droppable={true}
-                  eventDrop={handleEventDrop}
-                />
-              </div>
+              <StaffCalendar
+                staffMembers={visibleStaff}
+                events={events}
+                view="timeGridWeek"
+                onEventClick={handleEventClick}
+                onEventDrop={handleEventDrop}
+                onDateSelect={handleDateSelect}
+              />
             </TabsContent>
+            
             <TabsContent value="month" className="m-0">
-              <div className="h-[calc(100vh-320px)]">
-                <FullCalendar
-                  ref={calendarRef}
-                  plugins={[dayGridPlugin, interactionPlugin]}
-                  initialView="dayGridMonth"
-                  headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: ''
-                  }}
-                  locale={itLocale}
-                  events={events}
-                  selectMirror={true}
-                  dayMaxEvents={true}
-                  weekends={true}
-                  selectable={true}
-                  select={handleDateSelect}
-                  eventClick={handleEventClick}
-                />
-              </div>
+              <StaffCalendar
+                staffMembers={visibleStaff}
+                events={events}
+                view="dayGridMonth"
+                onEventClick={handleEventClick}
+                onEventDrop={handleEventDrop}
+                onDateSelect={handleDateSelect}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>

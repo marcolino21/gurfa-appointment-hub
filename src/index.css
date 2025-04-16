@@ -116,3 +116,22 @@
   padding: 0;
   font-size: 0.9rem;
 }
+
+/* Modifichiamo lo sfondo dell'agenda */
+.fc-day {
+  background-color: #FFFFFF !important;
+}
+
+.fc-day-today {
+  background-color: #F1F1F1 !important;
+}
+
+/* Stile per la vista degli appuntamenti dello staff */
+.fc-timegrid-slots td {
+  height: 40px !important;
+}
+
+/* Stile per le risorse dello staff */
+.fc-resource-timeline td {
+  height: 40px !important;
+}
