@@ -69,6 +69,7 @@ export interface Service {
   price: number;
   color: string;
   salonId: string;
+  assignedStaffIds?: string[];
   assignedServiceIds: string[];
 }
 
