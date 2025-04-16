@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MOCK_SERVICES, MOCK_SERVICE_CATEGORIES, MOCK_STAFF } from '@/data/mockData';
@@ -42,6 +41,7 @@ export const useServicesData = () => {
       name: data.name,
       category: data.category, 
       duration: data.duration,
+      tempoDiPosa: data.tempoDiPosa,
       price: data.price,
       color: data.color,
       salonId: currentSalonId,
@@ -67,6 +67,7 @@ export const useServicesData = () => {
         name: data.name,
         category: data.category,
         duration: data.duration,
+        tempoDiPosa: data.tempoDiPosa,
         price: data.price,
         color: data.color,
         description: data.description,
