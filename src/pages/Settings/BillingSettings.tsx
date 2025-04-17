@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, CreditCard, Edit, Trash2 } from "lucide-react";
 import { usePaymentMethodOperations } from './hooks/usePaymentMethodOperations';
+import PaymentMethodSelector from './components/payment-methods/PaymentMethodSelector';
 
 const BillingSettings = () => {
   const { 
@@ -50,16 +50,18 @@ const BillingSettings = () => {
     { date: "01 nov 2024", number: "IT100043935-31" }
   ];
 
-  const handleAddPaymentMethod = () => {
-    addPaymentMethod(newPaymentMethod);
-    setIsAddCardDialogOpen(false);
-    setNewPaymentMethod({
-      card_type: '',
-      last_four: '',
-      holder_name: '',
-      expiry_month: 0,
-      expiry_year: 0
-    });
+  const handleAddPaymentMethod = (method: 'credit-card' | 'paypal' | 'apple-pay') => {
+    switch (method) {
+      case 'credit-card':
+        setIsAddCardDialogOpen(true);
+        break;
+      case 'paypal':
+        window.location.href = 'https://www.paypal.com/connect'; // Replace with your PayPal connect URL
+        break;
+      case 'apple-pay':
+        // Implement Apple Pay functionality
+        break;
+    }
   };
 
   const handleRemovePaymentMethod = () => {
@@ -170,7 +172,7 @@ const BillingSettings = () => {
             ))}
           </Card>
         ) : (
-          <p className="text-muted-foreground">Nessun metodo di pagamento salvato</p>
+          <PaymentMethodSelector onSelect={handleAddPaymentMethod} />
         )}
       </div>
 
