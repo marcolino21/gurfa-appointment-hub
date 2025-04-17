@@ -41,7 +41,8 @@ const BillingSettings = () => {
     last_four: '',
     holder_name: '',
     expiry_month: 0,
-    expiry_year: 0
+    expiry_year: 0,
+    card_number: ''
   });
 
   useEffect(() => {
@@ -80,8 +81,17 @@ const BillingSettings = () => {
     }
   };
 
-  const handleSubmitPaymentMethod = async (formData: CreditCardFormData) => {
+  const handleSubmitPaymentMethod = async (formData: any) => {
     try {
+      if (!formData.card_number) {
+        toast({
+          variant: 'destructive',
+          title: 'Errore',
+          description: 'Inserisci il numero della carta.',
+        });
+        return;
+      }
+      
       const last_four = formData.card_number.slice(-4);
       
       const paymentMethod = {
@@ -89,10 +99,11 @@ const BillingSettings = () => {
         card_type: 'credit-card',
         last_four,
         holder_name: formData.holder_name,
-        expiry_month: parseInt(formData.expiry_month),
+        expiry_month: parseInt(formData.expiry_month.toString()),
         expiry_year: parseInt(formData.expiry_year.toString().slice(-2))
       };
   
+      console.log('Saving payment method:', paymentMethod);
       await addPaymentMethod(paymentMethod);
       
       toast({
@@ -246,8 +257,8 @@ const BillingSettings = () => {
               <Label htmlFor="card_number" className="text-right">N. della Carta</Label>
               <Input 
                 id="card_number" 
-                value={newPaymentMethod.last_four || ''} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, last_four: e.target.value }))} 
+                value={newPaymentMethod.card_number || ''} 
+                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, card_number: e.target.value }))} 
                 className="col-span-3" 
                 placeholder="1234 5678 9012 3456"
                 maxLength={16}
@@ -266,7 +277,7 @@ const BillingSettings = () => {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="expiry_month" className="text-right">Mese Scadenza</Label>
               <Select
-                value={newPaymentMethod.expiry_month.toString()}
+                value={newPaymentMethod.expiry_month ? newPaymentMethod.expiry_month.toString() : ''}
                 onValueChange={(value) => {
                   setNewPaymentMethod(prev => ({ 
                     ...prev, 
@@ -319,7 +330,12 @@ const BillingSettings = () => {
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsAddCardDialogOpen(false)}>Annulla</Button>
-            <Button type="submit" onClick={() => handleSubmitPaymentMethod(newPaymentMethod as unknown as CreditCardFormData)}>Salva</Button>
+            <Button 
+              type="submit" 
+              onClick={() => handleSubmitPaymentMethod(newPaymentMethod)}
+            >
+              Salva
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
