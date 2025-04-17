@@ -162,6 +162,42 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          card_type: string
+          created_at: string
+          expiry_month: number
+          expiry_year: number
+          holder_name: string
+          id: string
+          last_four: string
+          salon_id: string
+          updated_at: string
+        }
+        Insert: {
+          card_type: string
+          created_at?: string
+          expiry_month: number
+          expiry_year: number
+          holder_name: string
+          id?: string
+          last_four: string
+          salon_id: string
+          updated_at?: string
+        }
+        Update: {
+          card_type?: string
+          created_at?: string
+          expiry_month?: number
+          expiry_year?: number
+          holder_name?: string
+          id?: string
+          last_four?: string
+          salon_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_brands: {
         Row: {
           created_at: string | null
