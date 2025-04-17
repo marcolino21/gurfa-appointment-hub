@@ -11,8 +11,9 @@ import PaymentMethodSelector from './components/payment-methods/PaymentMethodSel
 import { PaymentMethodType } from './types/paymentTypes';
 import { CreditCardFormData } from './types/paymentTypes';
 
-const formatTwoDigits = (value: number): string => {
-  return value.toString().padStart(2, '0');
+const formatTwoDigits = (value: number | string): string => {
+  const numValue = typeof value === 'string' ? parseInt(value) || 0 : value || 0;
+  return numValue.toString().padStart(2, '0');
 };
 
 const BillingSettings = () => {
@@ -71,7 +72,6 @@ const BillingSettings = () => {
   };
 
   const handleSubmitPaymentMethod = (formData: CreditCardFormData) => {
-    // Extract last 4 digits from card number
     const last_four = formData.card_number.slice(-4);
     
     const paymentMethod = {
@@ -79,8 +79,8 @@ const BillingSettings = () => {
       card_type: 'credit-card',
       last_four,
       holder_name: formData.holder_name,
-      expiry_month: parseInt(formatTwoDigits(parseInt(formData.expiry_month))),
-      expiry_year: parseInt(formatTwoDigits(parseInt(formData.expiry_year)).slice(-2))
+      expiry_month: parseInt(formatTwoDigits(formData.expiry_month)),
+      expiry_year: parseInt(formData.expiry_year.toString().slice(-2))
     };
 
     addPaymentMethod(paymentMethod);
@@ -245,8 +245,22 @@ const BillingSettings = () => {
                 id="expiry_month" 
                 type="text"
                 maxLength={2}
-                value={formatTwoDigits(newPaymentMethod.expiry_month || 0)} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_month: parseInt(formatTwoDigits(parseInt(e.target.value))) }))} 
+                value={formatTwoDigits(newPaymentMethod.expiry_month)} 
+                onChange={(e) => {
+                  if (!e.target.value) {
+                    setNewPaymentMethod(prev => ({ ...prev, expiry_month: 0 }));
+                    return;
+                  }
+                  
+                  let month = parseInt(e.target.value);
+                  if (isNaN(month)) month = 0;
+                  if (month > 12) month = 12;
+                  
+                  setNewPaymentMethod(prev => ({ 
+                    ...prev, 
+                    expiry_month: month 
+                  }));
+                }} 
                 className="col-span-3" 
                 placeholder="MM"
               />
@@ -257,10 +271,27 @@ const BillingSettings = () => {
                 id="expiry_year" 
                 type="text"
                 maxLength={4}
-                value={formatTwoDigits(newPaymentMethod.expiry_year || 0)} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_year: parseInt(formatTwoDigits(parseInt(e.target.value)).slice(-2)) }))} 
+                value={newPaymentMethod.expiry_year ? formatTwoDigits(newPaymentMethod.expiry_year) : ''} 
+                onChange={(e) => {
+                  if (!e.target.value) {
+                    setNewPaymentMethod(prev => ({ ...prev, expiry_year: 0 }));
+                    return;
+                  }
+                  
+                  let year = parseInt(e.target.value);
+                  if (isNaN(year)) year = 0;
+                  
+                  if (year > 100) {
+                    year = year % 100;
+                  }
+                  
+                  setNewPaymentMethod(prev => ({ 
+                    ...prev, 
+                    expiry_year: year 
+                  }));
+                }}
                 className="col-span-3" 
-                placeholder="YYYY"
+                placeholder="YY"
               />
             </div>
           </div>
