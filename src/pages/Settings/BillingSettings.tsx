@@ -10,6 +10,13 @@ import { usePaymentMethodOperations } from './hooks/usePaymentMethodOperations';
 import PaymentMethodSelector from './components/payment-methods/PaymentMethodSelector';
 import { PaymentMethodType } from './types/paymentTypes';
 import { CreditCardFormData } from './types/paymentTypes';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formatTwoDigits = (value: number | string): string => {
   const numValue = typeof value === 'string' ? parseInt(value) || 0 : value || 0;
@@ -79,7 +86,7 @@ const BillingSettings = () => {
       card_type: 'credit-card',
       last_four,
       holder_name: formData.holder_name,
-      expiry_month: parseInt(formatTwoDigits(formData.expiry_month)),
+      expiry_month: parseInt(formData.expiry_month),
       expiry_year: parseInt(formData.expiry_year.toString().slice(-2))
     };
 
@@ -241,29 +248,26 @@ const BillingSettings = () => {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="expiry_month" className="text-right">Mese Scadenza</Label>
-              <Input 
-                id="expiry_month" 
-                type="text"
-                maxLength={2}
-                value={formatTwoDigits(newPaymentMethod.expiry_month)} 
-                onChange={(e) => {
-                  if (!e.target.value) {
-                    setNewPaymentMethod(prev => ({ ...prev, expiry_month: 0 }));
-                    return;
-                  }
-                  
-                  let month = parseInt(e.target.value);
-                  if (isNaN(month)) month = 0;
-                  if (month > 12) month = 12;
-                  
+              <Select
+                value={newPaymentMethod.expiry_month.toString()}
+                onValueChange={(value) => {
                   setNewPaymentMethod(prev => ({ 
                     ...prev, 
-                    expiry_month: month 
+                    expiry_month: parseInt(value) 
                   }));
-                }} 
-                className="col-span-3" 
-                placeholder="MM"
-              />
+                }}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="MM" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    <SelectItem key={month} value={month.toString()}>
+                      {formatTwoDigits(month)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="expiry_year" className="text-right">Anno Scadenza</Label>
