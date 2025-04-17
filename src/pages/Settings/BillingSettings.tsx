@@ -11,6 +11,10 @@ import PaymentMethodSelector from './components/payment-methods/PaymentMethodSel
 import { PaymentMethodType } from './types/paymentTypes';
 import { CreditCardFormData } from './types/paymentTypes';
 
+const formatTwoDigits = (value: number): string => {
+  return value.toString().padStart(2, '0');
+};
+
 const BillingSettings = () => {
   const { 
     paymentMethods, 
@@ -75,8 +79,8 @@ const BillingSettings = () => {
       card_type: 'credit-card',
       last_four,
       holder_name: formData.holder_name,
-      expiry_month: parseInt(formData.expiry_month),
-      expiry_year: parseInt(formData.expiry_year)
+      expiry_month: parseInt(formatTwoDigits(parseInt(formData.expiry_month))),
+      expiry_year: parseInt(formatTwoDigits(parseInt(formData.expiry_year)).slice(-2))
     };
 
     addPaymentMethod(paymentMethod);
@@ -241,8 +245,8 @@ const BillingSettings = () => {
                 id="expiry_month" 
                 type="text"
                 maxLength={2}
-                value={newPaymentMethod.expiry_month || ''} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_month: parseInt(e.target.value) }))} 
+                value={formatTwoDigits(newPaymentMethod.expiry_month || 0)} 
+                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_month: parseInt(formatTwoDigits(parseInt(e.target.value))) }))} 
                 className="col-span-3" 
                 placeholder="MM"
               />
@@ -253,8 +257,8 @@ const BillingSettings = () => {
                 id="expiry_year" 
                 type="text"
                 maxLength={4}
-                value={newPaymentMethod.expiry_year || ''} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_year: parseInt(e.target.value) }))} 
+                value={formatTwoDigits(newPaymentMethod.expiry_year || 0)} 
+                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_year: parseInt(formatTwoDigits(parseInt(e.target.value)).slice(-2)) }))} 
                 className="col-span-3" 
                 placeholder="YYYY"
               />
