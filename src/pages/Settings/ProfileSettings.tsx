@@ -7,18 +7,19 @@ import ProfileForm from './components/ProfileForm';
 import SubscriptionsList from './components/SubscriptionsList';
 import { supabase } from '@/integrations/supabase/client';
 
+// Define an interface for the salon_profiles table
 interface SalonProfile {
   id?: string;
   salon_id: string;
   business_name: string;
-  phone: string;
-  address: string;
-  ragione_sociale: string;
-  email: string;
-  piva: string;
-  iban: string;
-  codice_fiscale: string;
-  sede_legale: string;
+  phone?: string;
+  address?: string;
+  ragione_sociale?: string;
+  email?: string;
+  piva?: string;
+  iban?: string;
+  codice_fiscale?: string;
+  sede_legale?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -53,7 +54,7 @@ const ProfileSettings = () => {
       setIsInitialLoading(true);
       try {
         // Verifica se esiste già un profilo per questo salone
-        const { data: profile, error } = await supabase
+        const { data, error } = await supabase
           .from('salon_profiles')
           .select('*')
           .eq('salon_id', currentSalonId)
@@ -69,30 +70,30 @@ const ProfileSettings = () => {
           return;
         }
         
-        if (profile) {
+        if (data) {
           setFormData({
-            businessName: profile.business_name || currentSalon?.name || '',
-            phone: profile.phone || currentSalon?.phone || '',
-            address: profile.address || currentSalon?.address || '',
-            ragioneSociale: profile.ragione_sociale || '',
-            email: profile.email || '',
-            piva: profile.piva || '',
-            iban: profile.iban || '',
-            codiceFiscale: profile.codice_fiscale || '',
-            sedeLegale: profile.sede_legale || ''
+            businessName: data.business_name || currentSalon?.name || '',
+            phone: data.phone || currentSalon?.phone || '',
+            address: data.address || currentSalon?.address || '',
+            ragioneSociale: data.ragione_sociale || '',
+            email: data.email || '',
+            piva: data.piva || '',
+            iban: data.iban || '',
+            codiceFiscale: data.codice_fiscale || '',
+            sedeLegale: data.sede_legale || ''
           });
           
           // Aggiorna anche le informazioni nel context
           if (currentSalon && (
-            currentSalon.name !== profile.business_name ||
-            currentSalon.phone !== profile.phone ||
-            currentSalon.address !== profile.address
+            currentSalon.name !== data.business_name ||
+            currentSalon.phone !== data.phone ||
+            currentSalon.address !== data.address
           )) {
             updateSalonInfo(currentSalonId, {
               ...currentSalon,
-              name: profile.business_name,
-              phone: profile.phone,
-              address: profile.address
+              name: data.business_name,
+              phone: data.phone,
+              address: data.address
             });
           }
         } else {
@@ -266,3 +267,4 @@ const ProfileSettings = () => {
 };
 
 export default ProfileSettings;
+

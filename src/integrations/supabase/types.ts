@@ -388,6 +388,54 @@ export type Database = {
           },
         ]
       }
+      salon_profiles: {
+        Row: {
+          address: string | null
+          business_name: string
+          codice_fiscale: string | null
+          created_at: string | null
+          email: string | null
+          iban: string | null
+          id: string
+          phone: string | null
+          piva: string | null
+          ragione_sociale: string | null
+          salon_id: string
+          sede_legale: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          codice_fiscale?: string | null
+          created_at?: string | null
+          email?: string | null
+          iban?: string | null
+          id?: string
+          phone?: string | null
+          piva?: string | null
+          ragione_sociale?: string | null
+          salon_id: string
+          sede_legale?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          codice_fiscale?: string | null
+          created_at?: string | null
+          email?: string | null
+          iban?: string | null
+          id?: string
+          phone?: string | null
+          piva?: string | null
+          ragione_sociale?: string | null
+          salon_id?: string
+          sede_legale?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       service_categories: {
         Row: {
           created_at: string | null
