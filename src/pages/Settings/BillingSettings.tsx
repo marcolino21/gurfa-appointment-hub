@@ -10,6 +10,7 @@ import { usePaymentMethodOperations } from './hooks/usePaymentMethodOperations';
 import PaymentMethodSelector from './components/payment-methods/PaymentMethodSelector';
 import { PaymentMethodType } from './types/paymentTypes';
 import { CreditCardFormData } from './types/paymentTypes';
+import { useToast } from '@/hooks/use-toast';
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ const BillingSettings = () => {
     addPaymentMethod, 
     removePaymentMethod 
   } = usePaymentMethodOperations();
+  const { toast } = useToast();
 
   const [isAddCardDialogOpen, setIsAddCardDialogOpen] = useState(false);
   const [isRemoveCardDialogOpen, setIsRemoveCardDialogOpen] = useState(false);
@@ -78,20 +80,35 @@ const BillingSettings = () => {
     }
   };
 
-  const handleSubmitPaymentMethod = (formData: CreditCardFormData) => {
-    const last_four = formData.card_number.slice(-4);
-    
-    const paymentMethod = {
-      type: 'credit-card' as PaymentMethodType,
-      card_type: 'credit-card',
-      last_four,
-      holder_name: formData.holder_name,
-      expiry_month: parseInt(formData.expiry_month),
-      expiry_year: parseInt(formData.expiry_year.toString().slice(-2))
-    };
-
-    addPaymentMethod(paymentMethod);
-    setIsAddCardDialogOpen(false);
+  const handleSubmitPaymentMethod = async (formData: CreditCardFormData) => {
+    try {
+      const last_four = formData.card_number.slice(-4);
+      
+      const paymentMethod = {
+        type: 'credit-card' as PaymentMethodType,
+        card_type: 'credit-card',
+        last_four,
+        holder_name: formData.holder_name,
+        expiry_month: parseInt(formData.expiry_month),
+        expiry_year: parseInt(formData.expiry_year.toString().slice(-2))
+      };
+  
+      await addPaymentMethod(paymentMethod);
+      
+      toast({
+        title: 'Metodo di pagamento salvato',
+        description: 'La carta di credito è stata salvata con successo.',
+      });
+      
+      setIsAddCardDialogOpen(false);
+    } catch (error) {
+      console.error('Error submitting payment method:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Errore',
+        description: 'Impossibile salvare il metodo di pagamento.',
+      });
+    }
   };
 
   const handleRemovePaymentMethod = () => {
