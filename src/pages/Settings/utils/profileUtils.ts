@@ -46,7 +46,7 @@ export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: str
 export const checkProfileExists = async (salonId: string): Promise<{ data: SalonProfile | null, error: any }> => {
   const { data, error } = await supabase
     .from('salon_profiles')
-    .select('id')
+    .select('*') // Select all columns instead of just 'id'
     .eq('salon_id', salonId)
     .single();
   
