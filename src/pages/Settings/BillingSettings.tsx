@@ -210,7 +210,10 @@ const BillingSettings = () => {
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setNewPaymentMethod(method);
+                        setNewPaymentMethod({
+                          ...method,
+                          card_number: ''
+                        });
                         setIsAddCardDialogOpen(true);
                       }}
                     >

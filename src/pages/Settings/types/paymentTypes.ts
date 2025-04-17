@@ -9,6 +9,7 @@ export interface PaymentMethod {
   holder_name?: string;
   expiry_month?: number;
   expiry_year?: number;
+  card_number?: string; // Added card_number property
 }
 
 export interface CreditCardFormData {
