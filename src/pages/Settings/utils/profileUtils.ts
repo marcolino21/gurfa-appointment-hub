@@ -15,9 +15,9 @@ export const saveSalonProfileToLocalStorage = (formData: ProfileFormData): void 
 
 export const loadSalonProfileFromLocalStorage = (currentSalon?: Salon): ProfileFormData => {
   return {
-    businessName: currentSalon?.name || '',
-    phone: currentSalon?.phone || '',
-    address: currentSalon?.address || '',
+    businessName: currentSalon?.name || localStorage.getItem('salon_business_name') || '',
+    phone: currentSalon?.phone || localStorage.getItem('salon_phone') || '',
+    address: currentSalon?.address || localStorage.getItem('salon_address') || '',
     ragioneSociale: localStorage.getItem('salon_ragione_sociale') || '',
     email: localStorage.getItem('salon_email') || '',
     piva: localStorage.getItem('salon_piva') || '',
@@ -44,36 +44,60 @@ export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: str
 };
 
 export const checkProfileExists = async (salonId: string): Promise<{ data: SalonProfile | null, error: any }> => {
-  const { data, error } = await supabase
-    .from('salon_profiles')
-    .select('*') // Select all columns instead of just 'id'
-    .eq('salon_id', salonId)
-    .single();
-  
-  return { data, error };
+  try {
+    const { data, error } = await supabase
+      .from('salon_profiles')
+      .select('*') 
+      .eq('salon_id', salonId)
+      .single();
+    
+    return { data, error };
+  } catch (err) {
+    console.error('Error in checkProfileExists:', err);
+    return { data: null, error: err };
+  }
 };
 
 export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ error: any }> => {
-  const { data: existingProfile } = await checkProfileExists(profileData.salon_id);
-  
-  let saveError;
-  
-  if (existingProfile) {
-    // Aggiorna il profilo esistente
-    const { error } = await supabase
-      .from('salon_profiles')
-      .update(profileData)
-      .eq('salon_id', profileData.salon_id);
+  try {
+    console.log('Checking if profile exists for salon:', profileData.salon_id);
+    const { data: existingProfile, error: checkError } = await checkProfileExists(profileData.salon_id);
     
-    saveError = error;
-  } else {
-    // Crea un nuovo profilo
-    const { error } = await supabase
-      .from('salon_profiles')
-      .insert(profileData);
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Error checking profile existence:', checkError);
+      return { error: checkError };
+    }
     
-    saveError = error;
+    let saveError;
+    
+    if (existingProfile) {
+      console.log('Updating existing profile');
+      // Aggiorna il profilo esistente
+      const { error } = await supabase
+        .from('salon_profiles')
+        .update(profileData)
+        .eq('salon_id', profileData.salon_id);
+      
+      saveError = error;
+    } else {
+      console.log('Creating new profile');
+      // Crea un nuovo profilo
+      const { error } = await supabase
+        .from('salon_profiles')
+        .insert(profileData);
+      
+      saveError = error;
+    }
+    
+    if (saveError) {
+      console.error('Error saving profile:', saveError);
+    } else {
+      console.log('Profile saved successfully');
+    }
+    
+    return { error: saveError };
+  } catch (err) {
+    console.error('Unexpected error in saveSalonProfile:', err);
+    return { error: err };
   }
-  
-  return { error: saveError };
 };

@@ -1,5 +1,7 @@
 
 import React from 'react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import ProfileHeader from './components/ProfileHeader';
 import ProfileForm from './components/ProfileForm';
 import SubscriptionsList from './components/SubscriptionsList';
@@ -12,6 +14,7 @@ const ProfileSettings = () => {
     isLoading,
     isInitialLoading,
     profileImage,
+    error,
     handleChange,
     handleFileUpload,
     handleSaveProfile
@@ -19,6 +22,14 @@ const ProfileSettings = () => {
   
   return (
     <div className="space-y-8">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Errore</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       {isInitialLoading ? (
         <div className="space-y-6">
           <div className="flex items-center justify-center py-6">

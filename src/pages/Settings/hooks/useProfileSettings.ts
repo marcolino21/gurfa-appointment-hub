@@ -18,6 +18,7 @@ export const useProfileSettings = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(
     localStorage.getItem('salon_profile_image') || null
   );
@@ -55,12 +56,16 @@ export const useProfileSettings = () => {
   
   const loadSalonProfile = async () => {
     if (!currentSalonId) {
-      console.log('No salon ID provided, cannot load profile');
+      console.log('No salon ID provided, using default empty profile');
       setIsInitialLoading(false);
+      
+      // Use localStorage or default values even when no salon is selected
+      setFormData(loadSalonProfileFromLocalStorage(currentSalon));
       return;
     }
     
     setIsInitialLoading(true);
+    setError(null);
     console.log(`Loading profile for salon ID: ${currentSalonId}`);
     
     try {
@@ -79,11 +84,15 @@ export const useProfileSettings = () => {
           // Load from localStorage if no profile exists
           setFormData(loadSalonProfileFromLocalStorage(currentSalon));
         } else {
+          setError(`Impossibile caricare il profilo: ${error.message}`);
           toast({
             variant: 'destructive',
             title: 'Errore',
             description: `Impossibile caricare il profilo del salone: ${error.message}`
           });
+          
+          // Even on error, still use localStorage as fallback
+          setFormData(loadSalonProfileFromLocalStorage(currentSalon));
         }
       } else if (data) {
         console.log('Profile found in database:', data);
@@ -119,6 +128,7 @@ export const useProfileSettings = () => {
       }
     } catch (error: any) {
       console.error('Unexpected error while loading profile:', error);
+      setError(`Errore inaspettato: ${error?.message || 'Errore sconosciuto'}`);
       toast({
         variant: 'destructive',
         title: 'Errore',
@@ -143,6 +153,7 @@ export const useProfileSettings = () => {
     }
     
     setIsLoading(true);
+    setError(null);
     console.log('Saving profile for salon ID:', currentSalonId);
     
     try {
@@ -177,10 +188,11 @@ export const useProfileSettings = () => {
       
     } catch (error: any) {
       console.error('Errore nel salvataggio del profilo:', error);
+      setError(`Impossibile salvare il profilo: ${error?.message || 'Errore sconosciuto'}`);
       toast({
         variant: 'destructive',
         title: "Errore",
-        description: `Impossibile salvare il profilo: ${error.message || 'Errore sconosciuto'}`
+        description: `Impossibile salvare il profilo: ${error?.message || 'Errore sconosciuto'}`
       });
     } finally {
       setIsLoading(false);
@@ -189,9 +201,8 @@ export const useProfileSettings = () => {
   
   useEffect(() => {
     console.log('useProfileSettings effect triggered, currentSalonId:', currentSalonId);
-    if (currentSalonId) {
-      loadSalonProfile();
-    }
+    // Load profile data regardless of whether a salon is selected
+    loadSalonProfile();
   }, [currentSalonId]);
   
   return {
@@ -200,6 +211,7 @@ export const useProfileSettings = () => {
     isLoading,
     isInitialLoading,
     profileImage,
+    error,
     handleChange,
     handleFileUpload,
     handleSaveProfile
