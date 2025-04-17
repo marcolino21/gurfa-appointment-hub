@@ -27,8 +27,15 @@ const Settings = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Tabs defaultValue="profile" className="w-full">
+          <Tabs defaultValue="activity" className="w-full">
             <TabsList className="w-full justify-start border-b rounded-none px-4 bg-transparent h-auto">
+              <Button 
+                variant="ghost" 
+                className="mr-4 py-3" 
+                onClick={() => setIsActivityDialogOpen(true)}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi attività
+              </Button>
               <TabsTrigger value="profile" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
                 Profilo
               </TabsTrigger>
@@ -44,15 +51,14 @@ const Settings = () => {
               <TabsTrigger value="users" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
                 Utenti
               </TabsTrigger>
-              <Button 
-                variant="ghost" 
-                className="ml-2 py-3" 
-                onClick={() => setIsActivityDialogOpen(true)}
-              >
-                <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi attività
-              </Button>
             </TabsList>
             
+            <TabsContent value="activity" className="p-6">
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Clicca sul pulsante "Aggiungi attività" per iniziare</p>
+              </div>
+            </TabsContent>
+
             <TabsContent value="profile" className="p-6">
               <ProfileSettings />
             </TabsContent>
