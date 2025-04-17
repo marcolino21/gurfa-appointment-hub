@@ -83,6 +83,14 @@ const BillingSettings = () => {
     setIsAddCardDialogOpen(false);
   };
 
+  const handleRemovePaymentMethod = () => {
+    if (selectedPaymentMethod && selectedPaymentMethod.id) {
+      removePaymentMethod(selectedPaymentMethod.id);
+      setIsRemoveCardDialogOpen(false);
+      setSelectedPaymentMethod(null);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="mb-8">
