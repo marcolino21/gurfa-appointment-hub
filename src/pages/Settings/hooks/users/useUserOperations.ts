@@ -36,6 +36,14 @@ export const useUserOperations = (currentSalonId: string | null, users: User[], 
       console.log("Saving staff member data:", staffMemberData);
       
       if (isEditMode && editingUserId) {
+        // Check if the email is being changed and if it already exists
+        if (users.some(user => 
+          user.id !== editingUserId && 
+          user.email.toLowerCase() === formData.email.toLowerCase()
+        )) {
+          throw new Error("Email già utilizzata");
+        }
+        
         const { data, error } = await supabase
           .from('staff')
           .update(staffMemberData)
@@ -68,6 +76,13 @@ export const useUserOperations = (currentSalonId: string | null, users: User[], 
           description: 'Le modifiche sono state salvate con successo.',
         });
       } else {
+        // Check if the email already exists before inserting
+        if (users.some(user => 
+          user.email.toLowerCase() === formData.email.toLowerCase()
+        )) {
+          throw new Error("Email già utilizzata");
+        }
+        
         const { data, error } = await supabase
           .from('staff')
           .insert(staffMemberData)
@@ -75,6 +90,10 @@ export const useUserOperations = (currentSalonId: string | null, users: User[], 
           .single();
         
         if (error) {
+          // Check if it's a duplicate email error
+          if (error.code === '23505' && error.message.includes('staff_email_key')) {
+            throw new Error("Email già utilizzata");
+          }
           console.error("Supabase error:", error);
           throw error;
         }
@@ -99,12 +118,18 @@ export const useUserOperations = (currentSalonId: string | null, users: User[], 
           description: 'Il nuovo utente è stato aggiunto con successo.',
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Errore nel salvataggio dell\'utente:', error);
+      
+      // Provide more specific error message based on the error type
+      const errorMessage = error?.message === "Email già utilizzata" 
+        ? "L'email inserita è già associata ad un altro utente."
+        : "Impossibile salvare l'utente.";
+      
       toast({
         variant: 'destructive',
         title: 'Errore',
-        description: 'Impossibile salvare l\'utente.',
+        description: errorMessage,
       });
     } finally {
       setIsSaving(false);
