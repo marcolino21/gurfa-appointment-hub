@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,13 +53,11 @@ const UsersSettings = () => {
   const { toast } = useToast();
   const { currentSalonId } = useAuth();
   
-  // Carica gli utenti dal database
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true);
       
       try {
-        // Verifico se c'è già un membro dello staff con il salonId corrente
         const { data: staffMembers, error } = await supabase
           .from('staff')
           .select('*')
@@ -71,7 +68,6 @@ const UsersSettings = () => {
           throw error;
         }
         
-        // Converto gli staff members nel formato User per la tabella
         const formattedUsers: User[] = staffMembers.map(staff => ({
           id: staff.id,
           name: `${staff.first_name} ${staff.last_name}`,
@@ -79,7 +75,7 @@ const UsersSettings = () => {
           role: staff.position || 'Dipendente',
           createdAt: new Date(staff.created_at).toLocaleDateString('it-IT'),
           isConfirmed: true,
-          permissions: staff.permissions || DEFAULT_ROLE_PERMISSIONS[staff.position as StaffRole || STAFF_ROLES.EMPLOYEE]
+          permissions: staff.permissions as SystemFeature[] || DEFAULT_ROLE_PERMISSIONS[staff.position as StaffRole || STAFF_ROLES.EMPLOYEE]
         }));
         
         setUsers(formattedUsers);
@@ -127,11 +123,9 @@ const UsersSettings = () => {
 
   const handleOpenDialog = (user?: User) => {
     if (user) {
-      // Edit mode
       setIsEditMode(true);
       setEditingUserId(user.id);
       
-      // Find the user data from the staff table
       const names = user.name.split(' ');
       const firstName = names[0] || '';
       const lastName = names.slice(1).join(' ') || '';
@@ -144,7 +138,6 @@ const UsersSettings = () => {
         permissions: user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role as StaffRole || STAFF_ROLES.EMPLOYEE]
       });
     } else {
-      // Create mode
       resetForm();
     }
     
@@ -181,7 +174,6 @@ const UsersSettings = () => {
       };
       
       if (isEditMode && editingUserId) {
-        // Update existing user
         const { data, error } = await supabase
           .from('staff')
           .update(staffMemberData)
@@ -191,7 +183,6 @@ const UsersSettings = () => {
           
         if (error) throw error;
         
-        // Update user in local list
         setUsers(users.map(user => 
           user.id === editingUserId 
             ? {
@@ -199,7 +190,7 @@ const UsersSettings = () => {
                 name: `${data.first_name} ${data.last_name}`,
                 email: data.email || '',
                 role: data.position,
-                permissions: data.permissions
+                permissions: data.permissions as SystemFeature[]
               } 
             : user
         ));
@@ -209,7 +200,6 @@ const UsersSettings = () => {
           description: 'Le modifiche sono state salvate con successo.',
         });
       } else {
-        // Create new user
         const { data, error } = await supabase
           .from('staff')
           .insert(staffMemberData)
@@ -218,7 +208,6 @@ const UsersSettings = () => {
         
         if (error) throw error;
         
-        // Add new user to local list
         const newUser: User = {
           id: data.id,
           name: `${data.first_name} ${data.last_name}`,
@@ -226,7 +215,7 @@ const UsersSettings = () => {
           role: data.position || 'Dipendente',
           createdAt: new Date(data.created_at).toLocaleDateString('it-IT'),
           isConfirmed: true,
-          permissions: data.permissions
+          permissions: data.permissions as SystemFeature[]
         };
         
         setUsers(prev => [newUser, ...prev]);
@@ -321,7 +310,8 @@ const UsersSettings = () => {
                           {user.role}
                           <ShieldCheck 
                             className="h-4 w-4 text-blue-500" 
-                            title={`${user.permissions?.length || 0} permessi assegnati`}
+                            aria-label={`${user.permissions?.length || 0} permessi assegnati`}
+                            data-tooltip={`${user.permissions?.length || 0} permessi assegnati`}
                           />
                         </div>
                       </TableCell>
