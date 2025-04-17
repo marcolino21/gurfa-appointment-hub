@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CreditCard, Apple, PaypalIcon } from "lucide-react";
+import { CreditCard, Apple, PaypalLogo } from "lucide-react";
 
 interface PaymentMethodSelectorProps {
   onSelect: (method: 'credit-card' | 'paypal' | 'apple-pay') => void;
@@ -21,7 +21,7 @@ const PaymentMethodSelector = ({ onSelect }: PaymentMethodSelectorProps) => {
 
       <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => onSelect('paypal')}>
         <CardContent className="flex flex-col items-center justify-center p-6">
-          <PaypalIcon className="h-12 w-12 mb-4 text-[#00457C]" />
+          <PaypalLogo className="h-12 w-12 mb-4 text-[#00457C]" />
           <h3 className="text-lg font-medium">PayPal</h3>
           <p className="text-sm text-muted-foreground">Collega il tuo account PayPal</p>
         </CardContent>

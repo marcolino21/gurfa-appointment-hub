@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, CreditCard, Edit, Trash2 } from "lucide-react";
 import { usePaymentMethodOperations } from './hooks/usePaymentMethodOperations';
 import PaymentMethodSelector from './components/payment-methods/PaymentMethodSelector';
+import { PaymentMethodType } from './types/paymentTypes';
 
 const BillingSettings = () => {
   const { 
@@ -50,7 +51,7 @@ const BillingSettings = () => {
     { date: "01 nov 2024", number: "IT100043935-31" }
   ];
 
-  const handleAddPaymentMethod = (method: 'credit-card' | 'paypal' | 'apple-pay') => {
+  const handleAddPaymentMethod = (method: PaymentMethodType) => {
     switch (method) {
       case 'credit-card':
         setIsAddCardDialogOpen(true);
@@ -62,6 +63,18 @@ const BillingSettings = () => {
         // Implement Apple Pay functionality
         break;
     }
+  };
+
+  const handleSubmitPaymentMethod = () => {
+    addPaymentMethod(newPaymentMethod);
+    setIsAddCardDialogOpen(false);
+    setNewPaymentMethod({
+      card_type: '',
+      last_four: '',
+      holder_name: '',
+      expiry_month: 0,
+      expiry_year: 0
+    });
   };
 
   const handleRemovePaymentMethod = () => {
@@ -235,7 +248,7 @@ const BillingSettings = () => {
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsAddCardDialogOpen(false)}>Annulla</Button>
-            <Button type="submit" onClick={handleAddPaymentMethod}>Salva</Button>
+            <Button type="submit" onClick={handleSubmitPaymentMethod}>Salva</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
