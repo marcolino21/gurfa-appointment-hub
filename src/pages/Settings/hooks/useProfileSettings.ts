@@ -54,9 +54,15 @@ export const useProfileSettings = () => {
   };
   
   const loadSalonProfile = async () => {
-    if (!currentSalonId) return;
+    if (!currentSalonId) {
+      console.log('No salon ID provided, cannot load profile');
+      setIsInitialLoading(false);
+      return;
+    }
     
     setIsInitialLoading(true);
+    console.log(`Loading profile for salon ID: ${currentSalonId}`);
+    
     try {
       // Verifica se esiste già un profilo per questo salone
       const { data, error } = await supabase
@@ -65,17 +71,22 @@ export const useProfileSettings = () => {
         .eq('salon_id', currentSalonId)
         .single();
       
-      if (error && error.code !== 'PGRST116') { // PGRST116 è "No rows returned"
-        console.error('Errore nel caricamento del profilo:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Errore',
-          description: 'Impossibile caricare il profilo del salone.'
-        });
-        return;
-      }
-      
-      if (data) {
+      if (error) {
+        console.error('Error loading salon profile:', error);
+        
+        if (error.code === 'PGRST116') {
+          console.log('No profile found for this salon, using localStorage fallback');
+          // Load from localStorage if no profile exists
+          setFormData(loadSalonProfileFromLocalStorage(currentSalon));
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Errore',
+            description: `Impossibile caricare il profilo del salone: ${error.message}`
+          });
+        }
+      } else if (data) {
+        console.log('Profile found in database:', data);
         setFormData({
           businessName: data.business_name || currentSalon?.name || '',
           phone: data.phone || currentSalon?.phone || '',
@@ -102,11 +113,20 @@ export const useProfileSettings = () => {
           });
         }
       } else {
+        console.log('No profile data returned, using localStorage fallback');
         // Carica i dati dal localStorage come fallback
         setFormData(loadSalonProfileFromLocalStorage(currentSalon));
       }
-    } catch (error) {
-      console.error('Errore inaspettato:', error);
+    } catch (error: any) {
+      console.error('Unexpected error while loading profile:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Errore',
+        description: `Errore inaspettato: ${error?.message || 'Errore sconosciuto'}`
+      });
+      
+      // Fallback to localStorage on error
+      setFormData(loadSalonProfileFromLocalStorage(currentSalon));
     } finally {
       setIsInitialLoading(false);
     }
@@ -123,9 +143,11 @@ export const useProfileSettings = () => {
     }
     
     setIsLoading(true);
+    console.log('Saving profile for salon ID:', currentSalonId);
     
     try {
       const profileData = mapFormDataToProfileData(formData, currentSalonId);
+      console.log('Profile data to save:', profileData);
       
       const { error: saveError } = await saveSalonProfile(profileData);
       
@@ -166,8 +188,11 @@ export const useProfileSettings = () => {
   };
   
   useEffect(() => {
-    loadSalonProfile();
-  }, [currentSalonId, currentSalon]);
+    console.log('useProfileSettings effect triggered, currentSalonId:', currentSalonId);
+    if (currentSalonId) {
+      loadSalonProfile();
+    }
+  }, [currentSalonId]);
   
   return {
     currentSalon,
