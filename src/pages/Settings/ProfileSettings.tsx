@@ -5,12 +5,30 @@ import { useToast } from '@/hooks/use-toast';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileForm from './components/ProfileForm';
 import SubscriptionsList from './components/SubscriptionsList';
+import { supabase } from '@/integrations/supabase/client';
+
+interface SalonProfile {
+  id?: string;
+  salon_id: string;
+  business_name: string;
+  phone: string;
+  address: string;
+  ragione_sociale: string;
+  email: string;
+  piva: string;
+  iban: string;
+  codice_fiscale: string;
+  sede_legale: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const ProfileSettings = () => {
   const { user, currentSalonId, salons, setCurrentSalon, updateSalonInfo } = useAuth();
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(
     localStorage.getItem('salon_profile_image') || null
   );
@@ -20,28 +38,86 @@ const ProfileSettings = () => {
     businessName: currentSalon?.name || '',
     phone: currentSalon?.phone || '',
     address: currentSalon?.address || '',
-    ragioneSociale: localStorage.getItem('salon_ragione_sociale') || 'Terea Srls',
-    email: localStorage.getItem('salon_email') || 'silvestrellimaro@hotmail.it',
-    piva: localStorage.getItem('salon_piva') || '17187741008',
-    iban: localStorage.getItem('salon_iban') || '',
-    codiceFiscale: localStorage.getItem('salon_codice_fiscale') || '',
-    sedeLegale: localStorage.getItem('salon_sede_legale') || 'Via Fiume Giallo, 405, 00143 Roma RM, Italy'
+    ragioneSociale: '',
+    email: '',
+    piva: '',
+    iban: '',
+    codiceFiscale: '',
+    sedeLegale: ''
   });
   
-  // Store the business name in localStorage when component mounts or salon changes
   useEffect(() => {
-    if (currentSalon?.name) {
-      localStorage.setItem('salon_business_name', currentSalon.name);
+    const loadSalonProfile = async () => {
+      if (!currentSalonId) return;
       
-      // Update form data when the salon changes
-      setFormData(prev => ({
-        ...prev,
-        businessName: currentSalon.name || '',
-        phone: currentSalon.phone || '',
-        address: currentSalon.address || ''
-      }));
-    }
-  }, [currentSalon]);
+      setIsInitialLoading(true);
+      try {
+        // Verifica se esiste già un profilo per questo salone
+        const { data: profile, error } = await supabase
+          .from('salon_profiles')
+          .select('*')
+          .eq('salon_id', currentSalonId)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') { // PGRST116 è "No rows returned"
+          console.error('Errore nel caricamento del profilo:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Errore',
+            description: 'Impossibile caricare il profilo del salone.'
+          });
+          return;
+        }
+        
+        if (profile) {
+          setFormData({
+            businessName: profile.business_name || currentSalon?.name || '',
+            phone: profile.phone || currentSalon?.phone || '',
+            address: profile.address || currentSalon?.address || '',
+            ragioneSociale: profile.ragione_sociale || '',
+            email: profile.email || '',
+            piva: profile.piva || '',
+            iban: profile.iban || '',
+            codiceFiscale: profile.codice_fiscale || '',
+            sedeLegale: profile.sede_legale || ''
+          });
+          
+          // Aggiorna anche le informazioni nel context
+          if (currentSalon && (
+            currentSalon.name !== profile.business_name ||
+            currentSalon.phone !== profile.phone ||
+            currentSalon.address !== profile.address
+          )) {
+            updateSalonInfo(currentSalonId, {
+              ...currentSalon,
+              name: profile.business_name,
+              phone: profile.phone,
+              address: profile.address
+            });
+          }
+        } else {
+          // Carica i dati dal localStorage come fallback
+          setFormData({
+            businessName: currentSalon?.name || '',
+            phone: currentSalon?.phone || '',
+            address: currentSalon?.address || '',
+            ragioneSociale: localStorage.getItem('salon_ragione_sociale') || '',
+            email: localStorage.getItem('salon_email') || '',
+            piva: localStorage.getItem('salon_piva') || '',
+            iban: localStorage.getItem('salon_iban') || '',
+            codiceFiscale: localStorage.getItem('salon_codice_fiscale') || '',
+            sedeLegale: localStorage.getItem('salon_sede_legale') || ''
+          });
+        }
+      } catch (error) {
+        console.error('Errore inaspettato:', error);
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+    
+    loadSalonProfile();
+  }, [currentSalonId, currentSalon]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -61,61 +137,130 @@ const ProfileSettings = () => {
     reader.readAsDataURL(file);
   };
   
-  const handleSaveProfile = () => {
-    setIsLoading(true);
-    
-    // Save all form fields to localStorage for persistence
-    localStorage.setItem('salon_business_name', formData.businessName);
-    localStorage.setItem('salon_ragione_sociale', formData.ragioneSociale);
-    localStorage.setItem('salon_email', formData.email);
-    localStorage.setItem('salon_piva', formData.piva);
-    localStorage.setItem('salon_iban', formData.iban);
-    localStorage.setItem('salon_codice_fiscale', formData.codiceFiscale);
-    localStorage.setItem('salon_sede_legale', formData.sedeLegale);
-    
-    // Update the salon in context if available
-    if (currentSalonId) {
-      const updatedSalon = {
-        ...currentSalon!,
-        name: formData.businessName,
-        phone: formData.phone,
-        address: formData.address
-      };
-      
-      // Update the salon in context (this will also update localStorage)
-      updateSalonInfo(currentSalonId, updatedSalon);
+  const handleSaveProfile = async () => {
+    if (!currentSalonId) {
+      toast({
+        variant: 'destructive',
+        title: 'Errore',
+        description: 'Nessun salone selezionato.'
+      });
+      return;
     }
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setIsLoading(false);
+    setIsLoading(true);
+    
+    try {
+      const profileData: SalonProfile = {
+        salon_id: currentSalonId,
+        business_name: formData.businessName,
+        phone: formData.phone,
+        address: formData.address,
+        ragione_sociale: formData.ragioneSociale,
+        email: formData.email,
+        piva: formData.piva,
+        iban: formData.iban,
+        codice_fiscale: formData.codiceFiscale,
+        sede_legale: formData.sedeLegale,
+        updated_at: new Date().toISOString()
+      };
+      
+      // Verifica se esiste già un record per questo salone
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('salon_profiles')
+        .select('id')
+        .eq('salon_id', currentSalonId)
+        .single();
+      
+      let saveError;
+      
+      if (existingProfile) {
+        // Aggiorna il profilo esistente
+        const { error } = await supabase
+          .from('salon_profiles')
+          .update(profileData)
+          .eq('salon_id', currentSalonId);
+        
+        saveError = error;
+      } else {
+        // Crea un nuovo profilo
+        const { error } = await supabase
+          .from('salon_profiles')
+          .insert(profileData);
+        
+        saveError = error;
+      }
+      
+      if (saveError) {
+        throw saveError;
+      }
+      
+      // Salva anche nel localStorage come backup
+      localStorage.setItem('salon_business_name', formData.businessName);
+      localStorage.setItem('salon_ragione_sociale', formData.ragioneSociale);
+      localStorage.setItem('salon_email', formData.email);
+      localStorage.setItem('salon_piva', formData.piva);
+      localStorage.setItem('salon_iban', formData.iban);
+      localStorage.setItem('salon_codice_fiscale', formData.codiceFiscale);
+      localStorage.setItem('salon_sede_legale', formData.sedeLegale);
+      
+      // Aggiorna il salone nel context
+      if (currentSalon) {
+        const updatedSalon = {
+          ...currentSalon,
+          name: formData.businessName,
+          phone: formData.phone,
+          address: formData.address
+        };
+        
+        updateSalonInfo(currentSalonId, updatedSalon);
+      }
+      
       toast({
         title: "Profilo salvato",
         description: "Le modifiche al profilo sono state salvate con successo."
       });
-    }, 800);
+      
+    } catch (error: any) {
+      console.error('Errore nel salvataggio del profilo:', error);
+      toast({
+        variant: 'destructive',
+        title: "Errore",
+        description: `Impossibile salvare il profilo: ${error.message || 'Errore sconosciuto'}`
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
     <div className="space-y-8">
-      <ProfileHeader 
-        businessName={formData.businessName} 
-        address={formData.address}
-        handleSaveProfile={handleSaveProfile}
-        profileImage={profileImage}
-        onFileUpload={handleFileUpload}
-      />
-      
-      <div className="flex-1 space-y-6">
-        <ProfileForm 
-          formData={formData}
-          handleChange={handleChange}
-          handleSaveProfile={handleSaveProfile}
-          isLoading={isLoading}
-        />
-      </div>
+      {isInitialLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+          <span className="ml-2 text-muted-foreground">Caricamento profilo...</span>
+        </div>
+      ) : (
+        <>
+          <ProfileHeader 
+            businessName={formData.businessName} 
+            address={formData.address}
+            handleSaveProfile={handleSaveProfile}
+            profileImage={profileImage}
+            onFileUpload={handleFileUpload}
+          />
+          
+          <div className="flex-1 space-y-6">
+            <ProfileForm 
+              formData={formData}
+              handleChange={handleChange}
+              handleSaveProfile={handleSaveProfile}
+              isLoading={isLoading}
+            />
+          </div>
 
-      <SubscriptionsList />
+          <SubscriptionsList />
+        </>
+      )}
     </div>
   );
 };
