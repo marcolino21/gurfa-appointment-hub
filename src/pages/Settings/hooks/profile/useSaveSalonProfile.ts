@@ -2,7 +2,7 @@
 import { saveSalonProfileToLocalStorage, mapFormDataToProfileData, saveSalonProfile } from '../../utils/profileUtils';
 import { Salon } from '@/types';
 import { ProfileFormData } from '../../types/profileTypes';
-import { Toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface UseSaveSalonProfileProps {
   currentSalonId: string | null;
@@ -11,7 +11,7 @@ interface UseSaveSalonProfileProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   updateSalonInfo: (salonId: string, updatedInfo: Salon) => void;
-  toast: Toast;
+  toast: typeof toast;
 }
 
 export const useSaveSalonProfile = ({

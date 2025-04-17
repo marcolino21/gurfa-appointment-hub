@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { loadSalonProfileFromLocalStorage } from '../../utils/profileUtils';
 import { Salon } from '@/types';
 import { ProfileFormData } from '../../types/profileTypes';
-import { Toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface UseLoadSalonProfileProps {
   currentSalonId: string | null;
@@ -12,7 +12,7 @@ interface UseLoadSalonProfileProps {
   setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>;
   updateSalonInfo: (salonId: string, updatedInfo: Salon) => void;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  toast: Toast;
+  toast: typeof toast;
 }
 
 export const useLoadSalonProfile = ({
