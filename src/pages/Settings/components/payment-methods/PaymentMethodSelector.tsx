@@ -36,7 +36,7 @@ const PaymentMethodSelector = ({ onSelect }: PaymentMethodSelectorProps) => {
           <img 
             src="/lovable-uploads/d7cbd579-3a83-4b2c-9db8-76e025b56650.png" 
             alt="PayPal" 
-            className="h-16 w-auto mb-4" // Increased height from h-12 to h-16
+            className="h-12 w-auto mb-4"
           />
           <h3 className="text-lg font-medium">PayPal</h3>
           <p className="text-sm text-muted-foreground">Collega il tuo account PayPal</p>
