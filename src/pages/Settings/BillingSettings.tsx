@@ -9,6 +9,7 @@ import { Download, CreditCard, Edit, Trash2 } from "lucide-react";
 import { usePaymentMethodOperations } from './hooks/usePaymentMethodOperations';
 import PaymentMethodSelector from './components/payment-methods/PaymentMethodSelector';
 import { PaymentMethodType } from './types/paymentTypes';
+import { CreditCardFormData } from './types/paymentTypes';
 
 const BillingSettings = () => {
   const { 
@@ -57,7 +58,7 @@ const BillingSettings = () => {
         setIsAddCardDialogOpen(true);
         break;
       case 'paypal':
-        window.location.href = 'https://www.paypal.com/connect'; // Replace with your PayPal connect URL
+        window.location.href = 'https://www.paypal.com/connect';
         break;
       case 'apple-pay':
         // Implement Apple Pay functionality
@@ -65,23 +66,21 @@ const BillingSettings = () => {
     }
   };
 
-  const handleSubmitPaymentMethod = () => {
-    addPaymentMethod(newPaymentMethod);
-    setIsAddCardDialogOpen(false);
-    setNewPaymentMethod({
-      card_type: '',
-      last_four: '',
-      holder_name: '',
-      expiry_month: 0,
-      expiry_year: 0
-    });
-  };
+  const handleSubmitPaymentMethod = (formData: CreditCardFormData) => {
+    // Extract last 4 digits from card number
+    const last_four = formData.card_number.slice(-4);
+    
+    const paymentMethod = {
+      type: 'credit-card' as PaymentMethodType,
+      card_type: 'credit-card',
+      last_four,
+      holder_name: formData.holder_name,
+      expiry_month: parseInt(formData.expiry_month),
+      expiry_year: parseInt(formData.expiry_year)
+    };
 
-  const handleRemovePaymentMethod = () => {
-    if (selectedPaymentMethod) {
-      removePaymentMethod(selectedPaymentMethod.id);
-      setIsRemoveCardDialogOpen(false);
-    }
+    addPaymentMethod(paymentMethod);
+    setIsAddCardDialogOpen(false);
   };
 
   return (
@@ -198,57 +197,65 @@ const BillingSettings = () => {
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="card_type" className="text-right">Tipo Carta</Label>
-              <Input 
-                id="card_type" 
-                value={newPaymentMethod.card_type} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, card_type: e.target.value }))} 
-                className="col-span-3" 
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="last_four" className="text-right">Ultimi 4 Numeri</Label>
-              <Input 
-                id="last_four" 
-                value={newPaymentMethod.last_four} 
-                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, last_four: e.target.value }))} 
-                className="col-span-3" 
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="holder_name" className="text-right">Nome Intestatario</Label>
+              <Label htmlFor="holder_name" className="text-right">Titolare della Carta</Label>
               <Input 
                 id="holder_name" 
-                value={newPaymentMethod.holder_name} 
+                value={newPaymentMethod.holder_name || ''} 
                 onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, holder_name: e.target.value }))} 
                 className="col-span-3" 
+                placeholder="Nome del titolare"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="card_number" className="text-right">N. della Carta</Label>
+              <Input 
+                id="card_number" 
+                value={newPaymentMethod.last_four || ''} 
+                onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, last_four: e.target.value }))} 
+                className="col-span-3" 
+                placeholder="1234 5678 9012 3456"
+                maxLength={16}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cvc" className="text-right">CVC</Label>
+              <Input 
+                id="cvc" 
+                type="password" 
+                maxLength={4}
+                className="col-span-3" 
+                placeholder="123"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="expiry_month" className="text-right">Mese Scadenza</Label>
               <Input 
                 id="expiry_month" 
-                type="number" 
-                value={newPaymentMethod.expiry_month} 
+                type="text"
+                maxLength={2}
+                value={newPaymentMethod.expiry_month || ''} 
                 onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_month: parseInt(e.target.value) }))} 
                 className="col-span-3" 
+                placeholder="MM"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="expiry_year" className="text-right">Anno Scadenza</Label>
               <Input 
                 id="expiry_year" 
-                type="number" 
-                value={newPaymentMethod.expiry_year} 
+                type="text"
+                maxLength={4}
+                value={newPaymentMethod.expiry_year || ''} 
                 onChange={(e) => setNewPaymentMethod(prev => ({ ...prev, expiry_year: parseInt(e.target.value) }))} 
                 className="col-span-3" 
+                placeholder="YYYY"
               />
             </div>
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsAddCardDialogOpen(false)}>Annulla</Button>
-            <Button type="submit" onClick={handleSubmitPaymentMethod}>Salva</Button>
+            <Button type="submit" onClick={() => handleSubmitPaymentMethod(newPaymentMethod as unknown as CreditCardFormData)}>Salva</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

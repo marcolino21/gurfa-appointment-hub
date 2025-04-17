@@ -10,3 +10,11 @@ export interface PaymentMethod {
   expiry_month?: number;
   expiry_year?: number;
 }
+
+export interface CreditCardFormData {
+  holder_name: string;
+  card_number: string;
+  cvc: string;
+  expiry_month: string;
+  expiry_year: string;
+}
