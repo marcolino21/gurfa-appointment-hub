@@ -75,7 +75,7 @@ const UsersSettings = () => {
           role: staff.position || 'Dipendente',
           createdAt: new Date(staff.created_at).toLocaleDateString('it-IT'),
           isConfirmed: true,
-          permissions: staff.permissions as SystemFeature[] || DEFAULT_ROLE_PERMISSIONS[staff.position as StaffRole || STAFF_ROLES.EMPLOYEE]
+          permissions: (staff.permissions as SystemFeature[]) || DEFAULT_ROLE_PERMISSIONS[staff.position as StaffRole || STAFF_ROLES.EMPLOYEE]
         }));
         
         setUsers(formattedUsers);
@@ -190,7 +190,7 @@ const UsersSettings = () => {
                 name: `${data.first_name} ${data.last_name}`,
                 email: data.email || '',
                 role: data.position,
-                permissions: data.permissions as SystemFeature[]
+                permissions: (data.permissions as SystemFeature[])
               } 
             : user
         ));
@@ -215,7 +215,7 @@ const UsersSettings = () => {
           role: data.position || 'Dipendente',
           createdAt: new Date(data.created_at).toLocaleDateString('it-IT'),
           isConfirmed: true,
-          permissions: data.permissions as SystemFeature[]
+          permissions: (data.permissions as SystemFeature[])
         };
         
         setUsers(prev => [newUser, ...prev]);
