@@ -35,6 +35,20 @@ type NewUserFormData = {
   permissions: SystemFeature[];
 };
 
+interface SupabaseStaffMember {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  is_active: boolean;
+  show_in_calendar: boolean;
+  salon_id: string;
+  created_at: string;
+  position: string | null;
+  permissions?: SystemFeature[];
+  [key: string]: any;
+}
+
 const UsersSettings = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,14 +82,14 @@ const UsersSettings = () => {
           throw error;
         }
         
-        const formattedUsers: User[] = staffMembers.map(staff => ({
+        const formattedUsers: User[] = (staffMembers as SupabaseStaffMember[]).map(staff => ({
           id: staff.id,
           name: `${staff.first_name} ${staff.last_name}`,
           email: staff.email || '',
           role: staff.position || 'Dipendente',
           createdAt: new Date(staff.created_at).toLocaleDateString('it-IT'),
           isConfirmed: true,
-          permissions: (staff.permissions as SystemFeature[]) || DEFAULT_ROLE_PERMISSIONS[staff.position as StaffRole || STAFF_ROLES.EMPLOYEE]
+          permissions: staff.permissions || DEFAULT_ROLE_PERMISSIONS[staff.position as StaffRole || STAFF_ROLES.EMPLOYEE]
         }));
         
         setUsers(formattedUsers);
@@ -183,14 +197,16 @@ const UsersSettings = () => {
           
         if (error) throw error;
         
+        const staffData = data as SupabaseStaffMember;
+        
         setUsers(users.map(user => 
           user.id === editingUserId 
             ? {
                 ...user,
-                name: `${data.first_name} ${data.last_name}`,
-                email: data.email || '',
-                role: data.position,
-                permissions: (data.permissions as SystemFeature[])
+                name: `${staffData.first_name} ${staffData.last_name}`,
+                email: staffData.email || '',
+                role: staffData.position || '',
+                permissions: staffData.permissions
               } 
             : user
         ));
@@ -208,14 +224,16 @@ const UsersSettings = () => {
         
         if (error) throw error;
         
+        const staffData = data as SupabaseStaffMember;
+        
         const newUser: User = {
-          id: data.id,
-          name: `${data.first_name} ${data.last_name}`,
-          email: data.email || '',
-          role: data.position || 'Dipendente',
-          createdAt: new Date(data.created_at).toLocaleDateString('it-IT'),
+          id: staffData.id,
+          name: `${staffData.first_name} ${staffData.last_name}`,
+          email: staffData.email || '',
+          role: staffData.position || 'Dipendente',
+          createdAt: new Date(staffData.created_at).toLocaleDateString('it-IT'),
           isConfirmed: true,
-          permissions: (data.permissions as SystemFeature[])
+          permissions: staffData.permissions
         };
         
         setUsers(prev => [newUser, ...prev]);
@@ -311,7 +329,6 @@ const UsersSettings = () => {
                           <ShieldCheck 
                             className="h-4 w-4 text-blue-500" 
                             aria-label={`${user.permissions?.length || 0} permessi assegnati`}
-                            data-tooltip={`${user.permissions?.length || 0} permessi assegnati`}
                           />
                         </div>
                       </TableCell>
