@@ -2,6 +2,7 @@
 import { User } from './useUsersData';
 import { useUserForm } from './users/useUserForm';
 import { useUserOperations } from './users/useUserOperations';
+import { StaffRole, DEFAULT_ROLE_PERMISSIONS, STAFF_ROLES } from '@/features/staff/types/permissions';
 
 export const useUserActions = (
   currentSalonId: string | null,
@@ -75,3 +76,4 @@ export const useUserActions = (
     handleDeleteUser
   };
 };
+
