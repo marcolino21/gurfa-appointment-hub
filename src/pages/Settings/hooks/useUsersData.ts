@@ -50,6 +50,8 @@ export const useUsersData = () => {
       setIsLoading(true);
       
       try {
+        console.log("Fetching staff members for salon:", currentSalonId);
+        
         const { data: staffMembers, error } = await supabase
           .from('staff')
           .select('*')
@@ -57,8 +59,11 @@ export const useUsersData = () => {
           .order('created_at', { ascending: false });
         
         if (error) {
+          console.error("Supabase error:", error);
           throw error;
         }
+        
+        console.log("Fetched staff members:", staffMembers);
         
         const formattedUsers: User[] = (staffMembers as SupabaseStaffMember[]).map(staff => ({
           id: staff.id,

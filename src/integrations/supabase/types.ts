@@ -518,6 +518,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           last_name: string
+          permissions: string[] | null
           phone: string | null
           position: string | null
           salon_id: string
@@ -537,6 +538,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           last_name: string
+          permissions?: string[] | null
           phone?: string | null
           position?: string | null
           salon_id: string
@@ -556,6 +558,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           last_name?: string
+          permissions?: string[] | null
           phone?: string | null
           position?: string | null
           salon_id?: string

@@ -101,6 +101,8 @@ export const useUserActions = (
         salon_id: currentSalonId || '',
       };
       
+      console.log("Saving staff member data:", staffMemberData);
+      
       if (isEditMode && editingUserId) {
         const { data, error } = await supabase
           .from('staff')
@@ -109,9 +111,13 @@ export const useUserActions = (
           .select()
           .single();
           
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase error:", error);
+          throw error;
+        }
         
         const staffData = data as SupabaseStaffMember;
+        console.log("Updated staff data:", staffData);
         
         setUsers(users.map(user => 
           user.id === editingUserId 
@@ -136,9 +142,13 @@ export const useUserActions = (
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase error:", error);
+          throw error;
+        }
         
         const staffData = data as SupabaseStaffMember;
+        console.log("New staff data:", staffData);
         
         const newUser: User = {
           id: staffData.id,
