@@ -1,9 +1,7 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { User, SupabaseStaffMember } from '../useUsersData';
-import { UserFormData } from '../useUsersData';
+import { User, SupabaseStaffMember, UserFormData } from './useUsersData';
 
 export const useUserOperations = (currentSalonId: string | null, users: User[], setUsers: React.Dispatch<React.SetStateAction<User[]>>) => {
   const [isSaving, setIsSaving] = useState(false);
