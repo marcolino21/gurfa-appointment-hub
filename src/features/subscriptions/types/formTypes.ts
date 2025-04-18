@@ -1,6 +1,7 @@
 
-import { Subscription } from '@/types';
+import { Subscription, Client, Service } from '@/types';
 import { z } from 'zod';
+import { subscriptionSchema } from '../schemas/subscriptionFormSchema';
 
 export interface SubscriptionFormProps {
   clients: Client[];
