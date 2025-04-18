@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -128,61 +127,6 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
               )}
             />
 
-            {watchSubscriptionType === 'services' && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="includeAllServices"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Includere tutti i servizi
-                        </FormLabel>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                {!watchIncludeAllServices && (
-                  <FormField
-                    control={form.control}
-                    name="serviceIds"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Seleziona servizi</FormLabel>
-                        <div className="max-h-60 overflow-y-auto border rounded-md p-2">
-                          {services.map(service => (
-                            <div key={service.id} className="flex items-center space-x-2 mb-2">
-                              <Checkbox
-                                id={`service-${service.id}`}
-                                checked={field.value.includes(service.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, service.id])
-                                    : field.onChange(field.value.filter(id => id !== service.id));
-                                }}
-                              />
-                              <label htmlFor={`service-${service.id}`} className="text-sm">
-                                {service.name} - € {service.price.toFixed(2)}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </>
-            )}
-
             {watchSubscriptionType === 'entries' && (
               <>
                 <FormField
@@ -231,7 +175,62 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                     name="serviceIds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Seleziona servizi inclusi</FormLabel>
+                        <FormLabel>Seleziona servizi disponibili per gli ingressi</FormLabel>
+                        <div className="max-h-60 overflow-y-auto border rounded-md p-2">
+                          {services.map(service => (
+                            <div key={service.id} className="flex items-center space-x-2 mb-2">
+                              <Checkbox
+                                id={`service-${service.id}`}
+                                checked={field.value.includes(service.id)}
+                                onCheckedChange={(checked) => {
+                                  return checked
+                                    ? field.onChange([...field.value, service.id])
+                                    : field.onChange(field.value.filter(id => id !== service.id));
+                                }}
+                              />
+                              <label htmlFor={`service-${service.id}`} className="text-sm">
+                                {service.name} - € {service.price.toFixed(2)}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </>
+            )}
+
+            {watchSubscriptionType === 'services' && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="includeAllServices"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          Includere tutti i servizi
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {!watchIncludeAllServices && (
+                  <FormField
+                    control={form.control}
+                    name="serviceIds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Seleziona servizi</FormLabel>
                         <div className="max-h-60 overflow-y-auto border rounded-md p-2">
                           {services.map(service => (
                             <div key={service.id} className="flex items-center space-x-2 mb-2">
