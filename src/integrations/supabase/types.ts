@@ -54,6 +54,119 @@ export type Database = {
         }
         Relationships: []
       }
+      business_payment_methods: {
+        Row: {
+          business_user_id: string | null
+          card_type: string
+          created_at: string
+          expiry_month: number
+          expiry_year: number
+          holder_name: string
+          id: string
+          is_default: boolean | null
+          last_four: string
+          updated_at: string
+        }
+        Insert: {
+          business_user_id?: string | null
+          card_type: string
+          created_at?: string
+          expiry_month: number
+          expiry_year: number
+          holder_name: string
+          id?: string
+          is_default?: boolean | null
+          last_four: string
+          updated_at?: string
+        }
+        Update: {
+          business_user_id?: string | null
+          card_type?: string
+          created_at?: string
+          expiry_month?: number
+          expiry_year?: number
+          holder_name?: string
+          id?: string
+          is_default?: boolean | null
+          last_four?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_payment_methods_business_user_id_fkey"
+            columns: ["business_user_id"]
+            isOneToOne: false
+            referencedRelation: "business_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_users: {
+        Row: {
+          business_name: string | null
+          city: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          is_active: boolean | null
+          last_name: string
+          pec_email: string | null
+          phone: string | null
+          postal_code: string | null
+          province: string | null
+          sdi_code: string | null
+          street_address: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          is_active?: boolean | null
+          last_name: string
+          pec_email?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          sdi_code?: string | null
+          street_address?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_name?: string
+          pec_email?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          sdi_code?: string | null
+          street_address?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           address: string | null
@@ -159,6 +272,119 @@ export type Database = {
           id?: string
           name?: string
           salon_id?: string
+        }
+        Relationships: []
+      }
+      freelancer_payment_methods: {
+        Row: {
+          card_type: string
+          created_at: string
+          expiry_month: number
+          expiry_year: number
+          freelancer_id: string | null
+          holder_name: string
+          id: string
+          is_default: boolean | null
+          last_four: string
+          updated_at: string
+        }
+        Insert: {
+          card_type: string
+          created_at?: string
+          expiry_month: number
+          expiry_year: number
+          freelancer_id?: string | null
+          holder_name: string
+          id?: string
+          is_default?: boolean | null
+          last_four: string
+          updated_at?: string
+        }
+        Update: {
+          card_type?: string
+          created_at?: string
+          expiry_month?: number
+          expiry_year?: number
+          freelancer_id?: string | null
+          holder_name?: string
+          id?: string
+          is_default?: boolean | null
+          last_four?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelancer_payment_methods_freelancer_id_fkey"
+            columns: ["freelancer_id"]
+            isOneToOne: false
+            referencedRelation: "freelancers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freelancers: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          is_active: boolean | null
+          last_name: string
+          pec_email: string | null
+          phone: string | null
+          postal_code: string | null
+          province: string | null
+          sdi_code: string | null
+          specialization: string | null
+          street_address: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          is_active?: boolean | null
+          last_name: string
+          pec_email?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          sdi_code?: string | null
+          specialization?: string | null
+          street_address?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_name?: string
+          pec_email?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          sdi_code?: string | null
+          specialization?: string | null
+          street_address?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          vat_number?: string | null
         }
         Relationships: []
       }
