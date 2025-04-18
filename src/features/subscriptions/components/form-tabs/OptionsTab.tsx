@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -136,13 +137,28 @@ export const OptionsTab: React.FC<OptionsTabProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Durata massima (mesi)</FormLabel>
               <FormControl>
-                <Input 
-                  type="number" 
-                  min={0}
-                  placeholder="Durata massima" 
-                  {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                />
+                <Select
+                  value={field.value?.toString() || 'forever'}
+                  onValueChange={(value) => {
+                    if (value === 'forever') {
+                      field.onChange(null);
+                    } else {
+                      field.onChange(parseInt(value));
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona durata massima" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((months) => (
+                      <SelectItem key={months} value={months.toString()}>
+                        {months} {months === 1 ? 'mese' : 'mesi'}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="forever">Per sempre</SelectItem>
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>

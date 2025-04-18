@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const subscriptionSchema = z.object({
@@ -13,8 +12,8 @@ export const subscriptionSchema = z.object({
   paymentMethod: z.enum(['credit_card']).default('credit_card'),
   recurrenceType: z.enum(['monthly', 'quarterly', 'annually']),
   cancellableImmediately: z.boolean().default(false),
-  minDuration: z.number().optional(),
-  maxDuration: z.number().optional(),
+  minDuration: z.number().min(0).optional(),
+  maxDuration: z.number().min(0).nullable(),
   sellOnline: z.boolean().default(false),
   geolocationEnabled: z.boolean().default(false),
   geolocationRadius: z.number().optional(),

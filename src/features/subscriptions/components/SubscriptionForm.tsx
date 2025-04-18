@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,7 +40,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
       recurrenceType: selectedSubscription?.recurrenceType || 'monthly',
       cancellableImmediately: selectedSubscription?.cancellableImmediately || false,
       minDuration: selectedSubscription?.minDuration || 3,
-      maxDuration: selectedSubscription?.maxDuration || 12,
+      maxDuration: selectedSubscription?.maxDuration || null, // Updated to support "forever" option
       sellOnline: selectedSubscription?.sellOnline || false,
       geolocationEnabled: selectedSubscription?.geolocationEnabled || false,
       geolocationRadius: selectedSubscription?.geolocationRadius || 10,
