@@ -27,6 +27,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { CreditCardForm } from './CreditCardForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface SubscriptionFormProps {
   clients: Client[];
@@ -45,7 +46,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   setActiveTab,
   onSubmit,
 }) => {
-  const [isCreditCardDialogOpen, setIsCreditCardDialogOpen] = useState(false);
+  const [isCreditCardDialogOpen, setIsCreditCardDialogOpen] = useState(true);
 
   const form = useForm<SubscriptionFormValues>({
     resolver: zodResolver(subscriptionSchema),
@@ -82,14 +83,34 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 
   const handleCreditCardSubmit = async (creditCardData: any) => {
     try {
-      // Here you would typically integrate with Stripe or another payment processor
-      // For now, we'll just save the card details to Supabase
-      const { data: subscriptionData, error: subscriptionError } = await supabase
+      const formValues = form.getValues();
+      
+      const subscriptionData = {
+        name: formValues.name,
+        type: formValues.type,
+        service_ids: formValues.serviceIds,
+        include_all_services: formValues.includeAllServices,
+        entries_per_month: formValues.entriesPerMonth,
+        price: formValues.price,
+        discount: formValues.discount,
+        client_id: formValues.clientId,
+        payment_method: formValues.paymentMethod,
+        recurrence_type: formValues.recurrenceType,
+        cancellable_immediately: formValues.cancellableImmediately,
+        min_duration: formValues.minDuration,
+        max_duration: formValues.maxDuration,
+        sell_online: formValues.sellOnline,
+        geolocation_enabled: formValues.geolocationEnabled,
+        geolocation_radius: formValues.geolocationRadius,
+        start_date: formValues.startDate,
+        end_date: formValues.endDate || null,
+        status: formValues.status,
+        salon_id: 'salon-01'
+      };
+
+      const { data: newSubscription, error: subscriptionError } = await supabase
         .from('subscriptions')
-        .insert({
-          ...form.getValues(),
-          salon_id: 'salon-01' // Replace with actual salon ID
-        })
+        .insert(subscriptionData)
         .select('id')
         .single();
 
@@ -98,10 +119,10 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
       const { error: paymentMethodError } = await supabase
         .from('subscription_payment_methods')
         .insert({
-          subscription_id: subscriptionData.id,
-          salon_id: 'salon-01', // Replace with actual salon ID
+          subscription_id: newSubscription.id,
+          salon_id: 'salon-01',
           holder_name: creditCardData.holderName,
-          card_type: 'credit_card', // You might want to detect card type
+          card_type: 'credit_card',
           last_four: creditCardData.cardNumber.slice(-4),
           expiry_month: parseInt(creditCardData.expiryMonth),
           expiry_year: parseInt(creditCardData.expiryYear)
@@ -109,10 +130,12 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 
       if (paymentMethodError) throw paymentMethodError;
 
+      toast.success('Abbonamento e metodo di pagamento salvati con successo');
       setIsCreditCardDialogOpen(false);
+      
     } catch (error) {
       console.error('Error saving subscription and payment method:', error);
-      // Handle error (show toast, etc.)
+      toast.error('Errore nel salvataggio dell\'abbonamento o del metodo di pagamento');
     }
   };
 
@@ -326,17 +349,12 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 
           <TabsContent value="pagamento" className="space-y-4 mt-4">
             <div className="text-sm text-muted-foreground mb-4">
-              Seleziona la carta di credito per l'abbonamento
+              Inserire i dettagli della carta di credito per l'abbonamento
             </div>
             
-            <Button 
-              type="button" 
-              variant="outline" 
-              className="w-full"
-              onClick={() => setIsCreditCardDialogOpen(true)}
-            >
-              <CreditCard className="mr-2 h-4 w-4" /> Aggiungi Carta di Credito
-            </Button>
+            <CreditCardForm 
+              onSubmit={handleCreditCardSubmit}
+            />
           </TabsContent>
 
           <TabsContent value="opzioni" className="space-y-4 mt-4">
@@ -583,18 +601,6 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
           <Button type="submit">{selectedSubscription ? 'Salva modifiche' : 'Crea abbonamento'}</Button>
         </div>
       </form>
-
-      <Dialog open={isCreditCardDialogOpen} onOpenChange={setIsCreditCardDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Inserisci Dettagli Carta di Credito</DialogTitle>
-          </DialogHeader>
-          <CreditCardForm 
-            onSubmit={handleCreditCardSubmit}
-            onCancel={() => setIsCreditCardDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </Form>
   );
 };
