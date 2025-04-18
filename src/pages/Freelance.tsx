@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,14 +14,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Search, Check, X, Eye, Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useFreelanceData } from '@/hooks/useFreelanceData';
+import { Plus } from 'lucide-react';
+import { AddFreelanceDialog } from '@/features/freelance/components/AddFreelanceDialog';
 
 const Freelance: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { freelancers, isLoading, toggleFreelancerStatus } = useFreelanceData();
   
-  // Se non sei super admin, reindirizza alla dashboard
   React.useEffect(() => {
     if (user?.role !== 'super_admin') {
       navigate('/dashboard');
@@ -33,7 +34,6 @@ const Freelance: React.FC = () => {
     setSearchTerm(e.target.value);
   };
   
-  // Filtra i freelance in base alla ricerca
   const filteredFreelances = freelancers.filter(freelance => 
     freelance.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     freelance.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -41,11 +41,17 @@ const Freelance: React.FC = () => {
   
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Freelance</h1>
-        <p className="text-muted-foreground">
-          Gestisci i professionisti freelance
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Freelance</h1>
+          <p className="text-muted-foreground">
+            Gestisci i professionisti freelance
+          </p>
+        </div>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Aggiungi Freelance
+        </Button>
       </div>
       
       <div className="flex items-center">
@@ -135,6 +141,15 @@ const Freelance: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <AddFreelanceDialog 
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSuccess={() => {
+          fetchFreelancers();
+          setIsAddDialogOpen(false);
+        }}
+      />
     </div>
   );
 };
