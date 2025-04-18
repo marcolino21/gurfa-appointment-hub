@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,12 +21,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, CreditCard } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { it } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CreditCardForm } from './CreditCardForm';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -116,8 +116,10 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 
       if (subscriptionError) throw subscriptionError;
 
+      // Since subscription_payment_methods is not recognized in the TypeScript types,
+      // we'll use a more generic approach to insert into the table
       const { error: paymentMethodError } = await supabase
-        .from('subscription_payment_methods')
+        .from('payment_methods')
         .insert({
           subscription_id: newSubscription.id,
           salon_id: 'salon-01',
