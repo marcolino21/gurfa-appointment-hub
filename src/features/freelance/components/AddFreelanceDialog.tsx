@@ -1,4 +1,5 @@
 
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +18,7 @@ interface AddFreelanceDialogProps {
 
 export const AddFreelanceDialog = ({ isOpen, onClose, onSuccess }: AddFreelanceDialogProps) => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);

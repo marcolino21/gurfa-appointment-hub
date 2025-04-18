@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ const Freelance: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const { freelancers, isLoading, toggleFreelancerStatus } = useFreelanceData();
+  const { freelancers, isLoading, toggleFreelancerStatus, fetchFreelancers } = useFreelanceData();
   
   React.useEffect(() => {
     if (user?.role !== 'super_admin') {
@@ -147,7 +148,6 @@ const Freelance: React.FC = () => {
         onClose={() => setIsAddDialogOpen(false)}
         onSuccess={() => {
           fetchFreelancers();
-          setIsAddDialogOpen(false);
         }}
       />
     </div>
