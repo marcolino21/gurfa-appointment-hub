@@ -17,7 +17,7 @@ export const useFreelanceData = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('freelancers')
+        .from('freelancers') // Make sure this table exists and you have permissions to access it
         .select('*')
         .order('created_at', { ascending: false });
 
