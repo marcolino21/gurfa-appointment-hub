@@ -24,6 +24,9 @@ import { CalendarIcon, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { it } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { CreditCardForm } from './CreditCardForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SubscriptionFormProps {
   clients: Client[];
@@ -42,6 +45,8 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   setActiveTab,
   onSubmit,
 }) => {
+  const [isCreditCardDialogOpen, setIsCreditCardDialogOpen] = useState(false);
+
   const form = useForm<SubscriptionFormValues>({
     resolver: zodResolver(subscriptionSchema),
     defaultValues: {
@@ -53,7 +58,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
       price: selectedSubscription?.price || 0,
       discount: selectedSubscription?.discount || 0,
       clientId: selectedSubscription?.clientId || '',
-      paymentMethod: selectedSubscription?.paymentMethod || 'credit_card',
+      paymentMethod: 'credit_card',
       recurrenceType: selectedSubscription?.recurrenceType || 'monthly',
       cancellableImmediately: selectedSubscription?.cancellableImmediately || false,
       minDuration: selectedSubscription?.minDuration || 3,
@@ -71,8 +76,44 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   const watchIncludeAllServices = form.watch('includeAllServices');
   const watchGeolocationEnabled = form.watch('geolocationEnabled');
 
-  const handleSubmit = (data: SubscriptionFormValues) => {
+  const handleSubmit = async (data: SubscriptionFormValues) => {
     onSubmit(data);
+  };
+
+  const handleCreditCardSubmit = async (creditCardData: any) => {
+    try {
+      // Here you would typically integrate with Stripe or another payment processor
+      // For now, we'll just save the card details to Supabase
+      const { data: subscriptionData, error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .insert({
+          ...form.getValues(),
+          salon_id: 'salon-01' // Replace with actual salon ID
+        })
+        .select('id')
+        .single();
+
+      if (subscriptionError) throw subscriptionError;
+
+      const { error: paymentMethodError } = await supabase
+        .from('subscription_payment_methods')
+        .insert({
+          subscription_id: subscriptionData.id,
+          salon_id: 'salon-01', // Replace with actual salon ID
+          holder_name: creditCardData.holderName,
+          card_type: 'credit_card', // You might want to detect card type
+          last_four: creditCardData.cardNumber.slice(-4),
+          expiry_month: parseInt(creditCardData.expiryMonth),
+          expiry_year: parseInt(creditCardData.expiryYear)
+        });
+
+      if (paymentMethodError) throw paymentMethodError;
+
+      setIsCreditCardDialogOpen(false);
+    } catch (error) {
+      console.error('Error saving subscription and payment method:', error);
+      // Handle error (show toast, etc.)
+    }
   };
 
   return (
@@ -284,6 +325,21 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
           </TabsContent>
 
           <TabsContent value="pagamento" className="space-y-4 mt-4">
+            <div className="text-sm text-muted-foreground mb-4">
+              Seleziona la carta di credito per l'abbonamento
+            </div>
+            
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setIsCreditCardDialogOpen(true)}
+            >
+              <CreditCard className="mr-2 h-4 w-4" /> Aggiungi Carta di Credito
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="opzioni" className="space-y-4 mt-4">
             <FormField
               control={form.control}
               name="price"
@@ -349,79 +405,6 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="paymentMethod"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Metodo di Pagamento</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="credit_card" id="credit_card" />
-                        <FormLabel htmlFor="credit_card" className="cursor-pointer flex items-center">
-                          <CreditCard className="h-4 w-4 mr-2" />
-                          Carta di Credito
-                        </FormLabel>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="paypal" id="paypal" />
-                        <FormLabel htmlFor="paypal" className="cursor-pointer">
-                          PayPal
-                        </FormLabel>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data di Inizio</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), "dd/MM/yyyy")
-                          ) : (
-                            <span>Seleziona una data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                        locale={it}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TabsContent>
-
-          <TabsContent value="opzioni" className="space-y-4 mt-4">
             <FormField
               control={form.control}
               name="cancellableImmediately"
@@ -554,6 +537,45 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                 />
               </CollapsibleContent>
             </Collapsible>
+
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data di Inizio</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(new Date(field.value), "dd/MM/yyyy")
+                          ) : (
+                            <span>Seleziona una data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                        locale={it}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </TabsContent>
         </Tabs>
 
@@ -561,6 +583,18 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
           <Button type="submit">{selectedSubscription ? 'Salva modifiche' : 'Crea abbonamento'}</Button>
         </div>
       </form>
+
+      <Dialog open={isCreditCardDialogOpen} onOpenChange={setIsCreditCardDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Inserisci Dettagli Carta di Credito</DialogTitle>
+          </DialogHeader>
+          <CreditCardForm 
+            onSubmit={handleCreditCardSubmit}
+            onCancel={() => setIsCreditCardDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Form>
   );
 };
