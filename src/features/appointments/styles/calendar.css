@@ -1,96 +1,67 @@
 
 /* Stili per il calendario personalizzato */
 
-/* Staff header with initials and name */
-.staff-header-content,
-.staff-footer-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Resource header styles */
+.fc-resource-header {
   padding: 8px 4px;
-  width: 100%;
-}
-
-.staff-initials-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.staff-name {
-  font-size: 13px;
-  font-weight: 500;
   text-align: center;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  border-bottom: 2px solid #e5e7eb;
+  background-color: #f8fafc;
 }
 
-.fc-staff-header {
-  padding: 6px 4px;
-  width: 100%;
-  text-align: center;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Staff column footer */
-.staff-column-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #f8f9fa;
-  border-top: 1px solid #ddd;
-  z-index: 3;
-  padding: 4px 0;
-}
-
-/* Nasconde le date nelle intestazioni quando usiamo la vista risorse */
-.fc-timegrid-slot-label-frame {
-  text-align: right;
-}
-
-.fc-col-header-cell {
-  background-color: #f8f9fa;
-}
-
-/* Aggiunge un bordo sottile tra le colonne per migliorare la separazione visiva */
-.fc-timegrid-col, .fc-daygrid-day {
-  border-left: 1px solid #f0f0f0 !important;
-  position: relative; /* For absolute positioning of the footer */
-}
-
-/* Migliora l'aspetto degli eventi sul calendario */
-.fc-event {
-  border-radius: 4px;
-  padding: 2px 4px;
-  margin: 1px;
-}
-
-/* Stile per il contenitore del calendario */
+/* General calendar styles */
 .fc {
   height: 100%;
-  width: 100%;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
 }
 
-/* Ensure column headers don't show date info */
-.fc .fc-col-header-cell-cushion {
-  display: none;
+/* Timeline slot styles */
+.fc-timegrid-slot {
+  height: 40px !important;
+  border-color: #e5e7eb;
 }
 
-/* Make staff headers more prominent */
-.fc-staff-header {
-  font-weight: 700;
-  padding: 8px 4px;
-  color: #333;
+/* Event styles */
+.fc-event {
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 1px;
+  border: none;
 }
+
+/* Time column styles */
+.fc-timegrid-axis {
+  padding: 8px;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Column separators */
+.fc-timegrid-col {
+  border-left: 1px solid #e5e7eb !important;
+}
+
+/* Resource header container */
+.fc-resource-timeline-header-cell {
+  background-color: #f8fafc;
+}
+
+/* Current time indicator */
+.fc-timegrid-now-indicator-line {
+  border-color: #dc2626;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* Slot label (time) */
+.fc-timegrid-slot-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  padding: 4px;
+}
+
