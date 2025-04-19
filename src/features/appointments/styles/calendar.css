@@ -7,6 +7,7 @@
   text-align: center !important;
   padding: 8px !important;
   font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 /* Timeline slot styles */
@@ -28,6 +29,8 @@
   padding: 8px;
   font-size: 0.875rem;
   color: #64748b;
+  border-right: 1px solid #e5e7eb;
+  background-color: #f8fafc;
 }
 
 /* Column separators */
@@ -59,3 +62,15 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
+
+/* Resource columns header */
+.fc-resource-timeline th {
+  font-weight: 600;
+  padding: 12px 8px !important;
+}
+
+/* Resource cell content */
+.fc-resource-timeline td.fc-resource-cell {
+  vertical-align: middle;
+}
+

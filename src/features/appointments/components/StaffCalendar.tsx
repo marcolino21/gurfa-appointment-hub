@@ -58,7 +58,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   // Configuration for all calendar views
   const commonConfig = {
     locale: itLocale,
-    resources: resources,
+    resources: view !== 'dayGridMonth' ? resources : undefined,
     slotMinTime: '09:00:00',
     slotMaxTime: '20:00:00',
     allDaySlot: false,
