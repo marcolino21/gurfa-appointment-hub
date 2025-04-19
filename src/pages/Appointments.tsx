@@ -10,12 +10,14 @@ import {
 } from '@/features/appointments/components';
 import { useAppointmentEvents } from '@/features/appointments/hooks/useAppointmentEvents';
 import { useAppointmentHandlers } from '@/features/appointments/hooks/useAppointmentHandlers';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   
   const { setFilters, currentAppointment } = useAppointments();
+  const { currentSalonId } = useAuth();
   const { visibleStaff, refreshVisibleStaff } = useStaffAppointments();
   const { events } = useAppointmentEvents();
   
@@ -38,10 +40,12 @@ const Appointments: React.FC = () => {
     });
   }, [searchTerm, statusFilter, setFilters]);
   
-  // Refresh staff visibility when component mounts
+  // Refresh staff visibility when component mounts or currentSalonId changes
   useEffect(() => {
+    console.log("Appointments component - currentSalonId:", currentSalonId);
+    console.log("Appointments component - visibleStaff:", visibleStaff);
     refreshVisibleStaff();
-  }, [refreshVisibleStaff]);
+  }, [refreshVisibleStaff, currentSalonId]);
   
   return (
     <div className="space-y-4">

@@ -20,17 +20,21 @@ export const useStaffAppointments = () => {
       
       console.log("Staff visible in calendar:", staffVisibleInCalendar);
       setVisibleStaff(staffVisibleInCalendar);
+    } else {
+      console.log("No currentSalonId available");
     }
   }, [currentSalonId]);
   
   // Initial load and react to currentSalonId changes
   useEffect(() => {
+    console.log("useStaffAppointments - currentSalonId:", currentSalonId);
     fetchVisibleStaff();
   }, [fetchVisibleStaff]);
   
   // Listen for staff data updates
   useEffect(() => {
     const handleStaffDataUpdate = (event: CustomEvent) => {
+      console.log("Staff data updated event received:", event.detail);
       if (currentSalonId && event.detail.salonId === currentSalonId) {
         fetchVisibleStaff();
       }

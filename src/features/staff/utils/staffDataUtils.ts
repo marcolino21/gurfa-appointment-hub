@@ -1,88 +1,55 @@
 
 import { StaffMember } from '@/types';
-import { MOCK_STAFF } from '@/data/mockData';
-
-// Initialize global staff data if not already set
-if (!window.globalStaffData) {
-  window.globalStaffData = { ...MOCK_STAFF };
-  // Store in localStorage as well for persistence
-  try {
-    const savedData = localStorage.getItem('staffData');
-    if (savedData) {
-      window.globalStaffData = JSON.parse(savedData);
-    } else {
-      localStorage.setItem('staffData', JSON.stringify(window.globalStaffData));
-    }
-  } catch (error) {
-    console.error("Error accessing localStorage:", error);
-  }
-}
+import { MOCK_STAFF } from '@/data/mock/staff';
 
 /**
- * Gets staff members for a specific salon
+ * Get all staff members for a salon
  */
-export const getSalonStaff = (salonId: string | null): StaffMember[] => {
-  if (!salonId) return [];
+export const getSalonStaff = (salonId: string): StaffMember[] => {
+  // Try to get from localStorage first
+  const storedStaff = localStorage.getItem(`staff_${salonId}`);
   
-  // First check in window.globalStaffData
-  if (window.globalStaffData && window.globalStaffData[salonId]) {
-    return [...window.globalStaffData[salonId]];
-  }
-  
-  // Fallback to localStorage
-  try {
-    const savedData = localStorage.getItem('staffData');
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      if (parsedData[salonId]) {
-        // Update global data
-        window.globalStaffData = parsedData;
-        return [...parsedData[salonId]];
-      }
+  if (storedStaff) {
+    try {
+      const parsedStaff = JSON.parse(storedStaff);
+      console.log("Retrieved staff from localStorage:", parsedStaff);
+      return parsedStaff;
+    } catch (error) {
+      console.error("Error parsing staff from localStorage:", error);
     }
-  } catch (error) {
-    console.error("Error accessing localStorage:", error);
   }
   
-  // Final fallback to mock data
-  return MOCK_STAFF[salonId] ? [...MOCK_STAFF[salonId]] : [];
+  // Fallback to mock data
+  const staffData = MOCK_STAFF[salonId] || [];
+  console.log("Using mock staff data:", staffData);
+  
+  // Store in localStorage for future use
+  localStorage.setItem(`staff_${salonId}`, JSON.stringify(staffData));
+  
+  return staffData;
 };
 
 /**
- * Updates staff data in both global state and localStorage for persistence
+ * Update staff data for a salon
  */
-export const updateStaffData = (salonId: string | null, updatedStaff: StaffMember[]): void => {
-  if (!salonId) return;
+export const updateStaffData = (salonId: string, staffData: StaffMember[]): void => {
+  localStorage.setItem(`staff_${salonId}`, JSON.stringify(staffData));
+  console.log("Staff data updated for salon:", salonId, staffData);
   
-  console.log("Updating staff data for salon:", salonId, updatedStaff);
-  
-  // Update global variable
-  if (!window.globalStaffData) {
-    window.globalStaffData = {};
-  }
-  
-  window.globalStaffData[salonId] = [...updatedStaff];
-  
-  // Also update localStorage for persistence
-  try {
-    let savedData = {};
-    const existingData = localStorage.getItem('staffData');
-    if (existingData) {
-      savedData = JSON.parse(existingData);
+  // Dispatch an event to notify other components that staff data has changed
+  const event = new CustomEvent('staffDataUpdated', {
+    detail: { 
+      salonId,
+      type: 'fullUpdate'
     }
-    
-    const updatedData = {
-      ...savedData,
-      [salonId]: updatedStaff
-    };
-    
-    localStorage.setItem('staffData', JSON.stringify(updatedData));
-    console.log("Staff data saved to localStorage:", updatedData);
-    
-    // Dispatch a custom event to notify other components about the data change
-    const event = new CustomEvent('staffDataUpdated', { detail: { salonId } });
-    window.dispatchEvent(event);
-  } catch (error) {
-    console.error("Error saving to localStorage:", error);
-  }
+  });
+  window.dispatchEvent(event);
+};
+
+/**
+ * Get a single staff member by ID
+ */
+export const getStaffMember = (salonId: string, staffId: string): StaffMember | null => {
+  const staffMembers = getSalonStaff(salonId);
+  return staffMembers.find(staff => staff.id === staffId) || null;
 };

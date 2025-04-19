@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { updateStaffData } from '../../utils/staffDataUtils';
 
 /**
- * Hook for toggling staff status and visibility
+ * Hook for toggling staff properties
  */
 export const useStaffToggleActions = (
   salonId: string | null,
@@ -13,6 +13,7 @@ export const useStaffToggleActions = (
 ) => {
   const { toast } = useToast();
 
+  // Toggle staff active status
   const toggleStaffStatus = (staffId: string, isActive: boolean) => {
     if (!salonId) {
       toast({
@@ -22,23 +23,32 @@ export const useStaffToggleActions = (
       });
       return;
     }
-    
+
     const updatedStaff = staffMembers.map(staff => 
-      staff.id === staffId ? { ...staff, isActive } : staff
+      staff.id === staffId ? { ...staff, isActive: !isActive } : staff
     );
     
-    // Update local state
     setStaffMembers(updatedStaff);
-    
-    // Update global storage
     updateStaffData(salonId, updatedStaff);
-    
+
     toast({
-      title: isActive ? 'Membro dello staff attivato' : 'Membro dello staff disattivato',
-      description: `Il membro dello staff è stato ${isActive ? 'attivato' : 'disattivato'} con successo`,
+      title: isActive ? 'Staff disattivato' : 'Staff attivato',
+      description: `Lo staff è stato ${isActive ? 'disattivato' : 'attivato'} con successo.`
     });
+    
+    // Dispatch a custom event to notify other components about the staff change
+    const event = new CustomEvent('staffDataUpdated', {
+      detail: { 
+        salonId,
+        staffId,
+        type: 'status',
+        value: !isActive
+      }
+    });
+    window.dispatchEvent(event);
   };
 
+  // Toggle staff calendar visibility
   const toggleCalendarVisibility = (staffId: string, showInCalendar: boolean) => {
     if (!salonId) {
       toast({
@@ -48,25 +58,30 @@ export const useStaffToggleActions = (
       });
       return;
     }
-    
+
     const updatedStaff = staffMembers.map(staff => 
-      staff.id === staffId ? { ...staff, showInCalendar } : staff
+      staff.id === staffId ? { ...staff, showInCalendar: !showInCalendar } : staff
     );
     
-    // Update local state
     setStaffMembers(updatedStaff);
-    
-    // Update global storage
     updateStaffData(salonId, updatedStaff);
-    
+
     toast({
-      title: showInCalendar ? 'Visibile in agenda' : 'Nascosto dall\'agenda',
-      description: `Il membro dello staff sarà ${showInCalendar ? 'visibile' : 'nascosto'} nell'agenda`,
+      title: showInCalendar ? 'Staff nascosto in agenda' : 'Staff visibile in agenda',
+      description: `Lo staff è ora ${showInCalendar ? 'nascosto' : 'visibile'} in agenda.`
     });
+    
+    // Dispatch a custom event to notify other components about the staff change
+    const event = new CustomEvent('staffDataUpdated', {
+      detail: { 
+        salonId,
+        staffId,
+        type: 'calendarVisibility',
+        value: !showInCalendar
+      }
+    });
+    window.dispatchEvent(event);
   };
 
-  return {
-    toggleStaffStatus,
-    toggleCalendarVisibility,
-  };
+  return { toggleStaffStatus, toggleCalendarVisibility };
 };

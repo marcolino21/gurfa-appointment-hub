@@ -30,6 +30,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const calendarRef = useRef<any>(null);
   const { toast } = useToast();
 
+  console.log("Staff members in StaffCalendar:", staffMembers);
+
   // Early return if no staff members are visible
   if (staffMembers.length === 0) {
     return (
@@ -48,6 +50,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     title: `${staff.firstName} ${staff.lastName}`,
     color: staff.color || '#9b87f5'
   }));
+
+  console.log("Resources created:", resources);
 
   return (
     <div className="h-[calc(100vh-320px)]">
