@@ -28,29 +28,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 }) => {
   const calendarRef = useRef<any>(null);
   const { toast } = useToast();
-  const [renderedStaff, setRenderedStaff] = useState<StaffMember[]>([]);
-
-  // Ensure staffMembers are properly loaded
-  useEffect(() => {
-    console.log("Staff members updated in StaffCalendar:", staffMembers);
-    setRenderedStaff(staffMembers);
-  }, [staffMembers]);
-
-  // Early return if no staff members are visible
-  if (staffMembers.length === 0) {
-    return (
-      <div className="h-[calc(100vh-320px)] flex items-center justify-center flex-col">
-        <p className="text-xl font-medium mb-2">Nessuno staff visibile in agenda</p>
-        <p className="text-muted-foreground">
-          Vai alla pagina Staff e seleziona "Visibile in agenda" per i membri che vuoi visualizzare.
-        </p>
-      </div>
-    );
-  }
-
-  console.log("Rendering calendar with view:", view);
-  console.log("Staff members in view:", staffMembers);
-  console.log("Events in calendar:", events);
+  const [calendarApi, setCalendarApi] = useState<any>(null);
 
   // Configuration for all calendar views
   const commonConfig = {
@@ -60,7 +38,6 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     allDaySlot: false,
     selectMirror: true,
     dayMaxEvents: true,
-    weekends: true,
     selectable: true,
     select: onDateSelect,
     eventClick: onEventClick,
@@ -68,14 +45,23 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     droppable: true,
     eventDrop: onEventDrop,
     headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
+      left: 'prev,next',
+      center: 'title today',
       right: ''
     },
     slotDuration: '00:30:00',
+    height: 'calc(100vh - 320px)',
+    nowIndicator: true,
+    stickyHeaderDates: true
   };
 
-  // Special configuration for day view - create separate columns for each staff member
+  useEffect(() => {
+    if (calendarApi) {
+      calendarApi.setOption('scrollTimeReset', false);
+    }
+  }, [calendarApi]);
+
+  // Special handling for day view with staff columns
   if (view === 'timeGridDay') {
     return (
       <div className="h-[calc(100vh-320px)]">
@@ -100,6 +86,11 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
                   {...commonConfig}
                   events={events.filter(event => event.resourceId === staff.id)}
                   headerToolbar={false}
+                  ref={(ref) => {
+                    if (ref) {
+                      setCalendarApi(ref.getApi());
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -112,23 +103,33 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   // Handle week view - add staff names to event titles
   const enhancedEvents = events.map(event => {
     const staffMember = staffMembers.find(staff => staff.id === event.resourceId);
+    const formattedTitle = staffMember ? 
+      `${staffMember.firstName} ${staffMember.lastName} - ${event.title}` :
+      event.title;
     return {
       ...event,
-      title: view === 'timeGridWeek' ? 
-        `${event.title} (${staffMember ? staffMember.firstName : 'Staff'})` : 
-        event.title
+      title: formattedTitle
     };
   });
 
-  // For week and month views, use the standard plugins
+  // For week and month views
   return (
     <div className="h-[calc(100vh-320px)]">
       <FullCalendar
-        ref={calendarRef}
+        ref={(ref) => {
+          if (ref) {
+            setCalendarApi(ref.getApi());
+          }
+        }}
         plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
         initialView={view}
         {...commonConfig}
         events={enhancedEvents}
+        dateClick={view === 'dayGridMonth' ? (info) => {
+          if (calendarApi) {
+            calendarApi.changeView('timeGridDay', info.dateStr);
+          }
+        } : undefined}
       />
     </div>
   );

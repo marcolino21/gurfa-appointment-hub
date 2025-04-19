@@ -22,6 +22,7 @@
   padding: 4px 8px;
   margin: 1px;
   border: none;
+  cursor: pointer !important;
 }
 
 /* Time column styles */
@@ -63,22 +64,28 @@
   border-radius: 8px;
 }
 
-/* Multi-day staff calendar specific styles */
-.staff-calendar-grid {
-  display: grid;
-  height: 100%;
-  gap: 1px;
-  background-color: #e5e7eb;
+/* Today button style */
+.fc-today-button {
+  background-color: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
 }
 
-.staff-calendar-column {
-  background-color: white;
-  height: 100%;
+/* Center title and today button */
+.fc-toolbar-title {
+  font-weight: 600 !important;
+  text-align: center !important;
 }
 
-.staff-calendar-header {
-  text-align: center;
-  font-weight: 600;
-  padding: 8px !important;
-  border-bottom: 2px solid #e5e7eb;
+.fc-header-toolbar {
+  justify-content: center !important;
+  gap: 1rem !important;
+  padding: 1rem !important;
+}
+
+/* Style for clickable dates in month view */
+.fc-daygrid-day:hover {
+  background-color: #f3f4f6;
+  cursor: pointer;
 }
