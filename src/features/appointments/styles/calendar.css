@@ -63,14 +63,22 @@
   border-radius: 8px;
 }
 
-/* Resource columns header */
-.fc-resource-timeline th {
+/* Multi-day staff calendar specific styles */
+.staff-calendar-grid {
+  display: grid;
+  height: 100%;
+  gap: 1px;
+  background-color: #e5e7eb;
+}
+
+.staff-calendar-column {
+  background-color: white;
+  height: 100%;
+}
+
+.staff-calendar-header {
+  text-align: center;
   font-weight: 600;
-  padding: 12px 8px !important;
+  padding: 8px !important;
+  border-bottom: 2px solid #e5e7eb;
 }
-
-/* Resource cell content */
-.fc-resource-timeline td.fc-resource-cell {
-  vertical-align: middle;
-}
-
