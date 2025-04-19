@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Appointment, StaffMember } from '@/types';
@@ -23,11 +23,16 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   handleEventDrop,
   onViewChange
 }) => {
+  // Debug the visible staff to check if they're correctly passed
+  useEffect(() => {
+    console.log("Visible staff in AppointmentCalendarView:", visibleStaff);
+  }, [visibleStaff]);
+
   return (
     <Card>
       <CardContent className="p-0 sm:p-6">
         <Tabs 
-          defaultValue="week" 
+          defaultValue="day" 
           className="w-full"
           onValueChange={(value) => {
             if (value === 'day') onViewChange('timeGridDay');

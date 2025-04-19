@@ -4,21 +4,31 @@ import { useAuth } from '@/contexts/AuthContext';
 import { StaffMember } from '@/types';
 import { getSalonStaff } from '@/features/staff/utils/staffDataUtils';
 import { BUSINESS_NAME_CHANGE_EVENT } from '@/utils/businessNameEvents';
+import { useToast } from '@/hooks/use-toast';
 
 export const useStaffAppointments = () => {
   const { currentSalonId } = useAuth();
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
+  const { toast } = useToast();
   
   // Function to get visible staff
   const fetchVisibleStaff = useCallback(() => {
     if (currentSalonId) {
       // Get staff from global data and filter only those visible in calendar
       const allStaff = getSalonStaff(currentSalonId);
+      
+      console.log("All staff members:", allStaff);
+      
       const staffVisibleInCalendar = allStaff.filter(staff => 
         staff.isActive && staff.showInCalendar
       );
       
       console.log("Staff visible in calendar:", staffVisibleInCalendar);
+      
+      if (staffVisibleInCalendar.length === 0 && allStaff.length > 0) {
+        console.warn("No staff members are set to be visible in calendar");
+      }
+      
       setVisibleStaff(staffVisibleInCalendar);
     } else {
       console.log("No currentSalonId available");

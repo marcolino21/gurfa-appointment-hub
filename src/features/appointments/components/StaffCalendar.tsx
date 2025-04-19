@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -28,8 +28,13 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 }) => {
   const calendarRef = useRef<any>(null);
   const { toast } = useToast();
+  const [renderedStaff, setRenderedStaff] = useState<StaffMember[]>([]);
 
-  console.log("Staff members in StaffCalendar:", staffMembers);
+  // Ensure staffMembers are properly loaded
+  useEffect(() => {
+    console.log("Staff members updated in StaffCalendar:", staffMembers);
+    setRenderedStaff(staffMembers);
+  }, [staffMembers]);
 
   // Early return if no staff members are visible
   if (staffMembers.length === 0) {
@@ -42,6 +47,10 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       </div>
     );
   }
+
+  console.log("Rendering calendar with view:", view);
+  console.log("Staff members in view:", staffMembers);
+  console.log("Events in calendar:", events);
 
   // Configuration for all calendar views
   const commonConfig = {
@@ -64,17 +73,6 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       right: ''
     },
     slotDuration: '00:30:00',
-    events: events.map(event => {
-      // Ensure each event is associated with its staff member
-      const staffMember = staffMembers.find(staff => staff.id === event.resourceId);
-      return {
-        ...event,
-        // If in week view, add the staff member name to the title for better recognition
-        title: view === 'timeGridWeek' ? 
-          `${event.title} (${staffMember ? staffMember.firstName : 'Staff'})` : 
-          event.title
-      };
-    }),
   };
 
   // Special configuration for day view - create separate columns for each staff member
@@ -111,6 +109,17 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
+  // Handle week view - add staff names to event titles
+  const enhancedEvents = events.map(event => {
+    const staffMember = staffMembers.find(staff => staff.id === event.resourceId);
+    return {
+      ...event,
+      title: view === 'timeGridWeek' ? 
+        `${event.title} (${staffMember ? staffMember.firstName : 'Staff'})` : 
+        event.title
+    };
+  });
+
   // For week and month views, use the standard plugins
   return (
     <div className="h-[calc(100vh-320px)]">
@@ -119,6 +128,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
         initialView={view}
         {...commonConfig}
+        events={enhancedEvents}
       />
     </div>
   );
