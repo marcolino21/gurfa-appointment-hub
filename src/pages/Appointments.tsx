@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useStaffAppointments } from '@/features/appointments/hooks/useStaffAppointments';
@@ -34,7 +33,6 @@ const Appointments: React.FC = () => {
     handleAddAppointment
   } = useAppointmentHandlers(visibleStaff);
   
-  // Apply filters when search term or status filter changes
   useEffect(() => {
     setFilters({
       search: searchTerm || null,
@@ -42,7 +40,6 @@ const Appointments: React.FC = () => {
     });
   }, [searchTerm, statusFilter, setFilters]);
   
-  // Refresh staff visibility when component mounts or currentSalonId changes
   useEffect(() => {
     console.log("Appointments component - currentSalonId:", currentSalonId);
     
@@ -51,7 +48,6 @@ const Appointments: React.FC = () => {
     }
   }, [refreshVisibleStaff, currentSalonId]);
   
-  // Log staff visibility status after refresh
   useEffect(() => {
     console.log("Appointments component - visibleStaff:", visibleStaff);
     
@@ -59,7 +55,7 @@ const Appointments: React.FC = () => {
       toast({
         title: "Nessuno staff visibile",
         description: "Vai alla pagina Staff e seleziona 'Visibile in agenda' per i membri che vuoi visualizzare.",
-        variant: "warning"
+        variant: "default"
       });
     }
   }, [visibleStaff, currentSalonId, toast]);
