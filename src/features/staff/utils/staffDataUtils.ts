@@ -1,6 +1,8 @@
 
 import { StaffMember } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
+import { SystemFeature } from '../types/permissions';
 
 /**
  * Get all staff members for a salon
@@ -33,9 +35,27 @@ export const getSalonStaff = async (salonId: string): Promise<StaffMember[]> => 
     position: staff.position || '',
     color: staff.color || '#9b87f5',
     assignedServiceIds: staff.assigned_service_ids || [],
-    permissions: staff.permissions || [],
-    workSchedule: staff.work_schedule || []
+    // Explicitly cast permissions from string[] to SystemFeature[]
+    permissions: (staff.permissions || []) as SystemFeature[],
+    // Parse JSON string or object to WorkScheduleDay[] if needed
+    workSchedule: parseWorkSchedule(staff.work_schedule)
   }));
+};
+
+// Helper function to parse work schedule from database
+const parseWorkSchedule = (workScheduleData: Json): StaffMember['workSchedule'] => {
+  if (!workScheduleData) return [];
+  
+  if (typeof workScheduleData === 'string') {
+    try {
+      return JSON.parse(workScheduleData);
+    } catch (e) {
+      console.error("Error parsing work schedule:", e);
+      return [];
+    }
+  }
+  
+  return workScheduleData as StaffMember['workSchedule'];
 };
 
 /**
@@ -43,6 +63,7 @@ export const getSalonStaff = async (salonId: string): Promise<StaffMember[]> => 
  */
 export const updateStaffData = async (salonId: string, staffMember: Partial<StaffMember>): Promise<void> => {
   // Convert our camelCase properties to snake_case for the database
+  // Also make sure to properly handle type conversions for work_schedule and permissions
   const dbStaffMember = {
     id: staffMember.id,
     first_name: staffMember.firstName,
@@ -57,8 +78,10 @@ export const updateStaffData = async (salonId: string, staffMember: Partial<Staf
     position: staffMember.position,
     color: staffMember.color,
     assigned_service_ids: staffMember.assignedServiceIds,
-    permissions: staffMember.permissions,
-    work_schedule: staffMember.workSchedule
+    // Cast SystemFeature[] to string[] for database storage
+    permissions: staffMember.permissions as unknown as string[],
+    // Stringify work schedule for storage if needed
+    work_schedule: staffMember.workSchedule as unknown as Json
   };
 
   const { error } = await supabase
@@ -100,8 +123,10 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     position: staffMember.position,
     color: staffMember.color,
     assigned_service_ids: staffMember.assignedServiceIds,
-    permissions: staffMember.permissions,
-    work_schedule: staffMember.workSchedule,
+    // Cast SystemFeature[] to string[] for database storage
+    permissions: staffMember.permissions as unknown as string[],
+    // Stringify work schedule for storage if needed
+    work_schedule: staffMember.workSchedule as unknown as Json,
     salon_id: salonId
   };
 
@@ -132,8 +157,10 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     position: data.position || '',
     color: data.color || '#9b87f5',
     assignedServiceIds: data.assigned_service_ids || [],
-    permissions: data.permissions || [],
-    workSchedule: data.work_schedule || []
+    // Explicitly cast permissions from string[] to SystemFeature[]
+    permissions: (data.permissions || []) as SystemFeature[],
+    // Parse JSON string or object to WorkScheduleDay[]
+    workSchedule: parseWorkSchedule(data.work_schedule)
   };
 };
 
@@ -185,7 +212,9 @@ export const getStaffMember = async (salonId: string, staffId: string): Promise<
     position: data.position || '',
     color: data.color || '#9b87f5',
     assignedServiceIds: data.assigned_service_ids || [],
-    permissions: data.permissions || [],
-    workSchedule: data.work_schedule || []
+    // Explicitly cast permissions from string[] to SystemFeature[]
+    permissions: (data.permissions || []) as SystemFeature[],
+    // Parse JSON string or object to WorkScheduleDay[]
+    workSchedule: parseWorkSchedule(data.work_schedule)
   };
 };
