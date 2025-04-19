@@ -142,3 +142,37 @@
   text-align: center !important;
   width: 100% !important;
 }
+
+/* Fix synchronized scrolling */
+.fc-scroller-liquid-absolute {
+  overflow: auto !important;
+  scroll-behavior: smooth;
+}
+
+/* Ensure proper scrolling synchronization */
+.staff-column {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Make the font size of event titles in month view more readable */
+.fc-dayGridMonth-view .fc-event-title {
+  font-size: 0.75rem !important;
+}
+
+/* Fix centering of controls */
+.fc-header-toolbar {
+  justify-content: center !important;
+}
+
+/* Fix centering of title and today button */
+.fc-toolbar-chunk:nth-child(2) {
+  flex-grow: 1 !important;
+  justify-content: center !important;
+  display: flex !important;
+}
+
+/* Add space between staff columns */
+.staff-column + .staff-column {
+  margin-left: 1px;
+}
