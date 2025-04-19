@@ -21,11 +21,14 @@ interface ActivityDialogProps {
 }
 
 const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) => {
-  const { user, addSalon } = useAuth();
+  const { user, salons, addSalon } = useAuth();
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+
+  // Verifica se l'utente ha già un'attività
+  const hasExistingActivity = salons.length > 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +41,11 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
       });
       return;
     }
+
+    // Se l'utente ha già un'attività, mostra un messaggio diverso
+    const successMessage = hasExistingActivity 
+      ? `L'attività aggiuntiva ${name} è stata aggiunta con successo.`
+      : `L'attività ${name} è stata aggiunta con successo.`;
     
     // Crea il nuovo salone
     const newSalon: Salon = {
@@ -58,17 +66,26 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
     
     toast({
       title: 'Attività aggiunta',
-      description: `L'attività ${name} è stata aggiunta con successo.`,
+      description: successMessage,
     });
   };
+
+  // Se non è la prima attività, modifica il titolo e la descrizione
+  const dialogTitle = hasExistingActivity 
+    ? "Aggiungi un'attività aggiuntiva" 
+    : "Aggiungi una nuova attività";
+  
+  const dialogDescription = hasExistingActivity
+    ? "Inserisci i dettagli della nuova attività aggiuntiva che desideri gestire."
+    : "Inserisci i dettagli della nuova attività che desideri gestire.";
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Aggiungi una nuova attività</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
-            Inserisci i dettagli della nuova attività che desideri gestire.
+            {dialogDescription}
           </DialogDescription>
         </DialogHeader>
         
