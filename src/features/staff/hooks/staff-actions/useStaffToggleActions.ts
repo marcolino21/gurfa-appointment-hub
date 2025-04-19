@@ -3,9 +3,6 @@ import { StaffMember } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { updateStaffData } from '../../utils/staffDataUtils';
 
-/**
- * Hook for toggling staff properties
- */
 export const useStaffToggleActions = (
   salonId: string | null,
   staffMembers: StaffMember[],
@@ -13,8 +10,7 @@ export const useStaffToggleActions = (
 ) => {
   const { toast } = useToast();
 
-  // Toggle staff active status
-  const toggleStaffStatus = (staffId: string, isActive: boolean) => {
+  const toggleStaffStatus = async (staffId: string, isActive: boolean) => {
     if (!salonId) {
       toast({
         title: 'Errore',
@@ -24,32 +20,34 @@ export const useStaffToggleActions = (
       return;
     }
 
-    const updatedStaff = staffMembers.map(staff => 
-      staff.id === staffId ? { ...staff, isActive: !isActive } : staff
-    );
-    
-    setStaffMembers(updatedStaff);
-    updateStaffData(salonId, updatedStaff);
+    try {
+      const staffMember = staffMembers.find(s => s.id === staffId);
+      if (!staffMember) return;
 
-    toast({
-      title: isActive ? 'Staff disattivato' : 'Staff attivato',
-      description: `Lo staff è stato ${isActive ? 'disattivato' : 'attivato'} con successo.`
-    });
-    
-    // Dispatch a custom event to notify other components about the staff change
-    const event = new CustomEvent('staffDataUpdated', {
-      detail: { 
-        salonId,
-        staffId,
-        type: 'status',
-        value: !isActive
-      }
-    });
-    window.dispatchEvent(event);
+      await updateStaffData(salonId, {
+        id: staffId,
+        isActive: !isActive
+      });
+      
+      setStaffMembers(prev => prev.map(staff => 
+        staff.id === staffId ? { ...staff, isActive: !isActive } : staff
+      ));
+
+      toast({
+        title: isActive ? 'Staff disattivato' : 'Staff attivato',
+        description: `Lo staff è stato ${isActive ? 'disattivato' : 'attivato'} con successo.`
+      });
+    } catch (error) {
+      console.error("Error toggling staff status:", error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare lo stato dello staff',
+        variant: 'destructive',
+      });
+    }
   };
 
-  // Toggle staff calendar visibility
-  const toggleCalendarVisibility = (staffId: string, showInCalendar: boolean) => {
+  const toggleCalendarVisibility = async (staffId: string, showInCalendar: boolean) => {
     if (!salonId) {
       toast({
         title: 'Errore',
@@ -59,28 +57,31 @@ export const useStaffToggleActions = (
       return;
     }
 
-    const updatedStaff = staffMembers.map(staff => 
-      staff.id === staffId ? { ...staff, showInCalendar: !showInCalendar } : staff
-    );
-    
-    setStaffMembers(updatedStaff);
-    updateStaffData(salonId, updatedStaff);
+    try {
+      const staffMember = staffMembers.find(s => s.id === staffId);
+      if (!staffMember) return;
 
-    toast({
-      title: showInCalendar ? 'Staff nascosto in agenda' : 'Staff visibile in agenda',
-      description: `Lo staff è ora ${showInCalendar ? 'nascosto' : 'visibile'} in agenda.`
-    });
-    
-    // Dispatch a custom event to notify other components about the staff change
-    const event = new CustomEvent('staffDataUpdated', {
-      detail: { 
-        salonId,
-        staffId,
-        type: 'calendarVisibility',
-        value: !showInCalendar
-      }
-    });
-    window.dispatchEvent(event);
+      await updateStaffData(salonId, {
+        id: staffId,
+        showInCalendar: !showInCalendar
+      });
+      
+      setStaffMembers(prev => prev.map(staff => 
+        staff.id === staffId ? { ...staff, showInCalendar: !showInCalendar } : staff
+      ));
+
+      toast({
+        title: showInCalendar ? 'Staff nascosto in agenda' : 'Staff visibile in agenda',
+        description: `Lo staff è ora ${showInCalendar ? 'nascosto' : 'visibile'} in agenda.`
+      });
+    } catch (error) {
+      console.error("Error toggling calendar visibility:", error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare la visibilità dello staff',
+        variant: 'destructive',
+      });
+    }
   };
 
   return { toggleStaffStatus, toggleCalendarVisibility };

@@ -1,11 +1,8 @@
 
 import { StaffMember } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { updateStaffData } from '../../utils/staffDataUtils';
+import { deleteStaffMember } from '../../utils/staffDataUtils';
 
-/**
- * Hook for deleting staff members
- */
 export const useStaffDeleteActions = (
   salonId: string | null,
   staffMembers: StaffMember[],
@@ -13,7 +10,7 @@ export const useStaffDeleteActions = (
 ) => {
   const { toast } = useToast();
 
-  const deleteStaff = (staffId: string) => {
+  const deleteStaff = async (staffId: string) => {
     if (!salonId) {
       toast({
         title: 'Errore',
@@ -22,19 +19,24 @@ export const useStaffDeleteActions = (
       });
       return;
     }
-    
-    const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
-    
-    // Update local state
-    setStaffMembers(updatedStaff);
-    
-    // Update global storage
-    updateStaffData(salonId, updatedStaff);
-    
-    toast({
-      title: 'Membro dello staff eliminato',
-      description: 'Il membro dello staff è stato eliminato con successo',
-    });
+
+    try {
+      await deleteStaffMember(salonId, staffId);
+      
+      setStaffMembers(prev => prev.filter(staff => staff.id !== staffId));
+      
+      toast({
+        title: 'Membro dello staff eliminato',
+        description: 'Il membro dello staff è stato eliminato con successo',
+      });
+    } catch (error) {
+      console.error("Error deleting staff member:", error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il membro dello staff',
+        variant: 'destructive',
+      });
+    }
   };
 
   return { deleteStaff };

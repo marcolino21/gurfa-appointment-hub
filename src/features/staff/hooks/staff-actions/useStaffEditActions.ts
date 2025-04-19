@@ -4,9 +4,6 @@ import { useToast } from '@/hooks/use-toast';
 import { StaffFormValues } from '../../types';
 import { updateStaffData } from '../../utils/staffDataUtils';
 
-/**
- * Hook for editing staff members
- */
 export const useStaffEditActions = (
   salonId: string | null,
   staffMembers: StaffMember[],
@@ -14,7 +11,7 @@ export const useStaffEditActions = (
 ) => {
   const { toast } = useToast();
 
-  const editStaff = (staffId: string, data: StaffFormValues) => {
+  const editStaff = async (staffId: string, data: StaffFormValues) => {
     if (!salonId) {
       toast({
         title: 'Errore',
@@ -24,19 +21,19 @@ export const useStaffEditActions = (
       return;
     }
 
-    // Ensure workSchedule days and isWorking are properly defined
-    const workSchedule = data.workSchedule.map(day => ({
-      day: day.day,
-      isWorking: Boolean(day.isWorking),
-      startTime: day.startTime || '',
-      endTime: day.endTime || '',
-      breakStart: day.breakStart || '',
-      breakEnd: day.breakEnd || '',
-    }));
+    try {
+      // Ensure workSchedule days and isWorking are properly defined
+      const workSchedule = data.workSchedule.map(day => ({
+        day: day.day,
+        isWorking: Boolean(day.isWorking),
+        startTime: day.startTime || '',
+        endTime: day.endTime || '',
+        breakStart: day.breakStart || '',
+        breakEnd: day.breakEnd || '',
+      }));
 
-    const updatedStaff = staffMembers.map(staff => 
-      staff.id === staffId ? {
-        ...staff,
+      const updatedStaffData = {
+        id: staffId,
         firstName: data.firstName,
         lastName: data.lastName || '',
         email: data.email,
@@ -50,19 +47,26 @@ export const useStaffEditActions = (
         color: data.color || '#9b87f5',
         assignedServiceIds: Array.isArray(data.assignedServiceIds) ? data.assignedServiceIds : [],
         workSchedule,
-      } : staff
-    );
+      };
 
-    // Update local state
-    setStaffMembers(updatedStaff);
-    
-    // Update global storage
-    updateStaffData(salonId, updatedStaff);
-    
-    toast({
-      title: 'Membro dello staff modificato',
-      description: `${data.firstName} ${data.lastName} è stato modificato con successo`,
-    });
+      await updateStaffData(salonId, updatedStaffData);
+      
+      setStaffMembers(prev => prev.map(staff => 
+        staff.id === staffId ? { ...staff, ...updatedStaffData } : staff
+      ));
+      
+      toast({
+        title: 'Membro dello staff modificato',
+        description: `${data.firstName} ${data.lastName} è stato modificato con successo`,
+      });
+    } catch (error) {
+      console.error("Error updating staff member:", error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare il membro dello staff',
+        variant: 'destructive',
+      });
+    }
   };
 
   return { editStaff };
