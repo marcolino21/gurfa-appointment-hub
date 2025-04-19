@@ -31,21 +31,35 @@ export const useSaveSalonProfile = ({
     setError(null);
     
     try {
+      let salonId = currentSalonId;
+      let salon = currentSalon;
+      
       // Se non esiste un salonId, significa che è la prima volta che si salvano i dati
       // quindi creiamo una nuova attività
-      if (!currentSalonId) {
+      if (!salonId) {
+        // Verifica che user esista prima di utilizzarlo
+        if (!user || !user.id) {
+          throw new Error('Utente non autenticato');
+        }
+        
         // Crea una nuova attività
         const newSalon: Salon = {
           id: `salon-${Date.now()}`,
           name: formData.businessName,
-          ownerId: user?.id || '',
+          ownerId: user.id,
           address: formData.address || undefined,
           phone: formData.phone || undefined
         };
         
+        // Aggiungi il salone al contesto
         addSalon(newSalon);
-        currentSalonId = newSalon.id;
-        currentSalon = newSalon;
+        
+        // Aggiorna le variabili locali
+        salonId = newSalon.id;
+        salon = newSalon;
+        
+        // Notifica all'utente
+        console.log('Nuova attività creata:', newSalon);
         
         toast({
           title: 'Attività creata',
@@ -53,7 +67,12 @@ export const useSaveSalonProfile = ({
         });
       }
 
-      const profileData = mapFormDataToProfileData(formData, currentSalonId);
+      // Se ancora non abbiamo un salonId, qualcosa è andato storto
+      if (!salonId) {
+        throw new Error('Impossibile creare o trovare un\'attività');
+      }
+
+      const profileData = mapFormDataToProfileData(formData, salonId);
       
       const { error: saveError } = await saveSalonProfile(profileData);
       
@@ -65,16 +84,22 @@ export const useSaveSalonProfile = ({
       saveSalonProfileToLocalStorage(formData);
       
       // Aggiorna il salone nel context se esiste
-      if (currentSalon) {
+      if (salon) {
         const updatedSalon = {
-          ...currentSalon,
+          ...salon,
           name: formData.businessName,
           phone: formData.phone,
           address: formData.address
         };
         
-        updateSalonInfo(currentSalonId, updatedSalon);
+        updateSalonInfo(salonId, updatedSalon);
       }
+      
+      // Dispatch custom event to notify that business name changed
+      const event = new CustomEvent('business_name_changed', { 
+        detail: { businessName: formData.businessName }
+      });
+      window.dispatchEvent(event);
       
       toast({
         title: "Profilo salvato",
