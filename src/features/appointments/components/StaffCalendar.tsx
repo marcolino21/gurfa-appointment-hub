@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+
+import React, { useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -29,24 +30,6 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const calendarRef = useRef<any>(null);
   const { toast } = useToast();
 
-  // Get initials for each staff member
-  const getInitials = (firstName: string, lastName: string) => {
-    const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
-    const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
-    return `${firstInitial}${lastInitial}`;
-  };
-
-  // Preparazione delle risorse (staff) per il calendario
-  const resources = staffMembers.map(staff => ({
-    id: staff.id,
-    title: staff.firstName,  // Show only first name in header
-    extendedProps: {
-      fullName: `${staff.firstName} ${staff.lastName}`,
-      initials: getInitials(staff.firstName, staff.lastName),
-      color: staff.color
-    }
-  }));
-
   // Early return if no staff members are visible
   if (staffMembers.length === 0) {
     return (
@@ -58,6 +41,13 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       </div>
     );
   }
+
+  // Create resource objects for each staff member
+  const resources = staffMembers.map(staff => ({
+    id: staff.id,
+    title: `${staff.firstName} ${staff.lastName}`,
+    color: staff.color
+  }));
 
   return (
     <div className="h-[calc(100vh-320px)]">
@@ -105,35 +95,22 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           editable={true}
           droppable={true}
           eventDrop={onEventDrop}
-          resourceLabelDidMount={({ el, resource }) => {
-            const resourceData = resource.extendedProps as { 
-              fullName: string;
-              initials: string;
-              color: string;
-            };
+          resourceLabelContent={({ resource }) => {
+            const title = resource.title;
+            const color = resource.extendedProps?.color || '#9b87f5';
             
-            // Create header with initials circle and full name
-            const headerContent = document.createElement('div');
-            headerContent.className = 'flex flex-col items-center p-2 w-full';
-            
-            // Add initials circle
-            const initialsCircle = document.createElement('div');
-            initialsCircle.className = 'w-10 h-10 rounded-full flex items-center justify-center text-white mb-1';
-            initialsCircle.style.backgroundColor = resourceData.color || '#9b87f5';
-            initialsCircle.innerText = resourceData.initials;
+            // Create a container for the staff header
+            const container = document.createElement('div');
+            container.className = 'flex flex-col items-center p-2';
             
             // Add staff name
-            const staffName = document.createElement('div');
-            staffName.className = 'text-sm font-medium';
-            staffName.innerText = resourceData.fullName;
+            const nameEl = document.createElement('span');
+            nameEl.className = 'font-medium text-sm';
+            nameEl.textContent = title;
             
-            headerContent.appendChild(initialsCircle);
-            headerContent.appendChild(staffName);
+            container.appendChild(nameEl);
             
-            // Clear existing content and add new layout
-            el.innerHTML = '';
-            el.appendChild(headerContent);
-            el.className = 'fc-resource-header';
+            return { domNodes: [container] };
           }}
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
         />

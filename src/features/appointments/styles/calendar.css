@@ -2,11 +2,14 @@
 /* Stili per il calendario personalizzato */
 
 /* Resource header styles */
-.fc-resource-header {
-  padding: 8px 4px;
-  text-align: center;
-  border-bottom: 2px solid #e5e7eb;
-  background-color: #f8fafc;
+.fc-resource-group,
+.fc-resource-timeline-divider {
+  width: 1px !important;
+  background-color: #e5e7eb;
+}
+
+.fc-resource-timeline-divider {
+  padding: 0 !important;
 }
 
 /* General calendar styles */
@@ -43,9 +46,11 @@
   border-left: 1px solid #e5e7eb !important;
 }
 
-/* Resource header container */
+/* Staff column header */
 .fc-resource-timeline-header-cell {
   background-color: #f8fafc;
+  text-align: center !important;
+  padding: 8px !important;
 }
 
 /* Current time indicator */
@@ -64,4 +69,3 @@
   color: #64748b;
   padding: 4px;
 }
-
