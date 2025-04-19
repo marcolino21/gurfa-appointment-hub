@@ -98,7 +98,9 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           resourceLabelDidMount={({ el, resource }) => {
             // Custom resource header rendering
             const title = resource.title;
-            const color = resource.extendedProps?.color || resource.color || '#9b87f5';
+            // Use resource.extendedProps to access custom properties safely
+            const resourceObj = resources.find(res => res.id === resource.id);
+            const color = resourceObj?.color || '#9b87f5';
             
             // Create header with name
             const container = document.createElement('div');
