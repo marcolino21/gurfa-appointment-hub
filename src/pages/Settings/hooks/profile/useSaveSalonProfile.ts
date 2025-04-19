@@ -1,4 +1,3 @@
-
 import { saveSalonProfileToLocalStorage, mapFormDataToProfileData, saveSalonProfile } from '../../utils/profileUtils';
 import { Salon } from '@/types';
 import { ProfileFormData } from '../../types/profileTypes';
@@ -25,22 +24,33 @@ export const useSaveSalonProfile = ({
 }: UseSaveSalonProfileProps) => {
 
   const handleSaveProfile = async () => {
-    if (!currentSalonId) {
-      toast({
-        variant: 'destructive',
-        title: 'Errore',
-        description: 'Nessun salone selezionato.'
-      });
-      return;
-    }
-    
     setIsLoading(true);
     setError(null);
-    console.log('Saving profile for salon ID:', currentSalonId);
     
     try {
+      // Se non esiste un salonId, significa che è la prima volta che si salvano i dati
+      // quindi creiamo una nuova attività
+      if (!currentSalonId) {
+        // Crea una nuova attività
+        const newSalon: Salon = {
+          id: `salon-${Date.now()}`,
+          name: formData.businessName,
+          ownerId: user?.id || '',
+          address: formData.address || undefined,
+          phone: formData.phone || undefined
+        };
+        
+        addSalon(newSalon);
+        currentSalonId = newSalon.id;
+        currentSalon = newSalon;
+        
+        toast({
+          title: 'Attività creata',
+          description: `L'attività ${formData.businessName} è stata creata con successo.`,
+        });
+      }
+
       const profileData = mapFormDataToProfileData(formData, currentSalonId);
-      console.log('Profile data to save:', profileData);
       
       const { error: saveError } = await saveSalonProfile(profileData);
       
@@ -48,10 +58,10 @@ export const useSaveSalonProfile = ({
         throw saveError;
       }
       
-      // Salva anche nel localStorage come backup
+      // Salva nel localStorage come backup
       saveSalonProfileToLocalStorage(formData);
       
-      // Aggiorna il salone nel context
+      // Aggiorna il salone nel context se esiste
       if (currentSalon) {
         const updatedSalon = {
           ...currentSalon,

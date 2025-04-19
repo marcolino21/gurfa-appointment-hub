@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog, 
@@ -29,6 +28,11 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
 
   // Verifica se l'utente ha già un'attività
   const hasExistingActivity = salons.length > 0;
+
+  // Nascondi il dialogo se l'utente non ha ancora un'attività
+  if (!hasExistingActivity) {
+    return null;
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
