@@ -7,8 +7,12 @@ import StaffContent from '@/features/staff/components/StaffContent';
 import StaffDialogs from '@/features/staff/components/StaffDialogs';
 import { useStaff } from '@/features/staff/contexts/StaffContext';
 
-const StaffDialogsContainer = () => {
+// This component is wrapped with StaffProvider
+const StaffPageContent = () => {
   const {
+    staffMembers,
+    searchTerm,
+    setSearchTerm,
     isAddDialogOpen,
     setIsAddDialogOpen,
     isEditDialogOpen,
@@ -16,53 +20,47 @@ const StaffDialogsContainer = () => {
     selectedStaff,
     services,
     handleAddStaff,
-    handleEditStaff
+    handleEditStaff,
+    handleDeleteStaff,
+    handleToggleStatus,
+    handleToggleCalendarVisibility,
+    hasSalon,
+    setSelectedStaff
   } = useStaff();
 
-  return (
-    <StaffDialogs
-      isAddDialogOpen={isAddDialogOpen}
-      setIsAddDialogOpen={setIsAddDialogOpen}
-      isEditDialogOpen={isEditDialogOpen}
-      setIsEditDialogOpen={setIsEditDialogOpen}
-      selectedStaff={selectedStaff}
-      services={services}
-      onAddStaff={handleAddStaff}
-      onEditStaff={handleEditStaff}
-    />
-  );
-};
-
-const StaffHeaderContainer = () => {
-  const { searchTerm, setSearchTerm, setIsAddDialogOpen } = useStaff();
-  
+  // Handle adding a new staff member
   const handleAddStaffClick = () => {
     setIsAddDialogOpen(true);
   };
-  
-  return (
-    <StaffHeader
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      onAddStaffClick={handleAddStaffClick}
-    />
-  );
-};
 
-const StaffPageContent = () => {
   return (
     <div className="container mx-auto py-6">
       <Card>
         <CardHeader>
-          <StaffHeaderContainer />
+          <StaffHeader
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onAddStaffClick={handleAddStaffClick}
+          />
         </CardHeader>
         <StaffContent />
       </Card>
-      <StaffDialogsContainer />
+      
+      <StaffDialogs
+        isAddDialogOpen={isAddDialogOpen}
+        setIsAddDialogOpen={setIsAddDialogOpen}
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        selectedStaff={selectedStaff}
+        services={services}
+        onAddStaff={handleAddStaff}
+        onEditStaff={handleEditStaff}
+      />
     </div>
   );
 };
 
+// Main component that wraps everything with the provider
 const Staff = () => {
   return (
     <StaffProvider>
