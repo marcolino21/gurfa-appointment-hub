@@ -1,7 +1,9 @@
+
 import { saveSalonProfileToLocalStorage, mapFormDataToProfileData, saveSalonProfile } from '../../utils/profileUtils';
 import { Salon } from '@/types';
 import { ProfileFormData } from '../../types/profileTypes';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UseSaveSalonProfileProps {
   currentSalonId: string | null;
@@ -22,6 +24,7 @@ export const useSaveSalonProfile = ({
   updateSalonInfo,
   toast
 }: UseSaveSalonProfileProps) => {
+  const { user, addSalon } = useAuth();
 
   const handleSaveProfile = async () => {
     setIsLoading(true);
