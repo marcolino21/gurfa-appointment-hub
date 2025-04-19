@@ -36,7 +36,7 @@ export const getSalonStaff = async (salonId: string): Promise<StaffMember[]> => 
     color: staff.color || '#9b87f5',
     assignedServiceIds: staff.assigned_service_ids || [],
     // Explicitly cast permissions from string[] to SystemFeature[]
-    permissions: (staff.permissions || []) as SystemFeature[],
+    permissions: (staff.permissions || []) as unknown as SystemFeature[],
     // Parse JSON string or object to WorkScheduleDay[] if needed
     workSchedule: parseWorkSchedule(staff.work_schedule)
   }));
@@ -48,7 +48,7 @@ const parseWorkSchedule = (workScheduleData: Json): StaffMember['workSchedule'] 
   
   if (typeof workScheduleData === 'string') {
     try {
-      return JSON.parse(workScheduleData);
+      return JSON.parse(workScheduleData) as StaffMember['workSchedule'];
     } catch (e) {
       console.error("Error parsing work schedule:", e);
       return [];
@@ -66,7 +66,8 @@ const parseWorkSchedule = (workScheduleData: Json): StaffMember['workSchedule'] 
     );
     
     if (isValidWorkSchedule) {
-      return workScheduleData as StaffMember['workSchedule'];
+      // First cast to unknown, then to the target type to satisfy TypeScript
+      return workScheduleData as unknown as StaffMember['workSchedule'];
     }
   }
   
