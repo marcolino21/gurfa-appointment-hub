@@ -46,7 +46,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const resources = staffMembers.map(staff => ({
     id: staff.id,
     title: `${staff.firstName} ${staff.lastName}`,
-    color: staff.color
+    color: staff.color || '#9b87f5'
   }));
 
   return (
@@ -95,22 +95,29 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           editable={true}
           droppable={true}
           eventDrop={onEventDrop}
-          resourceLabelContent={({ resource }) => {
+          resourceLabelDidMount={({ el, resource }) => {
+            // Custom resource header rendering
             const title = resource.title;
-            const color = resource.extendedProps?.color || '#9b87f5';
+            const color = resource.extendedProps?.color || resource.color || '#9b87f5';
             
-            // Create a container for the staff header
+            // Create header with name
             const container = document.createElement('div');
-            container.className = 'flex flex-col items-center p-2';
+            container.className = 'staff-label-container flex flex-col items-center p-2';
             
             // Add staff name
-            const nameEl = document.createElement('span');
+            const nameEl = document.createElement('div');
             nameEl.className = 'font-medium text-sm';
             nameEl.textContent = title;
+            nameEl.style.borderLeft = `3px solid ${color}`;
+            nameEl.style.paddingLeft = '8px';
+            nameEl.style.width = '100%';
+            nameEl.style.textAlign = 'center';
             
             container.appendChild(nameEl);
             
-            return { domNodes: [container] };
+            // Clear existing content and add new layout
+            el.innerHTML = '';
+            el.appendChild(container);
           }}
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
         />
