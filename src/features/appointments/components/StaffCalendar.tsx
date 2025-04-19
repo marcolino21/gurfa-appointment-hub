@@ -30,7 +30,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const { toast } = useToast();
   const [calendarApi, setCalendarApi] = useState<any>(null);
 
-  // Configuration for all calendar views
+  // Common configuration for all calendar views
   const commonConfig = {
     locale: itLocale,
     slotMinTime: '09:00:00',
@@ -52,7 +52,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     slotDuration: '00:30:00',
     height: 'calc(100vh - 320px)',
     nowIndicator: true,
-    stickyHeaderDates: true
+    stickyHeaderDates: true,
+    scrollTimeReset: false
   };
 
   useEffect(() => {
@@ -61,8 +62,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   }, [calendarApi]);
 
-  // Special handling for day view with staff columns
-  if (view === 'timeGridDay') {
+  // Special handling for day view and week view with staff columns
+  if (view === 'timeGridDay' || view === 'timeGridWeek') {
     return (
       <div className="h-[calc(100vh-320px)]">
         <div className="grid" style={{ 
@@ -100,19 +101,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
-  // Handle week view - add staff names to event titles
-  const enhancedEvents = events.map(event => {
-    const staffMember = staffMembers.find(staff => staff.id === event.resourceId);
-    const formattedTitle = staffMember ? 
-      `${staffMember.firstName} ${staffMember.lastName} - ${event.title}` :
-      event.title;
-    return {
-      ...event,
-      title: formattedTitle
-    };
-  });
-
-  // For week and month views
+  // Month view with date click to day view
   return (
     <div className="h-[calc(100vh-320px)]">
       <FullCalendar
@@ -124,7 +113,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
         initialView={view}
         {...commonConfig}
-        events={enhancedEvents}
+        events={events}
         dateClick={view === 'dayGridMonth' ? (info) => {
           if (calendarApi) {
             calendarApi.changeView('timeGridDay', info.dateStr);
