@@ -55,7 +55,23 @@ const parseWorkSchedule = (workScheduleData: Json): StaffMember['workSchedule'] 
     }
   }
   
-  return workScheduleData as StaffMember['workSchedule'];
+  // Make sure the data is an array before casting
+  if (Array.isArray(workScheduleData)) {
+    // Validate that each item has the required properties
+    const isValidWorkSchedule = workScheduleData.every(item => 
+      typeof item === 'object' && 
+      item !== null && 
+      'day' in item && 
+      'isWorking' in item
+    );
+    
+    if (isValidWorkSchedule) {
+      return workScheduleData as StaffMember['workSchedule'];
+    }
+  }
+  
+  console.warn('Invalid work schedule format, returning empty array', workScheduleData);
+  return [];
 };
 
 /**
