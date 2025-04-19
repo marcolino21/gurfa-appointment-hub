@@ -12,24 +12,28 @@ export const useStaffAppointments = () => {
   const { toast } = useToast();
   
   // Function to get visible staff
-  const fetchVisibleStaff = useCallback(() => {
+  const fetchVisibleStaff = useCallback(async () => {
     if (currentSalonId) {
-      // Get staff from global data and filter only those visible in calendar
-      const allStaff = getSalonStaff(currentSalonId);
-      
-      console.log("All staff members:", allStaff);
-      
-      const staffVisibleInCalendar = allStaff.filter(staff => 
-        staff.isActive && staff.showInCalendar
-      );
-      
-      console.log("Staff visible in calendar:", staffVisibleInCalendar);
-      
-      if (staffVisibleInCalendar.length === 0 && allStaff.length > 0) {
-        console.warn("No staff members are set to be visible in calendar");
+      try {
+        // Get staff from the database and filter only those visible in calendar
+        const allStaff = await getSalonStaff(currentSalonId);
+        
+        console.log("All staff members:", allStaff);
+        
+        const staffVisibleInCalendar = allStaff.filter(staff => 
+          staff.isActive && staff.showInCalendar
+        );
+        
+        console.log("Staff visible in calendar:", staffVisibleInCalendar);
+        
+        if (staffVisibleInCalendar.length === 0 && allStaff.length > 0) {
+          console.warn("No staff members are set to be visible in calendar");
+        }
+        
+        setVisibleStaff(staffVisibleInCalendar);
+      } catch (error) {
+        console.error("Error fetching visible staff:", error);
       }
-      
-      setVisibleStaff(staffVisibleInCalendar);
     } else {
       console.log("No currentSalonId available");
     }

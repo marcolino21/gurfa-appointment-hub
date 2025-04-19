@@ -17,16 +17,53 @@ export const getSalonStaff = async (salonId: string): Promise<StaffMember[]> => 
     throw error;
   }
 
-  return staffData as StaffMember[];
+  // Convert database snake_case to camelCase for our app
+  return (staffData || []).map(staff => ({
+    id: staff.id,
+    firstName: staff.first_name,
+    lastName: staff.last_name,
+    email: staff.email || '',
+    isActive: staff.is_active,
+    showInCalendar: staff.show_in_calendar,
+    salonId: staff.salon_id,
+    phone: staff.phone || '',
+    additionalPhone: staff.additional_phone || '',
+    country: staff.country || 'Italia',
+    birthDate: staff.birth_date || '',
+    position: staff.position || '',
+    color: staff.color || '#9b87f5',
+    assignedServiceIds: staff.assigned_service_ids || [],
+    permissions: staff.permissions || [],
+    workSchedule: staff.work_schedule || []
+  }));
 };
 
 /**
  * Update staff data for a salon
  */
 export const updateStaffData = async (salonId: string, staffMember: Partial<StaffMember>): Promise<void> => {
+  // Convert our camelCase properties to snake_case for the database
+  const dbStaffMember = {
+    id: staffMember.id,
+    first_name: staffMember.firstName,
+    last_name: staffMember.lastName,
+    email: staffMember.email,
+    is_active: staffMember.isActive,
+    show_in_calendar: staffMember.showInCalendar,
+    phone: staffMember.phone,
+    additional_phone: staffMember.additionalPhone,
+    country: staffMember.country,
+    birth_date: staffMember.birthDate,
+    position: staffMember.position,
+    color: staffMember.color,
+    assigned_service_ids: staffMember.assignedServiceIds,
+    permissions: staffMember.permissions,
+    work_schedule: staffMember.workSchedule
+  };
+
   const { error } = await supabase
     .from('staff')
-    .update(staffMember)
+    .update(dbStaffMember)
     .eq('salon_id', salonId)
     .eq('id', staffMember.id);
 
@@ -49,12 +86,28 @@ export const updateStaffData = async (salonId: string, staffMember: Partial<Staf
  * Add a new staff member
  */
 export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMember, 'id'>): Promise<StaffMember> => {
+  // Convert our camelCase properties to snake_case for the database
+  const dbStaffMember = {
+    first_name: staffMember.firstName,
+    last_name: staffMember.lastName,
+    email: staffMember.email,
+    is_active: staffMember.isActive,
+    show_in_calendar: staffMember.showInCalendar,
+    phone: staffMember.phone,
+    additional_phone: staffMember.additionalPhone,
+    country: staffMember.country,
+    birth_date: staffMember.birthDate,
+    position: staffMember.position,
+    color: staffMember.color,
+    assigned_service_ids: staffMember.assignedServiceIds,
+    permissions: staffMember.permissions,
+    work_schedule: staffMember.workSchedule,
+    salon_id: salonId
+  };
+
   const { data, error } = await supabase
     .from('staff')
-    .insert({
-      ...staffMember,
-      salon_id: salonId
-    })
+    .insert(dbStaffMember)
     .select()
     .single();
 
@@ -63,7 +116,25 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     throw error;
   }
 
-  return data as StaffMember;
+  // Convert database snake_case to camelCase for our app
+  return {
+    id: data.id,
+    firstName: data.first_name,
+    lastName: data.last_name,
+    email: data.email || '',
+    isActive: data.is_active,
+    showInCalendar: data.show_in_calendar,
+    salonId: data.salon_id,
+    phone: data.phone || '',
+    additionalPhone: data.additional_phone || '',
+    country: data.country || 'Italia',
+    birthDate: data.birth_date || '',
+    position: data.position || '',
+    color: data.color || '#9b87f5',
+    assignedServiceIds: data.assigned_service_ids || [],
+    permissions: data.permissions || [],
+    workSchedule: data.work_schedule || []
+  };
 };
 
 /**
@@ -98,5 +169,23 @@ export const getStaffMember = async (salonId: string, staffId: string): Promise<
     return null;
   }
 
-  return data as StaffMember;
+  // Convert database snake_case to camelCase for our app
+  return {
+    id: data.id,
+    firstName: data.first_name,
+    lastName: data.last_name,
+    email: data.email || '',
+    isActive: data.is_active,
+    showInCalendar: data.show_in_calendar,
+    salonId: data.salon_id,
+    phone: data.phone || '',
+    additionalPhone: data.additional_phone || '',
+    country: data.country || 'Italia',
+    birthDate: data.birth_date || '',
+    position: data.position || '',
+    color: data.color || '#9b87f5',
+    assignedServiceIds: data.assigned_service_ids || [],
+    permissions: data.permissions || [],
+    workSchedule: data.work_schedule || []
+  };
 };

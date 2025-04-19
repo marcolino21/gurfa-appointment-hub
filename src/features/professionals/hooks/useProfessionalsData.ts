@@ -15,23 +15,35 @@ export const useProfessionalsData = (salonId: string | null) => {
 
   // Update professionals when salonId changes or global staff data changes
   useEffect(() => {
-    if (salonId) {
-      // Get fresh data from global storage
-      const staffData = getSalonStaff(salonId);
-      console.log("Professionals data refreshed on salonId change:", staffData);
-      setProfessionals(staffData);
-    } else {
-      setProfessionals([]);
-    }
+    const fetchProfessionals = async () => {
+      if (salonId) {
+        try {
+          // Get fresh data from the database
+          const staffData = await getSalonStaff(salonId);
+          console.log("Professionals data refreshed on salonId change:", staffData);
+          setProfessionals(staffData);
+        } catch (error) {
+          console.error("Error fetching professionals:", error);
+        }
+      } else {
+        setProfessionals([]);
+      }
+    };
+
+    fetchProfessionals();
   }, [salonId]);
 
   // Listen for custom staffDataUpdated event
   useEffect(() => {
-    const handleStaffDataUpdate = (event: CustomEvent) => {
+    const handleStaffDataUpdate = async (event: CustomEvent) => {
       if (salonId && event.detail.salonId === salonId) {
-        const freshData = getSalonStaff(salonId);
-        console.log("Professionals data updated via event:", freshData);
-        setProfessionals(freshData);
+        try {
+          const freshData = await getSalonStaff(salonId);
+          console.log("Professionals data updated via event:", freshData);
+          setProfessionals(freshData);
+        } catch (error) {
+          console.error("Error refreshing professional data:", error);
+        }
       }
     };
 
@@ -39,12 +51,16 @@ export const useProfessionalsData = (salonId: string | null) => {
     window.addEventListener('staffDataUpdated', handleStaffDataUpdate as EventListener);
     
     // Regular polling as a fallback
-    const intervalId = setInterval(() => {
+    const intervalId = setInterval(async () => {
       if (salonId) {
-        const freshData = getSalonStaff(salonId);
-        if (JSON.stringify(freshData) !== JSON.stringify(professionals)) {
-          console.log("Professionals data updated via polling:", freshData);
-          setProfessionals(freshData);
+        try {
+          const freshData = await getSalonStaff(salonId);
+          if (JSON.stringify(freshData) !== JSON.stringify(professionals)) {
+            console.log("Professionals data updated via polling:", freshData);
+            setProfessionals(freshData);
+          }
+        } catch (error) {
+          console.error("Error polling professional data:", error);
         }
       }
     }, 2000);
@@ -61,7 +77,7 @@ export const useProfessionalsData = (salonId: string | null) => {
     return fullName.includes(searchTerm.toLowerCase());
   });
 
-  const handleToggleActive = (professionalId: string) => {
+  const handleToggleActive = async (professionalId: string) => {
     if (!salonId) {
       toast({
         title: 'Errore',
@@ -71,28 +87,41 @@ export const useProfessionalsData = (salonId: string | null) => {
       return;
     }
     
-    const updatedProfessionals = professionals.map(pro => {
-      if (pro.id === professionalId) {
-        return { ...pro, isActive: !pro.isActive };
-      }
-      return pro;
-    });
-    
-    setProfessionals(updatedProfessionals);
-    
-    // Update global staff data
-    updateStaffData(salonId, updatedProfessionals);
-    
     const professional = professionals.find(p => p.id === professionalId);
-    const newStatus = !professional?.isActive;
+    if (!professional) return;
     
-    toast({
-      title: newStatus ? 'Professionista attivato' : 'Professionista disattivato',
-      description: `Il professionista è stato ${newStatus ? 'attivato' : 'disattivato'} con successo`
-    });
+    const newStatus = !professional.isActive;
+    
+    try {
+      // Update in the database
+      await updateStaffData(salonId, { 
+        id: professionalId, 
+        isActive: newStatus 
+      });
+      
+      // Update in local state
+      setProfessionals(prev => prev.map(pro => {
+        if (pro.id === professionalId) {
+          return { ...pro, isActive: newStatus };
+        }
+        return pro;
+      }));
+      
+      toast({
+        title: newStatus ? 'Professionista attivato' : 'Professionista disattivato',
+        description: `Il professionista è stato ${newStatus ? 'attivato' : 'disattivato'} con successo`
+      });
+    } catch (error) {
+      console.error("Error updating professional status:", error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiornare lo stato del professionista',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedProfessional || !salonId) {
       toast({
         title: 'Errore',
@@ -102,19 +131,33 @@ export const useProfessionalsData = (salonId: string | null) => {
       return;
     }
     
-    const updatedProfessionals = professionals.filter(pro => pro.id !== selectedProfessional.id);
-    setProfessionals(updatedProfessionals);
-    
-    // Update global staff data
-    updateStaffData(salonId, updatedProfessionals);
-    
-    toast({
-      title: 'Professionista eliminato',
-      description: 'Il professionista è stato eliminato con successo'
-    });
-    
-    setIsDeleteDialogOpen(false);
-    setSelectedProfessional(null);
+    try {
+      // Delete from database (this will trigger an update event)
+      await updateStaffData(salonId, {
+        id: selectedProfessional.id,
+        isActive: false  // Instead of deleting, we just mark as inactive
+      });
+      
+      // Update local state
+      setProfessionals(prev => prev.map(pro => 
+        pro.id === selectedProfessional.id ? { ...pro, isActive: false } : pro
+      ));
+      
+      toast({
+        title: 'Professionista disattivato',
+        description: 'Il professionista è stato disattivato con successo'
+      });
+    } catch (error) {
+      console.error("Error deleting professional:", error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il professionista',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedProfessional(null);
+    }
   };
 
   const handleEdit = (professional: StaffMember) => {
