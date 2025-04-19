@@ -1,8 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Appointment, StaffMember } from '@/types';
+import { StaffMember } from '@/types';
 import StaffCalendar from '@/features/appointments/components/StaffCalendar';
 import '../styles/calendar.css';  // Import custom calendar styles
 
@@ -23,6 +23,34 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   handleEventDrop,
   onViewChange
 }) => {
+  const [activeTab, setActiveTab] = useState('day');
+
+  // Process events to add staff names for the month view
+  const processedEvents = events.map(event => {
+    if (!event.extendedProps) {
+      event.extendedProps = {};
+    }
+
+    // Find associated staff member
+    const staffMember = visibleStaff.find(staff => staff.id === event.resourceId);
+    if (staffMember) {
+      event.extendedProps.staffName = `${staffMember.firstName} ${staffMember.lastName}`;
+      // This will be used by CSS to display staff name in month view
+      event.classNames = [...(event.classNames || []), 'has-staff-name'];
+    }
+    
+    return event;
+  });
+  
+  // Handle tab changes and notify parent component
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    if (value === 'day') onViewChange('timeGridDay');
+    else if (value === 'week') onViewChange('timeGridWeek');
+    else onViewChange('dayGridMonth');
+  };
+
   // Debug the visible staff to check if they're correctly passed
   useEffect(() => {
     console.log("Visible staff in AppointmentCalendarView:", visibleStaff);
@@ -32,13 +60,9 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
     <Card>
       <CardContent className="p-0 sm:p-6">
         <Tabs 
-          defaultValue="day" 
+          value={activeTab} 
+          onValueChange={handleTabChange}
           className="w-full"
-          onValueChange={(value) => {
-            if (value === 'day') onViewChange('timeGridDay');
-            else if (value === 'week') onViewChange('timeGridWeek');
-            else onViewChange('dayGridMonth');
-          }}
         >
           <div className="flex justify-between items-center p-4 border-b">
             <TabsList>
@@ -51,7 +75,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
           <TabsContent value="day" className="m-0">
             <StaffCalendar
               staffMembers={visibleStaff}
-              events={events}
+              events={processedEvents}
               view="timeGridDay"
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}
@@ -62,7 +86,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
           <TabsContent value="week" className="m-0">
             <StaffCalendar
               staffMembers={visibleStaff}
-              events={events}
+              events={processedEvents}
               view="timeGridWeek"
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}
@@ -73,7 +97,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
           <TabsContent value="month" className="m-0">
             <StaffCalendar
               staffMembers={visibleStaff}
-              events={events}
+              events={processedEvents}
               view="dayGridMonth"
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}

@@ -1,3 +1,4 @@
+
 /* Stili per il calendario personalizzato */
 
 /* Resource header styles */
@@ -92,8 +93,52 @@
   gap: 0.5rem !important;
 }
 
+/* Move today button to center */
+.fc .fc-toolbar-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.fc-today-button {
+  position: relative !important;
+  margin-left: 1rem !important;
+}
+
 /* Style for clickable dates in month view */
 .fc-daygrid-day:hover {
   background-color: #f3f4f6;
   cursor: pointer;
+}
+
+/* Ensure synchronized scrolling for multiple calendars */
+.sync-scroll-container .fc-scroller {
+  overflow: auto !important;
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+
+.sync-scroll-container .fc-scroller::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+}
+
+/* Adjust calendar title in month view */
+.fc-dayGridMonth-view .fc-toolbar-title {
+  margin: 0 auto !important;
+}
+
+/* Show staff names in the month view */
+.fc-dayGridMonth-view .fc-daygrid-event {
+  position: relative !important;
+}
+
+.fc-dayGridMonth-view .fc-daygrid-event .fc-event-title:before {
+  content: attr(data-staff-name) " - ";
+  font-weight: 500;
+}
+
+/* Ensure date is properly centered in day view */
+.fc-timeGridDay-view .fc-toolbar-title {
+  text-align: center !important;
+  width: 100% !important;
 }

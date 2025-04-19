@@ -29,6 +29,35 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const calendarRef = useRef<any>(null);
   const { toast } = useToast();
   const [calendarApi, setCalendarApi] = useState<any>(null);
+  
+  // Ensure all staff columns scroll together in day view
+  useEffect(() => {
+    if (view === 'timeGridDay' || view === 'timeGridWeek') {
+      const staffColumns = document.querySelectorAll('.staff-column .fc-scroller');
+      
+      if (staffColumns.length > 1) {
+        const handleScroll = (event: Event) => {
+          const scrollTop = (event.target as HTMLElement).scrollTop;
+          
+          staffColumns.forEach((column) => {
+            if (column !== event.target) {
+              (column as HTMLElement).scrollTop = scrollTop;
+            }
+          });
+        };
+        
+        staffColumns.forEach((column) => {
+          column.addEventListener('scroll', handleScroll);
+        });
+        
+        return () => {
+          staffColumns.forEach((column) => {
+            column.removeEventListener('scroll', handleScroll);
+          });
+        };
+      }
+    }
+  }, [view, staffMembers]);
 
   // Common configuration for all calendar views
   const commonConfig = {
@@ -59,21 +88,40 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   useEffect(() => {
     if (calendarApi) {
       calendarApi.setOption('scrollTimeReset', false);
+      
+      // Center the current date in day view by scrolling to a calculated position
+      if (view === 'timeGridDay') {
+        const now = new Date();
+        const hours = now.getHours();
+        
+        // If within business hours, scroll to center the current time
+        if (hours >= 9 && hours < 20) {
+          // Calculate position: each hour is 40px high (from CSS)
+          // Subtract some pixels to center in viewport
+          const scrollPosition = (hours - 9) * 40 * 2 - 200;
+          setTimeout(() => {
+            const scrollers = document.querySelectorAll('.fc-scroller-liquid-absolute');
+            scrollers.forEach(scroller => {
+              (scroller as HTMLElement).scrollTop = scrollPosition;
+            });
+          }, 200);
+        }
+      }
     }
-  }, [calendarApi]);
+  }, [calendarApi, view]);
 
   // Special handling for day view and week view with staff columns
   if (view === 'timeGridDay' || view === 'timeGridWeek') {
     return (
       <div className="h-[calc(100vh-320px)]">
-        <div className="grid" style={{ 
+        <div className="grid sync-scroll-container" style={{ 
           gridTemplateColumns: `repeat(${staffMembers.length}, 1fr)`,
           height: '100%',
           gap: '1px',
           backgroundColor: '#e5e7eb'
         }}>
           {staffMembers.map((staff) => (
-            <div key={staff.id} className="bg-white h-full">
+            <div key={staff.id} className="bg-white h-full staff-column">
               <div 
                 className="text-center font-medium p-2 border-b"
                 style={{ borderLeft: `3px solid ${staff.color || '#9b87f5'}` }}
@@ -88,7 +136,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
                   events={events.filter(event => event.resourceId === staff.id)}
                   headerToolbar={false}
                   ref={(ref) => {
-                    if (ref) {
+                    if (ref && !calendarApi) {
                       setCalendarApi(ref.getApi());
                     }
                   }}
@@ -101,7 +149,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
-  // Month view with date click to day view
+  // Month view with date click functionality to open day view
   return (
     <div className="h-[calc(100vh-320px)]">
       <FullCalendar
@@ -114,11 +162,19 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         initialView={view}
         {...commonConfig}
         events={events}
-        dateClick={view === 'dayGridMonth' ? (info) => {
+        dateClick={(info) => {
           if (calendarApi) {
+            // On date click in month view, switch to day view for that date
             calendarApi.changeView('timeGridDay', info.dateStr);
+            
+            // If we have a parent component handling view changes, notify it
+            // This would typically be handled by AppointmentCalendarView
+            const tabsTrigger = document.querySelector('[value="day"]') as HTMLElement;
+            if (tabsTrigger) {
+              tabsTrigger.click();
+            }
           }
-        } : undefined}
+        }}
       />
     </div>
   );
