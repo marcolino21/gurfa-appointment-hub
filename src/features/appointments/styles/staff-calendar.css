@@ -1,0 +1,37 @@
+
+/* Staff Calendar Custom Styles */
+.staff-calendar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.staff-calendar-header {
+  text-align: center;
+  padding: 10px;
+  font-weight: 500;
+  font-size: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 10px;
+}
+
+.staff-column {
+  width: 100%;
+  flex: 1;
+  border-right: 1px solid #e5e7eb;
+}
+
+.staff-column + .staff-column {
+  margin-left: 1px;
+}
+
+.staff-column-header {
+  padding: 8px;
+  font-weight: 500;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

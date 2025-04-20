@@ -1,0 +1,48 @@
+
+/* View specific styles */
+
+/* Week view */
+.fc-timeGridWeek-view .fc-col-header {
+  display: none !important;
+}
+
+/* Month view */
+.custom-month-view .fc-col-header {
+  display: none !important;
+}
+
+.custom-month-view .fc-daygrid-day-top {
+  display: none !important;
+}
+
+/* Synchronized scrolling */
+.sync-scroll-container {
+  display: grid;
+  overflow: hidden;
+  height: 100%;
+}
+
+.fc-scroller-liquid-absolute {
+  overflow: auto !important;
+  scroll-behavior: smooth;
+}
+
+.sync-scroll-container .fc-scroller {
+  overflow: auto !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.sync-scroll-container .fc-scroller::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Date headers */
+.week-view-date-header, 
+.month-view-date-header {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+

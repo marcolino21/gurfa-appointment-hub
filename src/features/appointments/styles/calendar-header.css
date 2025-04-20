@@ -1,0 +1,32 @@
+
+/* Header toolbar styles */
+.fc-header-toolbar {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 1rem !important;
+}
+
+.fc-toolbar-chunk {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.fc-toolbar-title {
+  font-weight: 600 !important;
+  text-align: center !important;
+  order: 2 !important;
+  flex-grow: 1 !important;
+}
+
+/* Today button style */
+.fc-today-button {
+  background-color: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
+  position: relative !important;
+  margin-left: 1rem !important;
+}
+

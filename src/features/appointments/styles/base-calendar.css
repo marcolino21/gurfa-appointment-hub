@@ -1,0 +1,43 @@
+
+/* Base calendar styles */
+.fc {
+  height: 100%;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* Time column styles */
+.fc-timegrid-axis {
+  padding: 8px;
+  font-size: 0.875rem;
+  color: #64748b;
+  border-right: 1px solid #e5e7eb;
+  background-color: #f8fafc;
+}
+
+/* Resource header styles */
+.fc-col-header-cell {
+  background-color: #f8fafc;
+  text-align: center !important;
+  padding: 8px !important;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Timeline slot styles */
+.fc-timegrid-slot {
+  height: 40px !important;
+  border-color: #e5e7eb;
+}
+
+/* Current time indicator */
+.fc-timegrid-now-indicator-line {
+  border-color: #dc2626;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
