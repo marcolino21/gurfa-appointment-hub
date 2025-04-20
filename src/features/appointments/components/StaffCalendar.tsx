@@ -93,7 +93,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     editable: true,
     droppable: true,
     eventDrop: onEventDrop,
-    headerToolbar: false,
+    headerToolbar: false as const, // Fixed: Use "as const" to properly type this
     slotDuration: '00:30:00',
     height: 'calc(100vh - 350px)',
     nowIndicator: true,
