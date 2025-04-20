@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface WorkScheduleTabProps {
   staffForm: UseFormReturn<StaffFormValues>;
@@ -25,8 +26,8 @@ const WorkScheduleTab: React.FC<WorkScheduleTabProps> = ({ staffForm }) => {
         </p>
       </div>
       
-      <div className="border rounded-md p-4">
-        <div className="space-y-6">
+      <ScrollArea className="border rounded-md p-4 h-[500px]">
+        <div className="space-y-6 pr-4">
           {staffForm.getValues('workSchedule').map((day, index) => (
             <div key={day.day} className="space-y-3">
               <div className="flex items-center justify-between">
@@ -132,7 +133,7 @@ const WorkScheduleTab: React.FC<WorkScheduleTabProps> = ({ staffForm }) => {
             </div>
           ))}
         </div>
-      </div>
+      </ScrollArea>
     </div>
   );
 };
