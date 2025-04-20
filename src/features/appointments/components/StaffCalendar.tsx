@@ -30,48 +30,52 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   onEventDrop,
   onDateSelect
 }) => {
-  const calendarRef = useRef<any>(null);
+  const calendarRefs = useRef<any[]>([]);
   const { toast } = useToast();
   const [calendarApi, setCalendarApi] = useState<any>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   
-  // Ensure all staff columns scroll together in all views
+  // Initialize calendar refs array
   useEffect(() => {
-    // Unified scrolling function that works across all views
-    const syncScroll = () => {
-      const containers = document.querySelectorAll('.fc-scroller-liquid-absolute');
+    calendarRefs.current = calendarRefs.current.slice(0, staffMembers.length);
+  }, [staffMembers]);
+
+  // Ensure synchronized scrolling for all calendars
+  useEffect(() => {
+    const synchronizeScrolling = () => {
+      const scrollContainers = document.querySelectorAll('.fc-scroller-liquid-absolute');
       
-      if (containers.length <= 1) return;
+      if (scrollContainers.length <= 1) return;
       
-      containers.forEach((container) => {
-        container.removeEventListener('scroll', handleScroll);
+      const handleScroll = (event: Event) => {
+        const scrollingElement = event.target as HTMLElement;
+        const scrollTop = scrollingElement.scrollTop;
+        
+        scrollContainers.forEach((container) => {
+          const element = container as HTMLElement;
+          if (element !== scrollingElement) {
+            element.scrollTop = scrollTop;
+          }
+        });
+      };
+      
+      scrollContainers.forEach((container) => {
         container.addEventListener('scroll', handleScroll);
       });
-    };
-    
-    // Handle scroll event
-    const handleScroll = (event: Event) => {
-      const target = event.target as HTMLElement;
-      const scrollTop = target.scrollTop;
-      const scrollLeft = target.scrollLeft;
       
-      document.querySelectorAll('.fc-scroller-liquid-absolute').forEach((el) => {
-        if (el !== target) {
-          (el as HTMLElement).scrollTop = scrollTop;
-          (el as HTMLElement).scrollLeft = scrollLeft;
-        }
-      });
+      return () => {
+        scrollContainers.forEach((container) => {
+          container.removeEventListener('scroll', handleScroll);
+        });
+      };
     };
     
-    // Apply synchronized scrolling
-    setTimeout(syncScroll, 200);
+    // Apply scroll synchronization after components have rendered
+    const timer = setTimeout(synchronizeScrolling, 200);
     
-    // Clean up event listeners
     return () => {
-      document.querySelectorAll('.fc-scroller-liquid-absolute').forEach((el) => {
-        el.removeEventListener('scroll', handleScroll);
-      });
+      clearTimeout(timer);
     };
   }, [view, staffMembers]);
 
@@ -89,44 +93,34 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     editable: true,
     droppable: true,
     eventDrop: onEventDrop,
-    headerToolbar: {
-      left: 'prev,next',
-      center: 'title today',
-      right: ''
-    },
+    headerToolbar: false,
     slotDuration: '00:30:00',
-    height: 'calc(100vh - 320px)',
+    height: 'calc(100vh - 350px)',
     nowIndicator: true,
     stickyHeaderDates: true,
     scrollTimeReset: false
   };
 
+  // Auto-scroll to current time
   useEffect(() => {
-    if (calendarApi) {
-      calendarApi.setOption('scrollTimeReset', false);
+    if (calendarApi && (view === 'timeGridDay' || view === 'timeGridWeek')) {
+      const now = new Date();
+      const hours = now.getHours();
       
-      // Center the current time in view by scrolling to a calculated position
-      if (view === 'timeGridDay' || view === 'timeGridWeek') {
-        const now = new Date();
-        const hours = now.getHours();
+      if (hours >= 9 && hours < 20) {
+        const scrollPosition = (hours - 9) * 40 * 2 - 200;
         
-        // If within business hours, scroll to center the current time
-        if (hours >= 9 && hours < 20) {
-          // Calculate position: each hour is 40px high (from CSS)
-          // Subtract some pixels to center in viewport
-          const scrollPosition = (hours - 9) * 40 * 2 - 200;
-          setTimeout(() => {
-            const scrollers = document.querySelectorAll('.fc-scroller-liquid-absolute');
-            scrollers.forEach(scroller => {
-              (scroller as HTMLElement).scrollTop = scrollPosition;
-            });
-          }, 200);
-        }
+        setTimeout(() => {
+          const scrollers = document.querySelectorAll('.fc-scroller-liquid-absolute');
+          scrollers.forEach((scroller) => {
+            (scroller as HTMLElement).scrollTop = scrollPosition;
+          });
+        }, 200);
       }
     }
   }, [calendarApi, view]);
 
-  // Handle date selection from the popover calendar
+  // Handle date selection from popover calendar
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       setSelectedDate(date);
@@ -134,9 +128,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       if (calendarApi) {
         calendarApi.gotoDate(date);
         
-        // Switch to day view when a date is selected
+        // If selecting date in week view, may want to switch to day view
         if (view === 'timeGridWeek') {
-          // If we have a parent component handling view changes, notify it
           const tabsTrigger = document.querySelector('[value="day"]') as HTMLElement;
           if (tabsTrigger) {
             setTimeout(() => tabsTrigger.click(), 100);
@@ -148,15 +141,27 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Special handling for week view with date picker
-  if (view === 'timeGridWeek') {
+  // Format date display
+  const getFormattedDate = () => {
+    if (!selectedDate) return format(new Date(), 'EEEE d MMMM yyyy', { locale: it });
+    return format(selectedDate, 'EEEE d MMMM yyyy', { locale: it });
+  };
+
+  // Month view with staff columns
+  if (view === 'dayGridMonth') {
     return (
-      <div className="h-[calc(100vh-320px)]">
+      <div className="h-[calc(100vh-320px)] staff-calendar-container">
+        {/* Centralized date header */}
+        <div className="month-view-date-header">
+          {format(selectedDate || new Date(), 'MMMM yyyy', { locale: it })}
+        </div>
+        
+        {/* Date picker */}
         <div className="mb-2 flex justify-center">
           <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
             <PopoverTrigger asChild>
               <button className="bg-white border border-gray-300 rounded px-4 py-1 text-sm font-medium hover:bg-gray-50">
-                {selectedDate ? format(selectedDate, 'EEEE d MMMM yyyy', { locale: it }) : 'Seleziona data'}
+                {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: it }) : 'Seleziona data'}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -170,30 +175,52 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           </Popover>
         </div>
         
+        {/* Staff columns */}
         <div className="grid sync-scroll-container" style={{ 
           gridTemplateColumns: `repeat(${staffMembers.length}, 1fr)`,
-          height: 'calc(100% - 40px)',
+          height: 'calc(100% - 80px)',
           gap: '1px',
           backgroundColor: '#e5e7eb'
         }}>
-          {staffMembers.map((staff) => (
+          {staffMembers.map((staff, index) => (
             <div key={staff.id} className="bg-white h-full staff-column">
+              {/* Staff header */}
               <div 
-                className="text-center font-medium p-2 border-b"
+                className="staff-column-header"
                 style={{ borderLeft: `3px solid ${staff.color || '#9b87f5'}` }}
               >
                 {staff.firstName} {staff.lastName}
               </div>
-              <div className="h-[calc(100%-42px)]">
+              
+              {/* Staff calendar */}
+              <div className="h-[calc(100%-42px)] custom-month-view">
                 <FullCalendar
-                  plugins={[timeGridPlugin, interactionPlugin]}
-                  initialView="timeGrid"
+                  plugins={[dayGridPlugin, interactionPlugin]}
+                  initialView="dayGridMonth"
+                  initialDate={selectedDate}
                   {...commonConfig}
                   events={events.filter(event => event.resourceId === staff.id)}
-                  headerToolbar={false}
-                  ref={(ref) => {
-                    if (ref && !calendarApi) {
-                      setCalendarApi(ref.getApi());
+                  ref={(el) => {
+                    if (el) {
+                      calendarRefs.current[index] = el;
+                      if (index === 0) setCalendarApi(el.getApi());
+                    }
+                  }}
+                  eventContent={(arg) => (
+                    <div className="text-xs overflow-hidden whitespace-nowrap">
+                      {arg.event.title}
+                    </div>
+                  )}
+                  dayCellDidMount={(info) => {
+                    // Display only the day number for better clarity
+                    const dateNum = document.createElement('div');
+                    dateNum.className = 'text-xs font-medium text-gray-500';
+                    dateNum.textContent = info.date.getDate().toString();
+                    
+                    const cellContent = info.el.querySelector('.fc-daygrid-day-top');
+                    if (cellContent) {
+                      cellContent.innerHTML = '';
+                      cellContent.appendChild(dateNum);
                     }
                   }}
                 />
@@ -205,40 +232,63 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
-  // Special handling for day view with staff columns
-  if (view === 'timeGridDay') {
+  // Week view with staff columns
+  if (view === 'timeGridWeek') {
     return (
-      <div className="h-[calc(100vh-320px)]">
-        <div className="mb-2 flex justify-center">
-          <div className="text-center font-medium py-1">
-            {selectedDate ? format(selectedDate || new Date(), 'EEEE d MMMM yyyy', { locale: it }) : format(new Date(), 'EEEE d MMMM yyyy', { locale: it })}
-          </div>
+      <div className="h-[calc(100vh-320px)] staff-calendar-container">
+        {/* Centralized date header for week view */}
+        <div className="week-view-date-header">
+          {format(selectedDate || new Date(), 'MMMM yyyy', { locale: it })}
         </div>
         
+        {/* Date picker */}
+        <div className="mb-2 flex justify-center">
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <button className="bg-white border border-gray-300 rounded px-4 py-1 text-sm font-medium hover:bg-gray-50">
+                {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: it }) : 'Seleziona data'}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+        {/* Staff columns */}
         <div className="grid sync-scroll-container" style={{ 
           gridTemplateColumns: `repeat(${staffMembers.length}, 1fr)`,
-          height: 'calc(100% - 40px)',
+          height: 'calc(100% - 80px)',
           gap: '1px',
           backgroundColor: '#e5e7eb'
         }}>
-          {staffMembers.map((staff) => (
+          {staffMembers.map((staff, index) => (
             <div key={staff.id} className="bg-white h-full staff-column">
+              {/* Staff header */}
               <div 
-                className="text-center font-medium p-2 border-b"
+                className="staff-column-header"
                 style={{ borderLeft: `3px solid ${staff.color || '#9b87f5'}` }}
               >
                 {staff.firstName} {staff.lastName}
               </div>
+              
+              {/* Staff calendar */}
               <div className="h-[calc(100%-42px)]">
                 <FullCalendar
                   plugins={[timeGridPlugin, interactionPlugin]}
-                  initialView="timeGrid"
+                  initialView="timeGridWeek"
+                  initialDate={selectedDate}
                   {...commonConfig}
                   events={events.filter(event => event.resourceId === staff.id)}
-                  headerToolbar={false}
-                  ref={(ref) => {
-                    if (ref && !calendarApi) {
-                      setCalendarApi(ref.getApi());
+                  ref={(el) => {
+                    if (el) {
+                      calendarRefs.current[index] = el;
+                      if (index === 0) setCalendarApi(el.getApi());
                     }
                   }}
                 />
@@ -250,48 +300,50 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
-  // Month view with date click functionality to open day view
+  // Day view with staff columns
   return (
-    <div className="h-[calc(100vh-320px)]">
-      <FullCalendar
-        ref={(ref) => {
-          if (ref) {
-            setCalendarApi(ref.getApi());
-          }
-        }}
-        plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
-        initialView={view}
-        {...commonConfig}
-        events={events}
-        dateClick={(info) => {
-          if (calendarApi) {
-            // On date click in month view, switch to day view for that date
-            calendarApi.changeView('timeGridDay', info.dateStr);
+    <div className="h-[calc(100vh-320px)] staff-calendar-container">
+      {/* Centralized date header */}
+      <div className="staff-calendar-header">
+        {getFormattedDate()}
+      </div>
+      
+      {/* Staff columns */}
+      <div className="grid sync-scroll-container" style={{ 
+        gridTemplateColumns: `repeat(${staffMembers.length}, 1fr)`,
+        height: 'calc(100% - 50px)',
+        gap: '1px',
+        backgroundColor: '#e5e7eb'
+      }}>
+        {staffMembers.map((staff, index) => (
+          <div key={staff.id} className="bg-white h-full staff-column">
+            {/* Staff header */}
+            <div 
+              className="staff-column-header"
+              style={{ borderLeft: `3px solid ${staff.color || '#9b87f5'}` }}
+            >
+              {staff.firstName} {staff.lastName}
+            </div>
             
-            // Set selected date
-            setSelectedDate(new Date(info.dateStr));
-            
-            // If we have a parent component handling view changes, notify it
-            const tabsTrigger = document.querySelector('[value="day"]') as HTMLElement;
-            if (tabsTrigger) {
-              tabsTrigger.click();
-            }
-          }
-        }}
-        eventContent={(arg) => {
-          // Add staff name to month view events
-          if (view === 'dayGridMonth' && arg.event.extendedProps?.staffName) {
-            const staffName = arg.event.extendedProps.staffName;
-            return (
-              <div>
-                <div className="text-xs font-medium">{staffName}</div>
-                <div className="text-xs">{arg.event.title}</div>
-              </div>
-            );
-          }
-          return arg.event.title;
-        }}
-      />
+            {/* Staff calendar */}
+            <div className="h-[calc(100%-42px)]">
+              <FullCalendar
+                plugins={[timeGridPlugin, interactionPlugin]}
+                initialView="timeGridDay"
+                initialDate={selectedDate}
+                {...commonConfig}
+                events={events.filter(event => event.resourceId === staff.id)}
+                ref={(el) => {
+                  if (el) {
+                    calendarRefs.current[index] = el;
+                    if (index === 0) setCalendarApi(el.getApi());
+                  }
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
