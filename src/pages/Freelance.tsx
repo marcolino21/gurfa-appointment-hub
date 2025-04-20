@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,9 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Check, X, Eye, Loader2 } from 'lucide-react';
+import { Search, Check, X, Eye, Loader2, Plus, CreditCard } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useFreelanceData } from '@/hooks/useFreelanceData';
-import { Plus } from 'lucide-react';
 import { AddFreelanceDialog } from '@/features/freelance/components/AddFreelanceDialog';
 import PaymentMethodDialog from "@/components/PaymentMethodDialog";
 
@@ -58,7 +58,9 @@ const Freelance: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => setIsPaymentDialogOpen(true)}
+            className="flex items-center gap-2"
           >
+            <CreditCard className="h-4 w-4" />
             Aggiungi Metodo di Pagamento
           </Button>
         </div>
@@ -171,3 +173,4 @@ const Freelance: React.FC = () => {
 };
 
 export default Freelance;
+
