@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import BusinessHours from './BusinessHours';
+import { BusinessHoursByDay } from '../types/profileTypes';
 
 interface ProfileFormProps {
   formData: {
@@ -17,11 +18,7 @@ interface ProfileFormProps {
     iban: string;
     codiceFiscale: string;
     sedeLegale: string;
-    businessHours?: {
-      openDays: string[];
-      openTime: string;
-      closeTime: string;
-    };
+    businessHours?: BusinessHoursByDay;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSaveProfile: () => void;
@@ -34,7 +31,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   handleSaveProfile,
   isLoading = false 
 }) => {
-  const handleBusinessHoursChange = (businessHours: any) => {
+  const handleBusinessHoursChange = (businessHours: BusinessHoursByDay) => {
     // We simulate the event object to use the existing handleChange function
     handleChange({
       target: {
@@ -129,9 +126,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       </div>
       
       <div className="col-span-2">
-        <Label>ORARI DI APERTURA</Label>
         <BusinessHours
-          value={formData.businessHours || { openDays: [], openTime: '09:00', closeTime: '18:00' }}
+          value={formData.businessHours || {}}
           onChange={handleBusinessHoursChange}
         />
       </div>

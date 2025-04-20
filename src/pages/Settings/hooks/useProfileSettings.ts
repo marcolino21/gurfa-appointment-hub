@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { ProfileFormData } from '../types/profileTypes';
+import { ProfileFormData, BusinessHoursByDay } from '../types/profileTypes';
 import { useLoadSalonProfile } from './profile/useLoadSalonProfile';
 import { useSaveSalonProfile } from './profile/useSaveSalonProfile';
 

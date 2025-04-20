@@ -1,5 +1,5 @@
 
-import { ProfileFormData, SalonProfile } from '../types/profileTypes';
+import { ProfileFormData, SalonProfile, BusinessHoursByDay } from '../types/profileTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { Salon } from '@/types';
 
@@ -11,9 +11,26 @@ export const saveSalonProfileToLocalStorage = (formData: ProfileFormData): void 
   localStorage.setItem('salon_iban', formData.iban);
   localStorage.setItem('salon_codice_fiscale', formData.codiceFiscale);
   localStorage.setItem('salon_sede_legale', formData.sedeLegale);
+  
+  // Save business hours if they exist
+  if (formData.businessHours && Object.keys(formData.businessHours).length > 0) {
+    localStorage.setItem('salon_business_hours', JSON.stringify(formData.businessHours));
+  }
 };
 
 export const loadSalonProfileFromLocalStorage = (currentSalon?: Salon): ProfileFormData => {
+  let businessHours: BusinessHoursByDay = {};
+  
+  // Try to load business hours from localStorage
+  const savedBusinessHours = localStorage.getItem('salon_business_hours');
+  if (savedBusinessHours) {
+    try {
+      businessHours = JSON.parse(savedBusinessHours);
+    } catch (e) {
+      console.error('Failed to parse business hours from localStorage', e);
+    }
+  }
+  
   return {
     businessName: currentSalon?.name || localStorage.getItem('salon_business_name') || '',
     phone: currentSalon?.phone || localStorage.getItem('salon_phone') || '',
@@ -23,7 +40,8 @@ export const loadSalonProfileFromLocalStorage = (currentSalon?: Salon): ProfileF
     piva: localStorage.getItem('salon_piva') || '',
     iban: localStorage.getItem('salon_iban') || '',
     codiceFiscale: localStorage.getItem('salon_codice_fiscale') || '',
-    sedeLegale: localStorage.getItem('salon_sede_legale') || ''
+    sedeLegale: localStorage.getItem('salon_sede_legale') || '',
+    businessHours
   };
 };
 
@@ -39,6 +57,7 @@ export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: str
     iban: formData.iban,
     codice_fiscale: formData.codiceFiscale,
     sede_legale: formData.sedeLegale,
+    business_hours: formData.businessHours ? formData.businessHours : undefined,
     updated_at: new Date().toISOString()
   };
 };
