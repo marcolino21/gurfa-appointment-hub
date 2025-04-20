@@ -46,6 +46,11 @@ export const loadSalonProfileFromLocalStorage = (currentSalon?: Salon): ProfileF
   };
 };
 
+// Define a mapped type for database representation
+interface DatabaseSalonProfile extends Omit<SalonProfile, 'business_hours'> {
+  business_hours?: Json;
+}
+
 export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: string): SalonProfile => {
   return {
     salon_id: salonId,
@@ -71,7 +76,12 @@ export const checkProfileExists = async (salonId: string): Promise<{ data: Salon
       .eq('salon_id', salonId)
       .single();
     
-    return { data, error };
+    // Convert the business_hours from Json to BusinessHoursByDay if it exists
+    if (data && data.business_hours) {
+      data.business_hours = data.business_hours as unknown as BusinessHoursByDay;
+    }
+    
+    return { data: data as SalonProfile, error };
   } catch (err) {
     console.error('Error in checkProfileExists:', err);
     return { data: null, error: err };
@@ -89,7 +99,7 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
     }
     
     // Convert the businessHours to a format compatible with Supabase Json type
-    const supabaseProfile = {
+    const supabaseProfile: DatabaseSalonProfile = {
       ...profileData,
       business_hours: profileData.business_hours as unknown as Json
     };
@@ -98,7 +108,6 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
     
     if (existingProfile) {
       console.log('Updating existing profile');
-      // Aggiorna il profilo esistente
       const { error } = await supabase
         .from('salon_profiles')
         .update(supabaseProfile)
@@ -107,7 +116,6 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
       saveError = error;
     } else {
       console.log('Creating new profile');
-      // Crea un nuovo profilo
       const { error } = await supabase
         .from('salon_profiles')
         .insert(supabaseProfile);
