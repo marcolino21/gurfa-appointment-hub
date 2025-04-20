@@ -70,9 +70,12 @@ export const useLoadSalonProfile = ({
         
         let businessHours: BusinessHoursByDay = {};
         
-        // Parse business_hours if it exists
-        if (data.business_hours && typeof data.business_hours === 'object') {
-          businessHours = data.business_hours as BusinessHoursByDay;
+        // Check if business_hours exists in the raw data from the database
+        // This handles both when it's not in the database schema and when it exists but might be null
+        const rawData = data as any; // Use any to bypass TypeScript checking
+        
+        if (rawData.business_hours && typeof rawData.business_hours === 'object') {
+          businessHours = rawData.business_hours as BusinessHoursByDay;
         }
         
         setFormData({
