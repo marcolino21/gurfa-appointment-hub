@@ -41,10 +41,13 @@ const BusinessHours: React.FC<BusinessHoursProps> = ({ value, onChange }) => {
   };
 
   const handleTimeChange = (day: string, field: 'openTime' | 'closeTime', timeValue: string) => {
+    const dayKey = day as keyof BusinessHoursByDay;
+    const currentDayValue = value[dayKey] || { openTime: '09:00', closeTime: '18:00' };
+    
     onChange({
       ...value,
       [day]: {
-        ...value[day as keyof BusinessHoursByDay],
+        ...currentDayValue,
         [field]: timeValue
       }
     });
@@ -55,34 +58,36 @@ const BusinessHours: React.FC<BusinessHoursProps> = ({ value, onChange }) => {
       <Label>Orari di apertura</Label>
       <div className="space-y-2">
         {DAYS.map((day) => (
-          <Collapsible key={day.value}>
+          <Collapsible 
+            key={day.value}
+            open={openDays.includes(day.value)}
+            onOpenChange={() => handleDayToggle(day.value)}
+          >
             <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-secondary rounded-md hover:bg-secondary/80 transition-colors">
               <span className="font-medium">{day.label}</span>
               <div className={`h-3 w-3 rounded-full ${openDays.includes(day.value) ? 'bg-primary' : 'bg-muted'}`} />
             </CollapsibleTrigger>
             <CollapsibleContent className="p-4">
-              {openDays.includes(day.value) && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={`${day.value}-open`}>Orario apertura</Label>
-                    <Input
-                      id={`${day.value}-open`}
-                      type="time"
-                      value={value[day.value as keyof BusinessHoursByDay]?.openTime || '09:00'}
-                      onChange={(e) => handleTimeChange(day.value, 'openTime', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`${day.value}-close`}>Orario chiusura</Label>
-                    <Input
-                      id={`${day.value}-close`}
-                      type="time"
-                      value={value[day.value as keyof BusinessHoursByDay]?.closeTime || '18:00'}
-                      onChange={(e) => handleTimeChange(day.value, 'closeTime', e.target.value)}
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`${day.value}-open`}>Orario apertura</Label>
+                  <Input
+                    id={`${day.value}-open`}
+                    type="time"
+                    value={value[day.value as keyof BusinessHoursByDay]?.openTime || '09:00'}
+                    onChange={(e) => handleTimeChange(day.value, 'openTime', e.target.value)}
+                  />
                 </div>
-              )}
+                <div className="space-y-2">
+                  <Label htmlFor={`${day.value}-close`}>Orario chiusura</Label>
+                  <Input
+                    id={`${day.value}-close`}
+                    type="time"
+                    value={value[day.value as keyof BusinessHoursByDay]?.closeTime || '18:00'}
+                    onChange={(e) => handleTimeChange(day.value, 'closeTime', e.target.value)}
+                  />
+                </div>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         ))}

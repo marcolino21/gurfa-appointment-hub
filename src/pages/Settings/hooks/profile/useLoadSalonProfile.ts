@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { loadSalonProfileFromLocalStorage } from '../../utils/profileUtils';
 import { Salon } from '@/types';
-import { ProfileFormData } from '../../types/profileTypes';
+import { ProfileFormData, BusinessHoursByDay } from '../../types/profileTypes';
 import { toast } from '@/hooks/use-toast';
 
 interface UseLoadSalonProfileProps {
@@ -67,6 +67,14 @@ export const useLoadSalonProfile = ({
         }
       } else if (data) {
         console.log('Profile found in database:', data);
+        
+        let businessHours: BusinessHoursByDay = {};
+        
+        // Parse business_hours if it exists
+        if (data.business_hours && typeof data.business_hours === 'object') {
+          businessHours = data.business_hours as BusinessHoursByDay;
+        }
+        
         setFormData({
           businessName: data.business_name || currentSalon?.name || '',
           phone: data.phone || currentSalon?.phone || '',
@@ -76,7 +84,8 @@ export const useLoadSalonProfile = ({
           piva: data.piva || '',
           iban: data.iban || '',
           codiceFiscale: data.codice_fiscale || '',
-          sedeLegale: data.sede_legale || ''
+          sedeLegale: data.sede_legale || '',
+          businessHours
         });
         
         // Aggiorna anche le informazioni nel context
