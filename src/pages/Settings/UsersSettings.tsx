@@ -1,12 +1,11 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useUsersData } from './hooks/useUsersData';
 import { useUserActions } from './hooks/useUserActions';
 import { UsersTable, UserFormDialog, UserActions } from './components/users';
+import PaymentMethodDialog from "@/components/PaymentMethodDialog";
 
 const UsersSettings = () => {
-  // Use the custom hooks to manage state and actions
   const { users, setUsers, isLoading, currentSalonId } = useUsersData();
   
   const {
@@ -23,11 +22,21 @@ const UsersSettings = () => {
     handleDeleteUser
   } = useUserActions(currentSalonId, users, setUsers);
   
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <UserActions onAddUser={() => handleOpenDialog()} />
-        
+        <div className="flex justify-between items-center flex-wrap gap-2">
+          <UserActions onAddUser={() => handleOpenDialog()} />
+          <Button
+            variant="outline"
+            onClick={() => setIsPaymentDialogOpen(true)}
+            className="ml-auto"
+          >
+            Aggiungi Metodo di Pagamento
+          </Button>
+        </div>
         <Card>
           <CardContent className="p-0">
             <UsersTable
@@ -50,6 +59,14 @@ const UsersSettings = () => {
         onPermissionsChange={handlePermissionsChange}
         onSave={handleSaveUser}
         onClose={handleCloseDialog}
+      />
+
+      <PaymentMethodDialog
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        onSubmit={(data) => {
+          console.log("Dati carta utente:", data);
+        }}
       />
     </div>
   );

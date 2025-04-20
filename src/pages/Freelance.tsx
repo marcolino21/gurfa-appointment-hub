@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,12 +16,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFreelanceData } from '@/hooks/useFreelanceData';
 import { Plus } from 'lucide-react';
 import { AddFreelanceDialog } from '@/features/freelance/components/AddFreelanceDialog';
+import PaymentMethodDialog from "@/components/PaymentMethodDialog";
 
 const Freelance: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const { freelancers, isLoading, toggleFreelancerStatus, fetchFreelancers } = useFreelanceData();
   
   React.useEffect(() => {
@@ -42,17 +43,25 @@ const Freelance: React.FC = () => {
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Freelance</h1>
           <p className="text-muted-foreground">
             Gestisci i professionisti freelance
           </p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Aggiungi Freelance
-        </Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Aggiungi Freelance
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setIsPaymentDialogOpen(true)}
+          >
+            Aggiungi Metodo di Pagamento
+          </Button>
+        </div>
       </div>
       
       <div className="flex items-center">
@@ -148,6 +157,13 @@ const Freelance: React.FC = () => {
         onClose={() => setIsAddDialogOpen(false)}
         onSuccess={() => {
           fetchFreelancers();
+        }}
+      />
+      <PaymentMethodDialog 
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        onSubmit={(data) => {
+          console.log("Dati carta freelance:", data);
         }}
       />
     </div>
