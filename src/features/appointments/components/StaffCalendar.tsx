@@ -6,7 +6,7 @@ import { MonthView } from './calendar/MonthView';
 import { TimeGridView } from './calendar/TimeGridView';
 import { useCalendarSync } from '../hooks/useCalendarSync';
 import { useAutoScroll } from '../hooks/useAutoScroll';
-import '../styles/calendar.css';
+import '../styles/index.css';
 
 interface StaffCalendarProps {
   staffMembers: StaffMember[];
