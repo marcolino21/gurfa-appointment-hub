@@ -47,8 +47,21 @@ export const loadSalonProfileFromLocalStorage = (currentSalon?: Salon): ProfileF
 };
 
 // Define a mapped type for database representation
-interface DatabaseSalonProfile extends Omit<SalonProfile, 'business_hours'> {
+interface DatabaseSalonProfile {
+  salon_id: string;
+  business_name: string;
+  phone?: string;
+  address?: string;
+  ragione_sociale?: string;
+  email?: string;
+  piva?: string;
+  iban?: string;
+  codice_fiscale?: string;
+  sede_legale?: string;
   business_hours?: Json;
+  updated_at?: string;
+  created_at?: string;
+  id?: string;
 }
 
 export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: string): SalonProfile => {
@@ -70,18 +83,22 @@ export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: str
 
 export const checkProfileExists = async (salonId: string): Promise<{ data: SalonProfile | null, error: any }> => {
   try {
-    const { data, error } = await supabase
+    const { data: dbData, error } = await supabase
       .from('salon_profiles')
       .select('*') 
       .eq('salon_id', salonId)
       .single();
     
-    // Convert the business_hours from Json to BusinessHoursByDay if it exists
-    if (data && data.business_hours) {
-      data.business_hours = data.business_hours as unknown as BusinessHoursByDay;
+    if (dbData) {
+      // Convert the database object to a SalonProfile
+      const profileData: SalonProfile = {
+        ...dbData,
+        business_hours: dbData.business_hours ? dbData.business_hours as unknown as BusinessHoursByDay : undefined
+      };
+      return { data: profileData, error };
     }
     
-    return { data: data as SalonProfile, error };
+    return { data: null, error };
   } catch (err) {
     console.error('Error in checkProfileExists:', err);
     return { data: null, error: err };
@@ -101,7 +118,7 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
     // Convert the businessHours to a format compatible with Supabase Json type
     const supabaseProfile: DatabaseSalonProfile = {
       ...profileData,
-      business_hours: profileData.business_hours as unknown as Json
+      business_hours: profileData.business_hours ? (profileData.business_hours as unknown as Json) : undefined
     };
     
     let saveError;

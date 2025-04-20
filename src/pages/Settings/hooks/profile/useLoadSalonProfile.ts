@@ -63,9 +63,9 @@ export const useLoadSalonProfile = ({
       } else if (data) {
         console.log('Profile found in database:', data);
 
-        // Garantire sempre che business_hours sia presente e tipizzato
+        // Ensure business_hours is properly converted from Json to BusinessHoursByDay
         let businessHours: BusinessHoursByDay = {};
-        if ('business_hours' in data && data.business_hours) {
+        if (data.business_hours) {
           businessHours = data.business_hours as unknown as BusinessHoursByDay;
         }
         
