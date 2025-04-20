@@ -2,6 +2,7 @@
 import { ProfileFormData, SalonProfile, BusinessHoursByDay } from '../types/profileTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { Salon } from '@/types';
+import { Json } from '@/integrations/supabase/types';
 
 export const saveSalonProfileToLocalStorage = (formData: ProfileFormData): void => {
   localStorage.setItem('salon_business_name', formData.businessName);
@@ -57,7 +58,7 @@ export const mapFormDataToProfileData = (formData: ProfileFormData, salonId: str
     iban: formData.iban,
     codice_fiscale: formData.codiceFiscale,
     sede_legale: formData.sedeLegale,
-    business_hours: formData.businessHours ? formData.businessHours : undefined,
+    business_hours: formData.businessHours,
     updated_at: new Date().toISOString()
   };
 };
@@ -87,6 +88,12 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
       return { error: checkError };
     }
     
+    // Convert the businessHours to a format compatible with Supabase Json type
+    const supabaseProfile = {
+      ...profileData,
+      business_hours: profileData.business_hours as unknown as Json
+    };
+    
     let saveError;
     
     if (existingProfile) {
@@ -94,7 +101,7 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
       // Aggiorna il profilo esistente
       const { error } = await supabase
         .from('salon_profiles')
-        .update(profileData)
+        .update(supabaseProfile)
         .eq('salon_id', profileData.salon_id);
       
       saveError = error;
@@ -103,7 +110,7 @@ export const saveSalonProfile = async (profileData: SalonProfile): Promise<{ err
       // Crea un nuovo profilo
       const { error } = await supabase
         .from('salon_profiles')
-        .insert(profileData);
+        .insert(supabaseProfile);
       
       saveError = error;
     }

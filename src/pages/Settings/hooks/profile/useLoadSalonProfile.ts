@@ -5,6 +5,7 @@ import { loadSalonProfileFromLocalStorage } from '../../utils/profileUtils';
 import { Salon } from '@/types';
 import { ProfileFormData, BusinessHoursByDay, SalonProfile } from '../../types/profileTypes';
 import { toast } from '@/hooks/use-toast';
+import { Json } from '@/integrations/supabase/types';
 
 interface UseLoadSalonProfileProps {
   currentSalonId: string | null;
@@ -63,10 +64,9 @@ export const useLoadSalonProfile = ({
         console.log('Profile found in database:', data);
 
         // Garantire sempre che business_hours sia presente e tipizzato
-        // business_hours potrebbe non essere presente tra le colonne attuali del db, quindi lo gestiamo in modo sicuro
         let businessHours: BusinessHoursByDay = {};
         if ('business_hours' in data && data.business_hours) {
-          businessHours = data.business_hours as BusinessHoursByDay;
+          businessHours = data.business_hours as unknown as BusinessHoursByDay;
         }
         
         setFormData({
