@@ -59,13 +59,23 @@ export const useStaffAddActions = (
       });
       
       return newStaff;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding staff member:", error);
-      toast({
-        title: 'Errore',
-        description: 'Impossibile aggiungere il membro dello staff',
-        variant: 'destructive',
-      });
+      
+      // Fornisci un messaggio di errore più specifico in base al tipo di errore
+      if (error.name === 'DuplicateEmailError' || (error.message && error.message.includes('Email già utilizzata'))) {
+        toast({
+          title: 'Email già in uso',
+          description: 'Questa email è già associata a un altro membro dello staff',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Errore',
+          description: 'Impossibile aggiungere il membro dello staff',
+          variant: 'destructive',
+        });
+      }
     }
   };
 

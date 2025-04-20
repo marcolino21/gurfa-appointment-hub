@@ -52,6 +52,24 @@ export const updateStaffData = async (salonId: string, staffMember: Partial<Staf
  * Add a new staff member
  */
 export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMember, 'id'>): Promise<StaffMember> => {
+  // Check if email already exists
+  if (staffMember.email) {
+    const { data: existingStaff, error: checkError } = await supabase
+      .from('staff')
+      .select('id')
+      .eq('email', staffMember.email)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error("Error checking for existing email:", checkError);
+    } else if (existingStaff) {
+      // Custom error for duplicate email
+      const error = new Error('Email già utilizzata');
+      error.name = 'DuplicateEmailError';
+      throw error;
+    }
+  }
+
   const dbStaffMember = {
     ...mapStaffMemberToDb(staffMember),
     salon_id: salonId
@@ -65,6 +83,12 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
 
   if (error) {
     console.error("Error adding staff:", error);
+    // Check if it's a duplicate email error from the database
+    if (error.code === '23505' && error.message.includes('staff_email_key')) {
+      const customError = new Error('Email già utilizzata');
+      customError.name = 'DuplicateEmailError';
+      throw customError;
+    }
     throw error;
   }
 
