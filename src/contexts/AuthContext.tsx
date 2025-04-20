@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, Salon } from '../types';
 import { authReducer, initialState } from '../reducers/authReducer';
@@ -21,29 +20,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check if there's a saved session
-    const savedUser = localStorage.getItem('gurfa_user');
-    const savedToken = localStorage.getItem('gurfa_token');
+    const savedSession = localStorage.getItem('gurfa_session');
     
-    if (savedUser && savedToken) {
+    if (savedSession) {
       try {
-        const user = JSON.parse(savedUser) as User;
+        const { user, token } = JSON.parse(savedSession);
         dispatch({ 
           type: 'LOGIN', 
-          payload: { 
-            user, 
-            token: savedToken 
-          } 
+          payload: { user, token } 
         });
       } catch (error) {
-        console.error('Error parsing saved user:', error);
+        console.error('Error parsing saved session:', error);
+        localStorage.removeItem('gurfa_session');
         localStorage.removeItem('gurfa_user');
         localStorage.removeItem('gurfa_token');
       }
     }
   }, []);
 
-  // Update localStorage when salon changes
   useEffect(() => {
+    // Update localStorage when salon changes
     if (state.currentSalonId) {
       const currentSalon = state.salons.find(salon => salon.id === state.currentSalonId);
       if (currentSalon?.name) {

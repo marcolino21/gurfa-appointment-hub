@@ -14,7 +14,18 @@ export const useAuthService = () => {
     dispatch({ type: 'SET_ERROR', payload: null });
     
     try {
-      // Simulate an API request
+      // Se c'è già una sessione attiva, la usiamo
+      const existingSession = localStorage.getItem('gurfa_session');
+      if (existingSession) {
+        const { user, token } = JSON.parse(existingSession);
+        dispatch({
+          type: 'LOGIN',
+          payload: { user, token }
+        });
+        return;
+      }
+
+      // Altrimenti procediamo con il login
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseEmail = email.toLowerCase();
@@ -35,7 +46,9 @@ export const useAuthService = () => {
       // Generate a fake token
       const token = `mock_token_${Date.now()}`;
       
-      // Save to local storage
+      // Save complete session to local storage
+      const session = { user, token };
+      localStorage.setItem('gurfa_session', JSON.stringify(session));
       localStorage.setItem('gurfa_user', JSON.stringify(user));
       localStorage.setItem('gurfa_token', token);
       
@@ -59,6 +72,7 @@ export const useAuthService = () => {
   };
 
   const logout = (dispatch: React.Dispatch<any>) => {
+    localStorage.removeItem('gurfa_session');
     localStorage.removeItem('gurfa_user');
     localStorage.removeItem('gurfa_token');
     dispatch({ type: 'LOGOUT' });
