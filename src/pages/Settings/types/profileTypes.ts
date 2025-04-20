@@ -1,4 +1,3 @@
-
 export interface SalonProfile {
   id?: string;
   salon_id: string;
@@ -13,6 +12,11 @@ export interface SalonProfile {
   sede_legale?: string;
   created_at?: string;
   updated_at?: string;
+  business_hours?: {
+    open_days: string[];
+    open_time: string;
+    close_time: string;
+  };
 }
 
 export interface ProfileFormData {
@@ -25,4 +29,9 @@ export interface ProfileFormData {
   iban: string;
   codiceFiscale: string;
   sedeLegale: string;
+  businessHours?: {
+    openDays: string[];
+    openTime: string;
+    closeTime: string;
+  };
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -27,7 +26,12 @@ export const useProfileSettings = () => {
     piva: '',
     iban: '',
     codiceFiscale: '',
-    sedeLegale: ''
+    sedeLegale: '',
+    businessHours: {
+      openDays: [],
+      openTime: '09:00',
+      closeTime: '18:00'
+    }
   });
   
   const { 
@@ -56,7 +60,7 @@ export const useProfileSettings = () => {
     const { id, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [id]: value
+      [id]: id === 'businessHours' ? JSON.parse(value) : value
     }));
   };
   

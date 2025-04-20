@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import BusinessHours from './BusinessHours';
 
 interface ProfileFormProps {
   formData: {
@@ -16,6 +17,11 @@ interface ProfileFormProps {
     iban: string;
     codiceFiscale: string;
     sedeLegale: string;
+    businessHours?: {
+      openDays: string[];
+      openTime: string;
+      closeTime: string;
+    };
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSaveProfile: () => void;
@@ -28,6 +34,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   handleSaveProfile,
   isLoading = false 
 }) => {
+  const handleBusinessHoursChange = (businessHours: any) => {
+    // We simulate the event object to use the existing handleChange function
+    handleChange({
+      target: {
+        id: 'businessHours',
+        value: JSON.stringify(businessHours)
+      }
+    } as any);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-2">
@@ -109,6 +125,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           value={formData.address} 
           onChange={handleChange}
           rows={3}
+        />
+      </div>
+      
+      <div className="col-span-2">
+        <Label>ORARI DI APERTURA</Label>
+        <BusinessHours
+          value={formData.businessHours || { openDays: [], openTime: '09:00', closeTime: '18:00' }}
+          onChange={handleBusinessHoursChange}
         />
       </div>
       
