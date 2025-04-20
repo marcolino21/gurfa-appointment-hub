@@ -19,6 +19,16 @@ export interface SalonProfile {
   };
 }
 
+export interface BusinessHoursByDay {
+  monday?: { openTime: string; closeTime: string };
+  tuesday?: { openTime: string; closeTime: string };
+  wednesday?: { openTime: string; closeTime: string };
+  thursday?: { openTime: string; closeTime: string };
+  friday?: { openTime: string; closeTime: string };
+  saturday?: { openTime: string; closeTime: string };
+  sunday?: { openTime: string; closeTime: string };
+}
+
 export interface ProfileFormData {
   businessName: string;
   phone: string;
@@ -29,9 +39,5 @@ export interface ProfileFormData {
   iban: string;
   codiceFiscale: string;
   sedeLegale: string;
-  businessHours?: {
-    openDays: string[];
-    openTime: string;
-    closeTime: string;
-  };
+  businessHours?: BusinessHoursByDay;
 }

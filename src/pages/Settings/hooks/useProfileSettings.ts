@@ -16,7 +16,6 @@ export const useProfileSettings = () => {
     localStorage.getItem('salon_profile_image') || null
   );
   
-  // Form state
   const [formData, setFormData] = useState<ProfileFormData>({
     businessName: currentSalon?.name || '',
     phone: currentSalon?.phone || '',
@@ -27,11 +26,7 @@ export const useProfileSettings = () => {
     iban: '',
     codiceFiscale: '',
     sedeLegale: '',
-    businessHours: {
-      openDays: [],
-      openTime: '09:00',
-      closeTime: '18:00'
-    }
+    businessHours: {}
   });
   
   const { 
