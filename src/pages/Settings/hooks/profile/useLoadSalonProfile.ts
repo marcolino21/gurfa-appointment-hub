@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { loadSalonProfileFromLocalStorage } from '../../utils/profileUtils';
 import { Salon } from '@/types';
-import { ProfileFormData, BusinessHoursByDay } from '../../types/profileTypes';
+import { ProfileFormData, BusinessHoursByDay, SalonProfile } from '../../types/profileTypes';
 import { toast } from '@/hooks/use-toast';
 
 interface UseLoadSalonProfileProps {
