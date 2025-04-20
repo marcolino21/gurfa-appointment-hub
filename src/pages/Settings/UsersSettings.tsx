@@ -23,9 +23,10 @@ const UsersSettings = () => {
     handleSaveUser,
     handleDeleteUser
   } = useUserActions(currentSalonId, users, setUsers);
-  
+
+  // Stato per gestire il dialog del metodo di pagamento
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  
+
   return (
     <div className="space-y-8">
       <div className="space-y-4">
@@ -63,10 +64,12 @@ const UsersSettings = () => {
         onClose={handleCloseDialog}
       />
 
+      {/* Dialog per la gestione del metodo di pagamento, come in Freelance */}
       <PaymentMethodDialog
         isOpen={isPaymentDialogOpen}
         onClose={() => setIsPaymentDialogOpen(false)}
         onSubmit={(data) => {
+          // Qui si potranno gestire i dati inseriti dall'utente nel modulo
           console.log("Dati carta utente:", data);
         }}
       />
@@ -75,3 +78,4 @@ const UsersSettings = () => {
 };
 
 export default UsersSettings;
+
