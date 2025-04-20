@@ -14,20 +14,20 @@ const Users = () => {
   }, []);
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto py-4 md:py-6 px-4 md:px-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
             Utenti {businessName && `- ${businessName}`}
           </h1>
           <p className="text-muted-foreground">Gestisci gli utenti e le attività.</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">
+        <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2 w-full md:w-auto">
           <PlusCircle className="h-4 w-4" />
           <span>Aggiungi attività</span>
         </Button>
       </div>
-      <div className="bg-white rounded-md shadow p-6">
+      <div className="bg-white rounded-md shadow p-4 md:p-6">
         <p>Contenuto della pagina utenti...</p>
       </div>
       <BusinessUserDialog
