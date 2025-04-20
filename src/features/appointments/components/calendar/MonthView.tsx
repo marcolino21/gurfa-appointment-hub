@@ -8,6 +8,7 @@ import { it } from 'date-fns/locale';
 import { StaffMember } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from '@/components/ui/calendar';
+import '../../styles/index.css';
 
 interface MonthViewProps {
   staffMembers: StaffMember[];

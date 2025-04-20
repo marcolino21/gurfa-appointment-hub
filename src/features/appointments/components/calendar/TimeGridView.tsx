@@ -1,11 +1,12 @@
+
 import React from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import '../../styles/index.css';
 import { StaffMember } from '@/types';
-import '../styles/index.css';
 
 interface TimeGridViewProps {
   staffMembers: StaffMember[];
