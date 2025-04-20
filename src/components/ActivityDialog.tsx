@@ -26,10 +26,8 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
 
-  // Verifica se l'utente ha già un'attività
   const hasExistingActivity = salons.length > 0;
 
-  // Nascondi il dialogo se l'utente non ha ancora un'attività
   if (!hasExistingActivity) {
     return null;
   }
@@ -46,12 +44,10 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
       return;
     }
 
-    // Se l'utente ha già un'attività, mostra un messaggio diverso
     const successMessage = hasExistingActivity 
       ? `L'attività aggiuntiva ${name} è stata aggiunta con successo.`
       : `L'attività ${name} è stata aggiunta con successo.`;
     
-    // Crea il nuovo salone
     const newSalon: Salon = {
       id: `salon-${Date.now()}`,
       name,
@@ -62,7 +58,6 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
     
     addSalon(newSalon);
     
-    // Reset form and close dialog
     setName('');
     setAddress('');
     setPhone('');
@@ -74,7 +69,6 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
     });
   };
 
-  // Se non è la prima attività, modifica il titolo e la descrizione
   const dialogTitle = hasExistingActivity 
     ? "Aggiungi un'attività aggiuntiva" 
     : "Aggiungi una nuova attività";
@@ -85,7 +79,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md w-[95%] max-h-[85vh] overflow-y-auto p-4 md:p-6">
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>

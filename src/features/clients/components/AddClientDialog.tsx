@@ -30,7 +30,7 @@ const AddClientDialog: React.FC<AddClientDialogProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] w-[95%] max-h-[85vh] overflow-y-auto p-4 md:p-6">
         <DialogHeader>
           <DialogTitle>Aggiungi nuovo cliente</DialogTitle>
           <DialogDescription>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { StaffMember, Service } from '@/types';
 import { StaffFormValues } from '@/features/staff/types';
@@ -32,7 +31,6 @@ const StaffDialogs: React.FC<StaffDialogsProps> = ({
   onAddStaff,
   onEditStaff
 }) => {
-  // Inizializza un workSchedule di default per nuovi membri dello staff
   const defaultWorkSchedule = [
     { day: 'Lunedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
     { day: 'Martedì', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
@@ -42,11 +40,11 @@ const StaffDialogs: React.FC<StaffDialogsProps> = ({
     { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
     { day: 'Domenica', isWorking: false, startTime: '09:00', endTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
   ];
-  
+
   return (
     <>
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[700px] w-[95%] max-h-[85vh] overflow-y-auto p-4 md:p-6">
           <DialogHeader>
             <DialogTitle>Aggiungi membro del team</DialogTitle>
             <DialogDescription>
@@ -74,9 +72,8 @@ const StaffDialogs: React.FC<StaffDialogsProps> = ({
           />
         </DialogContent>
       </Dialog>
-
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[700px] w-[95%] max-h-[85vh] overflow-y-auto p-4 md:p-6">
           <DialogHeader>
             <DialogTitle>Modifica membro del team</DialogTitle>
             <DialogDescription>
