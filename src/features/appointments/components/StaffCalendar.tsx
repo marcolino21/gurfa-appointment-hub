@@ -54,13 +54,21 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     async function fetchBusinessHours() {
       const salonId = localStorage.getItem('currentSalonId');
       if (!salonId) return;
+      
       const { data, error } = await supabase
         .from('salon_profiles')
         .select('business_hours')
         .eq('salon_id', salonId)
         .maybeSingle();
-      if (data?.business_hours) {
-        setBusinessHours(data.business_hours as BusinessHoursByDay);
+        
+      if (error) {
+        console.error("Error fetching business hours:", error);
+        return;
+      }
+      
+      if (data && data.business_hours) {
+        const hoursData = data.business_hours as BusinessHoursByDay;
+        setBusinessHours(hoursData);
 
         // Setup hiddenDays and min/max slots
         const dayMap = [
@@ -72,17 +80,31 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           'friday',    // 5
           'saturday'   // 6
         ];
+        
         const hidden = dayMap
-          .map((key, idx) => (data.business_hours[key] ? null : idx))
+          .map((key, idx) => (hoursData[key as keyof BusinessHoursByDay] ? null : idx))
           .filter((v) => v !== null) as number[];
         setHiddenDays(hidden);
 
         // For week/day view, set min/max time based on current day or first enabled day
-        const todayKey = dayMap[(selectedDate?.getDay() ?? new Date().getDay())];
-        const openHour = data.business_hours[todayKey]?.openTime || '09:00';
-        const closeHour = data.business_hours[todayKey]?.closeTime || '20:00';
-        setSlotMinTime(openHour + ':00');
-        setSlotMaxTime(closeHour + ':00');
+        const todayKey = dayMap[(selectedDate?.getDay() ?? new Date().getDay())] as keyof BusinessHoursByDay;
+        const todayHours = hoursData[todayKey];
+        
+        if (todayHours) {
+          setSlotMinTime(todayHours.openTime + ':00');
+          setSlotMaxTime(todayHours.closeTime + ':00');
+        } else {
+          // Find first available day if today is closed
+          const firstOpenDay = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
+          if (firstOpenDay && hoursData[firstOpenDay]) {
+            setSlotMinTime(hoursData[firstOpenDay].openTime + ':00');
+            setSlotMaxTime(hoursData[firstOpenDay].closeTime + ':00');
+          } else {
+            // Default fallback
+            setSlotMinTime('09:00:00');
+            setSlotMaxTime('20:00:00');
+          }
+        }
       } else {
         setBusinessHours({});
         setHiddenDays([]);
@@ -90,6 +112,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         setSlotMaxTime('20:00:00');
       }
     }
+    
     fetchBusinessHours();
     // re-fetch when date or view changes to update available slots for each day
   }, [selectedDate, view]);

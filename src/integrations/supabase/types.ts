@@ -653,6 +653,7 @@ export type Database = {
       salon_profiles: {
         Row: {
           address: string | null
+          business_hours: Json | null
           business_name: string
           codice_fiscale: string | null
           created_at: string | null
@@ -668,6 +669,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          business_hours?: Json | null
           business_name: string
           codice_fiscale?: string | null
           created_at?: string | null
@@ -683,6 +685,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          business_hours?: Json | null
           business_name?: string
           codice_fiscale?: string | null
           created_at?: string | null
