@@ -51,28 +51,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     }
   };
 
-  // Make sure we always have valid common config settings with explicit formats
-  const safeCommonConfig = {
-    ...commonConfig,
-    locale: 'it',
-    timeZone: 'local',
-    slotLabelFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
-    eventTimeFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
-    dayHeaderFormat: { 
-      weekday: 'long', 
-      day: 'numeric',
-      month: 'short'
-    }
-  };
-
   // Synchronize vertical scrolling between the time column and staff columns
   useEffect(() => {
     const timeEl = timeColRef.current;
@@ -132,7 +110,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               plugins={[timeGridPlugin]}
               initialView={view}
               initialDate={validSelectedDate}
-              {...safeCommonConfig}
+              {...commonConfig}
               dayHeaderContent={() => null}
               allDaySlot={false}
               slotLabelClassNames="time-slot-label"
@@ -158,7 +136,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView={view}
                 initialDate={validSelectedDate}
-                {...safeCommonConfig}
+                {...commonConfig}
                 dayHeaderContent={() => null}
                 slotLabelContent={() => null}
                 events={events.filter(event => event.resourceId === staff.id)}

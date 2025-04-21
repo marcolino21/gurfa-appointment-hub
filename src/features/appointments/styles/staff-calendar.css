@@ -40,6 +40,7 @@
   background: #fff;
   padding: 0 8px;
   text-transform: uppercase;
+  border-left: 3px solid;  /* Color will be set inline */
 }
 
 .staff-name {
@@ -145,37 +146,4 @@
 .fc-timegrid-slot {
   height: 30px !important;
   border-color: #f0f0f0 !important;
-}
-
-/* Month view specific styles */
-.month-view-date-header {
-  text-align: center;
-  padding: 10px;
-  font-weight: 500;
-  font-size: 1.1rem;
-  margin-bottom: 4px;
-}
-
-.staff-column-header {
-  height: 42px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-}
-
-/* Ensure popover is visible and interactive */
-.radix-popover-content {
-  z-index: 99999 !important;
-  background-color: white;
-  pointer-events: auto !important;
-}
-
-.radix-popover-content .react-day-picker {
-  pointer-events: auto !important;
 }
