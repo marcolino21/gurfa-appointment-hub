@@ -1,4 +1,3 @@
-
 import { useToast } from './use-toast';
 import { MOCK_USERS } from '../data/mockData';
 
@@ -8,24 +7,13 @@ export const useAuthService = () => {
   const login = async (
     email: string, 
     password: string, 
-    dispatch: React.Dispatch<any>
+    dispatch: React.Dispatch<any>,
+    stayLoggedIn: boolean = false
   ): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
     
     try {
-      // Se c'è già una sessione attiva, la usiamo
-      const existingSession = localStorage.getItem('gurfa_session');
-      if (existingSession) {
-        const { user, token } = JSON.parse(existingSession);
-        dispatch({
-          type: 'LOGIN',
-          payload: { user, token }
-        });
-        return;
-      }
-
-      // Altrimenti procediamo con il login
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseEmail = email.toLowerCase();
@@ -39,18 +27,21 @@ export const useAuthService = () => {
         throw new Error('Account disattivato. Contatta l\'amministratore.');
       }
       
-      // Create a user object without the password
       const { password: _, ...userWithoutPassword } = mockUser;
       const user = userWithoutPassword;
-      
-      // Generate a fake token
       const token = `mock_token_${Date.now()}`;
       
-      // Save complete session to local storage
+      // Enhanced session persistence based on stayLoggedIn flag
       const session = { user, token };
+      
       localStorage.setItem('gurfa_session', JSON.stringify(session));
       localStorage.setItem('gurfa_user', JSON.stringify(user));
       localStorage.setItem('gurfa_token', token);
+      
+      // Optional: Set session expiration for security if needed
+      if (stayLoggedIn) {
+        localStorage.setItem('session_type', 'persistent');
+      }
       
       dispatch({
         type: 'LOGIN',
@@ -89,7 +80,6 @@ export const useAuthService = () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
-      // Simulate an API request
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseEmail = email.toLowerCase();

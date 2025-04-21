@@ -16,18 +16,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const { login: loginService, logout: logoutService, resetPassword: resetPasswordService } = useAuthService();
+  const { 
+    login: loginService, 
+    logout: logoutService, 
+    resetPassword: resetPasswordService 
+  } = useAuthService();
 
   useEffect(() => {
-    // Check if there's a saved session
+    // More robust session check and restoration
     const savedSession = localStorage.getItem('gurfa_session');
+    const savedToken = localStorage.getItem('gurfa_token');
     
-    if (savedSession) {
+    if (savedSession && savedToken) {
       try {
-        const { user, token } = JSON.parse(savedSession);
+        const { user } = JSON.parse(savedSession);
         dispatch({ 
           type: 'LOGIN', 
-          payload: { user, token } 
+          payload: { 
+            user, 
+            token: savedToken 
+          } 
         });
       } catch (error) {
         console.error('Error parsing saved session:', error);
@@ -38,18 +46,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  useEffect(() => {
-    // Update localStorage when salon changes
-    if (state.currentSalonId) {
-      const currentSalon = state.salons.find(salon => salon.id === state.currentSalonId);
-      if (currentSalon?.name) {
-        localStorage.setItem('salon_business_name', currentSalon.name);
-      }
-    }
-  }, [state.currentSalonId, state.salons]);
-
+  // Implemented more persistent login mechanism
   const login = async (email: string, password: string): Promise<void> => {
-    return loginService(email, password, dispatch);
+    return loginService(email, password, dispatch, true); // Added persistent flag
   };
 
   const logout = () => {
@@ -114,3 +113,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;
