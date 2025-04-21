@@ -1,4 +1,3 @@
-
 /* Staff Calendar Block Layout */
 .staff-calendar-block {
   display: flex;
@@ -72,11 +71,12 @@
   position: sticky;
   left: 0;
   z-index: 5;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .calendar-time-inner {
@@ -89,9 +89,10 @@
   display: flex;
   flex: 1;
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: scroll;
   height: 100%;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* Individual staff column */
@@ -140,8 +141,8 @@
 
 /* Critical for scrolling - ensure FC scrollers are visible and synced */
 .fc .fc-scroller-liquid-absolute {
-  overflow: auto !important;
-  position: absolute;
+  position: absolute !important;
+  overflow: scroll !important;
   top: 0;
   right: 0;
   bottom: 0;
@@ -162,8 +163,14 @@
 
 /* Better grid line visibility */
 .fc-timegrid-slot {
-  height: 30px !important;
-  border-color: #f0f0f0 !important;
+  height: 40px !important;
+  border-color: #e5e7eb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: white;
+}
+
+.fc-timegrid-slot-minor {
+  border-top: 1px dashed #e5e7eb !important;
 }
 
 /* Month view specific styles */
@@ -210,4 +217,9 @@
   width: 100%;
   color: #64748b;
   font-size: 0.9rem;
+}
+
+.fc-timegrid-slots td {
+  height: 40px !important;
+  line-height: 40px !important;
 }

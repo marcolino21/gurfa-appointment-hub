@@ -3,11 +3,10 @@ import { useEffect } from 'react';
 
 export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => {
   useEffect(() => {
-    // Only synchronize scrolling in time grid views
     if (view === 'dayGridMonth') return;
     
     const synchronizeScrolling = () => {
-      const scrollContainers = document.querySelectorAll('.fc-scroller-liquid-absolute');
+      const scrollContainers = document.querySelectorAll('.fc-scroller-liquid-absolute, .calendar-time-col, .calendar-staff-cols');
       
       if (scrollContainers.length <= 1) return;
       
@@ -16,7 +15,6 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       
       const handleScroll = (event: Event) => {
         if (isSyncing) return;
-        
         isSyncing = true;
         
         if (!ticking) {
@@ -32,7 +30,7 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
             });
             
             ticking = false;
-            setTimeout(() => { isSyncing = false; }, 10);
+            setTimeout(() => { isSyncing = false; }, 16);
           });
           
           ticking = true;
@@ -50,20 +48,15 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       };
     };
     
-    // Give calendars time to render before setting up scroll sync
-    const timer = setTimeout(synchronizeScrolling, 300);
+    // Initial setup with a slight delay to ensure elements are rendered
+    const timer = setTimeout(synchronizeScrolling, 100);
     
-    // Handle window resize events to re-synchronize scrolling
-    const handleResize = () => {
-      clearTimeout(timer);
-      setTimeout(synchronizeScrolling, 300);
-    };
-    
-    window.addEventListener('resize', handleResize);
+    // Re-sync on window resize
+    window.addEventListener('resize', synchronizeScrolling);
     
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', synchronizeScrolling);
     };
   }, [view]);
 };

@@ -1,4 +1,3 @@
-
 import itLocale from '@fullcalendar/core/locales/it';
 
 export const useCalendarConfig = (
@@ -12,8 +11,16 @@ export const useCalendarConfig = (
   const commonConfig = {
     locale: 'it',
     locales: [itLocale],
+    slotDuration: '00:30:00',
     slotMinTime,
     slotMaxTime,
+    snapDuration: '00:30:00',
+    slotLabelInterval: '00:30',
+    slotLabelFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
     allDaySlot: false,
     selectMirror: true,
     dayMaxEvents: true,
@@ -24,7 +31,6 @@ export const useCalendarConfig = (
     droppable: true,
     eventDrop: onEventDrop,
     headerToolbar: false,
-    slotDuration: '00:30:00',
     height: '100%',
     nowIndicator: true,
     stickyHeaderDates: true,
@@ -36,16 +42,9 @@ export const useCalendarConfig = (
       minute: '2-digit',
       hour12: false
     },
-    dayHeaderFormat: { 
-      weekday: 'long', 
-      month: 'short', 
-      day: 'numeric'
-    },
-    slotLabelFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
+    dayCellBorderColor: '#e5e7eb',
+    slotLaneClassNames: 'border-r border-gray-200 bg-white',
+    slotLabelClassNames: 'text-sm font-medium text-gray-500 pr-2',
     views: {
       timeGridDay: {
         dayHeaderFormat: { 
@@ -55,16 +54,8 @@ export const useCalendarConfig = (
         }
       },
       timeGridWeek: {
-        dayHeaderFormat: { 
-          weekday: 'short', 
-          month: 'numeric', 
-          day: 'numeric'
-        }
-      },
-      dayGridMonth: {
-        dayHeaderFormat: { 
-          weekday: 'short'
-        }
+        type: 'timeGrid',
+        duration: { days: 1 }
       }
     }
   };
