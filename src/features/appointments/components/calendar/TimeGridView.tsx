@@ -40,7 +40,18 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
-    }, // Ensure explicit format to avoid null issues
+    }, 
+    // Explicit formats to prevent null formatting issues
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
+    dayHeaderFormat: { 
+      weekday: 'long', 
+      day: 'numeric',
+      month: 'short'
+    }
   };
 
   // In alto: la data (ad es. "Lunedì 22 Aprile 2024") with improved error handling
@@ -49,7 +60,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       // Ensure we always have a valid date object
       const dateToFormat = selectedDate || new Date();
       
-      // Use a safer way to format the date that doesn't rely on locale objects
       try {
         // First try with Italian locale if available
         return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
@@ -131,8 +141,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               dayHeaderContent="" // niente header giorno
               allDaySlot={false}
               slotLabelClassNames="time-slot-label"
-              slotLabelContent={undefined}
-              slotLabelFormat={undefined}
               dayCellContent={() => null}
               events={[]}
               headerToolbar={false}
@@ -168,7 +176,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                 initialDate={selectedDate || new Date()} 
                 {...safeCommonConfig}
                 dayHeaderContent="" // no header giorno
-                slotLabelFormat={[]} // nascondi etichette orarie nelle colonne staff
                 slotLabelContent={() => null}
                 events={events.filter(event => event.resourceId === staff.id)}
                 headerToolbar={false}

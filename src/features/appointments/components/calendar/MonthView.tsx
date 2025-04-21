@@ -70,6 +70,21 @@ export const MonthView: React.FC<MonthViewProps> = ({
       minute: '2-digit',
       hour12: false
     },
+    views: {
+      dayGridMonth: {
+        dayHeaderFormat: { weekday: 'short' },
+        dayHeaderContent: (args: any) => {
+          if (!args || !args.date) return '';
+          try {
+            const day = args.date.getDate();
+            return day.toString();
+          } catch (e) {
+            console.error('Error formatting day header:', e);
+            return '';
+          }
+        }
+      }
+    }
   };
 
   return (
@@ -131,14 +146,20 @@ export const MonthView: React.FC<MonthViewProps> = ({
                   </div>
                 )}
                 dayCellDidMount={(info) => {
-                  const dateNum = document.createElement('div');
-                  dateNum.className = 'text-xs font-medium text-gray-500';
-                  dateNum.textContent = info.date.getDate().toString();
-                  
-                  const cellContent = info.el.querySelector('.fc-daygrid-day-top');
-                  if (cellContent) {
-                    cellContent.innerHTML = '';
-                    cellContent.appendChild(dateNum);
+                  try {
+                    if (!info || !info.date || !info.el) return;
+                    
+                    const dateNum = document.createElement('div');
+                    dateNum.className = 'text-xs font-medium text-gray-500';
+                    dateNum.textContent = info.date.getDate().toString();
+                    
+                    const cellContent = info.el.querySelector('.fc-daygrid-day-top');
+                    if (cellContent) {
+                      cellContent.innerHTML = '';
+                      cellContent.appendChild(dateNum);
+                    }
+                  } catch (error) {
+                    console.error('Error in dayCellDidMount:', error);
                   }
                 }}
               />

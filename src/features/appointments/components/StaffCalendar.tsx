@@ -131,13 +131,17 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       setSelectedDate(date);
 
       if (calendarApi) {
-        calendarApi.gotoDate(date);
+        try {
+          calendarApi.gotoDate(date);
 
-        if (view === 'timeGridWeek') {
-          const tabsTrigger = document.querySelector('[value="day"]') as HTMLElement;
-          if (tabsTrigger) {
-            setTimeout(() => tabsTrigger.click(), 100);
+          if (view === 'timeGridWeek') {
+            const tabsTrigger = document.querySelector('[value="day"]') as HTMLElement;
+            if (tabsTrigger) {
+              setTimeout(() => tabsTrigger.click(), 100);
+            }
           }
+        } catch (error) {
+          console.error("Error navigating to date:", error);
         }
       }
       setDatePickerOpen(false);
@@ -182,6 +186,27 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
+    },
+    views: {
+      timeGridDay: {
+        dayHeaderFormat: { 
+          weekday: 'long', 
+          month: 'short', 
+          day: 'numeric'
+        }
+      },
+      timeGridWeek: {
+        dayHeaderFormat: { 
+          weekday: 'short', 
+          month: 'numeric', 
+          day: 'numeric'
+        }
+      },
+      dayGridMonth: {
+        dayHeaderFormat: { 
+          weekday: 'short'
+        }
+      }
     }
   };
 
