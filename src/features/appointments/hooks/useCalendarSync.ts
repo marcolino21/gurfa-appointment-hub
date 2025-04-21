@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 
 export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => {
@@ -61,8 +62,14 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     
     const observer = new MutationObserver((mutations) => {
       const shouldReSync = mutations.some(mutation => {
-        return mutation.target.classList?.contains('staff-calendar-block') ||
-               mutation.target.classList?.contains('calendar-grid-body');
+        const target = mutation.target as Node;
+        
+        // Fix: Properly check if the target is an Element before accessing classList
+        if (target instanceof Element) {
+          return target.classList.contains('staff-calendar-block') ||
+                 target.classList.contains('calendar-grid-body');
+        }
+        return false;
       });
       
       if (shouldReSync) {
