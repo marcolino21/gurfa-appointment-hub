@@ -32,6 +32,38 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     return format(selectedDate, 'EEEE d MMMM yyyy', { locale: it });
   };
 
+  // Aggiungiamo un effetto per sincronizzare lo scorrimento dopo il rendering
+  React.useEffect(() => {
+    const synchronizeScrolling = () => {
+      const timeGrids = document.querySelectorAll('.fc-timegrid-body');
+      if (timeGrids.length <= 1) return;
+      
+      const mainElement = timeGrids[0] as HTMLElement;
+      
+      const scrollHandler = (e: Event) => {
+        const target = e.target as HTMLElement;
+        const scrollTop = target.scrollTop;
+        
+        timeGrids.forEach((grid) => {
+          const element = grid as HTMLElement;
+          if (element !== target) {
+            element.scrollTop = scrollTop;
+          }
+        });
+      };
+      
+      mainElement.addEventListener('scroll', scrollHandler);
+      
+      return () => {
+        mainElement.removeEventListener('scroll', scrollHandler);
+      };
+    };
+    
+    // Diamo tempo ai calendari di renderizzarsi completamente
+    const timer = setTimeout(synchronizeScrolling, 300);
+    return () => clearTimeout(timer);
+  }, [staffMembers.length]);
+
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-container">
       {/* Data in alto */}
@@ -56,7 +88,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       </div>
       {/* Griglia slot + colonne staff: scroll sincronizzato */}
       <div
-        className="grid sync-scroll-container"
+        className="grid staff-grid-container"
         style={{
           gridTemplateColumns: `50px repeat(${staffMembers.length}, 1fr)`,
           height: 'calc(100% - 50px)',
@@ -64,29 +96,43 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           backgroundColor: '#e5e7eb',
         }}
       >
-        {/* Colonna slot orari (prima colonna, orari verticali) */}
-        <div className="bg-white h-full staff-column time-col" style={{ paddingTop: 0, borderRight: '1px solid #e5e7eb' }}>
-          {/* FullCalendar con solo asse orario (nascosto) */}
-          {/* Qui potrebbe essere aggiunto uno slot times se serve */}
+        {/* Colonna slot orari (prima colonna) */}
+        <div className="bg-white h-full staff-column time-col" style={{ 
+          paddingTop: 0, 
+          borderRight: '1px solid #e5e7eb',
+          position: 'sticky',
+          left: 0,
+          zIndex: 5
+        }}>
+          {/* La colonna degli orari verrà mostrata solo dal primo calendario */}
+          <div className="h-full time-only-column">
+            {staffMembers.length > 0 && (
+              <FullCalendar
+                plugins={[timeGridPlugin]}
+                initialView={view}
+                initialDate={selectedDate}
+                {...commonConfig}
+                dayHeaderContent="" // Nascondiamo l'header del giorno
+                allDaySlot={false}
+                slotLabelClassNames="time-slot-label"
+                dayCellContent={() => null} // Nascondiamo il contenuto delle celle dei giorni
+                events={[]} // Nessun evento nella colonna orari
+                headerToolbar={false}
+              />
+            )}
+          </div>
         </div>
-        {/* Colonne staff, vanno in sync-scroll-container */}
+        {/* Colonne staff, vanno in sync-scroll */}
         {staffMembers.map((staff, index) => (
-          <div key={staff.id} className="bg-white h-full staff-column">
-            <div
-              className="staff-column-header"
-              style={{
-                borderLeft: `3px solid ${staff.color || '#9b87f5'}`,
-                display: 'none' // Rimossa la riga del giorno sotto il nome staff
-              }}
-            >
-              {/* Intestazione staff duplicata: ora viene nascosta (display: none) */}
-            </div>
-            <div className="h-full">
+          <div key={staff.id} className="bg-white h-full staff-column staff-content-column">
+            <div className="h-full calendar-container">
               <FullCalendar
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView={view}
                 initialDate={selectedDate}
                 {...commonConfig}
+                slotLabelFormat={[]} // Nascondiamo le etichette degli slot orari nelle colonne dello staff
+                slotLabelContent={() => null} // Nascondiamo il contenuto delle etichette degli slot orari
                 events={events.filter(event => event.resourceId === staff.id)}
                 ref={(el) => {
                   if (el) {

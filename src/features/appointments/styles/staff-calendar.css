@@ -25,13 +25,74 @@
   margin-left: 1px;
 }
 
-.staff-column-header {
-  padding: 8px;
-  font-weight: 500;
-  text-align: center;
-  border-bottom: 1px solid #e5e7eb;
-  white-space: nowrap;
+/* Stili aggiuntivi per risolvere il problema dello scorrimento sincronizzato */
+.staff-grid-container {
+  display: grid;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+.staff-content-column .fc-timegrid-col-frame {
+  border-left: none;
+}
+
+/* Nascondiamo le etichette orarie in tutte le colonne tranne la prima */
+.staff-content-column .fc-timegrid-slot-label-frame {
+  display: none;
+}
+
+.staff-content-column .fc-timegrid-slot-lane {
+  border-left: none;
+}
+
+/* Assicuriamo che solo il primo calendario mostri gli orari */
+.time-only-column .fc-timegrid-slot-label {
+  visibility: visible !important;
+}
+
+.time-only-column .fc-timegrid-axis {
+  visibility: visible !important;
+}
+
+/* Nascondi il divider sotto il nome degli operatori */
+.fc-timegrid-divider {
+  display: none !important;
+}
+
+/* Nascondiamo la riga del giorno sotto il nome dello staff */
+.fc-timegrid-col-frame .fc-col-header {
+  display: none !important;
+}
+
+/* Assicurarsi che il calendario non mostri scrollbar orizzontale */
+.fc .fc-scroller-liquid-absolute {
+  overflow-x: hidden !important;
+}
+
+/* Rimuoviamo gli scrollbar duplicati ma manteniamo la funzionalità di scorrimento */
+.fc .fc-scroller-liquid-absolute::-webkit-scrollbar {
+  display: none;
+}
+
+.fc .fc-scroller-liquid-absolute {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Stili per la colonna oraria fissa */
+.time-col {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: white;
+}
+
+/* Migliora la visualizzazione degli orari */
+.time-slot-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Assicuriamo che le colonne del calendario non mostrino le etichette orarie */
+.staff-content-column .fc-timegrid-slot-label {
+  display: none;
+}
