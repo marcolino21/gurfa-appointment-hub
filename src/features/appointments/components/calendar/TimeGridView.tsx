@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -27,114 +27,125 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   calendarRefs,
   setCalendarApi,
 }) => {
+  // Refs per il sync scroll
+  const timeColRef = useRef<HTMLDivElement>(null);
+  const scrollColRef = useRef<HTMLDivElement>(null);
+
+  // In alto: la data (ad es. "Lunedì 22 Aprile 2024")
   const getFormattedDate = () => {
     if (!selectedDate) return format(new Date(), 'EEEE d MMMM yyyy', { locale: it });
     return format(selectedDate, 'EEEE d MMMM yyyy', { locale: it });
   };
 
-  // Aggiungiamo un effetto per sincronizzare lo scorrimento dopo il rendering
-  React.useEffect(() => {
-    const synchronizeScrolling = () => {
-      const timeGrids = document.querySelectorAll('.fc-timegrid-body');
-      if (timeGrids.length <= 1) return;
-      
-      const mainElement = timeGrids[0] as HTMLElement;
-      
-      const scrollHandler = (e: Event) => {
-        const target = e.target as HTMLElement;
-        const scrollTop = target.scrollTop;
-        
-        timeGrids.forEach((grid) => {
-          const element = grid as HTMLElement;
-          if (element !== target) {
-            element.scrollTop = scrollTop;
-          }
-        });
-      };
-      
-      mainElement.addEventListener('scroll', scrollHandler);
-      
-      return () => {
-        mainElement.removeEventListener('scroll', scrollHandler);
-      };
+  // Sincronizza lo scroll verticale delle colonne staff con la colonna orari
+  useEffect(() => {
+    const timeEl = timeColRef.current;
+    const scrollEl = scrollColRef.current;
+    if (!timeEl || !scrollEl) return;
+
+    let isSyncing = false;
+
+    const onScroll = () => {
+      if (isSyncing) return;
+      isSyncing = true;
+      timeEl.scrollTop = scrollEl.scrollTop;
+      setTimeout(() => { isSyncing = false; }, 1);
     };
-    
-    // Diamo tempo ai calendari di renderizzarsi completamente
-    const timer = setTimeout(synchronizeScrolling, 300);
-    return () => clearTimeout(timer);
+    scrollEl.addEventListener("scroll", onScroll);
+    return () => {
+      scrollEl.removeEventListener("scroll", onScroll);
+    };
   }, [staffMembers.length]);
 
+  // Al render resize: mantiene header staff e colonne staff allineate
+  // (layout CSS grid, header + corpo colonne sincronizzati)
+
   return (
-    <div className="h-[calc(100vh-320px)] staff-calendar-container">
+    <div className="h-[calc(100vh-320px)] staff-calendar-block">
       {/* Data in alto */}
       <div className="staff-calendar-header">
         {getFormattedDate()}
       </div>
-      {/* Header staff (fisso sopra) */}
-      <div className="grid" style={{
-        gridTemplateColumns: `50px repeat(${staffMembers.length}, 1fr)`,
-        borderBottom: '1px solid #e5e7eb'
+      {/* Header staff: una sola riga, ogni nome centrato sopra la propria colonna */}
+      <div className="staff-header-row" style={{
+        display: 'grid',
+        gridTemplateColumns: `50px repeat(${staffMembers.length}, 1fr)`
       }}>
-        <div className="text-center font-medium text-sm bg-white sticky top-0 z-10">Ora</div>
-        {staffMembers.map((staff) => (
+        <div className="time-col-header"></div>
+        {staffMembers.map(staff => (
           <div
             key={staff.id}
-            className="text-center font-medium text-sm px-1 truncate bg-white sticky top-0 z-10"
-            style={{ borderLeft: `3px solid ${staff.color || '#9b87f5'}` }}
+            className="staff-header-col"
+            style={{ borderLeft: `3px solid ${staff.color || "#9b87f5"}`}}
           >
-            {staff.firstName} {staff.lastName}
+            <span className="staff-name">
+              {staff.firstName} {staff.lastName}
+            </span>
           </div>
         ))}
       </div>
-      {/* Griglia slot + colonne staff: scroll sincronizzato */}
-      <div
-        className="grid staff-grid-container"
-        style={{
-          gridTemplateColumns: `50px repeat(${staffMembers.length}, 1fr)`,
-          height: 'calc(100% - 50px)',
-          gap: '1px',
-          backgroundColor: '#e5e7eb',
-        }}
-      >
-        {/* Colonna slot orari (prima colonna) */}
-        <div className="bg-white h-full staff-column time-col" style={{ 
-          paddingTop: 0, 
-          borderRight: '1px solid #e5e7eb',
-          position: 'sticky',
-          left: 0,
-          zIndex: 5
-        }}>
-          {/* La colonna degli orari verrà mostrata solo dal primo calendario */}
-          <div className="h-full time-only-column">
-            {staffMembers.length > 0 && (
-              <FullCalendar
-                plugins={[timeGridPlugin]}
-                initialView={view}
-                initialDate={selectedDate}
-                {...commonConfig}
-                dayHeaderContent="" // Nascondiamo l'header del giorno
-                allDaySlot={false}
-                slotLabelClassNames="time-slot-label"
-                dayCellContent={() => null} // Nascondiamo il contenuto delle celle dei giorni
-                events={[]} // Nessun evento nella colonna orari
-                headerToolbar={false}
-              />
-            )}
+      {/* Corpo agenda: una sola colonna orari fissa + colonne staff scrollabili assieme */}
+      <div className="calendar-grid-body" style={{ display: "flex", height: "100%", minHeight: 0, flex: 1 }}>
+        {/* Colonna orari sulla sinistra (sticky) */}
+        <div
+          className="calendar-time-col"
+          ref={timeColRef}
+          style={{
+            minWidth: 50, maxWidth: 50, flex: "0 0 50px", overflow: "hidden", position: "relative", zIndex: 5,
+            height: "100%"
+          }}
+        >
+          <div className="calendar-time-inner">
+            <FullCalendar
+              plugins={[timeGridPlugin]}
+              initialView={view}
+              initialDate={selectedDate}
+              {...commonConfig}
+              dayHeaderContent="" // niente header giorno
+              allDaySlot={false}
+              slotLabelClassNames="time-slot-label"
+              slotLabelContent={undefined}
+              slotLabelFormat={undefined}
+              dayCellContent={() => null}
+              events={[]}
+              headerToolbar={false}
+              height="100%"
+            />
           </div>
         </div>
-        {/* Colonne staff, vanno in sync-scroll */}
-        {staffMembers.map((staff, index) => (
-          <div key={staff.id} className="bg-white h-full staff-column staff-content-column">
-            <div className="h-full calendar-container">
+        {/* Colonne staff scrollabili orizzontalmente */}
+        <div
+          className="calendar-staff-cols"
+          ref={scrollColRef}
+          style={{
+            display: "flex",
+            flex: 1,
+            overflowX: "auto",
+            overflowY: "auto",
+            height: "100%"
+          }}
+        >
+          {staffMembers.map((staff, index) => (
+            <div
+              key={staff.id}
+              className="calendar-staff-col"
+              style={{
+                minWidth: 200, flex: "1 1 0", background: "#fff",
+                borderLeft: "1px solid #e5e7eb"
+              }}
+            >
               <FullCalendar
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView={view}
                 initialDate={selectedDate}
                 {...commonConfig}
-                slotLabelFormat={[]} // Nascondiamo le etichette degli slot orari nelle colonne dello staff
-                slotLabelContent={() => null} // Nascondiamo il contenuto delle etichette degli slot orari
+                dayHeaderContent="" // no header giorno
+                slotLabelFormat={[]} // nascondi etichette orarie nelle colonne staff
+                slotLabelContent={() => null}
                 events={events.filter(event => event.resourceId === staff.id)}
-                ref={(el) => {
+                headerToolbar={false}
+                height="100%"
+                ref={el => {
                   if (el) {
                     calendarRefs.current[index] = el;
                     if (index === 0) setCalendarApi(el.getApi());
@@ -142,8 +153,8 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                 }}
               />
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

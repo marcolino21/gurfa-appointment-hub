@@ -1,98 +1,150 @@
 
-/* Staff Calendar Custom Styles */
-.staff-calendar-container {
+/* Staff Calendar Block Layout */
+.staff-calendar-block {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: #fff;
 }
-
 .staff-calendar-header {
   text-align: center;
   padding: 10px;
   font-weight: 500;
   font-size: 1rem;
   border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  background: #fff;
 }
-
-.staff-column {
-  width: 100%;
-  flex: 1;
-  border-right: 1px solid #e5e7eb;
+.staff-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
 }
-
-.staff-column + .staff-column {
-  margin-left: 1px;
+.time-col-header {
+  height: 48px;
+  background: #fff;
 }
-
-/* Stili aggiuntivi per risolvere il problema dello scorrimento sincronizzato */
-.staff-grid-container {
-  display: grid;
+.staff-header-col {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 500;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  /* Centra bene i nomi */
+}
+.staff-name {
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.staff-content-column .fc-timegrid-col-frame {
-  border-left: none;
+/* Corpo agenda a flex */
+.calendar-grid-body {
+  width: 100%;
+  min-height: 0;
+  background: #fff;
 }
 
-/* Nascondiamo le etichette orarie in tutte le colonne tranne la prima */
-.staff-content-column .fc-timegrid-slot-label-frame {
+/* Colonna orari sticky sulla sinistra */
+.calendar-time-col {
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  position: sticky;
+  left: 0;
+  z-index: 9;
+  box-shadow: 1px 0 0 #e5e7eb;
+}
+.calendar-time-inner {
+  min-width: 50px;
+  max-width: 50px;
+  width: 50px;
+  background: #fff;
+}
+.calendar-staff-cols {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  background: #fff;
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Hide scrollbars but allow scrolling */
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb #fff;
+}
+.calendar-staff-col {
+  flex: 1 0 200px;
+  min-width: 200px;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+  /* No header nel body */
+}
+.calendar-staff-col .fc-scrollgrid-sync-table,
+.calendar-staff-col .fc-timegrid-col, 
+.calendar-time-inner .fc-scrollgrid-sync-table,
+.calendar-time-inner .fc-timegrid-col {
+  /* Remove grid borders */
+  border: none !important;
+}
+
+.fc .fc-timegrid-col-frame .fc-col-header {
+  display: none !important;
+}
+
+/* Nascondi etichette orarie ORA nelle colonne staff */
+.calendar-staff-col .fc-timegrid-slot-label,
+.calendar-staff-col .fc-timegrid-slot-label-frame,
+.calendar-staff-col .fc-timegrid-axis,
+.calendar-staff-col .fc-timegrid-divider {
+  display: none !important;
+}
+
+.calendar-time-inner .fc-timegrid-slot-label,
+.calendar-time-inner .fc-timegrid-slot-label-frame,
+.calendar-time-inner .fc-timegrid-axis {
+  visibility: visible !important;
+  display: block !important;
+}
+
+.fc-col-header-cell, .fc-timegrid-col-frame .fc-col-header {
+  display: none !important;
+}
+
+/* Sincronizzazione scrollbar e rimozione doppie */
+.calendar-staff-cols::-webkit-scrollbar,
+.calendar-staff-col::-webkit-scrollbar,
+.calendar-time-col::-webkit-scrollbar {
   display: none;
 }
-
-.staff-content-column .fc-timegrid-slot-lane {
-  border-left: none;
+.calendar-staff-cols,
+.calendar-staff-col,
+.calendar-time-col {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Assicuriamo che solo il primo calendario mostri gli orari */
-.time-only-column .fc-timegrid-slot-label {
-  visibility: visible !important;
-}
-
-.time-only-column .fc-timegrid-axis {
-  visibility: visible !important;
-}
-
-/* Nascondi il divider sotto il nome degli operatori */
-.fc-timegrid-divider {
-  display: none !important;
-}
-
-/* Nascondiamo la riga del giorno sotto il nome dello staff */
-.fc-timegrid-col-frame .fc-col-header {
-  display: none !important;
-}
-
-/* Assicurarsi che il calendario non mostri scrollbar orizzontale */
 .fc .fc-scroller-liquid-absolute {
   overflow-x: hidden !important;
 }
 
-/* Rimuoviamo gli scrollbar duplicati ma manteniamo la funzionalità di scorrimento */
-.fc .fc-scroller-liquid-absolute::-webkit-scrollbar {
-  display: none;
-}
-
-.fc .fc-scroller-liquid-absolute {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* Stili per la colonna oraria fissa */
-.time-col {
-  position: sticky;
-  left: 0;
-  z-index: 5;
-  background-color: white;
-}
-
-/* Migliora la visualizzazione degli orari */
+/* Ottimizza la dimensione delle slot label (orari) */
 .time-slot-label {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #888;
 }
 
-/* Assicuriamo che le colonne del calendario non mostrino le etichette orarie */
-.staff-content-column .fc-timegrid-slot-label {
-  display: none;
+/* Migliora i bordi e lo spacing */
+.calendar-time-col {
+  box-shadow: 2px 0 8px #f3f3f3;
+}
+
+/* Elimina qualsiasi "giorno" stampato nelle colonne staff */
+.fc-timegrid-col-frame .fc-col-header {
+  display: none !important;
 }
