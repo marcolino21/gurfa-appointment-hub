@@ -45,7 +45,6 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [slotMinTime, setSlotMinTime] = useState('09:00:00');
   const [slotMaxTime, setSlotMaxTime] = useState('20:00:00');
 
-  // Fetch current salonId from localStorage or global state (auth context is recommended)
   useCalendarSync(view);
   useAutoScroll(calendarApi, view);
 
@@ -136,8 +135,10 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
+  // Create a safer version of common config with explicit locale handling
   const commonConfig = {
-    locale: itLocale,
+    locale: itLocale ? 'it' : undefined, // Use string identifier instead of object
+    locales: itLocale ? [itLocale] : undefined, // Properly register the locale
     slotMinTime,
     slotMaxTime,
     allDaySlot: false,
@@ -155,7 +156,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     nowIndicator: true,
     stickyHeaderDates: true,
     scrollTimeReset: false,
-    hiddenDays
+    hiddenDays,
+    timeZone: 'local', // Ensure explicit timezone setting
   };
 
   if (view === 'dayGridMonth') {

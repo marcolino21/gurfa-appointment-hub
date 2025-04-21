@@ -33,7 +33,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
   datePickerOpen,
   setDatePickerOpen,
 }) => {
-  // Safe date formatting function
+  // Safe date formatting function with robust error handling
   const safeFormat = (date: Date | undefined, formatStr: string) => {
     try {
       if (!date) return '';
@@ -42,6 +42,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
         // Try with Italian locale
         return format(date, formatStr, { locale: it });
       } catch (localeError) {
+        console.warn('Error using Italian locale, falling back to default:', localeError);
         // Fallback to default locale
         return format(date, formatStr);
       }
@@ -49,6 +50,13 @@ export const MonthView: React.FC<MonthViewProps> = ({
       console.error('Error formatting date:', error);
       return date ? date.toLocaleDateString() : '';
     }
+  };
+
+  // Create a safer version of the common config by explicitly setting locale
+  const safeCommonConfig = {
+    ...commonConfig,
+    locale: 'it', // Use string-based locale identifier instead of object
+    timeZone: 'local', // Ensure explicit timezone setting
   };
 
   return (
@@ -64,7 +72,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               {selectedDate ? safeFormat(selectedDate, 'd MMMM yyyy') : 'Seleziona data'}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
+          <PopoverContent className="w-auto p-0 z-50">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -96,7 +104,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 initialDate={selectedDate}
-                {...commonConfig}
+                {...safeCommonConfig}
                 events={events.filter(event => event.resourceId === staff.id)}
                 ref={(el) => {
                   if (el) {

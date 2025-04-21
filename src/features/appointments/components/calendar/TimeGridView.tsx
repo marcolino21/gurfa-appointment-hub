@@ -31,7 +31,14 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   const timeColRef = useRef<HTMLDivElement>(null);
   const scrollColRef = useRef<HTMLDivElement>(null);
 
-  // In alto: la data (ad es. "Lunedì 22 Aprile 2024")
+  // Create a safer version of the common config by explicitly setting locale
+  const safeCommonConfig = {
+    ...commonConfig,
+    locale: 'it', // Use string-based locale identifier instead of object
+    timeZone: 'local', // Ensure explicit timezone setting
+  };
+
+  // In alto: la data (ad es. "Lunedì 22 Aprile 2024") con improved error handling
   const getFormattedDate = () => {
     try {
       // Ensure we always have a valid date object
@@ -42,13 +49,14 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
         // First try with Italian locale if available
         return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
       } catch (localeError) {
+        console.warn('Error using Italian locale, falling back to default:', localeError);
         // Fallback to default locale if Italian isn't available
         return format(dateToFormat, 'EEEE d MMMM yyyy');
       }
     } catch (error) {
       console.error('Error formatting date:', error);
       // Return a simple date string as fallback
-      return new Date().toLocaleDateString();
+      return selectedDate?.toLocaleDateString() || new Date().toLocaleDateString();
     }
   };
 
@@ -71,9 +79,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       scrollEl.removeEventListener("scroll", onScroll);
     };
   }, [staffMembers.length]);
-
-  // Al render resize: mantiene header staff e colonne staff allineate
-  // (layout CSS grid, header + corpo colonne sincronizzati)
 
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-block">
@@ -117,7 +122,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               plugins={[timeGridPlugin]}
               initialView={view}
               initialDate={selectedDate || new Date()}
-              {...commonConfig}
+              {...safeCommonConfig}
               dayHeaderContent="" // niente header giorno
               allDaySlot={false}
               slotLabelClassNames="time-slot-label"
@@ -156,7 +161,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView={view}
                 initialDate={selectedDate || new Date()} 
-                {...commonConfig}
+                {...safeCommonConfig}
                 dayHeaderContent="" // no header giorno
                 slotLabelFormat={[]} // nascondi etichette orarie nelle colonne staff
                 slotLabelContent={() => null}

@@ -151,11 +151,39 @@
 
 /* Ensure popover content has correct z-index and background */
 .radix-popover-content {
-  z-index: 50;
+  z-index: 99999 !important; /* Extremely high to ensure it's on top */
   background-color: white;
+  pointer-events: auto !important;
 }
 
 /* Make sure calendar is interactable in popovers */
 .radix-popover-content .react-day-picker {
   pointer-events: auto !important;
+}
+
+/* Month view styles */
+.month-view-date-header {
+  text-align: center;
+  padding: 10px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.staff-column-header {
+  height: 36px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.custom-month-view .fc-daygrid-body {
+  width: 100% !important;
+}
+
+.custom-month-view .fc-daygrid-day-frame {
+  min-height: 80px;
 }
