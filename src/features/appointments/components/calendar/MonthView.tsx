@@ -52,11 +52,24 @@ export const MonthView: React.FC<MonthViewProps> = ({
     }
   };
 
-  // Create a safer version of the common config by explicitly setting locale
+  // Create a safer version of the common config by explicitly setting locale and formats
   const safeCommonConfig = {
     ...commonConfig,
     locale: 'it', // Use string-based locale identifier instead of object
     timeZone: 'local', // Ensure explicit timezone setting
+    dayHeaderFormat: { 
+      weekday: 'short'
+    },
+    titleFormat: { 
+      month: 'long', 
+      year: 'numeric' 
+    },
+    // Add explicit date formats to prevent null format issues
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
   };
 
   return (
@@ -103,7 +116,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
-                initialDate={selectedDate}
+                initialDate={selectedDate || new Date()}
                 {...safeCommonConfig}
                 events={events.filter(event => event.resourceId === staff.id)}
                 ref={(el) => {

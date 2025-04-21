@@ -31,14 +31,19 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   const timeColRef = useRef<HTMLDivElement>(null);
   const scrollColRef = useRef<HTMLDivElement>(null);
 
-  // Create a safer version of the common config by explicitly setting locale
+  // Make sure we always have valid common config settings
   const safeCommonConfig = {
     ...commonConfig,
     locale: 'it', // Use string-based locale identifier instead of object
     timeZone: 'local', // Ensure explicit timezone setting
+    slotLabelFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }, // Ensure explicit format to avoid null issues
   };
 
-  // In alto: la data (ad es. "Lunedì 22 Aprile 2024") con improved error handling
+  // In alto: la data (ad es. "Lunedì 22 Aprile 2024") with improved error handling
   const getFormattedDate = () => {
     try {
       // Ensure we always have a valid date object

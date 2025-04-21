@@ -54,57 +54,66 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       const salonId = localStorage.getItem('currentSalonId');
       if (!salonId) return;
       
-      const { data, error } = await supabase
-        .from('salon_profiles')
-        .select('business_hours')
-        .eq('salon_id', salonId)
-        .maybeSingle();
-        
-      if (error) {
-        console.error("Error fetching business hours:", error);
-        return;
-      }
-      
-      if (data && data.business_hours) {
-        const hoursData = data.business_hours as BusinessHoursByDay;
-        setBusinessHours(hoursData);
-
-        // Setup hiddenDays and min/max slots
-        const dayMap = [
-          'sunday',    // 0
-          'monday',    // 1
-          'tuesday',   // 2
-          'wednesday', // 3
-          'thursday',  // 4
-          'friday',    // 5
-          'saturday'   // 6
-        ];
-        
-        const hidden = dayMap
-          .map((key, idx) => (hoursData[key as keyof BusinessHoursByDay] ? null : idx))
-          .filter((v) => v !== null) as number[];
-        setHiddenDays(hidden);
-
-        // For week/day view, set min/max time based on current day or first enabled day
-        const todayKey = dayMap[(selectedDate?.getDay() ?? new Date().getDay())] as keyof BusinessHoursByDay;
-        const todayHours = hoursData[todayKey];
-        
-        if (todayHours) {
-          setSlotMinTime(todayHours.openTime + ':00');
-          setSlotMaxTime(todayHours.closeTime + ':00');
-        } else {
-          // Find first available day if today is closed
-          const firstOpenDay = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
-          if (firstOpenDay && hoursData[firstOpenDay]) {
-            setSlotMinTime(hoursData[firstOpenDay].openTime + ':00');
-            setSlotMaxTime(hoursData[firstOpenDay].closeTime + ':00');
-          } else {
-            // Default fallback
-            setSlotMinTime('09:00:00');
-            setSlotMaxTime('20:00:00');
-          }
+      try {
+        const { data, error } = await supabase
+          .from('salon_profiles')
+          .select('business_hours')
+          .eq('salon_id', salonId)
+          .maybeSingle();
+          
+        if (error) {
+          console.error("Error fetching business hours:", error);
+          return;
         }
-      } else {
+        
+        if (data && data.business_hours) {
+          const hoursData = data.business_hours as BusinessHoursByDay;
+          setBusinessHours(hoursData);
+
+          // Setup hiddenDays and min/max slots
+          const dayMap = [
+            'sunday',    // 0
+            'monday',    // 1
+            'tuesday',   // 2
+            'wednesday', // 3
+            'thursday',  // 4
+            'friday',    // 5
+            'saturday'   // 6
+          ];
+          
+          const hidden = dayMap
+            .map((key, idx) => (hoursData[key as keyof BusinessHoursByDay] ? null : idx))
+            .filter((v) => v !== null) as number[];
+          setHiddenDays(hidden);
+
+          // For week/day view, set min/max time based on current day or first enabled day
+          const todayKey = dayMap[(selectedDate?.getDay() ?? new Date().getDay())] as keyof BusinessHoursByDay;
+          const todayHours = hoursData[todayKey];
+          
+          if (todayHours) {
+            setSlotMinTime(todayHours.openTime + ':00');
+            setSlotMaxTime(todayHours.closeTime + ':00');
+          } else {
+            // Find first available day if today is closed
+            const firstOpenDay = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
+            if (firstOpenDay && hoursData[firstOpenDay]) {
+              setSlotMinTime(hoursData[firstOpenDay].openTime + ':00');
+              setSlotMaxTime(hoursData[firstOpenDay].closeTime + ':00');
+            } else {
+              // Default fallback
+              setSlotMinTime('09:00:00');
+              setSlotMaxTime('20:00:00');
+            }
+          }
+        } else {
+          setBusinessHours({});
+          setHiddenDays([]);
+          setSlotMinTime('09:00:00');
+          setSlotMaxTime('20:00:00');
+        }
+      } catch (fetchError) {
+        console.error("Failed to fetch business hours:", fetchError);
+        // Set defaults in case of error
         setBusinessHours({});
         setHiddenDays([]);
         setSlotMinTime('09:00:00');
@@ -137,8 +146,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   // Create a safer version of common config with explicit locale handling
   const commonConfig = {
-    locale: itLocale ? 'it' : undefined, // Use string identifier instead of object
-    locales: itLocale ? [itLocale] : undefined, // Properly register the locale
+    locale: 'it', // Use string identifier instead of object
+    locales: [itLocale], // Properly register the locale
     slotMinTime,
     slotMaxTime,
     allDaySlot: false,
@@ -158,6 +167,22 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     scrollTimeReset: false,
     hiddenDays,
     timeZone: 'local', // Ensure explicit timezone setting
+    // Add explicit date formats to prevent null format issues
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
+    dayHeaderFormat: { 
+      weekday: 'long', 
+      month: 'short', 
+      day: 'numeric'
+    },
+    slotLabelFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }
   };
 
   if (view === 'dayGridMonth') {
