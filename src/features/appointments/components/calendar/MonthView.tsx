@@ -33,17 +33,35 @@ export const MonthView: React.FC<MonthViewProps> = ({
   datePickerOpen,
   setDatePickerOpen,
 }) => {
+  // Safe date formatting function
+  const safeFormat = (date: Date | undefined, formatStr: string) => {
+    try {
+      if (!date) return '';
+      
+      try {
+        // Try with Italian locale
+        return format(date, formatStr, { locale: it });
+      } catch (localeError) {
+        // Fallback to default locale
+        return format(date, formatStr);
+      }
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return date ? date.toLocaleDateString() : '';
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-container">
       <div className="month-view-date-header">
-        {format(selectedDate || new Date(), 'MMMM yyyy', { locale: it })}
+        {safeFormat(selectedDate || new Date(), 'MMMM yyyy')}
       </div>
       
       <div className="mb-2 flex justify-center">
         <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
           <PopoverTrigger asChild>
             <button className="bg-white border border-gray-300 rounded px-4 py-1 text-sm font-medium hover:bg-gray-50">
-              {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: it }) : 'Seleziona data'}
+              {selectedDate ? safeFormat(selectedDate, 'd MMMM yyyy') : 'Seleziona data'}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
@@ -52,6 +70,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               selected={selectedDate}
               onSelect={onDateSelect}
               initialFocus
+              className="p-3 pointer-events-auto"
             />
           </PopoverContent>
         </Popover>

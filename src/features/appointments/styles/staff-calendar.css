@@ -148,3 +148,14 @@
 .fc-timegrid-col-frame .fc-col-header {
   display: none !important;
 }
+
+/* Ensure popover content has correct z-index and background */
+.radix-popover-content {
+  z-index: 50;
+  background-color: white;
+}
+
+/* Make sure calendar is interactable in popovers */
+.radix-popover-content .react-day-picker {
+  pointer-events: auto !important;
+}

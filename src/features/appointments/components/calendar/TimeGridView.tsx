@@ -36,12 +36,15 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     try {
       // Ensure we always have a valid date object
       const dateToFormat = selectedDate || new Date();
-      // Make sure locale is properly loaded before using it
-      if (it && typeof it === 'object') {
+      
+      // Use a safer way to format the date that doesn't rely on locale objects
+      try {
+        // First try with Italian locale if available
         return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
+      } catch (localeError) {
+        // Fallback to default locale if Italian isn't available
+        return format(dateToFormat, 'EEEE d MMMM yyyy');
       }
-      // Fallback to default formatting if locale is not available
-      return format(dateToFormat, 'EEEE d MMMM yyyy');
     } catch (error) {
       console.error('Error formatting date:', error);
       // Return a simple date string as fallback
@@ -78,6 +81,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       <div className="staff-calendar-header">
         {getFormattedDate()}
       </div>
+      
       {/* Header staff: una sola riga, ogni nome centrato sopra la propria colonna */}
       <div className="staff-header-row" style={{
         display: 'grid',
@@ -96,6 +100,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           </div>
         ))}
       </div>
+      
       {/* Corpo agenda: una sola colonna orari fissa + colonne staff scrollabili assieme */}
       <div className="calendar-grid-body" style={{ display: "flex", height: "100%", minHeight: 0, flex: 1 }}>
         {/* Colonna orari sulla sinistra (sticky) */}
@@ -125,6 +130,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
             />
           </div>
         </div>
+        
         {/* Colonne staff scrollabili orizzontalmente */}
         <div
           className="calendar-staff-cols"
