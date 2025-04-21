@@ -42,8 +42,13 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [businessHours, setBusinessHours] = useState<BusinessHoursByDay>({});
   const [hiddenDays, setHiddenDays] = useState<number[]>([]);
-  const [slotMinTime, setSlotMinTime] = useState('09:00:00');
+  const [slotMinTime, setSlotMinTime] = useState('08:00:00');
   const [slotMaxTime, setSlotMaxTime] = useState('20:00:00');
+
+  // Ensure we have a valid date object
+  const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+    ? selectedDate
+    : new Date();
 
   useCalendarSync(view);
   useAutoScroll(calendarApi, view);
@@ -87,7 +92,15 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           setHiddenDays(hidden);
 
           // For week/day view, set min/max time based on current day or first enabled day
-          const todayKey = dayMap[(selectedDate?.getDay() ?? new Date().getDay())] as keyof BusinessHoursByDay;
+          let dayOfWeek: number;
+          try {
+            dayOfWeek = validSelectedDate.getDay();
+          } catch (error) {
+            console.error("Error getting day of week:", error);
+            dayOfWeek = new Date().getDay();
+          }
+          
+          const todayKey = dayMap[dayOfWeek] as keyof BusinessHoursByDay;
           const todayHours = hoursData[todayKey];
           
           if (todayHours) {
@@ -101,14 +114,14 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
               setSlotMaxTime(hoursData[firstOpenDay].closeTime + ':00');
             } else {
               // Default fallback
-              setSlotMinTime('09:00:00');
+              setSlotMinTime('08:00:00');
               setSlotMaxTime('20:00:00');
             }
           }
         } else {
           setBusinessHours({});
           setHiddenDays([]);
-          setSlotMinTime('09:00:00');
+          setSlotMinTime('08:00:00');
           setSlotMaxTime('20:00:00');
         }
       } catch (fetchError) {
@@ -116,14 +129,14 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         // Set defaults in case of error
         setBusinessHours({});
         setHiddenDays([]);
-        setSlotMinTime('09:00:00');
+        setSlotMinTime('08:00:00');
         setSlotMaxTime('20:00:00');
       }
     }
     
     fetchBusinessHours();
     // re-fetch when date or view changes to update available slots for each day
-  }, [selectedDate, view]);
+  }, [validSelectedDate, view]);
 
   // Handle date selection from popover calendar
   const handleDateSelect = (date: Date | undefined) => {
@@ -135,7 +148,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           calendarApi.gotoDate(date);
 
           if (view === 'timeGridWeek') {
-            const tabsTrigger = document.querySelector('[value="day"]') as HTMLElement;
+            const tabsTrigger = document.querySelector('[value="timeGridDay"]') as HTMLElement;
             if (tabsTrigger) {
               setTimeout(() => tabsTrigger.click(), 100);
             }
@@ -150,8 +163,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   // Create a safer version of common config with explicit locale handling
   const commonConfig = {
-    locale: 'it', // Use string identifier instead of object
-    locales: [itLocale], // Properly register the locale
+    locale: 'it',
+    locales: [itLocale],
     slotMinTime,
     slotMaxTime,
     allDaySlot: false,
@@ -163,15 +176,14 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     editable: true,
     droppable: true,
     eventDrop: onEventDrop,
-    headerToolbar: false as const,
+    headerToolbar: false,
     slotDuration: '00:30:00',
-    height: 'calc(100vh - 350px)',
+    height: '100%',
     nowIndicator: true,
     stickyHeaderDates: true,
     scrollTimeReset: false,
     hiddenDays,
-    timeZone: 'local', // Ensure explicit timezone setting
-    // Add explicit date formats to prevent null format issues
+    timeZone: 'local',
     eventTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',
@@ -230,7 +242,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     <TimeGridView
       staffMembers={staffMembers}
       events={events}
-      view={view}
+      view={view === 'timeGridWeek' ? 'timeGridDay' : view}
       selectedDate={selectedDate}
       commonConfig={commonConfig}
       calendarRefs={calendarRefs}

@@ -5,122 +5,125 @@
   flex-direction: column;
   height: 100%;
   background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
 }
+
 .staff-calendar-header {
   text-align: center;
-  padding: 10px;
+  padding: 12px;
   font-weight: 500;
   font-size: 1rem;
   border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 0;
   background: #fff;
 }
+
 .staff-header-row {
-  position: sticky;
-  top: 0;
-  z-index: 8;
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
+  height: 50px;
 }
+
 .time-col-header {
-  height: 48px;
   background: #fff;
+  border-right: 1px solid #e5e7eb;
 }
+
 .staff-header-col {
-  height: 48px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   background: #fff;
-  border-left: 1px solid #e5e7eb;
-  /* Centra bene i nomi */
+  padding: 0 8px;
+  text-transform: uppercase;
 }
+
 .staff-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
-/* Corpo agenda a flex */
+/* Calendar body layout */
 .calendar-grid-body {
-  width: 100%;
+  display: flex;
+  flex: 1;
   min-height: 0;
   background: #fff;
+  position: relative;
 }
 
-/* Colonna orari sticky sulla sinistra */
+/* Fixed time column on the left */
 .calendar-time-col {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
   background: #fff;
   border-right: 1px solid #e5e7eb;
   position: sticky;
   left: 0;
-  z-index: 9;
-  box-shadow: 1px 0 0 #e5e7eb;
+  z-index: 5;
+  overflow: hidden;
+  height: 100%;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
 }
+
 .calendar-time-inner {
-  min-width: 50px;
-  max-width: 50px;
-  width: 50px;
-  background: #fff;
+  width: 80px;
+  height: 100%;
 }
+
+/* Staff columns container */
 .calendar-staff-cols {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
   display: flex;
-  background: #fff;
+  flex: 1;
   overflow-x: auto;
   overflow-y: auto;
-  /* Hide scrollbars but allow scrolling */
-  scrollbar-width: thin;
-  scrollbar-color: #e5e7eb #fff;
+  height: 100%;
 }
+
+/* Individual staff column */
 .calendar-staff-col {
-  flex: 1 0 200px;
-  min-width: 200px;
+  flex: 1 0 180px;
+  min-width: 180px;
   border-right: 1px solid #e5e7eb;
   background: #fff;
-  /* No header nel body */
-}
-.calendar-staff-col .fc-scrollgrid-sync-table,
-.calendar-staff-col .fc-timegrid-col, 
-.calendar-time-inner .fc-scrollgrid-sync-table,
-.calendar-time-inner .fc-timegrid-col {
-  /* Remove grid borders */
-  border: none !important;
+  height: 100%;
 }
 
-.fc .fc-timegrid-col-frame .fc-col-header {
-  display: none !important;
-}
-
-/* Nascondi etichette orarie ORA nelle colonne staff */
+/* Hide unnecessary FullCalendar elements */
 .calendar-staff-col .fc-timegrid-slot-label,
-.calendar-staff-col .fc-timegrid-slot-label-frame,
 .calendar-staff-col .fc-timegrid-axis,
-.calendar-staff-col .fc-timegrid-divider {
+.fc-col-header-cell {
   display: none !important;
 }
 
-.calendar-time-inner .fc-timegrid-slot-label,
-.calendar-time-inner .fc-timegrid-slot-label-frame,
-.calendar-time-inner .fc-timegrid-axis {
+/* Show time labels only in time column */
+.calendar-time-inner .fc-timegrid-slot-label {
   visibility: visible !important;
   display: block !important;
 }
 
-.fc-col-header-cell, .fc-timegrid-col-frame .fc-col-header {
-  display: none !important;
+/* Time slot label styles */
+.time-slot-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+  padding-right: 8px;
 }
 
-/* Sincronizzazione scrollbar e rimozione doppie */
+/* Hide scrollbars but maintain functionality */
 .calendar-staff-cols::-webkit-scrollbar,
 .calendar-staff-col::-webkit-scrollbar,
 .calendar-time-col::-webkit-scrollbar {
   display: none;
 }
+
 .calendar-staff-cols,
 .calendar-staff-col,
 .calendar-time-col {
@@ -129,39 +132,22 @@
 }
 
 .fc .fc-scroller-liquid-absolute {
-  overflow-x: hidden !important;
+  overflow: hidden !important;
 }
 
-/* Ottimizza la dimensione delle slot label (orari) */
-.time-slot-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #888;
+/* Calendar event styles */
+.fc-event {
+  border-radius: 3px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Migliora i bordi e lo spacing */
-.calendar-time-col {
-  box-shadow: 2px 0 8px #f3f3f3;
+/* Better grid line visibility */
+.fc-timegrid-slot {
+  height: 30px !important;
+  border-color: #f0f0f0 !important;
 }
 
-/* Elimina qualsiasi "giorno" stampato nelle colonne staff */
-.fc-timegrid-col-frame .fc-col-header {
-  display: none !important;
-}
-
-/* Ensure popover content has correct z-index and background */
-.radix-popover-content {
-  z-index: 99999 !important; /* Extremely high to ensure it's on top */
-  background-color: white;
-  pointer-events: auto !important;
-}
-
-/* Make sure calendar is interactable in popovers */
-.radix-popover-content .react-day-picker {
-  pointer-events: auto !important;
-}
-
-/* Month view styles */
+/* Month view specific styles */
 .month-view-date-header {
   text-align: center;
   padding: 10px;
@@ -171,19 +157,25 @@
 }
 
 .staff-column-header {
-  height: 36px;
+  height: 42px;
   padding: 0 8px;
   display: flex;
   align-items: center;
-  font-weight: 500;
+  justify-content: center;
+  font-weight: 600;
   background-color: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  font-size: 0.9rem;
 }
 
-.custom-month-view .fc-daygrid-body {
-  width: 100% !important;
+/* Ensure popover is visible and interactive */
+.radix-popover-content {
+  z-index: 99999 !important;
+  background-color: white;
+  pointer-events: auto !important;
 }
 
-.custom-month-view .fc-daygrid-day-frame {
-  min-height: 80px;
+.radix-popover-content .react-day-picker {
+  pointer-events: auto !important;
 }

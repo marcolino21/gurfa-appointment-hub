@@ -27,21 +27,40 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   calendarRefs,
   setCalendarApi,
 }) => {
-  // Refs per il sync scroll
+  // Refs for syncing scrolling
   const timeColRef = useRef<HTMLDivElement>(null);
   const scrollColRef = useRef<HTMLDivElement>(null);
 
-  // Make sure we always have valid common config settings
+  // Ensure we have a valid date to avoid formatting errors
+  const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+    ? selectedDate
+    : new Date();
+
+  // Improved date formatting with robust error handling
+  const getFormattedDate = () => {
+    try {
+      return format(validSelectedDate, 'EEEE d MMMM yyyy', { locale: it });
+    } catch (error) {
+      console.error('Error formatting date with Italian locale:', error);
+      try {
+        return format(validSelectedDate, 'EEEE d MMMM yyyy');
+      } catch (fallbackError) {
+        console.error('Fallback date formatting failed:', fallbackError);
+        return validSelectedDate.toLocaleDateString();
+      }
+    }
+  };
+
+  // Make sure we always have valid common config settings with explicit formats
   const safeCommonConfig = {
     ...commonConfig,
-    locale: 'it', // Use string-based locale identifier instead of object
-    timeZone: 'local', // Ensure explicit timezone setting
+    locale: 'it',
+    timeZone: 'local',
     slotLabelFormat: {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
-    }, 
-    // Explicit formats to prevent null formatting issues
+    },
     eventTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',
@@ -54,28 +73,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     }
   };
 
-  // In alto: la data (ad es. "Lunedì 22 Aprile 2024") with improved error handling
-  const getFormattedDate = () => {
-    try {
-      // Ensure we always have a valid date object
-      const dateToFormat = selectedDate || new Date();
-      
-      try {
-        // First try with Italian locale if available
-        return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
-      } catch (localeError) {
-        console.warn('Error using Italian locale, falling back to default:', localeError);
-        // Fallback to default locale if Italian isn't available
-        return format(dateToFormat, 'EEEE d MMMM yyyy');
-      }
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      // Return a simple date string as fallback
-      return selectedDate?.toLocaleDateString() || new Date().toLocaleDateString();
-    }
-  };
-
-  // Sincronizza lo scroll verticale delle colonne staff con la colonna orari
+  // Synchronize vertical scrolling between the time column and staff columns
   useEffect(() => {
     const timeEl = timeColRef.current;
     const scrollEl = scrollColRef.current;
@@ -89,6 +87,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       timeEl.scrollTop = scrollEl.scrollTop;
       setTimeout(() => { isSyncing = false; }, 1);
     };
+    
     scrollEl.addEventListener("scroll", onScroll);
     return () => {
       scrollEl.removeEventListener("scroll", onScroll);
@@ -97,15 +96,15 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
 
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-block">
-      {/* Data in alto */}
+      {/* Date header */}
       <div className="staff-calendar-header">
         {getFormattedDate()}
       </div>
       
-      {/* Header staff: una sola riga, ogni nome centrato sopra la propria colonna */}
+      {/* Staff header row */}
       <div className="staff-header-row" style={{
         display: 'grid',
-        gridTemplateColumns: `50px repeat(${staffMembers.length}, 1fr)`
+        gridTemplateColumns: `80px repeat(${staffMembers.length}, 1fr)`
       }}>
         <div className="time-col-header"></div>
         {staffMembers.map(staff => (
@@ -121,24 +120,20 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
         ))}
       </div>
       
-      {/* Corpo agenda: una sola colonna orari fissa + colonne staff scrollabili assieme */}
-      <div className="calendar-grid-body" style={{ display: "flex", height: "100%", minHeight: 0, flex: 1 }}>
-        {/* Colonna orari sulla sinistra (sticky) */}
+      {/* Calendar grid body with fixed time column and scrollable staff columns */}
+      <div className="calendar-grid-body">
+        {/* Fixed time column on the left */}
         <div
           className="calendar-time-col"
           ref={timeColRef}
-          style={{
-            minWidth: 50, maxWidth: 50, flex: "0 0 50px", overflow: "hidden", position: "relative", zIndex: 5,
-            height: "100%"
-          }}
         >
           <div className="calendar-time-inner">
             <FullCalendar
               plugins={[timeGridPlugin]}
               initialView={view}
-              initialDate={selectedDate || new Date()}
+              initialDate={validSelectedDate}
               {...safeCommonConfig}
-              dayHeaderContent="" // niente header giorno
+              dayHeaderContent={() => null}
               allDaySlot={false}
               slotLabelClassNames="time-slot-label"
               dayCellContent={() => null}
@@ -149,33 +144,22 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           </div>
         </div>
         
-        {/* Colonne staff scrollabili orizzontalmente */}
+        {/* Scrollable staff columns */}
         <div
           className="calendar-staff-cols"
           ref={scrollColRef}
-          style={{
-            display: "flex",
-            flex: 1,
-            overflowX: "auto",
-            overflowY: "auto",
-            height: "100%"
-          }}
         >
           {staffMembers.map((staff, index) => (
             <div
               key={staff.id}
               className="calendar-staff-col"
-              style={{
-                minWidth: 200, flex: "1 1 0", background: "#fff",
-                borderLeft: "1px solid #e5e7eb"
-              }}
             >
               <FullCalendar
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView={view}
-                initialDate={selectedDate || new Date()} 
+                initialDate={validSelectedDate}
                 {...safeCommonConfig}
-                dayHeaderContent="" // no header giorno
+                dayHeaderContent={() => null}
                 slotLabelContent={() => null}
                 events={events.filter(event => event.resourceId === staff.id)}
                 headerToolbar={false}

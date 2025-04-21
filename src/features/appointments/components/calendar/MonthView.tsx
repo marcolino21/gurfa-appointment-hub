@@ -33,30 +33,37 @@ export const MonthView: React.FC<MonthViewProps> = ({
   datePickerOpen,
   setDatePickerOpen,
 }) => {
+  // Ensure we have a valid date to avoid formatting errors
+  const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+    ? selectedDate
+    : new Date();
+
   // Safe date formatting function with robust error handling
   const safeFormat = (date: Date | undefined, formatStr: string) => {
+    if (!date || isNaN(date.getTime())) {
+      return '';
+    }
+    
     try {
-      if (!date) return '';
-      
+      // Try with Italian locale
+      return format(date, formatStr, { locale: it });
+    } catch (localeError) {
+      console.warn('Error using Italian locale, falling back to default:', localeError);
       try {
-        // Try with Italian locale
-        return format(date, formatStr, { locale: it });
-      } catch (localeError) {
-        console.warn('Error using Italian locale, falling back to default:', localeError);
         // Fallback to default locale
         return format(date, formatStr);
+      } catch (formatError) {
+        console.error('Error formatting date:', formatError);
+        return date.toLocaleDateString();
       }
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return date ? date.toLocaleDateString() : '';
     }
   };
 
-  // Create a safer version of the common config by explicitly setting locale and formats
+  // Create a safer version of the common config with explicit formats
   const safeCommonConfig = {
     ...commonConfig,
-    locale: 'it', // Use string-based locale identifier instead of object
-    timeZone: 'local', // Ensure explicit timezone setting
+    locale: 'it',
+    timeZone: 'local',
     dayHeaderFormat: { 
       weekday: 'short'
     },
@@ -64,7 +71,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
       month: 'long', 
       year: 'numeric' 
     },
-    // Add explicit date formats to prevent null format issues
     eventTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',
@@ -90,7 +96,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-container">
       <div className="month-view-date-header">
-        {safeFormat(selectedDate || new Date(), 'MMMM yyyy')}
+        {safeFormat(validSelectedDate, 'MMMM yyyy')}
       </div>
       
       <div className="mb-2 flex justify-center">
@@ -131,7 +137,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
-                initialDate={selectedDate || new Date()}
+                initialDate={validSelectedDate}
                 {...safeCommonConfig}
                 events={events.filter(event => event.resourceId === staff.id)}
                 ref={(el) => {
