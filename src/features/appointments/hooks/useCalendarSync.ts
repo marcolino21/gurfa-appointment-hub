@@ -1,7 +1,9 @@
-
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => {
+  const activeScrollElementRef = useRef<EventTarget | null>(null);
+  const animationFrameRequestedRef = useRef<number | null>(null);
+  
   useEffect(() => {
     if (view === 'dayGridMonth') return;
     
@@ -10,22 +12,17 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       
       if (scrollContainers.length <= 1) return;
       
-      // Track which element is currently being scrolled to prevent loops
-      let activeScrollElement: EventTarget | null = null;
-      
       const handleScroll = (event: Event) => {
-        // If this is a recursive scroll event, ignore it
-        if (activeScrollElement === event.target) return;
+        if (activeScrollElementRef.current === event.target) return;
         
-        // Set the current element as active scrolling element
-        activeScrollElement = event.target;
+        if (animationFrameRequestedRef.current !== null) return;
         
-        // Use requestAnimationFrame for smoother scrolling
-        requestAnimationFrame(() => {
+        activeScrollElementRef.current = event.target;
+        
+        animationFrameRequestedRef.current = requestAnimationFrame(() => {
           const scrollingElement = event.target as HTMLElement;
           const scrollTop = scrollingElement.scrollTop;
           
-          // Sync all containers to the same scroll position
           scrollContainers.forEach((container) => {
             const element = container as HTMLElement;
             if (element !== scrollingElement) {
@@ -33,14 +30,14 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
             }
           });
           
-          // Reset the active scroll element after a short delay
+          animationFrameRequestedRef.current = null;
+          
           setTimeout(() => { 
-            activeScrollElement = null;
+            activeScrollElementRef.current = null;
           }, 10);
         });
       };
       
-      // Add scroll event listeners to all containers
       scrollContainers.forEach((container) => {
         container.addEventListener('scroll', handleScroll, { passive: true });
       });
@@ -49,31 +46,44 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
         scrollContainers.forEach((container) => {
           container.removeEventListener('scroll', handleScroll);
         });
+        
+        if (animationFrameRequestedRef.current !== null) {
+          cancelAnimationFrame(animationFrameRequestedRef.current);
+          animationFrameRequestedRef.current = null;
+        }
       };
     };
     
-    // Initial setup with a slight delay to ensure elements are rendered
-    const timer = setTimeout(synchronizeScrolling, 100);
+    const timer = setTimeout(synchronizeScrolling, 50);
     
-    // Re-sync on window resize
-    window.addEventListener('resize', synchronizeScrolling);
+    window.addEventListener('resize', synchronizeScrolling, { passive: true });
+    window.addEventListener('orientationchange', synchronizeScrolling);
     
-    // Also re-run synchronization when DOM changes that might affect the calendar
     const observer = new MutationObserver((mutations) => {
-      synchronizeScrolling();
+      const shouldReSync = mutations.some(mutation => {
+        return mutation.target.classList?.contains('staff-calendar-block') ||
+               mutation.target.classList?.contains('calendar-grid-body');
+      });
+      
+      if (shouldReSync) {
+        synchronizeScrolling();
+      }
     });
     
     const calendarElement = document.querySelector('.staff-calendar-block');
     if (calendarElement) {
       observer.observe(calendarElement, { 
         childList: true, 
-        subtree: true 
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'style']
       });
     }
     
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', synchronizeScrolling);
+      window.removeEventListener('orientationchange', synchronizeScrolling);
       observer.disconnect();
     };
   }, [view]);

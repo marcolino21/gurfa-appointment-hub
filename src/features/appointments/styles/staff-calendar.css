@@ -56,7 +56,6 @@
 
 /* Calendar body layout */
 .calendar-grid-body {
-  display: flex;
   flex: 1;
   min-height: 0;
   background: #fff;
@@ -78,6 +77,7 @@
   overflow-x: hidden;
   height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  will-change: scroll-position;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -89,22 +89,26 @@
 
 /* Staff columns container */
 .calendar-staff-cols {
-  display: flex;
   flex: 1;
   overflow-x: auto;
   overflow-y: scroll;
   height: 100%;
+  will-change: scroll-position;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
+/* Staff columns wrapper for better organization */
+.staff-columns-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
 /* Individual staff column */
 .calendar-staff-col {
-  flex: 1 0 180px;
-  min-width: 180px;
+  height: 100%;
   border-right: 1px solid #e5e7eb;
   background: #fff;
-  height: 100%;
 }
 
 /* Hide unnecessary FullCalendar elements */
@@ -125,32 +129,6 @@
   font-weight: 500;
   color: #64748b;
   padding-right: 8px;
-}
-
-/* Hide scrollbars but maintain functionality */
-.calendar-staff-cols::-webkit-scrollbar,
-.calendar-staff-col::-webkit-scrollbar,
-.calendar-time-col::-webkit-scrollbar,
-.fc-scroller-liquid-absolute::-webkit-scrollbar {
-  display: none;
-}
-
-.calendar-staff-cols,
-.calendar-staff-col,
-.calendar-time-col,
-.fc .fc-scroller-liquid-absolute {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Critical for scrolling - ensure FC scrollers are visible and synced */
-.fc .fc-scroller-liquid-absolute {
-  position: absolute !important;
-  overflow: scroll !important;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
 }
 
 /* Calendar event styles */
@@ -218,30 +196,11 @@
   font-size: 0.9rem;
 }
 
-/* Ensure slots are always 40px height */
-.fc-timegrid-slots td {
-  height: 40px !important;
-  line-height: 40px !important;
-}
-
-/* Highlight time intervals */
-.fc-timegrid-slot.fc-timegrid-slot-lane {
-  position: relative;
-}
-
-/* Style for half-hour slots */
-.fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  border-top: 1px dashed #e5e7eb;
-  pointer-events: none;
-}
-
-/* Ensure synchronized scrolling behavior */
-.calendar-sync-container {
-  height: 100%;
-  overflow: hidden !important;
+/* Critical for performance - use hardware acceleration */
+.fc-scroller-liquid-absolute,
+.calendar-time-col,
+.calendar-staff-cols {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }

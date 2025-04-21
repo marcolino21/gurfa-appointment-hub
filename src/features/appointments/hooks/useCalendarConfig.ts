@@ -47,7 +47,7 @@ export const useCalendarConfig = (
     slotLaneClassNames: 'border-r border-gray-200 bg-white',
     slotLabelClassNames: 'text-sm font-medium text-gray-500 pr-2',
     slotLabelContent: (arg) => {
-      // Display hours and minutes for each slot
+      // Display hours and minutes for each slot with improved formatting
       const hour = arg.date.getHours().toString().padStart(2, '0');
       const minute = arg.date.getMinutes().toString().padStart(2, '0');
       return `${hour}:${minute}`;
@@ -62,7 +62,12 @@ export const useCalendarConfig = (
       },
       timeGridWeek: {
         type: 'timeGrid',
-        duration: { days: 1 }
+        duration: { days: 1 }, // Make week view behave like day view
+        dayHeaderFormat: { 
+          weekday: 'long', 
+          month: 'short', 
+          day: 'numeric'
+        }
       }
     }
   };

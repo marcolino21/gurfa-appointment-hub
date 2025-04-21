@@ -15,25 +15,41 @@
   display: none !important;
 }
 
-/* Synchronized scrolling */
+/* Unified scrolling container with CSS Grid for perfect alignment */
 .sync-scroll-container {
   display: grid;
+  grid-template-columns: 80px 1fr;
   overflow: hidden;
   height: 100%;
+  position: relative;
 }
 
+/* Hide all individual scrollbars while maintaining scroll functionality */
 .fc-scroller-liquid-absolute {
-  overflow: auto !important;
+  overflow: scroll !important;
   scroll-behavior: smooth;
-}
-
-.sync-scroll-container .fc-scroller {
-  overflow: auto !important;
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
 
-.sync-scroll-container .fc-scroller::-webkit-scrollbar {
+.fc-scroller-liquid-absolute::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Ensure all scrollers in the sync container use the same behavior */
+.sync-scroll-container .fc-scroller,
+.calendar-time-col,
+.calendar-staff-cols {
+  overflow: auto !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  overscroll-behavior: none;
+  will-change: scroll-position;
+}
+
+.sync-scroll-container .fc-scroller::-webkit-scrollbar,
+.calendar-time-col::-webkit-scrollbar,
+.calendar-staff-cols::-webkit-scrollbar {
   display: none !important;
 }
 
@@ -46,9 +62,10 @@
   font-weight: 600;
 }
 
-/* Ensure half-hour slots are visible */
+/* Ensure half-hour slots are clearly visible */
 .fc-timegrid-slots td {
   position: relative;
+  height: 40px !important;
 }
 
 .fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor {
@@ -69,4 +86,20 @@
 /* Better visual for time slots */
 .fc-timegrid-slot-label-cushion {
   font-weight: 500;
+}
+
+/* Unified grid layout for perfect alignment */
+.unified-calendar-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Content container */
+.unified-calendar-content {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }

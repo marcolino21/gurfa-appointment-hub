@@ -19,19 +19,19 @@ export const useAutoScroll = (
       
       const scrollToCurrentTime = () => {
         try {
-          // Target all scrollers for synchronized scrolling
-          const scrollers = document.querySelectorAll('.fc-scroller-liquid-absolute, .calendar-time-col, .calendar-staff-cols');
+          // Find the primary scroll container - this will control all synchronized scrolling
+          const mainScroller = document.querySelector('.calendar-time-col') as HTMLElement;
           
-          if (scrollers.length === 0) {
-            console.log('No scrollers found, retrying...');
+          if (!mainScroller) {
+            console.log('Primary scroll container not found, retrying...');
             return false; // Will retry
           }
           
-          // Set the primary scroller's position, which will trigger the sync
-          const mainScroller = scrollers[0] as HTMLElement;
-          if (mainScroller) {
-            mainScroller.scrollTop = scrollPosition;
-          }
+          // Set the scroll position with smooth behavior
+          mainScroller.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth'
+          });
           
           return true; // Successfully scrolled
         } catch (error) {
