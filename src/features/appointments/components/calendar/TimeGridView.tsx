@@ -33,8 +33,9 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
 
   // In alto: la data (ad es. "Lunedì 22 Aprile 2024")
   const getFormattedDate = () => {
-    if (!selectedDate) return format(new Date(), 'EEEE d MMMM yyyy', { locale: it });
-    return format(selectedDate, 'EEEE d MMMM yyyy', { locale: it });
+    // Ensure we always have a valid date object
+    const dateToFormat = selectedDate || new Date();
+    return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
   };
 
   // Sincronizza lo scroll verticale delle colonne staff con la colonna orari
@@ -99,7 +100,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
             <FullCalendar
               plugins={[timeGridPlugin]}
               initialView={view}
-              initialDate={selectedDate}
+              initialDate={selectedDate || new Date()}
               {...commonConfig}
               dayHeaderContent="" // niente header giorno
               allDaySlot={false}
@@ -137,7 +138,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               <FullCalendar
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView={view}
-                initialDate={selectedDate}
+                initialDate={selectedDate || new Date()} 
                 {...commonConfig}
                 dayHeaderContent="" // no header giorno
                 slotLabelFormat={[]} // nascondi etichette orarie nelle colonne staff
