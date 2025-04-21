@@ -10,33 +10,37 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       
       if (scrollContainers.length <= 1) return;
       
-      let isSyncing = false;
-      let ticking = false;
+      // Track which element is currently being scrolled to prevent loops
+      let activeScrollElement: EventTarget | null = null;
       
       const handleScroll = (event: Event) => {
-        if (isSyncing) return;
-        isSyncing = true;
+        // If this is a recursive scroll event, ignore it
+        if (activeScrollElement === event.target) return;
         
-        if (!ticking) {
-          window.requestAnimationFrame(() => {
-            const scrollingElement = event.target as HTMLElement;
-            const scrollTop = scrollingElement.scrollTop;
-            
-            scrollContainers.forEach((container) => {
-              const element = container as HTMLElement;
-              if (element !== scrollingElement) {
-                element.scrollTop = scrollTop;
-              }
-            });
-            
-            ticking = false;
-            setTimeout(() => { isSyncing = false; }, 16);
+        // Set the current element as active scrolling element
+        activeScrollElement = event.target;
+        
+        // Use requestAnimationFrame for smoother scrolling
+        requestAnimationFrame(() => {
+          const scrollingElement = event.target as HTMLElement;
+          const scrollTop = scrollingElement.scrollTop;
+          
+          // Sync all containers to the same scroll position
+          scrollContainers.forEach((container) => {
+            const element = container as HTMLElement;
+            if (element !== scrollingElement) {
+              element.scrollTop = scrollTop;
+            }
           });
           
-          ticking = true;
-        }
+          // Reset the active scroll element after a short delay
+          setTimeout(() => { 
+            activeScrollElement = null;
+          }, 10);
+        });
       };
       
+      // Add scroll event listeners to all containers
       scrollContainers.forEach((container) => {
         container.addEventListener('scroll', handleScroll, { passive: true });
       });
@@ -54,9 +58,23 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     // Re-sync on window resize
     window.addEventListener('resize', synchronizeScrolling);
     
+    // Also re-run synchronization when DOM changes that might affect the calendar
+    const observer = new MutationObserver((mutations) => {
+      synchronizeScrolling();
+    });
+    
+    const calendarElement = document.querySelector('.staff-calendar-block');
+    if (calendarElement) {
+      observer.observe(calendarElement, { 
+        childList: true, 
+        subtree: true 
+      });
+    }
+    
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', synchronizeScrolling);
+      observer.disconnect();
     };
   }, [view]);
 };

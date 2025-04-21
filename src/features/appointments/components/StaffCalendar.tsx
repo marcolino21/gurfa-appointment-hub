@@ -47,7 +47,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     onEventDrop
   );
   
-  // Enhanced scroll synchronization
+  // Enhanced scroll synchronization - now applies to all calendar views
   useCalendarSync(view);
   useAutoScroll(calendarApi, view);
 
@@ -60,6 +60,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         try {
           calendarApi.gotoDate(date);
 
+          // Always ensure we're in day view for consistency
           if (view === 'timeGridWeek') {
             const tabsTrigger = document.querySelector('[value="timeGridDay"]') as HTMLElement;
             if (tabsTrigger) {
@@ -90,6 +91,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
+  // Always use timeGridDay view for consistency between day and week views
   return (
     <TimeGridView
       staffMembers={staffMembers}

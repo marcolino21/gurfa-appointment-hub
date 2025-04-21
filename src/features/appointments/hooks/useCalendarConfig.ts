@@ -1,3 +1,4 @@
+
 import itLocale from '@fullcalendar/core/locales/it';
 
 export const useCalendarConfig = (
@@ -45,6 +46,12 @@ export const useCalendarConfig = (
     dayCellBorderColor: '#e5e7eb',
     slotLaneClassNames: 'border-r border-gray-200 bg-white',
     slotLabelClassNames: 'text-sm font-medium text-gray-500 pr-2',
+    slotLabelContent: (arg) => {
+      // Display hours and minutes for each slot
+      const hour = arg.date.getHours().toString().padStart(2, '0');
+      const minute = arg.date.getMinutes().toString().padStart(2, '0');
+      return `${hour}:${minute}`;
+    },
     views: {
       timeGridDay: {
         dayHeaderFormat: { 

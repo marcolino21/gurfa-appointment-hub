@@ -1,7 +1,7 @@
 
 /* View specific styles */
 
-/* Week view */
+/* Week view - make it behave like day view */
 .fc-timeGridWeek-view .fc-col-header {
   display: none !important;
 }
@@ -46,3 +46,27 @@
   font-weight: 600;
 }
 
+/* Ensure half-hour slots are visible */
+.fc-timegrid-slots td {
+  position: relative;
+}
+
+.fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor {
+  position: relative;
+}
+
+.fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: repeating-linear-gradient(to right, #e5e7eb 0, #e5e7eb 4px, transparent 4px, transparent 8px);
+  z-index: 1;
+}
+
+/* Better visual for time slots */
+.fc-timegrid-slot-label-cushion {
+  font-weight: 500;
+}

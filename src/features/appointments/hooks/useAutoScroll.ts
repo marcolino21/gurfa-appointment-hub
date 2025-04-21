@@ -14,8 +14,8 @@ export const useAutoScroll = (
     // Only auto-scroll during business hours
     if (hours >= 8 && hours < 20) {
       // Calculate scroll position based on current time
-      // Start at 8:00, each hour is approximately 60px high (with 30min slots at 30px each)
-      const scrollPosition = Math.max(0, (hours - 8) * 60 - 60);
+      // Start at 8:00, each hour is approximately 80px high (with 30min slots at 40px each)
+      const scrollPosition = Math.max(0, (hours - 8) * 80 + ((now.getMinutes() >= 30) ? 40 : 0));
       
       const scrollToCurrentTime = () => {
         try {
@@ -27,9 +27,11 @@ export const useAutoScroll = (
             return false; // Will retry
           }
           
-          scrollers.forEach((scroller) => {
-            (scroller as HTMLElement).scrollTop = scrollPosition;
-          });
+          // Set the primary scroller's position, which will trigger the sync
+          const mainScroller = scrollers[0] as HTMLElement;
+          if (mainScroller) {
+            mainScroller.scrollTop = scrollPosition;
+          }
           
           return true; // Successfully scrolled
         } catch (error) {

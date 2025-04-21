@@ -1,3 +1,4 @@
+
 /* Staff Calendar Block Layout */
 .staff-calendar-block {
   display: flex;
@@ -16,6 +17,8 @@
   font-size: 1rem;
   border-bottom: 1px solid #e5e7eb;
   background: #fff;
+  z-index: 20;
+  position: relative;
 }
 
 .staff-header-row {
@@ -106,8 +109,7 @@
 
 /* Hide unnecessary FullCalendar elements */
 .calendar-staff-col .fc-timegrid-slot-label,
-.calendar-staff-col .fc-timegrid-axis,
-.fc-col-header-cell {
+.calendar-staff-col .fc-timegrid-axis {
   display: none !important;
 }
 
@@ -128,13 +130,15 @@
 /* Hide scrollbars but maintain functionality */
 .calendar-staff-cols::-webkit-scrollbar,
 .calendar-staff-col::-webkit-scrollbar,
-.calendar-time-col::-webkit-scrollbar {
+.calendar-time-col::-webkit-scrollbar,
+.fc-scroller-liquid-absolute::-webkit-scrollbar {
   display: none;
 }
 
 .calendar-staff-cols,
 .calendar-staff-col,
-.calendar-time-col {
+.calendar-time-col,
+.fc .fc-scroller-liquid-absolute {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -147,12 +151,6 @@
   right: 0;
   bottom: 0;
   left: 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.fc .fc-scroller-liquid-absolute::-webkit-scrollbar {
-  display: none;
 }
 
 /* Calendar event styles */
@@ -169,6 +167,7 @@
   background: white;
 }
 
+/* Half-hour slots */
 .fc-timegrid-slot-minor {
   border-top: 1px dashed #e5e7eb !important;
 }
@@ -219,7 +218,30 @@
   font-size: 0.9rem;
 }
 
+/* Ensure slots are always 40px height */
 .fc-timegrid-slots td {
   height: 40px !important;
   line-height: 40px !important;
+}
+
+/* Highlight time intervals */
+.fc-timegrid-slot.fc-timegrid-slot-lane {
+  position: relative;
+}
+
+/* Style for half-hour slots */
+.fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed #e5e7eb;
+  pointer-events: none;
+}
+
+/* Ensure synchronized scrolling behavior */
+.calendar-sync-container {
+  height: 100%;
+  overflow: hidden !important;
 }

@@ -31,9 +31,9 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   const timeColRef = useRef<HTMLDivElement>(null);
   const scrollColRef = useRef<HTMLDivElement>(null);
 
-  // Ensure we have a valid date to avoid formatting errors - this is critical
+  // Ensure we have a valid date to avoid formatting errors
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-    ? new Date(selectedDate.getTime()) // Create a new date object to avoid reference issues
+    ? new Date(selectedDate.getTime())
     : new Date();
 
   // Improved date formatting with robust error handling
@@ -57,88 +57,15 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     }
   };
 
-  // Enhanced synchronization of vertical scrolling between columns
+  // Setup calendar API for the first render
   useEffect(() => {
-    const timeEl = timeColRef.current;
-    const scrollEl = scrollColRef.current;
-    if (!timeEl || !scrollEl) return;
-
-    let isSyncing = false;
-    let ticking = false;
-
-    const onScroll = (event: Event) => {
-      if (isSyncing) return;
-      
-      isSyncing = true;
-      
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const target = event.target as HTMLElement;
-          const scrollTop = target.scrollTop;
-          
-          // Determine which element is the scrolling source
-          if (target === scrollEl) {
-            if (timeEl) timeEl.scrollTop = scrollTop;
-          } else if (target === timeEl) {
-            if (scrollEl) scrollEl.scrollTop = scrollTop;
-          }
-          
-          ticking = false;
-          setTimeout(() => { isSyncing = false; }, 10);
-        });
-        
-        ticking = true;
+    if (calendarRefs.current && calendarRefs.current[0]) {
+      const api = calendarRefs.current[0].getApi();
+      if (api) {
+        setCalendarApi(api);
       }
-    };
-    
-    // Attach scroll listeners to both elements to handle scrolling in either direction
-    timeEl.addEventListener("scroll", onScroll, { passive: true });
-    scrollEl.addEventListener("scroll", onScroll, { passive: true });
-    
-    return () => {
-      timeEl.removeEventListener("scroll", onScroll);
-      scrollEl.removeEventListener("scroll", onScroll);
-    };
-  }, [staffMembers.length]);
-
-  // Additional hook to ensure calendar synchronization via fullcalendar api
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const fcScrollers = document.querySelectorAll('.fc-scroller-liquid-absolute');
-      if (fcScrollers.length <= 1) return;
-      
-      let initialScrollSet = false;
-      
-      const syncFCScrollers = (event: Event) => {
-        if (!initialScrollSet) {
-          const scrollingElement = event.target as HTMLElement;
-          const scrollTop = scrollingElement.scrollTop;
-          
-          fcScrollers.forEach((scroller) => {
-            const element = scroller as HTMLElement;
-            if (element !== scrollingElement) {
-              element.scrollTop = scrollTop;
-            }
-          });
-          
-          initialScrollSet = true;
-          setTimeout(() => { initialScrollSet = false; }, 100);
-        }
-      };
-      
-      fcScrollers.forEach((scroller) => {
-        scroller.addEventListener('scroll', syncFCScrollers, { passive: true });
-      });
-      
-      return () => {
-        fcScrollers.forEach((scroller) => {
-          scroller.removeEventListener('scroll', syncFCScrollers);
-        });
-      };
-    }, 500); // Wait for FullCalendar to completely render
-    
-    return () => clearTimeout(timeoutId);
-  }, [staffMembers.length, events.length]);
+    }
+  }, [staffMembers, calendarRefs, setCalendarApi]);
 
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-block">
