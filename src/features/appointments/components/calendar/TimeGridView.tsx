@@ -33,9 +33,20 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
 
   // In alto: la data (ad es. "Lunedì 22 Aprile 2024")
   const getFormattedDate = () => {
-    // Ensure we always have a valid date object
-    const dateToFormat = selectedDate || new Date();
-    return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
+    try {
+      // Ensure we always have a valid date object
+      const dateToFormat = selectedDate || new Date();
+      // Make sure locale is properly loaded before using it
+      if (it && typeof it === 'object') {
+        return format(dateToFormat, 'EEEE d MMMM yyyy', { locale: it });
+      }
+      // Fallback to default formatting if locale is not available
+      return format(dateToFormat, 'EEEE d MMMM yyyy');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      // Return a simple date string as fallback
+      return new Date().toLocaleDateString();
+    }
   };
 
   // Sincronizza lo scroll verticale delle colonne staff con la colonna orari
