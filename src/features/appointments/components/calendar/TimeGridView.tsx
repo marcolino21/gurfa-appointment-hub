@@ -66,16 +66,23 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     let isSyncing = false;
     let ticking = false;
 
-    const onScroll = () => {
+    const onScroll = (event: Event) => {
       if (isSyncing) return;
       
       isSyncing = true;
       
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          if (timeEl && scrollEl) {
-            timeEl.scrollTop = scrollEl.scrollTop;
+          const target = event.target as HTMLElement;
+          const scrollTop = target.scrollTop;
+          
+          // Determine which element is the scrolling source
+          if (target === scrollEl) {
+            if (timeEl) timeEl.scrollTop = scrollTop;
+          } else if (target === timeEl) {
+            if (scrollEl) scrollEl.scrollTop = scrollTop;
           }
+          
           ticking = false;
           setTimeout(() => { isSyncing = false; }, 10);
         });
@@ -84,11 +91,54 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
       }
     };
     
+    // Attach scroll listeners to both elements to handle scrolling in either direction
+    timeEl.addEventListener("scroll", onScroll, { passive: true });
     scrollEl.addEventListener("scroll", onScroll, { passive: true });
+    
     return () => {
+      timeEl.removeEventListener("scroll", onScroll);
       scrollEl.removeEventListener("scroll", onScroll);
     };
   }, [staffMembers.length]);
+
+  // Additional hook to ensure calendar synchronization via fullcalendar api
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const fcScrollers = document.querySelectorAll('.fc-scroller-liquid-absolute');
+      if (fcScrollers.length <= 1) return;
+      
+      let initialScrollSet = false;
+      
+      const syncFCScrollers = (event: Event) => {
+        if (!initialScrollSet) {
+          const scrollingElement = event.target as HTMLElement;
+          const scrollTop = scrollingElement.scrollTop;
+          
+          fcScrollers.forEach((scroller) => {
+            const element = scroller as HTMLElement;
+            if (element !== scrollingElement) {
+              element.scrollTop = scrollTop;
+            }
+          });
+          
+          initialScrollSet = true;
+          setTimeout(() => { initialScrollSet = false; }, 100);
+        }
+      };
+      
+      fcScrollers.forEach((scroller) => {
+        scroller.addEventListener('scroll', syncFCScrollers, { passive: true });
+      });
+      
+      return () => {
+        fcScrollers.forEach((scroller) => {
+          scroller.removeEventListener('scroll', syncFCScrollers);
+        });
+      };
+    }, 500); // Wait for FullCalendar to completely render
+    
+    return () => clearTimeout(timeoutId);
+  }, [staffMembers.length, events.length]);
 
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-block">

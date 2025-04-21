@@ -47,6 +47,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     onEventDrop
   );
   
+  // Enhanced scroll synchronization
   useCalendarSync(view);
   useAutoScroll(calendarApi, view);
 

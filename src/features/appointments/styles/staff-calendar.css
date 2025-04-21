@@ -72,9 +72,11 @@
   position: sticky;
   left: 0;
   z-index: 5;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  scrollbar-width: none;
 }
 
 .calendar-time-inner {
@@ -89,6 +91,7 @@
   overflow-x: auto;
   overflow-y: auto;
   height: 100%;
+  scrollbar-width: none;
 }
 
 /* Individual staff column */
@@ -135,8 +138,20 @@
   scrollbar-width: none;
 }
 
+/* Critical for scrolling - ensure FC scrollers are visible and synced */
 .fc .fc-scroller-liquid-absolute {
-  overflow: hidden !important;
+  overflow: auto !important;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fc .fc-scroller-liquid-absolute::-webkit-scrollbar {
+  display: none;
 }
 
 /* Calendar event styles */

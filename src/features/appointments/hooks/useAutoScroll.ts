@@ -19,7 +19,8 @@ export const useAutoScroll = (
       
       const scrollToCurrentTime = () => {
         try {
-          const scrollers = document.querySelectorAll('.fc-scroller-liquid-absolute');
+          // Target all scrollers for synchronized scrolling
+          const scrollers = document.querySelectorAll('.fc-scroller-liquid-absolute, .calendar-time-col, .calendar-staff-cols');
           
           if (scrollers.length === 0) {
             console.log('No scrollers found, retrying...');
