@@ -31,42 +31,60 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   const timeColRef = useRef<HTMLDivElement>(null);
   const scrollColRef = useRef<HTMLDivElement>(null);
 
-  // Ensure we have a valid date to avoid formatting errors
+  // Ensure we have a valid date to avoid formatting errors - this is critical
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-    ? selectedDate
+    ? new Date(selectedDate.getTime()) // Create a new date object to avoid reference issues
     : new Date();
 
   // Improved date formatting with robust error handling
   const getFormattedDate = () => {
     try {
+      // Explicit check again before formatting
+      if (!(validSelectedDate instanceof Date) || isNaN(validSelectedDate.getTime())) {
+        console.error('Invalid date detected before formatting:', validSelectedDate);
+        return new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      }
+      
       return format(validSelectedDate, 'EEEE d MMMM yyyy', { locale: it });
     } catch (error) {
       console.error('Error formatting date with Italian locale:', error);
       try {
-        return format(validSelectedDate, 'EEEE d MMMM yyyy');
+        return format(new Date(), 'EEEE d MMMM yyyy');
       } catch (fallbackError) {
         console.error('Fallback date formatting failed:', fallbackError);
-        return validSelectedDate.toLocaleDateString();
+        return new Date().toLocaleDateString();
       }
     }
   };
 
-  // Synchronize vertical scrolling between the time column and staff columns
+  // Enhanced synchronization of vertical scrolling between columns
   useEffect(() => {
     const timeEl = timeColRef.current;
     const scrollEl = scrollColRef.current;
     if (!timeEl || !scrollEl) return;
 
     let isSyncing = false;
+    let ticking = false;
 
     const onScroll = () => {
       if (isSyncing) return;
+      
       isSyncing = true;
-      timeEl.scrollTop = scrollEl.scrollTop;
-      setTimeout(() => { isSyncing = false; }, 1);
+      
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (timeEl && scrollEl) {
+            timeEl.scrollTop = scrollEl.scrollTop;
+          }
+          ticking = false;
+          setTimeout(() => { isSyncing = false; }, 10);
+        });
+        
+        ticking = true;
+      }
     };
     
-    scrollEl.addEventListener("scroll", onScroll);
+    scrollEl.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       scrollEl.removeEventListener("scroll", onScroll);
     };
@@ -107,8 +125,9 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
         >
           <div className="calendar-time-inner">
             <FullCalendar
+              key="time-col-calendar"
               plugins={[timeGridPlugin]}
-              initialView={view}
+              initialView="timeGridDay"
               initialDate={validSelectedDate}
               {...commonConfig}
               dayHeaderContent={() => null}
@@ -127,14 +146,15 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           className="calendar-staff-cols"
           ref={scrollColRef}
         >
-          {staffMembers.map((staff, index) => (
+          {staffMembers.length > 0 ? staffMembers.map((staff, index) => (
             <div
               key={staff.id}
               className="calendar-staff-col"
             >
               <FullCalendar
+                key={`staff-calendar-${staff.id}`}
                 plugins={[timeGridPlugin, interactionPlugin]}
-                initialView={view}
+                initialView="timeGridDay"
                 initialDate={validSelectedDate}
                 {...commonConfig}
                 dayHeaderContent={() => null}
@@ -150,7 +170,12 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                 }}
               />
             </div>
-          ))}
+          )) : (
+            <div className="flex items-center justify-center flex-1 h-full text-gray-500">
+              Nessun operatore visibile nel calendario. 
+              Aggiungi operatori e imposta "Visibile in agenda" nelle impostazioni staff.
+            </div>
+          )}
         </div>
       </div>
     </div>

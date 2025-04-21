@@ -23,6 +23,8 @@
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   height: 50px;
+  z-index: 10;
+  position: relative;
 }
 
 .time-col-header {
@@ -57,6 +59,7 @@
   min-height: 0;
   background: #fff;
   position: relative;
+  overflow: hidden; /* Critical for containing the scrollers */
 }
 
 /* Fixed time column on the left */
@@ -146,4 +149,50 @@
 .fc-timegrid-slot {
   height: 30px !important;
   border-color: #f0f0f0 !important;
+}
+
+/* Month view specific styles */
+.month-view-date-header {
+  text-align: center;
+  padding: 10px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.staff-column-header {
+  height: 42px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  border-left: 3px solid; /* Color will be set inline */
+}
+
+/* Ensure popover is visible and interactive */
+.radix-popover-content {
+  z-index: 99999 !important;
+  background-color: white;
+  pointer-events: auto !important;
+}
+
+.radix-popover-content .react-day-picker {
+  pointer-events: auto !important;
+}
+
+/* Empty state styling */
+.calendar-staff-cols:empty::after {
+  content: "Nessun operatore disponibile";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  color: #64748b;
+  font-size: 0.9rem;
 }

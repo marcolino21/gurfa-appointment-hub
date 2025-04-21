@@ -39,15 +39,15 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const calendarRefs = useRef<any[]>([]);
   const [calendarApi, setCalendarApi] = useState<any>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [businessHours, setBusinessHours] = useState<BusinessHoursByDay>({});
   const [hiddenDays, setHiddenDays] = useState<number[]>([]);
   const [slotMinTime, setSlotMinTime] = useState('08:00:00');
   const [slotMaxTime, setSlotMaxTime] = useState('20:00:00');
 
-  // Ensure we have a valid date object
+  // Always ensure we have a valid date object
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-    ? selectedDate
+    ? new Date(selectedDate.getTime()) // Create a new date object to avoid reference issues
     : new Date();
 
   useCalendarSync(view);
@@ -92,13 +92,12 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
           setHiddenDays(hidden);
 
           // For week/day view, set min/max time based on current day or first enabled day
-          let dayOfWeek: number;
-          try {
-            dayOfWeek = validSelectedDate.getDay();
-          } catch (error) {
-            console.error("Error getting day of week:", error);
-            dayOfWeek = new Date().getDay();
+          let currentDate = new Date();
+          // Always use a safe date object
+          if (validSelectedDate instanceof Date && !isNaN(validSelectedDate.getTime())) {
+            currentDate = validSelectedDate;
           }
+          const dayOfWeek = currentDate.getDay();
           
           const todayKey = dayMap[dayOfWeek] as keyof BusinessHoursByDay;
           const todayHours = hoursData[todayKey];
@@ -108,10 +107,10 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
             setSlotMaxTime(todayHours.closeTime + ':00');
           } else {
             // Find first available day if today is closed
-            const firstOpenDay = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
-            if (firstOpenDay && hoursData[firstOpenDay]) {
-              setSlotMinTime(hoursData[firstOpenDay].openTime + ':00');
-              setSlotMaxTime(hoursData[firstOpenDay].closeTime + ':00');
+            const firstOpenDayKey = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
+            if (firstOpenDayKey && hoursData[firstOpenDayKey]) {
+              setSlotMinTime(hoursData[firstOpenDayKey].openTime + ':00');
+              setSlotMaxTime(hoursData[firstOpenDayKey].closeTime + ':00');
             } else {
               // Default fallback
               setSlotMinTime('08:00:00');
@@ -140,8 +139,8 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   // Handle date selection from popover calendar
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      setSelectedDate(new Date(date.getTime())); // Create a new instance
 
       if (calendarApi) {
         try {
