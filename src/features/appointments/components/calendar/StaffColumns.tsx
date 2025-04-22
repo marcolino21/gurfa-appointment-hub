@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -27,43 +27,18 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
   
-  // Apply block time styles after calendar rendering is complete and when events change
+  // Apply block time styles once after initial render
   useEffect(() => {
-    const timers = [
-      setTimeout(applyBlockedTimeStyles, 100),
-      setTimeout(applyBlockedTimeStyles, 300),
-      setTimeout(applyBlockedTimeStyles, 600),
-      setTimeout(applyBlockedTimeStyles, 1000)
-    ];
-    
-    return () => timers.forEach(timer => clearTimeout(timer));
-  }, [events, applyBlockedTimeStyles]);
-
-  // Also apply styles when the component mounts to ensure they're applied
-  useEffect(() => {
-    applyBlockedTimeStyles();
+    const timer = setTimeout(applyBlockedTimeStyles, 300);
+    return () => clearTimeout(timer);
   }, [applyBlockedTimeStyles]);
 
-  // Apply proper data attributes when staff's blocked status changes
-  useEffect(() => {
-    staffMembers.forEach(staff => {
-      const isBlocked = isStaffBlocked(staff.id);
-      const columns = document.querySelectorAll(`[data-staff-id="${staff.id}"]`);
-      
-      columns.forEach(col => {
-        col.setAttribute('data-blocked', isBlocked ? 'true' : 'false');
-        
-        // Also update FullCalendar specific columns
-        const fcCols = col.querySelectorAll('.fc-timegrid-col');
-        fcCols.forEach(fcCol => {
-          if (isBlocked) {
-            fcCol.classList.add('blocked-staff-column');
-          } else {
-            fcCol.classList.remove('blocked-staff-column');
-          }
-        });
-      });
-    });
+  // Memoize blocked staff status to prevent unnecessary recalculations
+  const blockedStaffStatus = useMemo(() => {
+    return staffMembers.reduce((acc, staff) => {
+      acc[staff.id] = isStaffBlocked(staff.id);
+      return acc;
+    }, {} as Record<string, boolean>);
   }, [staffMembers, isStaffBlocked]);
 
   if (staffMembers.length === 0) {
@@ -83,12 +58,12 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       width: '100%'
     }}>
       {staffMembers.map((staff, index) => {
-        const isBlocked = isStaffBlocked(staff.id);
+        const isBlocked = blockedStaffStatus[staff.id] || false;
         
         return (
           <div
             key={staff.id}
-            className="calendar-staff-col"
+            className={`calendar-staff-col ${isBlocked ? 'staff-blocked' : ''}`}
             data-staff-id={staff.id}
             data-blocked={isBlocked ? 'true' : 'false'}
           >
@@ -103,6 +78,8 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               events={events.filter(event => event.resourceId === staff.id)}
               headerToolbar={false}
               height="100%"
+              dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}
+              viewClassNames={isBlocked ? 'blocked-staff-view' : ''}
               eventClassNames={(arg) => {
                 // Add extra class for blocked time events
                 if (arg.event.extendedProps?.isBlockedTime || 
@@ -151,12 +128,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 if (el) {
                   calendarRefs.current[index] = el;
                   if (index === 0) setCalendarApi(el.getApi());
-                }
-              }}
-              // Custom view display hooks
-              dayCellDidMount={(info) => {
-                if (isBlocked) {
-                  info.el.classList.add('blocked-staff-column');
                 }
               }}
             />

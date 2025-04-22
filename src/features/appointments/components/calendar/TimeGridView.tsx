@@ -30,7 +30,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   setCalendarApi
 }) => {
   const [gridInitialized, setGridInitialized] = useState(false);
-  const { enhancedBlockTimeEvents, applyBlockedTimeStyles } = useCalendarBlockTime();
+  const { enhancedBlockTimeEvents } = useCalendarBlockTime();
   
   // Combine normal events with block time events
   const allEvents = [...events, ...enhancedBlockTimeEvents];
@@ -40,11 +40,12 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     ? new Date(selectedDate.getTime())
     : new Date();
 
-  // Set up synchronized grid columns after render
+  // Set up synchronized grid columns after render - simplified
   useEffect(() => {
     if (staffMembers.length > 0 && !gridInitialized) {
       setGridInitialized(true);
       
+      // Single timeout with essential operations
       setTimeout(() => {
         try {
           const calendarGridBody = document.querySelector('.calendar-grid-body');
@@ -56,30 +57,12 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
-          
-          // Apply styles to blocked time events
-          applyBlockedTimeStyles();
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
-      }, 100);
+      }, 300);
     }
-  }, [staffMembers, gridInitialized, applyBlockedTimeStyles]);
-
-  // Reapply blocked time styles whenever events change
-  useEffect(() => {
-    if (enhancedBlockTimeEvents.length > 0) {
-      // Apply multiple times with increasing delays to ensure styles are applied correctly
-      const timers = [
-        setTimeout(applyBlockedTimeStyles, 100),
-        setTimeout(applyBlockedTimeStyles, 300),
-        setTimeout(applyBlockedTimeStyles, 600),
-        setTimeout(applyBlockedTimeStyles, 1000)
-      ];
-      
-      return () => timers.forEach(timer => clearTimeout(timer));
-    }
-  }, [enhancedBlockTimeEvents, applyBlockedTimeStyles]);
+  }, [staffMembers, gridInitialized]);
 
   return (
     <TooltipProvider>
@@ -112,7 +95,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                       info.event.classNames?.includes('blocked-time-event') ||
                       info.event.display === 'background') {
                     info.el.classList.add('blocked-time-event');
-                    info.el.classList.add('fc-non-interactive');
                     
                     // Create tooltip for blocked time
                     const tooltip = document.createElement('div');
@@ -126,13 +108,17 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                     tooltip.innerText = tooltipContent;
                     info.el.appendChild(tooltip);
                     
-                    // Add event listeners for the tooltip visibility
-                    info.el.addEventListener('mouseenter', () => {
-                      tooltip.style.display = 'block';
-                    });
+                    // Simplified event listeners
+                    const handleMouseEnter = () => { tooltip.style.display = 'block'; };
+                    const handleMouseLeave = () => { tooltip.style.display = 'none'; };
                     
-                    info.el.addEventListener('mouseleave', () => {
-                      tooltip.style.display = 'none';
+                    info.el.addEventListener('mouseenter', handleMouseEnter);
+                    info.el.addEventListener('mouseleave', handleMouseLeave);
+                    
+                    // Cleanup function for FullCalendar
+                    info.el.addEventListener('DOMNodeRemoved', () => {
+                      info.el.removeEventListener('mouseenter', handleMouseEnter);
+                      info.el.removeEventListener('mouseleave', handleMouseLeave);
                     });
                   }
                   
