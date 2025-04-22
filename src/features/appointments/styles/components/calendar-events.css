@@ -82,3 +82,37 @@
 .fc-bg-event {
   z-index: 1 !important;
 }
+
+/* Additional selector to target FullCalendar's specific structure */
+.fc-timegrid-col-bg .fc-bg-event {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(180, 180, 180, 0.5),
+    rgba(180, 180, 180, 0.5) 10px,
+    rgba(210, 210, 210, 0.5) 10px,
+    rgba(210, 210, 210, 0.5) 20px
+  ) !important;
+  opacity: 0.9 !important;
+}
+
+/* Ensure the blocked time shows up better with stronger visual */
+.fc-timegrid-bg-harness .fc-bg-event {
+  opacity: 0.95 !important;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(180, 180, 180, 0.5),
+    rgba(180, 180, 180, 0.5) 10px,
+    rgba(210, 210, 210, 0.5) 10px,
+    rgba(210, 210, 210, 0.5) 20px
+  ) !important;
+}
+
+/* Additional styling for FullCalendar background events */
+.fc-timegrid-bg-harness {
+  z-index: 3 !important;
+}
+
+/* Make blocked times more noticeable */
+.fc-timegrid-col .fc-bg-event {
+  border-left: 3px solid rgba(150, 150, 150, 0.5) !important;
+}

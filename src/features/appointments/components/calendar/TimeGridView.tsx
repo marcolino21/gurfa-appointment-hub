@@ -43,7 +43,11 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   const enhancedBlockTimeEvents = blockTimeEvents.map(event => ({
     ...event,
     display: 'background',
-    classNames: [...(event.classNames || []), 'blocked-time-event'],
+    rendering: 'background',
+    className: 'blocked-time-event',
+    classNames: ['blocked-time-event'],
+    overlap: false,
+    backgroundColor: 'rgba(211, 211, 211, 0.7)'
   }));
   
   // Combine normal events with block time events
@@ -70,6 +74,11 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
+
+          // Apply block time styling to all existing blocked time events
+          document.querySelectorAll('.fc-bg-event').forEach(el => {
+            el.classList.add('blocked-time-event');
+          });
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
@@ -134,6 +143,9 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               eventDidMount: (info: any) => {
                 // Add tooltip for blocked times
                 if (info.event.extendedProps.isBlockedTime || info.event.isBlockedTime) {
+                  // Add classname to ensure proper styling
+                  info.el.classList.add('blocked-time-event');
+                  
                   const tooltip = document.createElement('div');
                   tooltip.className = 'calendar-tooltip';
                   

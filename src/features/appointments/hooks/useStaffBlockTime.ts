@@ -88,7 +88,10 @@ export const useStaffBlockTime = () => {
         start: startDateObj.toISOString(),
         end: endDateObj.toISOString(),
         display: 'background',
+        rendering: 'background',
         backgroundColor: 'rgba(211, 211, 211, 0.7)',
+        overlap: false,
+        className: 'blocked-time-event',
         classNames: ['blocked-time-event'],
         isBlockedTime: true,  // Add a direct property for easier identification
         extendedProps: {
