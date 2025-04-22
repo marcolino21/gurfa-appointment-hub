@@ -1,6 +1,4 @@
 
-/* Existing styles */
-
 /* Blocked Time Event Styles */
 .blocked-time-event {
   background: repeating-linear-gradient(
@@ -12,6 +10,22 @@
   ) !important;
   cursor: not-allowed !important;
   z-index: 1;
+  opacity: 0.9 !important;
+}
+
+/* Broader selector to ensure the classes are applied to all blocked time elements */
+.fc .fc-event.blocked-time-event,
+.fc-timegrid-event.blocked-time-event,
+.fc-daygrid-event.blocked-time-event,
+.fc-bg-event.blocked-time-event {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(180, 180, 180, 0.3),
+    rgba(180, 180, 180, 0.3) 10px,
+    rgba(210, 210, 210, 0.3) 10px,
+    rgba(210, 210, 210, 0.3) 20px
+  ) !important;
+  opacity: 0.9 !important;
 }
 
 .fc-event.blocked-time {
@@ -44,4 +58,27 @@
 .fc-event.fc-daygrid-block-event.blocked-time-event,
 .fc-event.fc-timegrid-event.blocked-time-event {
   opacity: 0.8 !important;
+}
+
+/* Ensure background events are clearly visible */
+.fc-bg-event {
+  opacity: 0.85 !important;
+}
+
+/* Force higher specificity for blocked time background events */
+.fc-timegrid-col-events .blocked-time-event,
+.fc .fc-timegrid-col .fc-bg-event.blocked-time-event {
+  opacity: 0.85 !important;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(180, 180, 180, 0.4),
+    rgba(180, 180, 180, 0.4) 10px,
+    rgba(210, 210, 210, 0.4) 10px,
+    rgba(210, 210, 210, 0.4) 20px
+  ) !important;
+}
+
+/* Add z-index to ensure the blocked time events appear above the regular grid */
+.fc-bg-event {
+  z-index: 1 !important;
 }

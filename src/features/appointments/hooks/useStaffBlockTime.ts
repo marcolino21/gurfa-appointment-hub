@@ -88,11 +88,13 @@ export const useStaffBlockTime = () => {
         start: startDateObj.toISOString(),
         end: endDateObj.toISOString(),
         display: 'background',
-        color: 'rgba(211, 211, 211, 0.7)',
+        backgroundColor: 'rgba(211, 211, 211, 0.7)',
         classNames: ['blocked-time-event'],
+        isBlockedTime: true,  // Add a direct property for easier identification
         extendedProps: {
           isBlockedTime: true,
-          reason: blockTime.reason
+          reason: blockTime.reason,
+          blockTimeId: blockTime.id
         }
       };
     });

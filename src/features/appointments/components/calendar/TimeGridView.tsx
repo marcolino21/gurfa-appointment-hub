@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { StaffMember } from '@/types';
 import { CalendarHeader } from './CalendarHeader';
 import { StaffHeader } from './StaffHeader';
 import { TimeColumn } from './TimeColumn';
@@ -10,7 +11,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
-import { StaffMember } from '@/types';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
 import '../../styles/index.css';
 
@@ -38,9 +38,16 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   
   // Get all blocked time events
   const blockTimeEvents = getBlockTimeEvents();
+
+  // Ensure blockTimeEvents are properly configured with all required attributes
+  const enhancedBlockTimeEvents = blockTimeEvents.map(event => ({
+    ...event,
+    display: 'background',
+    classNames: [...(event.classNames || []), 'blocked-time-event'],
+  }));
   
   // Combine normal events with block time events
-  const allEvents = [...events, ...blockTimeEvents];
+  const allEvents = [...events, ...enhancedBlockTimeEvents];
   
   // Ensure we have a valid date to avoid formatting errors
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
@@ -126,7 +133,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               ...commonConfig,
               eventDidMount: (info: any) => {
                 // Add tooltip for blocked times
-                if (info.event.extendedProps.isBlockedTime) {
+                if (info.event.extendedProps.isBlockedTime || info.event.isBlockedTime) {
                   const tooltip = document.createElement('div');
                   tooltip.className = 'calendar-tooltip';
                   
