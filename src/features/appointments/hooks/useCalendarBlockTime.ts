@@ -23,19 +23,16 @@ export const useCalendarBlockTime = () => {
     }));
   }, [blockTimeEvents]);
 
-  // Simplified function to apply styles to blocked time events
+  // Simplified function to apply styles to blocked time events - usando un approccio più dichiarativo
   const applyBlockedTimeStyles = useCallback(() => {
     try {
       console.log("Applying blocked time styles");
-      
-      // Apply styles only once, using more efficient selectors
       document.querySelectorAll('.fc-bg-event, .blocked-time-event').forEach(el => {
         if (!el.classList.contains('styled-blocked-time')) {
           el.classList.add('blocked-time-event', 'fc-non-interactive', 'styled-blocked-time');
         }
       });
       
-      // Mark that we've applied styles
       if (!styleApplied) {
         setStyleApplied(true);
       }
@@ -44,18 +41,13 @@ export const useCalendarBlockTime = () => {
     }
   }, [styleApplied]);
 
-  // Apply styles only once on mount and once when events change
+  // Apply styles solo una volta all'inizio, non ad ogni cambio di eventi
   useEffect(() => {
-    if (blockTimeEvents.length > 0) {
-      // Apply once immediately
-      applyBlockedTimeStyles();
-      
-      // Apply once after calendar render (single timeout)
+    if (blockTimeEvents.length > 0 && !styleApplied) {
       const timer = setTimeout(applyBlockedTimeStyles, 300);
-      
       return () => clearTimeout(timer);
     }
-  }, [blockTimeEvents, applyBlockedTimeStyles]);
+  }, [blockTimeEvents, applyBlockedTimeStyles, styleApplied]);
 
   return { 
     enhancedBlockTimeEvents,

@@ -20,41 +20,66 @@ export const appointmentReducer = (state: AppointmentState, action: AppointmentA
   switch (action.type) {
     case 'SET_APPOINTMENTS':
       return { ...state, appointments: action.payload };
+      
     case 'SET_FILTERED_APPOINTMENTS':
       return { ...state, filteredAppointments: action.payload };
-    case 'ADD_APPOINTMENT':
+      
+    case 'ADD_APPOINTMENT': {
+      const newAppointments = [...state.appointments, action.payload];
       return { 
         ...state, 
-        appointments: [...state.appointments, action.payload],
-        filteredAppointments: [...state.appointments, action.payload].filter(filterAppointments(state.filters))
+        appointments: newAppointments,
+        // Aggiungiamo direttamente agli appuntamenti filtrati se passa i filtri correnti
+        filteredAppointments: filterAppointments(state.filters)(action.payload) 
+          ? [...state.filteredAppointments, action.payload]
+          : state.filteredAppointments
       };
-    case 'UPDATE_APPOINTMENT':
+    }
+    
+    case 'ADD_TO_FILTERED_APPOINTMENTS':
+      // Evita duplicati
+      if (state.filteredAppointments.some(app => app.id === action.payload.id)) {
+        return state;
+      }
+      return {
+        ...state,
+        filteredAppointments: [...state.filteredAppointments, action.payload]
+      };
+      
+    case 'UPDATE_APPOINTMENT': {
+      const updatedAppointments = state.appointments.map(app => 
+        app.id === action.payload.id ? action.payload : app
+      );
       return { 
         ...state, 
-        appointments: state.appointments.map(app => 
-          app.id === action.payload.id ? action.payload : app
-        ),
-        filteredAppointments: state.appointments
-          .map(app => app.id === action.payload.id ? action.payload : app)
+        appointments: updatedAppointments,
+        filteredAppointments: updatedAppointments
           .filter(filterAppointments(state.filters))
       };
+    }
+    
     case 'DELETE_APPOINTMENT':
       return { 
         ...state, 
         appointments: state.appointments.filter(app => app.id !== action.payload),
         filteredAppointments: state.filteredAppointments.filter(app => app.id !== action.payload)
       };
+      
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
+      
     case 'SET_ERROR':
       return { ...state, error: action.payload };
+      
     case 'SET_FILTERS':
       return { 
         ...state, 
         filters: { ...state.filters, ...action.payload }
       };
+      
     case 'SET_CURRENT_APPOINTMENT':
       return { ...state, currentAppointment: action.payload };
+      
     default:
       return state;
   }

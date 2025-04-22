@@ -34,6 +34,7 @@ const Appointments: React.FC = () => {
     handleAddAppointment
   } = useAppointmentHandlers(visibleStaff);
   
+  // Applica i filtri quando cambiano
   useEffect(() => {
     setFilters({
       search: searchTerm || null,
@@ -41,6 +42,7 @@ const Appointments: React.FC = () => {
     });
   }, [searchTerm, statusFilter, setFilters]);
   
+  // Aggiorna gli staff visibili quando cambia il salone
   useEffect(() => {
     console.log("Appointments component - currentSalonId:", currentSalonId);
     
@@ -49,6 +51,7 @@ const Appointments: React.FC = () => {
     }
   }, [refreshVisibleStaff, currentSalonId]);
   
+  // Log per debug
   useEffect(() => {
     console.log("Appointments component - visibleStaff:", visibleStaff);
     console.log("Appointments component - events:", events);

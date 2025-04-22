@@ -4,21 +4,22 @@ import { Appointment } from '@/types';
 export interface AppointmentState {
   appointments: Appointment[];
   filteredAppointments: Appointment[];
-  currentAppointment: Appointment | null;
   loading: boolean;
   error: string | null;
   filters: {
+    status: string | null;
     dateRange: [Date | null, Date | null];
     staffId: string | null;
-    status: string | null;
     search: string | null;
   };
+  currentAppointment: Appointment | null;
 }
 
 export type AppointmentAction =
   | { type: 'SET_APPOINTMENTS'; payload: Appointment[] }
   | { type: 'SET_FILTERED_APPOINTMENTS'; payload: Appointment[] }
   | { type: 'ADD_APPOINTMENT'; payload: Appointment }
+  | { type: 'ADD_TO_FILTERED_APPOINTMENTS'; payload: Appointment } // Nuovo tipo aggiunto
   | { type: 'UPDATE_APPOINTMENT'; payload: Appointment }
   | { type: 'DELETE_APPOINTMENT'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }

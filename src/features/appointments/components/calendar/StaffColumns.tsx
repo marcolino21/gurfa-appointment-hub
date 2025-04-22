@@ -41,6 +41,18 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     }, {} as Record<string, boolean>);
   }, [staffMembers, isStaffBlocked]);
 
+  // Log degli eventi per debug
+  useEffect(() => {
+    console.log("StaffColumns - eventi disponibili:", events.length);
+    console.log("StaffColumns - gruppi di eventi per staff:", 
+      staffMembers.map(staff => ({
+        staffId: staff.id,
+        name: staff.name,
+        events: events.filter(event => event.resourceId === staff.id).length
+      }))
+    );
+  }, [events, staffMembers]);
+
   if (staffMembers.length === 0) {
     return (
       <div className="flex items-center justify-center flex-1 h-full text-gray-500">
@@ -60,6 +72,10 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
+        // Filtra eventi per questo staff
+        const staffEvents = events.filter(event => event.resourceId === staff.id);
+        console.log(`Staff ${staff.name} (${staff.id}) ha ${staffEvents.length} eventi`);
+        
         return (
           <div
             key={staff.id}
@@ -75,7 +91,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               {...commonConfig}
               dayHeaderContent={() => null}
               slotLabelContent={() => null}
-              events={events.filter(event => event.resourceId === staff.id)}
+              events={staffEvents}
               headerToolbar={false}
               height="100%"
               dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}

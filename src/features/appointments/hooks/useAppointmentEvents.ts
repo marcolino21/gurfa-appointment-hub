@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { Appointment } from '@/types';
 
@@ -23,14 +23,21 @@ export const useAppointmentEvents = () => {
   const { filteredAppointments, appointments } = useAppointments();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   
-  useEffect(() => {
-    // Verifichiamo che ci siano appuntamenti disponibili
-    console.log("Appuntamenti disponibili:", appointments.length);
+  // Utilizziamo useMemo per ottimizzare la trasformazione degli appuntamenti in eventi
+  const transformedEvents = useMemo(() => {
+    // Log dettagliati per debug
+    console.log("=== DEBUG EVENTI CALENDARIO ===");
+    console.log("Appuntamenti totali:", appointments.length);
     console.log("Appuntamenti filtrati:", filteredAppointments.length);
     
     // Transform appointments into calendar events
-    const calendarEvents = filteredAppointments.map(appointment => {
+    return filteredAppointments.map(appointment => {
       console.log("Trasformando appuntamento in evento:", appointment);
+      
+      // Log per debugging
+      if (!appointment.staffId) {
+        console.warn("Appuntamento senza staffId:", appointment);
+      }
       
       return {
         id: appointment.id,
@@ -48,10 +55,13 @@ export const useAppointmentEvents = () => {
         }
       };
     });
-    
-    console.log("Eventi calendario generati:", calendarEvents.length);
-    setEvents(calendarEvents);
   }, [filteredAppointments, appointments]);
+  
+  // Aggiorniamo gli eventi quando cambiano gli appuntamenti trasformati
+  useEffect(() => {
+    console.log("Eventi calendario generati:", transformedEvents.length);
+    setEvents(transformedEvents);
+  }, [transformedEvents]);
 
   const getEventColor = (status: string) => {
     switch (status) {

@@ -1,3 +1,4 @@
+
 import { useReducer, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -70,8 +71,15 @@ export const useAppointmentProvider = (): AppointmentContextType => {
         throw new Error('Lo slot orario selezionato è già occupato');
       }
       
+      // Aggiungiamo l'appuntamento allo stato
       dispatch({ type: 'ADD_APPOINTMENT', payload: newAppointment });
+      
+      // Aggiungiamo esplicitamente agli appuntamenti filtrati per garantire la visibilità immediata
+      dispatch({ type: 'ADD_TO_FILTERED_APPOINTMENTS', payload: newAppointment });
+      
       console.log("Appointment added successfully:", newAppointment);
+      console.log("Current filtered appointments after add:", 
+        [...state.filteredAppointments, newAppointment].length);
       
       toast({
         title: 'Appuntamento creato',

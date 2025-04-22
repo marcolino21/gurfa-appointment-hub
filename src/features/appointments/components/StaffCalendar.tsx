@@ -86,12 +86,18 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Manual refresh of calendars after events update
+  // Improved refresh of calendars after events update
   useEffect(() => {
-    if (calendarApi && events.length > 0) {
+    if (calendarApi && events.length >= 0) { // Changed from > 0 to >= 0 to refresh even when no events
       try {
+        console.log("Refreshing calendar with events:", events.length);
+        
+        // Forza un aggiornamento più aggressivo
         setTimeout(() => {
+          calendarApi.removeAllEvents();
+          calendarApi.addEventSource(events);
           calendarApi.refetchEvents();
+          calendarApi.render(); // Force complete re-render
         }, 100);
       } catch (error) {
         console.error("Error refreshing calendar events:", error);
