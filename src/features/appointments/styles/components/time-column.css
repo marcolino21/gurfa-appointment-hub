@@ -9,22 +9,27 @@
   position: sticky;
   left: 0;
   z-index: 5;
-  overflow-y: auto; /* Changed from scroll to auto for better cross-browser behavior */
+  overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-  will-change: scroll-position;
+  will-change: scroll-position, transform;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  overscroll-behavior: none; /* Prevents scroll chaining */
-  scroll-behavior: auto; /* Default to auto, changed to smooth during auto-scroll */
-  min-height: 1200px; /* Ensure enough height for scrolling content */
+  overscroll-behavior: none;
+  scroll-behavior: smooth;
+  min-height: 1200px;
+  transform: translateZ(0);
+  -webkit-transform-style: preserve-3d; /* Per Safari */
+  transform-style: preserve-3d;
 }
 
 .calendar-time-inner {
   width: 80px;
   height: 100%;
-  min-height: 1200px; /* Match the container height */
+  min-height: 1200px;
+  contain: content;
+  will-change: transform;
 }
 
 .time-slot-label {
@@ -32,9 +37,48 @@
   font-weight: 500;
   color: #64748b;
   padding-right: 8px;
+  white-space: nowrap;
+  contain: content;
 }
 
 /* No scrollbar styling */
 .calendar-time-col::-webkit-scrollbar {
   display: none;
+}
+
+/* Ottimizzazioni per lo scroll su Safari */
+@supports (-webkit-touch-callout: none) {
+  .calendar-time-col {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .calendar-time-col,
+  .calendar-staff-col .fc-scroller {
+    position: relative;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+}
+
+/* Ottimizzazioni per dispositivi touch */
+@media (pointer: coarse) {
+  .calendar-time-col {
+    scroll-snap-type: y proximity;
+  }
+  
+  .fc-timegrid-slots tr {
+    scroll-snap-align: start;
+  }
+}
+
+/* Ottimizzazione per firefox */
+@-moz-document url-prefix() {
+  .calendar-time-col {
+    scrollbar-width: none;
+  }
+  
+  .calendar-time-col,
+  .calendar-staff-col .fc-scroller {
+    will-change: transform;
+  }
 }

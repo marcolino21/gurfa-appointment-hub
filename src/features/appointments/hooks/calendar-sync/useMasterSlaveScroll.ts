@@ -13,25 +13,28 @@ export const useMasterSlaveScroll = () => {
   const masterScrollerRef = useRef<HTMLElement | null>(null);
   const slaveScrollersRef = useRef<HTMLElement[]>([]);
   
-  // Optimized transform-based synchronization
+  // Optimized transform-based synchronization with debounce
   const synchronizeViaTransform = useCallback((scrollTop: number) => {
     // Cancel any pending animation frame to avoid accumulation
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
     }
     
-    // Apply transformations in the next render frame
+    // Apply transformations in the next render frame for smoother performance
     rafIdRef.current = requestAnimationFrame(() => {
       // Update all slave columns with the same transformation
       slaveScrollersRef.current.forEach(slaveScroller => {
-        // Use translateY which is optimized for hardware acceleration
+        // Use translate3d which forces hardware acceleration
         slaveScroller.style.transform = `translate3d(0, -${scrollTop}px, 0)`;
       });
       
       // Update external containers to ensure visible scrolling of the entire grid
       const gridBody = document.querySelector('.calendar-grid-body');
       if (gridBody && gridBody instanceof HTMLElement) {
-        gridBody.scrollTop = scrollTop;
+        // Use direct property assignment without triggering another scroll event
+        if (Math.abs(gridBody.scrollTop - scrollTop) > 2) {
+          gridBody.scrollTop = scrollTop;
+        }
       }
       
       // Reset the frame reference

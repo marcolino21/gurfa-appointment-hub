@@ -8,6 +8,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
+  contain: content; /* Optimization for rendering */
 }
 
 .calendar-grid-body {
@@ -15,8 +16,12 @@
   min-height: 0;
   background: #fff;
   position: relative;
-  overflow: auto; /* Changed from hidden to auto for vertical scrolling */
-  max-height: calc(100vh - 400px); /* Ensure it fits within viewport with margin for headers */
+  overflow: auto;
+  max-height: calc(100vh - 400px);
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform-style: preserve-3d; /* Per Safari */
+  transform-style: preserve-3d;
 }
 
 /* Critical for performance - use hardware acceleration */
@@ -26,6 +31,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+  -webkit-transform-style: preserve-3d; /* Per Safari */
 }
 
 /* Set min-height for daily views to ensure scrollability */
@@ -41,4 +47,20 @@
 /* Ensure the slot labels have visible height */
 .fc .fc-timegrid-slots {
   min-height: 1200px !important;
+}
+
+/* Aumenta la fluidità dello scroll per tutti i contenitori FullCalendar */
+.fc .fc-scroller-liquid-absolute,
+.calendar-time-col,
+.calendar-staff-col .fc-scroller {
+  -webkit-overflow-scrolling: touch !important;
+  scroll-snap-type: y proximity !important;
+  scroll-behavior: smooth !important;
+  overscroll-behavior: none !important;
+}
+
+/* Ottimizzazione per i contenuti statici durante lo scorrimento */
+.fc-timegrid-slot-lane,
+.fc-timegrid-slot-label {
+  contain: strict;
 }

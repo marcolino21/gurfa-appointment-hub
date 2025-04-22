@@ -2,11 +2,15 @@
 /* Staff columns container */
 .calendar-staff-cols {
   flex: 1;
-  overflow: auto; /* Changed from hidden to auto to allow scrolling */
+  overflow: auto;
   height: 100%;
   position: relative;
-  contain: content; /* Optimization for rendering */
-  scrollbar-width: thin; /* Add scrollbar styling for Firefox */
+  contain: content;
+  scrollbar-width: thin;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform-style: preserve-3d; /* Per Safari */
+  transform-style: preserve-3d;
 }
 
 /* Staff columns wrapper for better organization */
@@ -14,7 +18,9 @@
   height: 100%;
   width: 100%;
   position: relative;
-  min-height: 1200px; /* Ensure enough height for scrolling content */
+  min-height: 1200px;
+  display: grid;
+  contain: content;
 }
 
 /* Individual staff column */
@@ -23,6 +29,11 @@
   border-right: 1px solid #e5e7eb;
   background: #fff;
   position: relative;
+  contain: content;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform-style: preserve-3d; /* Per Safari */
+  transform-style: preserve-3d;
 }
 
 /* Hide unnecessary FullCalendar elements */
@@ -51,7 +62,53 @@
 
 /* Ensure events remain interactive even during transform */
 .calendar-staff-col .fc-event {
-  transform: translateZ(0); /* Ensure events get their own layer */
-  will-change: transform; /* Hint for the browser */
-  z-index: 10; /* Ensure events are above other elements */
+  transform: translateZ(0);
+  will-change: transform;
+  z-index: 10;
+  contain: content;
+}
+
+/* Evitare box-shadow durante lo scroll per migliorare le performance */
+.is-scrolling .fc-event {
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+/* Migliorare la performance di rendering per eventi multipli */
+.fc-event-main {
+  contain: content;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Prevenire problemi di stacking context per contenuti interni */
+.fc-event-title,
+.fc-event-time {
+  position: relative;
+  z-index: 2;
+}
+
+/* Stile per staff bloccato (non disponibile) */
+.staff-blocked .fc-timegrid-col-frame {
+  background-color: rgba(241, 245, 249, 0.6);
+  position: relative;
+}
+
+/* Indicatore visuale per staff bloccato */
+.staff-blocked .fc-timegrid-col-frame::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(241, 245, 249, 0.7),
+    rgba(241, 245, 249, 0.7) 10px,
+    rgba(226, 232, 240, 0.7) 10px,
+    rgba(226, 232, 240, 0.7) 20px
+  );
+  z-index: 1;
+  pointer-events: none;
 }

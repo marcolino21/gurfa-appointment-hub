@@ -20,14 +20,22 @@ export const useScrollSystemSetup = (
     
     // Select the master scroller (time column)
     const masterScroller = document.querySelector('.calendar-time-col') as HTMLElement;
-    if (!masterScroller) return;
+    if (!masterScroller) {
+      console.warn('Master scroller (.calendar-time-col) not found');
+      return;
+    }
     
     // Save the master reference
     masterScrollerRef.current = masterScroller;
     
     // Find all potential slave scrollers
     const staffColumns = document.querySelectorAll('.calendar-staff-col .fc-scroller');
-    if (staffColumns.length === 0) return;
+    if (staffColumns.length === 0) {
+      console.warn('No staff columns found for scroll sync');
+      return;
+    }
+    
+    console.log(`Setting up scroll sync system with ${staffColumns.length} staff columns`);
     
     // Configure each slave
     staffColumns.forEach(staffCol => {
@@ -37,7 +45,6 @@ export const useScrollSystemSetup = (
       slaveScroller.style.overflow = 'hidden';
       slaveScroller.style.willChange = 'transform';
       slaveScroller.style.transform = 'translate3d(0, 0, 0)';
-      slaveScroller.style.transition = 'transform 0ms linear';
       
       // Add to slave list
       slaveScrollersRef.current.push(slaveScroller);
@@ -67,13 +74,20 @@ export const useScrollSystemSetup = (
       }, { passive: true });
     }
     
-    // Master scroll handler
+    // Throttled master scroll handler for better performance
+    let lastScrollTime = 0;
+    const scrollThrottleMs = 10; // Throttle to 10ms
+    
     const handleMasterScroll = () => {
       if (!masterScrollerRef.current) return;
       
+      const now = Date.now();
+      if (now - lastScrollTime < scrollThrottleMs) return;
+      lastScrollTime = now;
+      
       // Avoid redundant updates
       const currentScrollTop = masterScrollerRef.current.scrollTop;
-      if (currentScrollTop === lastScrollPositionRef.current) return;
+      if (Math.abs(currentScrollTop - lastScrollPositionRef.current) < 1) return;
       
       // Update the reference position
       lastScrollPositionRef.current = currentScrollTop;
@@ -96,6 +110,12 @@ export const useScrollSystemSetup = (
     
     // Optimize scroll event with passive: true for performance
     masterScroller.addEventListener('scroll', handleMasterScroll, { passive: true });
+    
+    // Add touch event handling for better mobile experience
+    let touchStartY = 0;
+    masterScroller.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
     
     // Initial sync
     lastScrollPositionRef.current = masterScroller.scrollTop;

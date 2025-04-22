@@ -39,6 +39,8 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       return;
     }
     
+    console.log(`Setting up calendar sync for view: ${view}`);
+    
     // Setup with delay to ensure DOM is ready
     const setupTimer = setTimeout(() => {
       // Apply optimization classes to main container
@@ -50,6 +52,8 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       // Setup master-slave system
       const cleanup = setupMasterSlaveScrollSystem();
       isInitializedRef.current = true;
+      
+      console.log('Calendar scroll sync initialized');
       
       return cleanup;
     }, 250);
@@ -72,15 +76,26 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       });
     }
     
-    // Add listeners to reinitialize on window changes
-    window.addEventListener('resize', setupMasterSlaveScrollSystem, { passive: true });
+    // Add listeners to reinitialize on window changes with throttling
+    let resizeTimeout: number;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        if (isInitializedRef.current) {
+          console.log('Reinitializing calendar sync after resize');
+          setupMasterSlaveScrollSystem();
+        }
+      }, 200);
+    };
+    
+    window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('orientationchange', setupMasterSlaveScrollSystem);
     
     // Cleanup
     return () => {
       clearTimeout(setupTimer);
       observer.disconnect();
-      window.removeEventListener('resize', setupMasterSlaveScrollSystem);
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', setupMasterSlaveScrollSystem);
       
       // Clean up any applied transform
