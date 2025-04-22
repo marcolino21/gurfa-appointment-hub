@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
 import { CalendarHeader } from './CalendarHeader';
 import { StaffHeader } from './StaffHeader';
@@ -58,8 +58,24 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     ? new Date(selectedDate.getTime())
     : new Date();
 
+  // Apply block time styling whenever blockTimeEvents changes
+  useEffect(() => {
+    // Apply block time styling after a short delay
+    if (blockTimeEvents.length > 0) {
+      setTimeout(() => {
+        try {
+          document.querySelectorAll('.fc-bg-event').forEach(el => {
+            el.classList.add('blocked-time-event');
+          });
+        } catch (error) {
+          console.error("Error applying block time styling:", error);
+        }
+      }, 100);
+    }
+  }, [blockTimeEvents]);
+
   // Set up synchronized grid columns after render
-  React.useEffect(() => {
+  useEffect(() => {
     if (staffMembers.length > 0 && !gridInitialized) {
       setGridInitialized(true);
       
@@ -142,7 +158,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               ...commonConfig,
               eventDidMount: (info: any) => {
                 // Add tooltip for blocked times
-                if (info.event.extendedProps.isBlockedTime || info.event.isBlockedTime) {
+                if (info.event.extendedProps.isBlockedTime || info.event.classNames?.includes('blocked-time-event')) {
                   // Add classname to ensure proper styling
                   info.el.classList.add('blocked-time-event');
                   
