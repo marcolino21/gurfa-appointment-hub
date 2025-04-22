@@ -15,28 +15,43 @@
   display: none !important;
 }
 
-/* Unified scrolling container with CSS Grid for perfect alignment */
+/* Unified scrolling container con CSS Grid per allineamento perfetto */
 .sync-scroll-container {
   display: grid;
   grid-template-columns: 80px 1fr;
   overflow: hidden;
   height: 100%;
   position: relative;
+  contain: content; /* Migliora le prestazioni di rendering */
 }
 
-/* Hide all individual scrollbars while maintaining scroll functionality */
+/* Hardware acceleration per tutti i container scorrevoli */
+.hardware-accelerated,
+.hardware-accelerated * {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Blocco dei contenuti durante lo scorrimento per evitare artefatti */
+.is-scrolling * {
+  pointer-events: none;
+}
+
+/* Nasconde tutte le scrollbar individuali mantenendo la funzionalità di scorrimento */
 .fc-scroller-liquid-absolute {
   overflow: scroll !important;
   scroll-behavior: smooth;
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
+  contain: strict; /* Massima ottimizzazione di rendering */
 }
 
 .fc-scroller-liquid-absolute::-webkit-scrollbar {
   display: none !important;
 }
 
-/* Ensure all scrollers in the sync container use the same behavior */
+/* Assicura che tutti gli scroller nel container di sincronizzazione usino lo stesso comportamento */
 .sync-scroll-container .fc-scroller,
 .calendar-time-col,
 .calendar-staff-cols {
@@ -45,6 +60,7 @@
   scrollbar-width: none !important;
   overscroll-behavior: none;
   will-change: scroll-position;
+  contain: content; /* Ottimizzazione di rendering */
 }
 
 .sync-scroll-container .fc-scroller::-webkit-scrollbar,
@@ -62,14 +78,16 @@
   font-weight: 600;
 }
 
-/* Ensure half-hour slots are clearly visible */
+/* Migliore visibilità per gli slot di mezz'ora */
 .fc-timegrid-slots td {
   position: relative;
   height: 40px !important;
+  contain: layout style; /* Ottimizzazione per le celle */
 }
 
 .fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor {
   position: relative;
+  contain: layout style;
 }
 
 .fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor::before {
@@ -94,6 +112,7 @@
   grid-template-columns: 80px 1fr;
   overflow: hidden;
   height: 100%;
+  contain: layout style; /* Ottimizzazione per il layout grid */
 }
 
 /* Content container */
@@ -102,4 +121,24 @@
   overflow: hidden;
   width: 100%;
   height: 100%;
+  contain: content;
+}
+
+/* Ottimizzazione scroll per dispositivi touch */
+@media (pointer: coarse) {
+  .calendar-time-col,
+  .calendar-staff-cols,
+  .fc-scroller-liquid-absolute {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: y proximity;
+  }
+  
+  .fc-timegrid-slot {
+    scroll-snap-align: start;
+  }
+}
+
+/* Prima applicazione di transform per forzare l'hardware acceleration */
+.staff-calendar-block {
+  transform: translateZ(0);
 }
