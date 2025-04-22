@@ -3,174 +3,192 @@ import { useEffect, useRef, useCallback } from 'react';
 
 /**
  * Hook che gestisce la sincronizzazione perfetta dello scorrimento tra 
- * tutte le colonne del calendario multi-operatore
+ * tutte le colonne del calendario multi-operatore utilizzando transform per hardware acceleration
  */
 export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => {
   // Riferimenti per tracciare lo stato dello scorrimento
-  const activeScrollElementRef = useRef<EventTarget | null>(null);
-  const animationFrameRequestedRef = useRef<number | null>(null);
-  const scrollLockTimeoutRef = useRef<number | null>(null);
-  const isInitialSyncDoneRef = useRef<boolean>(false);
+  const isScrollingRef = useRef<boolean>(false);
+  const lastScrollPositionRef = useRef<number>(0);
+  const rafIdRef = useRef<number | null>(null);
+  const masterScrollerRef = useRef<HTMLElement | null>(null);
+  const slaveScrollersRef = useRef<HTMLElement[]>([]);
+  const isInitializedRef = useRef<boolean>(false);
   
-  // Funzione memoizzata per sincronizzare gli elementi di scorrimento
-  const synchronizeScrolling = useCallback(() => {
-    // Otteniamo tutti i contenitori di scorrimento che devono essere sincronizzati
-    const scrollContainers = document.querySelectorAll(
-      '.fc-scroller-liquid-absolute, .calendar-time-col, .calendar-staff-cols'
-    );
-    
-    // Verifica che ci siano abbastanza contenitori da sincronizzare
-    if (scrollContainers.length <= 1) return undefined;
-    
-    // Allineamento iniziale per assicurarsi che tutti i contenitori partano dalla stessa posizione
-    if (!isInitialSyncDoneRef.current) {
-      setTimeout(() => {
-        const mainScroller = document.querySelector('.calendar-time-col') as HTMLElement;
-        if (mainScroller) {
-          const scrollTop = mainScroller.scrollTop;
-          scrollContainers.forEach(container => {
-            const element = container as HTMLElement;
-            if (element !== mainScroller) {
-              element.scrollTop = scrollTop;
-            }
-          });
-        }
-        isInitialSyncDoneRef.current = true;
-      }, 100);
+  // Funzione ottimizzata per applicare trasformazioni tramite requestAnimationFrame
+  const synchronizeViaTransform = useCallback((scrollTop: number) => {
+    // Cancella qualsiasi frame di animazione pendente per evitare accumulo
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
     }
     
-    // Funzione ottimizzata per gestire eventi di scorrimento
-    const handleScroll = (event: Event) => {
-      // Ignora eventi ripetuti dallo stesso elemento o eventi durante l'animazione
-      if (activeScrollElementRef.current === event.target || 
-          animationFrameRequestedRef.current !== null) {
-        return;
-      }
-      
-      // Blocca temporaneamente altri eventi di scorrimento
-      activeScrollElementRef.current = event.target;
-      
-      // Usa requestAnimationFrame per allineare l'aggiornamento con il ciclo di rendering del browser
-      animationFrameRequestedRef.current = requestAnimationFrame(() => {
-        try {
-          const scrollingElement = event.target as HTMLElement;
-          const scrollTop = scrollingElement.scrollTop;
-          
-          // Aggiorna tutti gli altri contenitori per mantenere l'allineamento
-          scrollContainers.forEach(container => {
-            const element = container as HTMLElement;
-            if (element !== scrollingElement) {
-              // Imposta lo scrollTop direttamente per massima efficienza
-              element.scrollTop = scrollTop;
-            }
-          });
-        } catch (error) {
-          console.error("Errore durante la sincronizzazione dello scorrimento:", error);
-        } finally {
-          // Resetta il flag di animazione
-          animationFrameRequestedRef.current = null;
-          
-          // Sblocca gli eventi di scorrimento con un breve ritardo per evitare oscillazioni
-          if (scrollLockTimeoutRef.current) {
-            clearTimeout(scrollLockTimeoutRef.current);
-          }
-          
-          scrollLockTimeoutRef.current = window.setTimeout(() => {
-            activeScrollElementRef.current = null;
-            scrollLockTimeoutRef.current = null;
-          }, 30); // Ritardo ottimizzato per prestazioni fluide
-        }
+    // Applica le trasformazioni nel prossimo frame di rendering
+    rafIdRef.current = requestAnimationFrame(() => {
+      // Aggiorna tutte le colonne slave con la stessa trasformazione
+      slaveScrollersRef.current.forEach(slaveScroller => {
+        // Usiamo translateY che è ottimizzato per hardware acceleration
+        slaveScroller.style.transform = `translate3d(0, -${scrollTop}px, 0)`;
       });
-    };
-    
-    // Aggiungi listener con il flag passive per migliorare le prestazioni
-    scrollContainers.forEach(container => {
-      container.addEventListener('scroll', handleScroll, { passive: true });
+      
+      // Resetta il riferimento del frame
+      rafIdRef.current = null;
     });
-    
-    // Funzione di pulizia che rimuove tutti i listener quando il componente viene smontato
-    return () => {
-      scrollContainers.forEach(container => {
-        container.removeEventListener('scroll', handleScroll);
-      });
-      
-      // Cancella eventuali animationFrame pendenti
-      if (animationFrameRequestedRef.current !== null) {
-        cancelAnimationFrame(animationFrameRequestedRef.current);
-        animationFrameRequestedRef.current = null;
-      }
-      
-      // Cancella eventuali timeout pendenti
-      if (scrollLockTimeoutRef.current !== null) {
-        clearTimeout(scrollLockTimeoutRef.current);
-        scrollLockTimeoutRef.current = null;
-      }
-    };
   }, []);
   
+  // Funzione principale per configurare il sistema master-slave
+  const setupMasterSlaveScrollSystem = useCallback(() => {
+    // Pulisci riferimenti precedenti
+    slaveScrollersRef.current = [];
+    masterScrollerRef.current = null;
+    
+    // Seleziona il master scroller (colonna tempo)
+    const masterScroller = document.querySelector('.calendar-time-col') as HTMLElement;
+    if (!masterScroller) return;
+    
+    // Salva il riferimento al master
+    masterScrollerRef.current = masterScroller;
+    
+    // Trova tutti i potenziali slave scrollers
+    const staffColumns = document.querySelectorAll('.calendar-staff-col .fc-scroller');
+    if (staffColumns.length === 0) return;
+    
+    // Configura ciascuno slave
+    staffColumns.forEach(staffCol => {
+      const slaveScroller = staffCol as HTMLElement;
+      
+      // Blocca lo scrolling nativo del slave e prepara per transform
+      slaveScroller.style.overflow = 'hidden';
+      slaveScroller.style.willChange = 'transform';
+      slaveScroller.style.transform = 'translate3d(0, 0, 0)';
+      slaveScroller.style.transition = 'transform 0ms linear';
+      
+      // Aggiungi alla lista degli slave
+      slaveScrollersRef.current.push(slaveScroller);
+      
+      // Disabilita gli eventi di scroll nativi per prevenire interferenze
+      slaveScroller.addEventListener('scroll', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (masterScrollerRef.current) {
+          masterScrollerRef.current.scrollTop = slaveScroller.scrollTop;
+        }
+        return false;
+      }, { passive: false });
+    });
+    
+    // Ottimizza il master scroller
+    masterScroller.style.willChange = 'scroll-position';
+    masterScroller.style.overscrollBehavior = 'contain';
+    
+    // Aggiungi l'handler di scroll al master
+    const handleMasterScroll = () => {
+      if (!masterScrollerRef.current) return;
+      
+      // Evita aggiornamenti ridondanti
+      const currentScrollTop = masterScrollerRef.current.scrollTop;
+      if (currentScrollTop === lastScrollPositionRef.current) return;
+      
+      // Aggiorna la posizione di riferimento
+      lastScrollPositionRef.current = currentScrollTop;
+      
+      // Segnala che stiamo scrollando per ottimizzazioni UI
+      if (!isScrollingRef.current) {
+        document.body.classList.add('is-scrolling');
+        isScrollingRef.current = true;
+      }
+      
+      // Sincronizza gli slave via transform
+      synchronizeViaTransform(currentScrollTop);
+      
+      // Pulizia della classe dopo breve ritardo
+      clearTimeout(window.setTimeout(() => {
+        document.body.classList.remove('is-scrolling');
+        isScrollingRef.current = false;
+      }, 100));
+    };
+    
+    // Ottimizza l'evento di scroll con passive: true per prestazioni
+    masterScroller.addEventListener('scroll', handleMasterScroll, { passive: true });
+    
+    // Sincronizzazione iniziale
+    lastScrollPositionRef.current = masterScroller.scrollTop;
+    synchronizeViaTransform(masterScroller.scrollTop);
+    
+    // Restituisci funzione di pulizia
+    return () => {
+      if (masterScrollerRef.current) {
+        masterScrollerRef.current.removeEventListener('scroll', handleMasterScroll);
+      }
+      
+      // Resetta i riferimenti
+      slaveScrollersRef.current = [];
+      masterScrollerRef.current = null;
+    };
+  }, [synchronizeViaTransform]);
+  
+  // Effect principale che configura il sistema quando la vista cambia
   useEffect(() => {
-    // Salta la sincronizzazione per la vista mese
-    if (view === 'dayGridMonth') return;
+    // Salta per la vista mese che non richiede sincronizzazione
+    if (view === 'dayGridMonth') {
+      isInitializedRef.current = false;
+      return;
+    }
     
-    // Reimposta il flag di sincronizzazione iniziale quando cambia la vista
-    isInitialSyncDoneRef.current = false;
-    
-    // Ritardo minimo per assicurarsi che il DOM sia completamente caricato
+    // Configurazione con ritardo per assicurarsi che il DOM sia pronto
     const setupTimer = setTimeout(() => {
-      // Forza un'ottimizzazione del layout prima di iniziare la sincronizzazione
+      // Applica classi di ottimizzazione al container principale
       const calendarBody = document.querySelector('.calendar-grid-body');
-      if (calendarBody instanceof Element) {
+      if (calendarBody) {
         calendarBody.classList.add('hardware-accelerated');
       }
       
-      // Avvia la sincronizzazione
-      const cleanup = synchronizeScrolling();
+      // Configura il sistema master-slave
+      const cleanup = setupMasterSlaveScrollSystem();
+      isInitializedRef.current = true;
       
-      return () => {
-        if (cleanup) cleanup();
-      };
-    }, 100);
+      return cleanup;
+    }, 250);
     
-    // Ascolta eventi di ridimensionamento e orientamento per aggiornare la sincronizzazione
-    window.addEventListener('resize', synchronizeScrolling, { passive: true });
-    window.addEventListener('orientationchange', synchronizeScrolling);
-    
-    // Usa MutationObserver per rilevare cambiamenti al DOM che richiedono risincronizzazione
-    const observer = new MutationObserver((mutations) => {
-      const shouldReSync = mutations.some(mutation => {
-        const target = mutation.target as Node;
-        
-        // Verifica se il target è un Element prima di accedere a classList
-        if (target instanceof Element) {
-          return target.classList.contains('staff-calendar-block') ||
-                 target.classList.contains('calendar-grid-body');
-        }
-        return false;
-      });
-      
-      if (shouldReSync) {
-        isInitialSyncDoneRef.current = false;
-        synchronizeScrolling();
+    // Observer per riconfigurare in caso di cambiamenti al DOM
+    const observer = new MutationObserver(() => {
+      if (isInitializedRef.current) {
+        // Riconfigura solo se già inizializzato, altrimenti aspetta il timer
+        setupMasterSlaveScrollSystem();
       }
     });
     
-    // Osserva il contenitore principale del calendario per modifiche
-    const calendarElement = document.querySelector('.staff-calendar-block');
-    if (calendarElement) {
-      observer.observe(calendarElement, { 
+    // Osserva il container del calendario
+    const calendarContainer = document.querySelector('.staff-calendar-block');
+    if (calendarContainer) {
+      observer.observe(calendarContainer, { 
         childList: true, 
         subtree: true,
-        attributes: true,
-        attributeFilter: ['class', 'style']
+        attributes: false
       });
     }
     
-    // Pulizia quando il componente viene smontato
+    // Aggiungi listener per reinizializzare su cambiamenti di finestra
+    window.addEventListener('resize', setupMasterSlaveScrollSystem, { passive: true });
+    window.addEventListener('orientationchange', setupMasterSlaveScrollSystem);
+    
+    // Pulizia
     return () => {
       clearTimeout(setupTimer);
-      window.removeEventListener('resize', synchronizeScrolling);
-      window.removeEventListener('orientationchange', synchronizeScrolling);
       observer.disconnect();
+      window.removeEventListener('resize', setupMasterSlaveScrollSystem);
+      window.removeEventListener('orientationchange', setupMasterSlaveScrollSystem);
+      
+      // Pulisci qualsiasi transform applicata
+      slaveScrollersRef.current.forEach(slaveScroller => {
+        slaveScroller.style.transform = '';
+        slaveScroller.style.overflow = '';
+      });
+      
+      // Resetta lo stato
+      isInitializedRef.current = false;
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
-  }, [view, synchronizeScrolling]);
+  }, [view, setupMasterSlaveScrollSystem]);
 };

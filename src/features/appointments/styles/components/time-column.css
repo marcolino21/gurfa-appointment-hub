@@ -16,6 +16,8 @@
   will-change: scroll-position;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior: none; /* Prevents scroll chaining */
+  scroll-behavior: auto; /* Default to auto, changed to smooth during auto-scroll */
 }
 
 .calendar-time-inner {
@@ -28,4 +30,9 @@
   font-weight: 500;
   color: #64748b;
   padding-right: 8px;
+}
+
+/* No scrollbar styling */
+.calendar-time-col::-webkit-scrollbar {
+  display: none;
 }

@@ -51,21 +51,31 @@
   display: none !important;
 }
 
-/* Assicura che tutti gli scroller nel container di sincronizzazione usino lo stesso comportamento */
-.sync-scroll-container .fc-scroller,
-.calendar-time-col,
-.calendar-staff-cols {
+/* Master scroller - solo questa ha lo scorrimento attivo */
+.calendar-time-col {
   overflow: auto !important;
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
   overscroll-behavior: none;
   will-change: scroll-position;
-  contain: content; /* Ottimizzazione di rendering */
+  contain: content;
 }
 
-.sync-scroll-container .fc-scroller::-webkit-scrollbar,
-.calendar-time-col::-webkit-scrollbar,
-.calendar-staff-cols::-webkit-scrollbar {
+.calendar-time-col::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Slave scrollers - il loro contenuto viene trasformato invece di scrollare */
+.calendar-staff-col .fc-scroller {
+  /* Transform-based scrolling */
+  will-change: transform;
+  overflow: hidden !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  contain: content;
+}
+
+.calendar-staff-col .fc-scroller::-webkit-scrollbar {
   display: none !important;
 }
 
@@ -126,9 +136,7 @@
 
 /* Ottimizzazione scroll per dispositivi touch */
 @media (pointer: coarse) {
-  .calendar-time-col,
-  .calendar-staff-cols,
-  .fc-scroller-liquid-absolute {
+  .calendar-time-col {
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: y proximity;
   }

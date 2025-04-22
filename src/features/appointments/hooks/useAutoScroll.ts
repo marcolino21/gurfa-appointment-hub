@@ -26,32 +26,23 @@ export const useAutoScroll = (
       const scrollToCurrentTime = () => {
         try {
           // Trova il contenitore di scorrimento principale - questo controllerà tutto lo scorrimento sincronizzato
-          const mainScroller = document.querySelector('.calendar-time-col') as HTMLElement;
+          const masterScroller = document.querySelector('.calendar-time-col') as HTMLElement;
           
-          if (!mainScroller) {
+          if (!masterScroller) {
             console.log('Contenitore di scorrimento primario non trovato, riprovo...');
             return false; // Riproverà
           }
           
-          // Prima applica la trasformazione per forzare l'hardware acceleration
-          mainScroller.style.transform = 'translateZ(0)';
-          
           // Applica uno stile di transizione per uno scorrimento ancora più fluido
-          mainScroller.style.transition = 'scrollTop 0.8s ease-out';
-
-          // Esegue l'animazione al prossimo frame per garantire che la transizione funzioni
-          requestAnimationFrame(() => {
-            // Imposta la posizione di scorrimento con comportamento fluido
-            mainScroller.scrollTo({
-              top: scrollPosition,
-              behavior: 'smooth'
-            });
-            
-            // Rimuove la transizione dopo il completamento
-            setTimeout(() => {
-              mainScroller.style.transition = '';
-            }, 850);
-          });
+          masterScroller.style.scrollBehavior = 'smooth';
+          
+          // Esegue lo scrolling
+          masterScroller.scrollTop = scrollPosition;
+          
+          // Resetta lo stile dopo l'animazione
+          setTimeout(() => {
+            masterScroller.style.scrollBehavior = 'auto';
+          }, 800);
           
           return true; // Scorrimento completato con successo
         } catch (error) {
@@ -62,7 +53,7 @@ export const useAutoScroll = (
       
       // Strategia di retry più sofisticata con intervalli crescenti
       let attempts = 0;
-      const maxAttempts = 8; // Più tentativi per garantire il successo
+      const maxAttempts = 5;
       
       const attemptScroll = () => {
         if (attempts >= maxAttempts) {
@@ -74,17 +65,15 @@ export const useAutoScroll = (
         
         if (!success) {
           attempts++;
-          // Intervallo esponenziale con jitter per evitare sincronizzazioni problematiche
-          const baseDelay = 250;
-          const jitter = Math.random() * 50;
-          setTimeout(attemptScroll, baseDelay * Math.pow(1.2, attempts) + jitter);
+          // Intervallo esponenziale
+          setTimeout(attemptScroll, 300 * Math.pow(1.5, attempts));
         } else {
           scrollAttemptedRef.current = true;
         }
       };
       
       // Inizia il primo tentativo dopo il rendering iniziale
-      setTimeout(attemptScroll, 500); // Ritardo aumentato per garantire il caricamento completo
+      setTimeout(attemptScroll, 500);
     }
 
     return () => {

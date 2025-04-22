@@ -42,6 +42,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         <div
           key={staff.id}
           className="calendar-staff-col"
+          data-staff-id={staff.id}
         >
           <FullCalendar
             key={`staff-calendar-${staff.id}`}

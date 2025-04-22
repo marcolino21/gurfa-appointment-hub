@@ -2,18 +2,17 @@
 /* Staff columns container */
 .calendar-staff-cols {
   flex: 1;
-  overflow-x: auto;
-  overflow-y: scroll;
+  overflow: hidden; /* Changed from overflow-x: auto and overflow-y: scroll */
   height: 100%;
-  will-change: scroll-position;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  position: relative; /* Added for positioning */
+  contain: content; /* Optimization for rendering */
 }
 
 /* Staff columns wrapper for better organization */
 .staff-columns-wrapper {
   height: 100%;
   width: 100%;
+  position: relative; /* Added for positioning */
 }
 
 /* Individual staff column */
@@ -21,6 +20,7 @@
   height: 100%;
   border-right: 1px solid #e5e7eb;
   background: #fff;
+  position: relative; /* Added for positioning */
 }
 
 /* Hide unnecessary FullCalendar elements */
@@ -45,4 +45,11 @@
   width: 100%;
   color: #64748b;
   font-size: 0.9rem;
+}
+
+/* Ensure events remain interactive even during transform */
+.calendar-staff-col .fc-event {
+  transform: translateZ(0); /* Ensure events get their own layer */
+  will-change: transform; /* Hint for the browser */
+  z-index: 10; /* Ensure events are above other elements */
 }
