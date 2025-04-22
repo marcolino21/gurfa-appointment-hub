@@ -71,6 +71,13 @@ export const useStaffBlockTime = () => {
     });
   }, [blockTimes]);
 
+  // NEW: Add isStaffBlocked function to check if a staff is currently blocked
+  const isStaffBlocked = useCallback((staffId: string) => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    return isTimeBlocked(staffId, now, currentTime);
+  }, [isTimeBlocked]);
+
   // Convert block times to FullCalendar background events
   const getBlockTimeEvents = useCallback(() => {
     return blockTimes.map(blockTime => {
@@ -109,6 +116,7 @@ export const useStaffBlockTime = () => {
     removeBlockTime,
     getStaffBlockTimes,
     isTimeBlocked,
-    getBlockTimeEvents
+    getBlockTimeEvents,
+    isStaffBlocked // Added the new function to the return object
   };
 };
