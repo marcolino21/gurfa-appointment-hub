@@ -29,6 +29,12 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
         slaveScroller.style.transform = `translate3d(0, -${scrollTop}px, 0)`;
       });
       
+      // Aggiorna anche i container esterni per garantire lo scrolling visibile dell'intera griglia
+      const gridBody = document.querySelector('.calendar-grid-body');
+      if (gridBody && gridBody instanceof HTMLElement) {
+        gridBody.scrollTop = scrollTop;
+      }
+      
       // Resetta il riferimento del frame
       rafIdRef.current = null;
     });
@@ -78,6 +84,16 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     // Ottimizza il master scroller
     masterScroller.style.willChange = 'scroll-position';
     masterScroller.style.overscrollBehavior = 'contain';
+    
+    // Configura anche lo scrolling del container principal della griglia
+    const gridBody = document.querySelector('.calendar-grid-body') as HTMLElement;
+    if (gridBody) {
+      gridBody.addEventListener('scroll', (e) => {
+        if (masterScrollerRef.current && !isScrollingRef.current) {
+          masterScrollerRef.current.scrollTop = gridBody.scrollTop;
+        }
+      }, { passive: true });
+    }
     
     // Aggiungi l'handler di scroll al master
     const handleMasterScroll = () => {

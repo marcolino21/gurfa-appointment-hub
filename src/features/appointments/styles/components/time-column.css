@@ -9,7 +9,7 @@
   position: sticky;
   left: 0;
   z-index: 5;
-  overflow-y: scroll;
+  overflow-y: auto; /* Changed from scroll to auto for better cross-browser behavior */
   overflow-x: hidden;
   height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
@@ -18,11 +18,13 @@
   -ms-overflow-style: none;
   overscroll-behavior: none; /* Prevents scroll chaining */
   scroll-behavior: auto; /* Default to auto, changed to smooth during auto-scroll */
+  min-height: 1200px; /* Ensure enough height for scrolling content */
 }
 
 .calendar-time-inner {
   width: 80px;
   height: 100%;
+  min-height: 1200px; /* Match the container height */
 }
 
 .time-slot-label {

@@ -19,10 +19,20 @@
 .sync-scroll-container {
   display: grid;
   grid-template-columns: 80px 1fr;
-  overflow: hidden;
+  overflow: auto; /* Changed from hidden to auto to allow scrolling */
   height: 100%;
   position: relative;
-  contain: content; /* Migliora le prestazioni di rendering */
+  contain: content;
+  max-height: calc(100vh - 400px); /* Ensure it fits within viewport with some margin for headers */
+  min-height: 500px; /* Minimum height to ensure visibility of content */
+}
+
+/* Calendar scrollable container */
+.calendar-scrollable {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; /* Container itself doesn't scroll */
 }
 
 /* Hardware acceleration per tutti i container scorrevoli */
@@ -120,7 +130,7 @@
 .unified-calendar-grid {
   display: grid;
   grid-template-columns: 80px 1fr;
-  overflow: hidden;
+  overflow: auto; /* Changed from hidden to auto for proper scrolling */
   height: 100%;
   contain: layout style; /* Ottimizzazione per il layout grid */
 }
@@ -128,7 +138,7 @@
 /* Content container */
 .unified-calendar-content {
   position: relative;
-  overflow: hidden;
+  overflow: auto; /* Changed from hidden to auto for proper scrolling */
   width: 100%;
   height: 100%;
   contain: content;

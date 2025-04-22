@@ -43,6 +43,12 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (calendarGridBody) {
             calendarGridBody.classList.add('unified-calendar-grid');
           }
+          
+          // Add a class to the main container to ensure proper height and scrolling
+          const appointmentCalendar = document.querySelector('.staff-calendar-block');
+          if (appointmentCalendar) {
+            appointmentCalendar.classList.add('calendar-scrollable');
+          }
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }

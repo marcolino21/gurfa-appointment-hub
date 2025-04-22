@@ -15,7 +15,8 @@
   min-height: 0;
   background: #fff;
   position: relative;
-  overflow: hidden;
+  overflow: auto; /* Changed from hidden to auto for vertical scrolling */
+  max-height: calc(100vh - 400px); /* Ensure it fits within viewport with margin for headers */
 }
 
 /* Critical for performance - use hardware acceleration */
@@ -25,4 +26,19 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* Set min-height for daily views to ensure scrollability */
+.fc .fc-timegrid .fc-daygrid-body {
+  min-height: 1200px !important;
+}
+
+/* Ensure the time columns have enough height */
+.fc .fc-timegrid-body {
+  min-height: 1200px !important;
+}
+
+/* Ensure the slot labels have visible height */
+.fc .fc-timegrid-slots {
+  min-height: 1200px !important;
 }
