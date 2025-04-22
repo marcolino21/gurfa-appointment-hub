@@ -20,29 +20,38 @@ interface CalendarEvent {
 }
 
 export const useAppointmentEvents = () => {
-  const { filteredAppointments } = useAppointments();
+  const { filteredAppointments, appointments } = useAppointments();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   
   useEffect(() => {
-    // Transform appointments into calendar events
-    const calendarEvents = filteredAppointments.map(appointment => ({
-      id: appointment.id,
-      title: `${appointment.clientName} - ${appointment.service || ''}`,
-      start: appointment.start,
-      end: appointment.end,
-      backgroundColor: getEventColor(appointment.status),
-      borderColor: getEventColor(appointment.status),
-      resourceId: appointment.staffId,  // This is critical for staff resource mapping
-      extendedProps: {
-        status: appointment.status,
-        staffId: appointment.staffId,
-        clientName: appointment.clientName,
-        service: appointment.service
-      }
-    }));
+    // Verifichiamo che ci siano appuntamenti disponibili
+    console.log("Appuntamenti disponibili:", appointments.length);
+    console.log("Appuntamenti filtrati:", filteredAppointments.length);
     
+    // Transform appointments into calendar events
+    const calendarEvents = filteredAppointments.map(appointment => {
+      console.log("Trasformando appuntamento in evento:", appointment);
+      
+      return {
+        id: appointment.id,
+        title: `${appointment.clientName} - ${appointment.service || ''}`,
+        start: appointment.start,
+        end: appointment.end,
+        backgroundColor: getEventColor(appointment.status),
+        borderColor: getEventColor(appointment.status),
+        resourceId: appointment.staffId,  // This is critical for staff resource mapping
+        extendedProps: {
+          status: appointment.status,
+          staffId: appointment.staffId,
+          clientName: appointment.clientName,
+          service: appointment.service
+        }
+      };
+    });
+    
+    console.log("Eventi calendario generati:", calendarEvents.length);
     setEvents(calendarEvents);
-  }, [filteredAppointments]);
+  }, [filteredAppointments, appointments]);
 
   const getEventColor = (status: string) => {
     switch (status) {

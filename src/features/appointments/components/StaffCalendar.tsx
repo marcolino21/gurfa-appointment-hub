@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
 import { MonthView } from './calendar/MonthView';
 import { TimeGridView } from './calendar/TimeGridView';
@@ -30,6 +30,17 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [calendarApi, setCalendarApi] = useState<any>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  // Log events and staff per render per debugging
+  useEffect(() => {
+    console.log("StaffCalendar rendering with:", {
+      staffMembersCount: staffMembers.length,
+      eventsCount: events.length,
+      view,
+      staffIds: staffMembers.map(s => s.id),
+      firstFewEvents: events.slice(0, 3)
+    });
+  }, [staffMembers, events, view]);
 
   // Always ensure we have a valid date object
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
@@ -74,6 +85,19 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       setDatePickerOpen(false);
     }
   };
+
+  // Manual refresh of calendars after events update
+  useEffect(() => {
+    if (calendarApi && events.length > 0) {
+      try {
+        setTimeout(() => {
+          calendarApi.refetchEvents();
+        }, 100);
+      } catch (error) {
+        console.error("Error refreshing calendar events:", error);
+      }
+    }
+  }, [events, calendarApi]);
 
   if (view === 'dayGridMonth') {
     return (

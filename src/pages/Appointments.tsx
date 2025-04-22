@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useStaffAppointments } from '@/features/appointments/hooks/useStaffAppointments';
@@ -17,7 +18,7 @@ const Appointments: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
   
-  const { setFilters, currentAppointment } = useAppointments();
+  const { setFilters, currentAppointment, appointments } = useAppointments();
   const { currentSalonId } = useAuth();
   const { visibleStaff, refreshVisibleStaff } = useStaffAppointments();
   const { events } = useAppointmentEvents();
@@ -50,6 +51,8 @@ const Appointments: React.FC = () => {
   
   useEffect(() => {
     console.log("Appointments component - visibleStaff:", visibleStaff);
+    console.log("Appointments component - events:", events);
+    console.log("Appointments component - appointments:", appointments);
     
     if (visibleStaff.length === 0 && currentSalonId) {
       toast({
@@ -58,7 +61,7 @@ const Appointments: React.FC = () => {
         variant: "default"
       });
     }
-  }, [visibleStaff, currentSalonId, toast]);
+  }, [visibleStaff, currentSalonId, toast, events, appointments]);
   
   return (
     <div className="space-y-4">

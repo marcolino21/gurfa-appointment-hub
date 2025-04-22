@@ -1,5 +1,4 @@
-
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,13 +13,8 @@ export const useAppointmentProvider = (): AppointmentContextType => {
   const { currentSalonId, user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (currentSalonId) {
-      fetchAppointments(currentSalonId);
-    }
-  }, [currentSalonId]);
-
-  const fetchAppointments = (salonId: string) => {
+  const fetchAppointments = useCallback((salonId: string) => {
+    console.log("Fetching appointments for salon:", salonId);
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
@@ -36,17 +30,27 @@ export const useAppointmentProvider = (): AppointmentContextType => {
           filteredApps = MOCK_APPOINTMENTS.filter(app => app.salonId === salonId);
         }
         
+        console.log("Appointments fetched:", filteredApps.length);
         dispatch({ type: 'SET_APPOINTMENTS', payload: filteredApps });
         dispatch({ type: 'SET_FILTERED_APPOINTMENTS', payload: filteredApps });
         dispatch({ type: 'SET_LOADING', payload: false });
       }, 500);
     } catch (error: any) {
+      console.error("Error fetching appointments:", error);
       dispatch({ type: 'SET_ERROR', payload: error.message });
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (currentSalonId) {
+      console.log("Fetching appointments on mount with salonId:", currentSalonId);
+      fetchAppointments(currentSalonId);
+    }
+  }, [currentSalonId, fetchAppointments]);
 
   const addAppointment = async (appointment: Omit<Appointment, 'id'>): Promise<Appointment> => {
+    console.log("Adding appointment:", appointment);
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
@@ -67,6 +71,7 @@ export const useAppointmentProvider = (): AppointmentContextType => {
       }
       
       dispatch({ type: 'ADD_APPOINTMENT', payload: newAppointment });
+      console.log("Appointment added successfully:", newAppointment);
       
       toast({
         title: 'Appuntamento creato',
@@ -76,6 +81,7 @@ export const useAppointmentProvider = (): AppointmentContextType => {
       dispatch({ type: 'SET_LOADING', payload: false });
       return newAppointment;
     } catch (error: any) {
+      console.error("Error adding appointment:", error);
       dispatch({ type: 'SET_ERROR', payload: error.message });
       dispatch({ type: 'SET_LOADING', payload: false });
       toast({
@@ -157,11 +163,13 @@ export const useAppointmentProvider = (): AppointmentContextType => {
   };
 
   const setFilters = (filters: Partial<AppointmentState['filters']>) => {
+    console.log("Setting filters:", filters);
     dispatch({ type: 'SET_FILTERS', payload: filters });
     
     // Aggiorna gli appuntamenti filtrati
     const updatedFilters = { ...state.filters, ...filters };
     const filtered = state.appointments.filter(filterAppointments(updatedFilters));
+    console.log("Filtered appointments after filter update:", filtered.length);
     dispatch({ type: 'SET_FILTERED_APPOINTMENTS', payload: filtered });
   };
 
@@ -177,6 +185,7 @@ export const useAppointmentProvider = (): AppointmentContextType => {
   };
 
   const setCurrentAppointment = (appointment: Appointment | null) => {
+    console.log("Setting current appointment:", appointment);
     dispatch({ type: 'SET_CURRENT_APPOINTMENT', payload: appointment });
   };
 
