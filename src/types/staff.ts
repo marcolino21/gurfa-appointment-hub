@@ -27,4 +27,14 @@ export interface StaffMember {
   assignedServiceIds?: string[];
   permissions?: SystemFeature[];
   workSchedule?: WorkScheduleDay[];
+  
+  // Add a computed name property
+  readonly name: string;
+}
+
+// Add a utility function to compute name if needed
+export function getStaffMemberName(staffMember: StaffMember): string {
+  return staffMember.firstName && staffMember.lastName 
+    ? `${staffMember.firstName} ${staffMember.lastName}` 
+    : staffMember.firstName || staffMember.lastName || 'Operatore';
 }
