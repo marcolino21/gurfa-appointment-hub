@@ -45,7 +45,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     }, {} as Record<string, boolean>);
   }, [staffMembers, isStaffBlocked]);
 
-  // Log degli eventi per debug
+  // Debug log of events
   useEffect(() => {
     console.log("StaffColumns - eventi disponibili:", events.length);
     console.log("StaffColumns - gruppi di eventi per staff:", 
@@ -76,7 +76,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
-        // Filtra eventi per questo staff
+        // Filter events for this staff
         const staffEvents = events.filter(event => event.resourceId === staff.id);
         console.log(`Staff ${getStaffName(staff)} (${staff.id}) ha ${staffEvents.length} eventi`);
         
