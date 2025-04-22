@@ -23,6 +23,17 @@ export const useAppointmentEvents = () => {
   const { filteredAppointments, appointments } = useAppointments();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   
+  // Moved getEventColor before its usage
+  const getEventColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return '#2563eb'; // blue
+      case 'completed': return '#16a34a'; // green
+      case 'pending': return '#ea580c';   // orange
+      case 'cancelled': return '#dc2626'; // red
+      default: return '#2563eb';          // default blue
+    }
+  };
+  
   // Utilizziamo useMemo per ottimizzare la trasformazione degli appuntamenti in eventi
   const transformedEvents = useMemo(() => {
     // Log dettagliati per debug
@@ -62,16 +73,6 @@ export const useAppointmentEvents = () => {
     console.log("Eventi calendario generati:", transformedEvents.length);
     setEvents(transformedEvents);
   }, [transformedEvents]);
-
-  const getEventColor = (status: string) => {
-    switch (status) {
-      case 'confirmed': return '#2563eb'; // blue
-      case 'completed': return '#16a34a'; // green
-      case 'pending': return '#ea580c';   // orange
-      case 'cancelled': return '#dc2626'; // red
-      default: return '#2563eb';          // default blue
-    }
-  };
   
   return { events };
 };
