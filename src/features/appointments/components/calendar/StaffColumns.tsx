@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -22,6 +22,22 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   calendarRefs,
   setCalendarApi
 }) => {
+  // Apply block time styles after calendar rendering is complete
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        // Apply styles to all background events for blocked times
+        document.querySelectorAll('.fc-bg-event').forEach(el => {
+          el.classList.add('blocked-time-event');
+        });
+      } catch (error) {
+        console.error("Error applying block time styling in staff columns:", error);
+      }
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [events]);
+
   if (staffMembers.length === 0) {
     return (
       <div className="flex items-center justify-center flex-1 h-full text-gray-500">
@@ -55,6 +71,15 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
             events={events.filter(event => event.resourceId === staff.id)}
             headerToolbar={false}
             height="100%"
+            eventClassNames={(arg) => {
+              // Add extra class for blocked time events
+              if (arg.event.extendedProps.isBlockedTime || 
+                  arg.event.classNames?.includes('blocked-time-event') ||
+                  arg.event.display === 'background') {
+                return ['blocked-time-event', 'fc-non-interactive'];
+              }
+              return [];
+            }}
             ref={el => {
               if (el) {
                 calendarRefs.current[index] = el;

@@ -7,6 +7,7 @@ import { TimeColumn } from './TimeColumn';
 import { StaffColumns } from './StaffColumns';
 import { CalendarControls } from './CalendarControls';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import '../../styles/index.css';
 
 interface TimeGridViewProps {
@@ -29,7 +30,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   setCalendarApi
 }) => {
   const [gridInitialized, setGridInitialized] = useState(false);
-  const { enhancedBlockTimeEvents } = useCalendarBlockTime();
+  const { enhancedBlockTimeEvents, applyBlockedTimeStyles } = useCalendarBlockTime();
   
   // Combine normal events with block time events
   const allEvents = [...events, ...enhancedBlockTimeEvents];
@@ -55,12 +56,22 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
+          
+          // Apply styles to blocked time events
+          applyBlockedTimeStyles();
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
-      }, 50);
+      }, 100);
     }
-  }, [staffMembers, gridInitialized]);
+  }, [staffMembers, gridInitialized, applyBlockedTimeStyles]);
+
+  // Reapply blocked time styles whenever events change
+  useEffect(() => {
+    if (enhancedBlockTimeEvents.length > 0) {
+      setTimeout(applyBlockedTimeStyles, 300);
+    }
+  }, [enhancedBlockTimeEvents, applyBlockedTimeStyles]);
 
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-block">
@@ -88,9 +99,13 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
             commonConfig={{
               ...commonConfig,
               eventDidMount: (info: any) => {
-                if (info.event.extendedProps.isBlockedTime || info.event.classNames?.includes('blocked-time-event')) {
+                if (info.event.extendedProps.isBlockedTime || 
+                    info.event.classNames?.includes('blocked-time-event') ||
+                    info.event.display === 'background') {
                   info.el.classList.add('blocked-time-event');
+                  info.el.classList.add('fc-non-interactive');
                   
+                  // Create tooltip for blocked time
                   const tooltip = document.createElement('div');
                   tooltip.className = 'calendar-tooltip';
                   
