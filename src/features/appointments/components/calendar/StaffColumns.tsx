@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -26,6 +25,11 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
 }) => {
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
+  
+  // Helper function to get staff name
+  const getStaffName = (staff: StaffMember) => {
+    return `${staff.firstName} ${staff.lastName}`.trim() || 'Operatore';
+  };
   
   // Apply block time styles once after initial render
   useEffect(() => {
@@ -74,7 +78,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         
         // Filtra eventi per questo staff
         const staffEvents = events.filter(event => event.resourceId === staff.id);
-        console.log(`Staff ${staff.name} (${staff.id}) ha ${staffEvents.length} eventi`);
+        console.log(`Staff ${getStaffName(staff)} (${staff.id}) ha ${staffEvents.length} eventi`);
         
         return (
           <div
