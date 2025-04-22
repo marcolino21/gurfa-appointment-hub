@@ -1,0 +1,12 @@
+
+/* Ensure popover is visible and interactive */
+.radix-popover-content {
+  z-index: 99999 !important;
+  background-color: white;
+  pointer-events: auto !important;
+}
+
+.radix-popover-content .react-day-picker {
+  pointer-events: auto !important;
+}
+

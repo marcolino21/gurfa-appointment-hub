@@ -7,4 +7,6 @@
 @import './components/calendar-header.css';
 @import './components/time-column.css';
 @import './components/staff-columns.css';
-@import './components/calendar-grid.css';
+@import './components/grid-lines.css';
+@import './components/calendar-popover.css';
+
