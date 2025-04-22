@@ -1,7 +1,7 @@
-
 import { StaffMember } from '@/types';
 import { Json } from '@/integrations/supabase/types';
 import { SystemFeature } from '../types/permissions';
+import { getStaffMemberName } from '@/types/staff';
 
 /**
  * Parse work schedule from database format to application format

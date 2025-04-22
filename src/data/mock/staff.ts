@@ -1,13 +1,12 @@
-
 import { StaffMember } from '@/types';
+import { createStaffMember } from '@/types/staff';
 
 // Costanti per identificare gli operatori di test
 export const TEST_OPERATOR_IDS = ['TEST_OPERATOR_1', 'TEST_OPERATOR_2'];
 
 // Operatori di test permanenti
 export const TEST_OPERATORS: StaffMember[] = [
-  {
-    id: 'TEST_OPERATOR_1',
+  createStaffMember({
     firstName: 'Test',
     lastName: 'Operatore1',
     email: 'test.operatore1@example.com',
@@ -26,9 +25,8 @@ export const TEST_OPERATORS: StaffMember[] = [
       { day: 'Sabato', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
     ]
-  },
-  {
-    id: 'TEST_OPERATOR_2',
+  }),
+  createStaffMember({
     firstName: 'Test',
     lastName: 'Operatore2',
     email: 'test.operatore2@example.com',
@@ -47,15 +45,14 @@ export const TEST_OPERATORS: StaffMember[] = [
       { day: 'Sabato', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
     ]
-  }
+  })
 ];
 
 // Mock staff members
 export const MOCK_STAFF: Record<string, StaffMember[]> = {
   'sa1': [
     ...TEST_OPERATORS,
-    {
-      id: 'staff1',
+    createStaffMember({
       firstName: 'Marco',
       lastName: 'Silvestrelli',
       email: 'silvestrellimmarco@gmail.com',
@@ -74,9 +71,8 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
         { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '13:00', breakStart: '', breakEnd: '' },
         { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       ]
-    },
-    {
-      id: 'staff2',
+    }),
+    createStaffMember({
       firstName: 'Fabrizio',
       lastName: 'Scopigno',
       email: 'fabrizio.scopigno@example.com',
@@ -94,9 +90,8 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
         { day: 'Sabato', isWorking: false, startTime: '09:00', endTime: '13:00', breakStart: '', breakEnd: '' },
         { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       ]
-    },
-    {
-      id: 'staff3',
+    }),
+    createStaffMember({
       firstName: 'Flavia',
       lastName: 'Luconi',
       email: 'flavia.luconi@example.com',
@@ -114,9 +109,8 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
         { day: 'Sabato', isWorking: true, startTime: '10:00', endTime: '15:00', breakStart: '', breakEnd: '' },
         { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       ]
-    },
-    {
-      id: 'staff4',
+    }),
+    createStaffMember({
       firstName: 'Greta',
       lastName: '',
       email: 'greta@example.com',
@@ -134,9 +128,8 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
         { day: 'Sabato', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
         { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       ]
-    },
-    {
-      id: 'staff5',
+    }),
+    createStaffMember({
       firstName: 'Simona',
       lastName: 'Rapagnani',
       email: 'simogiufa@gmail.com',
@@ -155,7 +148,7 @@ export const MOCK_STAFF: Record<string, StaffMember[]> = {
         { day: 'Sabato', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
         { day: 'Domenica', isWorking: false, startTime: '', endTime: '', breakStart: '', breakEnd: '' },
       ]
-    }
+    })
   ]
 };
 

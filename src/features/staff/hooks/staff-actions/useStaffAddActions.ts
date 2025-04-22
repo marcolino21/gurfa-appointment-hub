@@ -3,6 +3,7 @@ import { StaffMember } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { StaffFormValues } from '../../types';
 import { addStaffMember } from '../../utils/staffDataUtils';
+import { createStaffMember } from '@/types/staff';
 
 export const useStaffAddActions = (
   salonId: string | null,
@@ -22,7 +23,6 @@ export const useStaffAddActions = (
     }
 
     try {
-      // Ensure workSchedule days and isWorking are properly defined
       const workSchedule = data.workSchedule.map(day => ({
         day: day.day,
         isWorking: Boolean(day.isWorking),
@@ -32,7 +32,7 @@ export const useStaffAddActions = (
         breakEnd: day.breakEnd || '',
       }));
 
-      const newStaffData = {
+      const newStaffMember = createStaffMember({
         firstName: data.firstName,
         lastName: data.lastName || '',
         email: data.email,
@@ -47,22 +47,21 @@ export const useStaffAddActions = (
         assignedServiceIds: Array.isArray(data.assignedServiceIds) ? data.assignedServiceIds : [],
         workSchedule,
         salonId
-      };
+      });
 
-      const newStaff = await addStaffMember(salonId, newStaffData);
+      const savedStaff = await addStaffMember(salonId, newStaffMember);
       
-      setStaffMembers(prev => [...prev, newStaff]);
+      setStaffMembers(prev => [...prev, savedStaff]);
       
       toast({
         title: 'Membro dello staff aggiunto',
-        description: `${newStaff.firstName} ${newStaff.lastName} è stato aggiunto con successo`,
+        description: `${newStaffMember.firstName} ${newStaffMember.lastName} è stato aggiunto con successo`,
       });
       
-      return newStaff;
+      return savedStaff;
     } catch (error: any) {
       console.error("Error adding staff member:", error);
       
-      // Fornisci un messaggio di errore più specifico in base al tipo di errore
       if (error.name === 'DuplicateEmailError' || (error.message && error.message.includes('Email già utilizzata'))) {
         toast({
           title: 'Email già in uso',

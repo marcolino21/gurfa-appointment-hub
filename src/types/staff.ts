@@ -27,14 +27,19 @@ export interface StaffMember {
   assignedServiceIds?: string[];
   permissions?: SystemFeature[];
   workSchedule?: WorkScheduleDay[];
-  
-  // Add a computed name property
-  readonly name: string;
 }
 
-// Add a utility function to compute name if needed
-export function getStaffMemberName(staffMember: StaffMember): string {
-  return staffMember.firstName && staffMember.lastName 
-    ? `${staffMember.firstName} ${staffMember.lastName}` 
-    : staffMember.firstName || staffMember.lastName || 'Operatore';
+// Helper function to get staff member's full name
+export function getStaffMemberName(staff: StaffMember): string {
+  return staff.firstName && staff.lastName 
+    ? `${staff.firstName} ${staff.lastName}`.trim()
+    : staff.firstName || staff.lastName || 'Operatore';
+}
+
+// Factory function to create a new staff member
+export function createStaffMember(data: Omit<StaffMember, 'id'>): StaffMember {
+  return {
+    ...data,
+    id: crypto.randomUUID()
+  };
 }
