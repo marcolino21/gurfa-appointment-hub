@@ -22,6 +22,9 @@
   transform: translateZ(0);
   -webkit-transform-style: preserve-3d; /* Per Safari */
   transform-style: preserve-3d;
+  /* Added to prevent jump-back scroll issues */
+  overscroll-behavior: none;
+  scroll-behavior: auto !important;
 }
 
 /* Critical for performance - use hardware acceleration */
@@ -54,8 +57,8 @@
 .calendar-time-col,
 .calendar-staff-col .fc-scroller {
   -webkit-overflow-scrolling: touch !important;
-  scroll-snap-type: y proximity !important;
-  scroll-behavior: smooth !important;
+  scroll-snap-type: none !important; /* Changed from y proximity to none */
+  scroll-behavior: auto !important; /* Changed from smooth to auto to prevent jump-backs */
   overscroll-behavior: none !important;
 }
 
@@ -63,4 +66,32 @@
 .fc-timegrid-slot-lane,
 .fc-timegrid-slot-label {
   contain: strict;
+}
+
+/* Fix to prevent scroll jumps */
+.calendar-grid-body, 
+.calendar-time-col,
+.calendar-staff-col .fc-scroller {
+  /* Disable scroll anchoring that can cause jumps */
+  overflow-anchor: none;
+  /* Set consistent scroll behavior */
+  scrollbar-width: thin;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+/* Fix for Safari overscroll bounce that can cause jumps */
+@supports (-webkit-touch-callout: none) {
+  .calendar-grid-body, 
+  .calendar-time-col,
+  .calendar-staff-col .fc-scroller {
+    /* Prevent bounce scroll on mobile */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    /* Keep these for optimization */
+    -webkit-overflow-scrolling: touch;
+    -webkit-transform-style: preserve-3d;
+  }
 }

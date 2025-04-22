@@ -10,48 +10,57 @@ export const useAutoScroll = (
   view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth'
 ) => {
   const scrollAttemptedRef = useRef(false);
+  const autoScrollTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // Clear any existing timeout to prevent memory leaks
+    if (autoScrollTimeoutRef.current !== null) {
+      clearTimeout(autoScrollTimeoutRef.current);
+    }
+
     if (!calendarApi || view === 'dayGridMonth' || scrollAttemptedRef.current) return;
     
     const now = new Date();
     const hours = now.getHours();
     
-    // Scorre automaticamente solo durante l'orario lavorativo
+    // Only auto-scroll during business hours
     if (hours >= 8 && hours < 20) {
-      // Calcola la posizione di scorrimento basata sull'ora corrente
-      // Inizia alle 8:00, ogni ora è circa 80px alta (con slot di 30min a 40px ciascuno)
+      // Calculate scroll position based on current time
+      // Starts at 8:00, each hour is about 80px high (with 30min slots at 40px each)
       const scrollPosition = Math.max(0, (hours - 8) * 80 + ((now.getMinutes() >= 30) ? 40 : 0));
       
       const scrollToCurrentTime = () => {
         try {
-          // Trova il contenitore di scorrimento principale - questo controllerà tutto lo scorrimento sincronizzato
+          // Find the master scroller - this will control all synchronized scrolling
           const masterScroller = document.querySelector('.calendar-time-col') as HTMLElement;
           
           if (!masterScroller) {
-            console.log('Contenitore di scorrimento primario non trovato, riprovo...');
-            return false; // Riproverà
+            console.log('Primary scroll container not found, retrying...');
+            return false; // Will retry
           }
           
-          // Applica uno stile di transizione per uno scorrimento ancora più fluido
-          masterScroller.style.scrollBehavior = 'smooth';
+          // Set a flag on the DOM element to indicate we're performing an auto-scroll
+          // This helps prevent feedback loops
+          masterScroller.dataset.autoScrolling = 'true';
           
-          // Esegue lo scrolling
+          // Do the scroll without transitions to avoid issues
           masterScroller.scrollTop = scrollPosition;
           
-          // Resetta lo stile dopo l'animazione
+          // Remove the flag after animation
           setTimeout(() => {
-            masterScroller.style.scrollBehavior = 'auto';
+            if (masterScroller) {
+              delete masterScroller.dataset.autoScrolling;
+            }
           }, 800);
           
-          return true; // Scorrimento completato con successo
+          return true; // Scroll completed successfully
         } catch (error) {
-          console.error("Errore durante lo scroll automatico:", error);
-          return false; // Riproverà
+          console.error("Error during auto-scroll:", error);
+          return false; // Will retry
         }
       };
       
-      // Strategia di retry più sofisticata con intervalli crescenti
+      // More sophisticated retry strategy with exponential intervals
       let attempts = 0;
       const maxAttempts = 5;
       
@@ -65,20 +74,26 @@ export const useAutoScroll = (
         
         if (!success) {
           attempts++;
-          // Intervallo esponenziale
-          setTimeout(attemptScroll, 300 * Math.pow(1.5, attempts));
+          // Exponential interval
+          autoScrollTimeoutRef.current = window.setTimeout(attemptScroll, 300 * Math.pow(1.5, attempts));
         } else {
           scrollAttemptedRef.current = true;
         }
       };
       
-      // Inizia il primo tentativo dopo il rendering iniziale
-      setTimeout(attemptScroll, 500);
+      // Start first attempt after initial rendering
+      autoScrollTimeoutRef.current = window.setTimeout(attemptScroll, 500);
     }
 
     return () => {
-      // Resetta il flag di tentativo quando il componente viene smontato o la vista cambia
+      // Reset the attempt flag when component is unmounted or view changes
       scrollAttemptedRef.current = false;
+      
+      // Clear timeout on cleanup
+      if (autoScrollTimeoutRef.current !== null) {
+        clearTimeout(autoScrollTimeoutRef.current);
+        autoScrollTimeoutRef.current = null;
+      }
     };
   }, [calendarApi, view]);
 };

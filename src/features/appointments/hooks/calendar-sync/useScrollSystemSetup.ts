@@ -1,125 +1,104 @@
 
-import { useCallback } from 'react';
+import { MutableRefObject, useCallback } from 'react';
 
 /**
- * Hook for setting up the master-slave scroll system
- * and configuring all scroll event listeners
+ * Hook that sets up the scroll synchronization system
  */
 export const useScrollSystemSetup = (
   synchronizeViaTransform: (scrollTop: number) => void,
-  masterScrollerRef: React.MutableRefObject<HTMLElement | null>,
-  slaveScrollersRef: React.MutableRefObject<HTMLElement[]>,
-  isScrollingRef: React.MutableRefObject<boolean>,
-  lastScrollPositionRef: React.MutableRefObject<number>
+  masterScrollerRef: MutableRefObject<HTMLElement | null>,
+  slaveScrollersRef: MutableRefObject<HTMLElement[]>,
+  isScrollingRef: MutableRefObject<boolean>,
+  lastScrollPositionRef: MutableRefObject<number>
 ) => {
-  // Main function to configure the master-slave system
+  // Setup the master-slave scroll system
   const setupMasterSlaveScrollSystem = useCallback(() => {
-    // Clear previous references
-    slaveScrollersRef.current = [];
-    masterScrollerRef.current = null;
+    console.log('Setting up scroll sync system');
     
-    // Select the master scroller (time column)
-    const masterScroller = document.querySelector('.calendar-time-col') as HTMLElement;
-    if (!masterScroller) {
-      console.warn('Master scroller (.calendar-time-col) not found');
-      return;
-    }
-    
-    // Save the master reference
-    masterScrollerRef.current = masterScroller;
-    
-    // Find all potential slave scrollers
+    // Find all scrollable elements
+    const timeColumn = document.querySelector('.calendar-time-col');
     const staffColumns = document.querySelectorAll('.calendar-staff-col .fc-scroller');
-    if (staffColumns.length === 0) {
-      console.warn('No staff columns found for scroll sync');
-      return;
+    
+    // Clear existing references
+    masterScrollerRef.current = null;
+    slaveScrollersRef.current = [];
+    
+    // Skip if required elements are not found
+    if (!timeColumn || !staffColumns.length) {
+      console.log('Required scroll elements not found');
+      return () => {};
     }
     
+    // Setup the time column as the master scroller
+    masterScrollerRef.current = timeColumn as HTMLElement;
     console.log(`Setting up scroll sync system with ${staffColumns.length} staff columns`);
     
-    // Configure each slave
-    staffColumns.forEach(staffCol => {
-      const slaveScroller = staffCol as HTMLElement;
-      
-      // Block native scrolling for slave and prepare for transform
-      slaveScroller.style.overflow = 'hidden';
-      slaveScroller.style.willChange = 'transform';
-      slaveScroller.style.transform = 'translate3d(0, 0, 0)';
-      
-      // Add to slave list
-      slaveScrollersRef.current.push(slaveScroller);
-      
-      // Disable native scroll events to prevent interference
-      slaveScroller.addEventListener('scroll', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (masterScrollerRef.current) {
-          masterScrollerRef.current.scrollTop = slaveScroller.scrollTop;
-        }
-        return false;
-      }, { passive: false });
-    });
+    // Store staff columns as slave scrollers
+    slaveScrollersRef.current = Array.from(staffColumns).map(el => el as HTMLElement);
     
-    // Optimize the master scroller
-    masterScroller.style.willChange = 'scroll-position';
-    masterScroller.style.overscrollBehavior = 'contain';
+    // Event flag to prevent scroll feedback loops
+    let scrollTimeout: number | null = null;
     
-    // Configure grid body container scrolling
-    const gridBody = document.querySelector('.calendar-grid-body') as HTMLElement;
-    if (gridBody) {
-      gridBody.addEventListener('scroll', (e) => {
-        if (masterScrollerRef.current && !isScrollingRef.current) {
-          masterScrollerRef.current.scrollTop = gridBody.scrollTop;
-        }
-      }, { passive: true });
-    }
-    
-    // Throttled master scroll handler for better performance
-    let lastScrollTime = 0;
-    const scrollThrottleMs = 10; // Throttle to 10ms
-    
-    const handleMasterScroll = () => {
-      if (!masterScrollerRef.current) return;
+    // Define a throttled scroll handler to reduce events
+    const handleMasterScroll = (e: Event) => {
+      if (e.target !== masterScrollerRef.current) return;
       
-      const now = Date.now();
-      if (now - lastScrollTime < scrollThrottleMs) return;
-      lastScrollTime = now;
+      const scrollTop = (e.target as HTMLElement).scrollTop;
       
-      // Avoid redundant updates
-      const currentScrollTop = masterScrollerRef.current.scrollTop;
-      if (Math.abs(currentScrollTop - lastScrollPositionRef.current) < 1) return;
+      // Store last position for potential restoration
+      lastScrollPositionRef.current = scrollTop;
       
-      // Update the reference position
-      lastScrollPositionRef.current = currentScrollTop;
+      // Skip if we're already in a scroll operation - prevents feedback loops
+      if (isScrollingRef.current) return;
       
-      // Signal that we're scrolling
-      if (!isScrollingRef.current) {
-        document.body.classList.add('is-scrolling');
-        isScrollingRef.current = true;
+      // Set scroll flag
+      isScrollingRef.current = true;
+      
+      // Synchronize all slave scrollers via transform
+      synchronizeViaTransform(scrollTop);
+      
+      // Reset scroll flag after a delay
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
       
-      // Synchronize slaves via transform
-      synchronizeViaTransform(currentScrollTop);
-      
-      // Cleanup class after short delay
-      clearTimeout(window.setTimeout(() => {
-        document.body.classList.remove('is-scrolling');
+      scrollTimeout = window.setTimeout(() => {
         isScrollingRef.current = false;
-      }, 100));
+      }, 150);
     };
     
-    // Optimize scroll event with passive: true for performance
-    masterScroller.addEventListener('scroll', handleMasterScroll, { passive: true });
+    // Add passive event listener for performance
+    masterScrollerRef.current.addEventListener('scroll', handleMasterScroll, { passive: true });
     
-    // Add touch event handling for better mobile experience
-    let touchStartY = 0;
-    masterScroller.addEventListener('touchstart', (e) => {
-      touchStartY = e.touches[0].clientY;
-    }, { passive: true });
+    // Prevent scroll behavior on slave elements to avoid feedback loops
+    slaveScrollersRef.current.forEach(slaveScroller => {
+      slaveScroller.style.overflow = 'hidden';
+      
+      // Optional: Add dummy scrollbar for visual consistency
+      const dummyScrollbar = document.createElement('div');
+      dummyScrollbar.classList.add('dummy-scrollbar');
+      dummyScrollbar.style.width = '8px';
+      dummyScrollbar.style.position = 'absolute';
+      dummyScrollbar.style.right = '0';
+      dummyScrollbar.style.top = '0';
+      dummyScrollbar.style.bottom = '0';
+      dummyScrollbar.style.backgroundColor = 'rgba(0,0,0,0.05)';
+      dummyScrollbar.style.borderRadius = '4px';
+      dummyScrollbar.style.zIndex = '10';
+      slaveScroller.parentElement?.appendChild(dummyScrollbar);
+    });
     
-    // Initial sync
-    lastScrollPositionRef.current = masterScroller.scrollTop;
-    synchronizeViaTransform(masterScroller.scrollTop);
+    // Trick to prevent scroll resets on re-renders: store position in local storage
+    window.addEventListener('beforeunload', () => {
+      const position = masterScrollerRef.current?.scrollTop || 0;
+      if (position > 0) {
+        try {
+          sessionStorage.setItem('calendarScrollPosition', position.toString());
+        } catch (e) {
+          console.error('Failed to save scroll position:', e);
+        }
+      }
+    });
     
     // Return cleanup function
     return () => {
@@ -127,11 +106,22 @@ export const useScrollSystemSetup = (
         masterScrollerRef.current.removeEventListener('scroll', handleMasterScroll);
       }
       
-      // Reset references
-      slaveScrollersRef.current = [];
-      masterScrollerRef.current = null;
+      // Clean up dummy scrollbars
+      document.querySelectorAll('.dummy-scrollbar').forEach(el => {
+        el.remove();
+      });
+      
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
     };
-  }, [synchronizeViaTransform, masterScrollerRef, slaveScrollersRef, isScrollingRef, lastScrollPositionRef]);
+  }, [
+    synchronizeViaTransform,
+    masterScrollerRef,
+    slaveScrollersRef,
+    isScrollingRef,
+    lastScrollPositionRef
+  ]);
   
   return {
     setupMasterSlaveScrollSystem
