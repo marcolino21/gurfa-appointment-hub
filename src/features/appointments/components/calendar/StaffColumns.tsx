@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -51,7 +52,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     console.log("StaffColumns - gruppi di eventi per staff:", 
       staffMembers.map(staff => ({
         staffId: staff.id,
-        name: staff.name,
+        name: `${staff.firstName} ${staff.lastName}`, // Changed from staff.name
         events: events.filter(event => event.resourceId === staff.id).length
       }))
     );
@@ -157,3 +158,4 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     </div>
   );
 };
+
