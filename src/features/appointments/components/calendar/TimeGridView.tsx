@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { StaffMember } from '@/types';
+import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
 import '../../styles/index.css';
 
 interface TimeGridViewProps {
@@ -33,6 +34,13 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   setCalendarApi
 }) => {
   const [gridInitialized, setGridInitialized] = useState(false);
+  const { getBlockTimeEvents } = useStaffBlockTime();
+  
+  // Get all blocked time events
+  const blockTimeEvents = getBlockTimeEvents();
+  
+  // Combine normal events with block time events
+  const allEvents = [...events, ...blockTimeEvents];
   
   // Ensure we have a valid date to avoid formatting errors
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
@@ -112,9 +120,59 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
         <div className="calendar-staff-cols unified-calendar-content">
           <StaffColumns
             staffMembers={staffMembers}
-            events={events}
+            events={allEvents}
             selectedDate={validSelectedDate}
-            commonConfig={commonConfig}
+            commonConfig={{
+              ...commonConfig,
+              eventDidMount: (info: any) => {
+                // Add tooltip for blocked times
+                if (info.event.extendedProps.isBlockedTime) {
+                  const tooltip = document.createElement('div');
+                  tooltip.className = 'calendar-tooltip';
+                  
+                  let tooltipContent = 'Operatore non disponibile';
+                  if (info.event.extendedProps.reason) {
+                    tooltipContent += `: ${info.event.extendedProps.reason}`;
+                  }
+                  
+                  tooltip.innerText = tooltipContent;
+                  info.el.appendChild(tooltip);
+                  
+                  // Make div with blocked time not draggable
+                  info.el.classList.add('blocked-time');
+                  
+                  // Show tooltip on hover
+                  info.el.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                  });
+                  
+                  info.el.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                  });
+                }
+                
+                // Call original eventDidMount if exists
+                if (commonConfig.eventDidMount) {
+                  commonConfig.eventDidMount(info);
+                }
+              },
+              eventAllow: (dropInfo: any, draggedEvent: any) => {
+                // Prevent dropping events on blocked times
+                const blockEvents = blockTimeEvents;
+                for (const blockEvent of blockEvents) {
+                  if (
+                    blockEvent.resourceId === dropInfo.resource?.id &&
+                    new Date(dropInfo.start) >= new Date(blockEvent.start) &&
+                    new Date(dropInfo.start) < new Date(blockEvent.end)
+                  ) {
+                    return false;
+                  }
+                }
+                
+                // Allow the drop if no block found
+                return true;
+              }
+            }}
             calendarRefs={calendarRefs}
             setCalendarApi={setCalendarApi}
           />
