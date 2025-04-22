@@ -25,11 +25,23 @@ export const useCalendarBlockTime = () => {
       // First, target all background events
       document.querySelectorAll('.fc-bg-event').forEach(el => {
         el.classList.add('blocked-time-event');
+        el.classList.add('fc-non-interactive');
       });
       
       // Also ensure any event with blocked-time-event class gets fully styled
       document.querySelectorAll('.blocked-time-event').forEach(el => {
         el.classList.add('fc-non-interactive');
+      });
+      
+      // Apply styles to the entire column with blocked time
+      document.querySelectorAll('.fc-timegrid-col-bg').forEach(col => {
+        // Check if this column contains a blocked time event
+        if (col.querySelector('.blocked-time-event')) {
+          const parent = col.closest('.fc-timegrid-col');
+          if (parent) {
+            parent.classList.add('has-blocked-time');
+          }
+        }
       });
     } catch (error) {
       console.error("Error applying block time styling:", error);
@@ -41,8 +53,15 @@ export const useCalendarBlockTime = () => {
     if (blockTimeEvents.length > 0) {
       // Apply styles immediately and then again after a delay to ensure rendering is complete
       applyBlockedTimeStyles();
-      const timer = setTimeout(applyBlockedTimeStyles, 200);
-      return () => clearTimeout(timer);
+      
+      // Apply multiple times with increasing delays to ensure styles are applied after all renders
+      const timers = [
+        setTimeout(applyBlockedTimeStyles, 100),
+        setTimeout(applyBlockedTimeStyles, 300),
+        setTimeout(applyBlockedTimeStyles, 600)
+      ];
+      
+      return () => timers.forEach(timer => clearTimeout(timer));
     }
   }, [blockTimeEvents, applyBlockedTimeStyles]);
 

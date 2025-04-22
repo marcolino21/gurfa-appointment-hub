@@ -125,3 +125,31 @@
 .fc-non-interactive {
   pointer-events: none !important;
 }
+
+/* Style for columns that have blocked time */
+.fc-timegrid-col.has-blocked-time {
+  background-color: rgba(240, 240, 240, 0.2);
+}
+
+/* Make sure blocked time events hover effect works */
+.blocked-time-event:hover .calendar-tooltip {
+  display: block;
+}
+
+/* Improve blocked time event visibility */
+.fc-timegrid-event.blocked-time-event::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(180, 180, 180, 0.7),
+    rgba(180, 180, 180, 0.7) 10px,
+    rgba(210, 210, 210, 0.7) 10px,
+    rgba(210, 210, 210, 0.7) 20px
+  ) !important;
+  z-index: -1;
+}

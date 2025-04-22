@@ -4,6 +4,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { StaffMember } from '@/types';
+import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 
 interface StaffColumnsProps {
   staffMembers: StaffMember[];
@@ -22,21 +23,23 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   calendarRefs,
   setCalendarApi
 }) => {
-  // Apply block time styles after calendar rendering is complete
+  const { applyBlockedTimeStyles } = useCalendarBlockTime();
+  
+  // Apply block time styles after calendar rendering is complete and when events change
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        // Apply styles to all background events for blocked times
-        document.querySelectorAll('.fc-bg-event').forEach(el => {
-          el.classList.add('blocked-time-event');
-        });
-      } catch (error) {
-        console.error("Error applying block time styling in staff columns:", error);
-      }
-    }, 300);
+    const timers = [
+      setTimeout(applyBlockedTimeStyles, 100),
+      setTimeout(applyBlockedTimeStyles, 300),
+      setTimeout(applyBlockedTimeStyles, 600)
+    ];
     
-    return () => clearTimeout(timer);
-  }, [events]);
+    return () => timers.forEach(timer => clearTimeout(timer));
+  }, [events, applyBlockedTimeStyles]);
+
+  // Also apply styles when the component mounts to ensure they're applied
+  useEffect(() => {
+    applyBlockedTimeStyles();
+  }, [applyBlockedTimeStyles]);
 
   if (staffMembers.length === 0) {
     return (
@@ -73,12 +76,38 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
             height="100%"
             eventClassNames={(arg) => {
               // Add extra class for blocked time events
-              if (arg.event.extendedProps.isBlockedTime || 
+              if (arg.event.extendedProps?.isBlockedTime || 
                   arg.event.classNames?.includes('blocked-time-event') ||
                   arg.event.display === 'background') {
                 return ['blocked-time-event', 'fc-non-interactive'];
               }
               return [];
+            }}
+            eventDidMount={(info) => {
+              // Add special handling for blocked time events
+              if (info.event.extendedProps?.isBlockedTime || 
+                  info.event.classNames?.includes('blocked-time-event') ||
+                  info.event.display === 'background') {
+                info.el.classList.add('blocked-time-event');
+                info.el.classList.add('fc-non-interactive');
+                
+                // Create tooltip for blocked time
+                const tooltip = document.createElement('div');
+                tooltip.className = 'calendar-tooltip';
+                
+                let tooltipContent = 'Operatore non disponibile';
+                if (info.event.extendedProps?.reason) {
+                  tooltipContent += `: ${info.event.extendedProps.reason}`;
+                }
+                
+                tooltip.innerText = tooltipContent;
+                info.el.appendChild(tooltip);
+              }
+              
+              // Call the original eventDidMount if provided
+              if (commonConfig.eventDidMount) {
+                commonConfig.eventDidMount(info);
+              }
             }}
             ref={el => {
               if (el) {
