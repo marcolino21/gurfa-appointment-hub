@@ -5,13 +5,8 @@ import { CalendarHeader } from './CalendarHeader';
 import { StaffHeader } from './StaffHeader';
 import { TimeColumn } from './TimeColumn';
 import { StaffColumns } from './StaffColumns';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { CalendarIcon } from 'lucide-react';
-import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
+import { CalendarControls } from './CalendarControls';
+import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import '../../styles/index.css';
 
 interface TimeGridViewProps {
@@ -34,21 +29,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   setCalendarApi
 }) => {
   const [gridInitialized, setGridInitialized] = useState(false);
-  const { getBlockTimeEvents } = useStaffBlockTime();
-  
-  // Get all blocked time events
-  const blockTimeEvents = getBlockTimeEvents();
-
-  // Ensure blockTimeEvents are properly configured with all required attributes
-  const enhancedBlockTimeEvents = blockTimeEvents.map(event => ({
-    ...event,
-    display: 'background',
-    rendering: 'background',
-    className: 'blocked-time-event',
-    classNames: ['blocked-time-event'],
-    overlap: false,
-    backgroundColor: 'rgba(211, 211, 211, 0.7)'
-  }));
+  const { enhancedBlockTimeEvents } = useCalendarBlockTime();
   
   // Combine normal events with block time events
   const allEvents = [...events, ...enhancedBlockTimeEvents];
@@ -57,22 +38,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
     ? new Date(selectedDate.getTime())
     : new Date();
-
-  // Apply block time styling whenever blockTimeEvents changes
-  useEffect(() => {
-    // Apply block time styling after a short delay
-    if (blockTimeEvents.length > 0) {
-      setTimeout(() => {
-        try {
-          document.querySelectorAll('.fc-bg-event').forEach(el => {
-            el.classList.add('blocked-time-event');
-          });
-        } catch (error) {
-          console.error("Error applying block time styling:", error);
-        }
-      }, 100);
-    }
-  }, [blockTimeEvents]);
 
   // Set up synchronized grid columns after render
   useEffect(() => {
@@ -90,11 +55,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
-
-          // Apply block time styling to all existing blocked time events
-          document.querySelectorAll('.fc-bg-event').forEach(el => {
-            el.classList.add('blocked-time-event');
-          });
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
@@ -106,40 +66,11 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     <div className="h-[calc(100vh-320px)] staff-calendar-block">
       <div className="flex items-center justify-between px-4 py-2">
         <CalendarHeader selectedDate={validSelectedDate} />
-        
-        {view === 'timeGridWeek' && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-[240px] justify-start text-left font-normal"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(validSelectedDate, "EEEE d MMMM yyyy", { locale: it })}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={validSelectedDate}
-                onSelect={(date) => {
-                  if (date) {
-                    try {
-                      const api = calendarRefs.current[0]?.getApi();
-                      if (api) {
-                        api.gotoDate(date);
-                      }
-                    } catch (error) {
-                      console.error("Error navigating to date:", error);
-                    }
-                  }
-                }}
-                initialFocus
-                locale={it}
-              />
-            </PopoverContent>
-          </Popover>
-        )}
+        <CalendarControls 
+          view={view} 
+          selectedDate={validSelectedDate} 
+          calendarRefs={calendarRefs}
+        />
       </div>
 
       <StaffHeader staffMembers={staffMembers} />
@@ -157,9 +88,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
             commonConfig={{
               ...commonConfig,
               eventDidMount: (info: any) => {
-                // Add tooltip for blocked times
                 if (info.event.extendedProps.isBlockedTime || info.event.classNames?.includes('blocked-time-event')) {
-                  // Add classname to ensure proper styling
                   info.el.classList.add('blocked-time-event');
                   
                   const tooltip = document.createElement('div');
@@ -172,11 +101,8 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                   
                   tooltip.innerText = tooltipContent;
                   info.el.appendChild(tooltip);
-                  
-                  // Make div with blocked time not draggable
                   info.el.classList.add('blocked-time');
                   
-                  // Show tooltip on hover
                   info.el.addEventListener('mouseenter', () => {
                     tooltip.style.display = 'block';
                   });
@@ -186,26 +112,9 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                   });
                 }
                 
-                // Call original eventDidMount if exists
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
                 }
-              },
-              eventAllow: (dropInfo: any, draggedEvent: any) => {
-                // Prevent dropping events on blocked times
-                const blockEvents = blockTimeEvents;
-                for (const blockEvent of blockEvents) {
-                  if (
-                    blockEvent.resourceId === dropInfo.resource?.id &&
-                    new Date(dropInfo.start) >= new Date(blockEvent.start) &&
-                    new Date(dropInfo.start) < new Date(blockEvent.end)
-                  ) {
-                    return false;
-                  }
-                }
-                
-                // Allow the drop if no block found
-                return true;
               }
             }}
             calendarRefs={calendarRefs}
