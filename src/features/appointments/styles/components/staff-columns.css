@@ -1,0 +1,48 @@
+
+/* Staff columns container */
+.calendar-staff-cols {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: scroll;
+  height: 100%;
+  will-change: scroll-position;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Staff columns wrapper for better organization */
+.staff-columns-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+/* Individual staff column */
+.calendar-staff-col {
+  height: 100%;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+/* Hide unnecessary FullCalendar elements */
+.calendar-staff-col .fc-timegrid-slot-label,
+.calendar-staff-col .fc-timegrid-axis {
+  display: none !important;
+}
+
+/* Show time labels only in time column */
+.calendar-time-inner .fc-timegrid-slot-label {
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Empty state styling */
+.calendar-staff-cols:empty::after {
+  content: "Nessun operatore disponibile";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  color: #64748b;
+  font-size: 0.9rem;
+}

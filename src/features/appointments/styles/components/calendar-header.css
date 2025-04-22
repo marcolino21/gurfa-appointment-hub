@@ -1,0 +1,44 @@
+
+.staff-calendar-header {
+  text-align: center;
+  padding: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  z-index: 20;
+  position: relative;
+}
+
+.staff-header-row {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  height: 50px;
+  z-index: 10;
+  position: relative;
+}
+
+.time-col-header {
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+}
+
+.staff-header-col {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  padding: 0 8px;
+  text-transform: uppercase;
+  border-left: 3px solid;  /* Color will be set inline */
+}
+
+.staff-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}

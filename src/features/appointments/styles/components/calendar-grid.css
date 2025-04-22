@@ -1,0 +1,30 @@
+
+/* Better grid line visibility */
+.fc-timegrid-slot {
+  height: 40px !important;
+  border-color: #e5e7eb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: white;
+}
+
+/* Half-hour slots */
+.fc-timegrid-slot-minor {
+  border-top: 1px dashed #e5e7eb !important;
+}
+
+/* Calendar event styles */
+.fc-event {
+  border-radius: 3px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Ensure popover is visible and interactive */
+.radix-popover-content {
+  z-index: 99999 !important;
+  background-color: white;
+  pointer-events: auto !important;
+}
+
+.radix-popover-content .react-day-picker {
+  pointer-events: auto !important;
+}

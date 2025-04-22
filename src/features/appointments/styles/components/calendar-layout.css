@@ -1,0 +1,28 @@
+
+/* Main calendar layout styles */
+.staff-calendar-block {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendar-grid-body {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Critical for performance - use hardware acceleration */
+.fc-scroller-liquid-absolute,
+.calendar-time-col,
+.calendar-staff-cols {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

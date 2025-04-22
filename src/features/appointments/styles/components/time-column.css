@@ -1,0 +1,31 @@
+
+/* Fixed time column on the left */
+.calendar-time-col {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 100%;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  will-change: scroll-position;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.calendar-time-inner {
+  width: 80px;
+  height: 100%;
+}
+
+.time-slot-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+  padding-right: 8px;
+}

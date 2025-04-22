@@ -2,6 +2,9 @@
 @import './base-calendar.css';
 @import './calendar-events.css';
 @import './calendar-header.css';
-@import './staff-calendar.css';
 @import './calendar-views.css';
-
+@import './components/calendar-layout.css';
+@import './components/calendar-header.css';
+@import './components/time-column.css';
+@import './components/staff-columns.css';
+@import './components/calendar-grid.css';
