@@ -22,6 +22,8 @@ export const useCalendarBlockTime = () => {
   // Function to apply styles to blocked time events after the calendar renders them
   const applyBlockedTimeStyles = useCallback(() => {
     try {
+      console.log("Applying blocked time styles...");
+      
       // First, target all background events
       document.querySelectorAll('.fc-bg-event').forEach(el => {
         el.classList.add('blocked-time-event');
@@ -43,6 +45,15 @@ export const useCalendarBlockTime = () => {
           }
         }
       });
+      
+      // Make sure full columns are properly styled
+      document.querySelectorAll('[data-blocked="true"]').forEach(col => {
+        const fcCols = col.querySelectorAll('.fc-timegrid-col');
+        fcCols.forEach(fcCol => {
+          fcCol.classList.add('blocked-staff-column');
+        });
+      });
+      
     } catch (error) {
       console.error("Error applying block time styling:", error);
     }
@@ -58,7 +69,8 @@ export const useCalendarBlockTime = () => {
       const timers = [
         setTimeout(applyBlockedTimeStyles, 100),
         setTimeout(applyBlockedTimeStyles, 300),
-        setTimeout(applyBlockedTimeStyles, 600)
+        setTimeout(applyBlockedTimeStyles, 600),
+        setTimeout(applyBlockedTimeStyles, 1000) // Added longer timeout for complex calendars
       ];
       
       return () => timers.forEach(timer => clearTimeout(timer));

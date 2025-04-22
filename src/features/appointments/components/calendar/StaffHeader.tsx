@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { StaffMember } from '@/types';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Lock } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -19,6 +19,12 @@ import { BlockTimeForm, BlockTimeFormData } from './BlockTimeForm';
 import { ManageBlockTimesDialog } from './ManageBlockTimesDialog';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 interface StaffHeaderProps {
   staffMembers: StaffMember[];
@@ -28,7 +34,7 @@ export const StaffHeader: React.FC<StaffHeaderProps> = ({ staffMembers }) => {
   const [selectedStaff, setSelectedStaff] = React.useState<StaffMember | null>(null);
   const [isBlockTimeOpen, setIsBlockTimeOpen] = React.useState(false);
   const [isManageBlockTimesOpen, setIsManageBlockTimesOpen] = React.useState(false);
-  const { addBlockTime, removeBlockTime, getStaffBlockTimes } = useStaffBlockTime();
+  const { addBlockTime, removeBlockTime, getStaffBlockTimes, isStaffBlocked } = useStaffBlockTime();
   const { toast } = useToast();
 
   const handleBlockTime = (staff: StaffMember) => {
@@ -89,21 +95,32 @@ export const StaffHeader: React.FC<StaffHeaderProps> = ({ staffMembers }) => {
       {staffMembers.map(staff => {
         const blockTimesCount = getStaffBlockTimesCount(staff.id);
         const hasBlockTimes = blockTimesCount > 0;
+        const isBlocked = isStaffBlocked ? isStaffBlocked(staff.id) : false;
         
         return (
           <div
             key={staff.id}
-            className="staff-header-col"
+            className={`staff-header-col ${isBlocked ? 'blocked' : ''}`}
             style={{ borderLeft: `3px solid ${staff.color || "#9b87f5"}`}}
+            data-blocked={isBlocked ? 'true' : 'false'}
           >
-            <span className="staff-name">
-              {staff.firstName} {staff.lastName}
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="staff-name">
+                    {staff.firstName} {staff.lastName}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{staff.firstName} {staff.lastName}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="ml-1 p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary">
-                  <MoreVertical className="h-4 w-4 text-gray-500" />
+                <button className={`ml-1 p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary ${isBlocked ? 'text-red-500' : ''}`}>
+                  {isBlocked ? <Lock className="h-4 w-4" /> : <MoreVertical className="h-4 w-4 text-gray-500" />}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

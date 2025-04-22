@@ -5,6 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { StaffMember } from '@/types';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
+import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
 
 interface StaffColumnsProps {
   staffMembers: StaffMember[];
@@ -24,13 +25,15 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   setCalendarApi
 }) => {
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
+  const { isStaffBlocked } = useStaffBlockTime();
   
   // Apply block time styles after calendar rendering is complete and when events change
   useEffect(() => {
     const timers = [
       setTimeout(applyBlockedTimeStyles, 100),
       setTimeout(applyBlockedTimeStyles, 300),
-      setTimeout(applyBlockedTimeStyles, 600)
+      setTimeout(applyBlockedTimeStyles, 600),
+      setTimeout(applyBlockedTimeStyles, 1000)
     ];
     
     return () => timers.forEach(timer => clearTimeout(timer));
@@ -40,6 +43,28 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   useEffect(() => {
     applyBlockedTimeStyles();
   }, [applyBlockedTimeStyles]);
+
+  // Apply proper data attributes when staff's blocked status changes
+  useEffect(() => {
+    staffMembers.forEach(staff => {
+      const isBlocked = isStaffBlocked(staff.id);
+      const columns = document.querySelectorAll(`[data-staff-id="${staff.id}"]`);
+      
+      columns.forEach(col => {
+        col.setAttribute('data-blocked', isBlocked ? 'true' : 'false');
+        
+        // Also update FullCalendar specific columns
+        const fcCols = col.querySelectorAll('.fc-timegrid-col');
+        fcCols.forEach(fcCol => {
+          if (isBlocked) {
+            fcCol.classList.add('blocked-staff-column');
+          } else {
+            fcCol.classList.remove('blocked-staff-column');
+          }
+        });
+      });
+    });
+  }, [staffMembers, isStaffBlocked]);
 
   if (staffMembers.length === 0) {
     return (
@@ -57,67 +82,87 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       height: '100%',
       width: '100%'
     }}>
-      {staffMembers.map((staff, index) => (
-        <div
-          key={staff.id}
-          className="calendar-staff-col"
-          data-staff-id={staff.id}
-        >
-          <FullCalendar
-            key={`staff-calendar-${staff.id}`}
-            plugins={[timeGridPlugin, interactionPlugin]}
-            initialView="timeGridDay"
-            initialDate={selectedDate}
-            {...commonConfig}
-            dayHeaderContent={() => null}
-            slotLabelContent={() => null}
-            events={events.filter(event => event.resourceId === staff.id)}
-            headerToolbar={false}
-            height="100%"
-            eventClassNames={(arg) => {
-              // Add extra class for blocked time events
-              if (arg.event.extendedProps?.isBlockedTime || 
-                  arg.event.classNames?.includes('blocked-time-event') ||
-                  arg.event.display === 'background') {
-                return ['blocked-time-event', 'fc-non-interactive'];
-              }
-              return [];
-            }}
-            eventDidMount={(info) => {
-              // Add special handling for blocked time events
-              if (info.event.extendedProps?.isBlockedTime || 
-                  info.event.classNames?.includes('blocked-time-event') ||
-                  info.event.display === 'background') {
-                info.el.classList.add('blocked-time-event');
-                info.el.classList.add('fc-non-interactive');
-                
-                // Create tooltip for blocked time
-                const tooltip = document.createElement('div');
-                tooltip.className = 'calendar-tooltip';
-                
-                let tooltipContent = 'Operatore non disponibile';
-                if (info.event.extendedProps?.reason) {
-                  tooltipContent += `: ${info.event.extendedProps.reason}`;
+      {staffMembers.map((staff, index) => {
+        const isBlocked = isStaffBlocked(staff.id);
+        
+        return (
+          <div
+            key={staff.id}
+            className="calendar-staff-col"
+            data-staff-id={staff.id}
+            data-blocked={isBlocked ? 'true' : 'false'}
+          >
+            <FullCalendar
+              key={`staff-calendar-${staff.id}`}
+              plugins={[timeGridPlugin, interactionPlugin]}
+              initialView="timeGridDay"
+              initialDate={selectedDate}
+              {...commonConfig}
+              dayHeaderContent={() => null}
+              slotLabelContent={() => null}
+              events={events.filter(event => event.resourceId === staff.id)}
+              headerToolbar={false}
+              height="100%"
+              eventClassNames={(arg) => {
+                // Add extra class for blocked time events
+                if (arg.event.extendedProps?.isBlockedTime || 
+                    arg.event.classNames?.includes('blocked-time-event') ||
+                    arg.event.display === 'background') {
+                  return ['blocked-time-event', 'fc-non-interactive'];
+                }
+                return [];
+              }}
+              eventDidMount={(info) => {
+                // Add special handling for blocked time events
+                if (info.event.extendedProps?.isBlockedTime || 
+                    info.event.classNames?.includes('blocked-time-event') ||
+                    info.event.display === 'background') {
+                  info.el.classList.add('blocked-time-event');
+                  info.el.classList.add('fc-non-interactive');
+                  
+                  // Create tooltip for blocked time
+                  const tooltip = document.createElement('div');
+                  tooltip.className = 'calendar-tooltip';
+                  
+                  let tooltipContent = 'Operatore non disponibile';
+                  if (info.event.extendedProps?.reason) {
+                    tooltipContent += `: ${info.event.extendedProps.reason}`;
+                  }
+                  
+                  tooltip.innerText = tooltipContent;
+                  info.el.appendChild(tooltip);
+                  
+                  // Add event listeners for the tooltip visibility
+                  info.el.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                  });
+                  
+                  info.el.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                  });
                 }
                 
-                tooltip.innerText = tooltipContent;
-                info.el.appendChild(tooltip);
-              }
-              
-              // Call the original eventDidMount if provided
-              if (commonConfig.eventDidMount) {
-                commonConfig.eventDidMount(info);
-              }
-            }}
-            ref={el => {
-              if (el) {
-                calendarRefs.current[index] = el;
-                if (index === 0) setCalendarApi(el.getApi());
-              }
-            }}
-          />
-        </div>
-      ))}
+                // Call the original eventDidMount if provided
+                if (commonConfig.eventDidMount) {
+                  commonConfig.eventDidMount(info);
+                }
+              }}
+              ref={el => {
+                if (el) {
+                  calendarRefs.current[index] = el;
+                  if (index === 0) setCalendarApi(el.getApi());
+                }
+              }}
+              // Custom view display hooks
+              dayCellDidMount={(info) => {
+                if (isBlocked) {
+                  info.el.classList.add('blocked-staff-column');
+                }
+              }}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

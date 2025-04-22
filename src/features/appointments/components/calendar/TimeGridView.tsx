@@ -7,7 +7,7 @@ import { TimeColumn } from './TimeColumn';
 import { StaffColumns } from './StaffColumns';
 import { CalendarControls } from './CalendarControls';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import '../../styles/index.css';
 
 interface TimeGridViewProps {
@@ -69,74 +69,84 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   // Reapply blocked time styles whenever events change
   useEffect(() => {
     if (enhancedBlockTimeEvents.length > 0) {
-      setTimeout(applyBlockedTimeStyles, 300);
+      // Apply multiple times with increasing delays to ensure styles are applied correctly
+      const timers = [
+        setTimeout(applyBlockedTimeStyles, 100),
+        setTimeout(applyBlockedTimeStyles, 300),
+        setTimeout(applyBlockedTimeStyles, 600),
+        setTimeout(applyBlockedTimeStyles, 1000)
+      ];
+      
+      return () => timers.forEach(timer => clearTimeout(timer));
     }
   }, [enhancedBlockTimeEvents, applyBlockedTimeStyles]);
 
   return (
-    <div className="h-[calc(100vh-320px)] staff-calendar-block">
-      <div className="flex items-center justify-between px-4 py-2">
-        <CalendarHeader selectedDate={validSelectedDate} />
-        <CalendarControls 
-          view={view} 
-          selectedDate={validSelectedDate} 
-          calendarRefs={calendarRefs}
-        />
-      </div>
-
-      <StaffHeader staffMembers={staffMembers} />
-      
-      <div className="calendar-grid-body sync-scroll-container">
-        <TimeColumn 
-          selectedDate={validSelectedDate}
-          commonConfig={commonConfig}
-        />
-        <div className="calendar-staff-cols unified-calendar-content">
-          <StaffColumns
-            staffMembers={staffMembers}
-            events={allEvents}
-            selectedDate={validSelectedDate}
-            commonConfig={{
-              ...commonConfig,
-              eventDidMount: (info: any) => {
-                if (info.event.extendedProps.isBlockedTime || 
-                    info.event.classNames?.includes('blocked-time-event') ||
-                    info.event.display === 'background') {
-                  info.el.classList.add('blocked-time-event');
-                  info.el.classList.add('fc-non-interactive');
-                  
-                  // Create tooltip for blocked time
-                  const tooltip = document.createElement('div');
-                  tooltip.className = 'calendar-tooltip';
-                  
-                  let tooltipContent = 'Operatore non disponibile';
-                  if (info.event.extendedProps.reason) {
-                    tooltipContent += `: ${info.event.extendedProps.reason}`;
-                  }
-                  
-                  tooltip.innerText = tooltipContent;
-                  info.el.appendChild(tooltip);
-                  info.el.classList.add('blocked-time');
-                  
-                  info.el.addEventListener('mouseenter', () => {
-                    tooltip.style.display = 'block';
-                  });
-                  
-                  info.el.addEventListener('mouseleave', () => {
-                    tooltip.style.display = 'none';
-                  });
-                }
-                
-                if (commonConfig.eventDidMount) {
-                  commonConfig.eventDidMount(info);
-                }
-              }
-            }}
+    <TooltipProvider>
+      <div className="h-[calc(100vh-320px)] staff-calendar-block">
+        <div className="flex items-center justify-between px-4 py-2">
+          <CalendarHeader selectedDate={validSelectedDate} />
+          <CalendarControls 
+            view={view} 
+            selectedDate={validSelectedDate} 
             calendarRefs={calendarRefs}
-            setCalendarApi={setCalendarApi}
           />
         </div>
+
+        <StaffHeader staffMembers={staffMembers} />
+        
+        <div className="calendar-grid-body sync-scroll-container">
+          <TimeColumn 
+            selectedDate={validSelectedDate}
+            commonConfig={commonConfig}
+          />
+          <div className="calendar-staff-cols unified-calendar-content">
+            <StaffColumns
+              staffMembers={staffMembers}
+              events={allEvents}
+              selectedDate={validSelectedDate}
+              commonConfig={{
+                ...commonConfig,
+                eventDidMount: (info: any) => {
+                  if (info.event.extendedProps.isBlockedTime || 
+                      info.event.classNames?.includes('blocked-time-event') ||
+                      info.event.display === 'background') {
+                    info.el.classList.add('blocked-time-event');
+                    info.el.classList.add('fc-non-interactive');
+                    
+                    // Create tooltip for blocked time
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'calendar-tooltip';
+                    
+                    let tooltipContent = 'Operatore non disponibile';
+                    if (info.event.extendedProps.reason) {
+                      tooltipContent += `: ${info.event.extendedProps.reason}`;
+                    }
+                    
+                    tooltip.innerText = tooltipContent;
+                    info.el.appendChild(tooltip);
+                    
+                    // Add event listeners for the tooltip visibility
+                    info.el.addEventListener('mouseenter', () => {
+                      tooltip.style.display = 'block';
+                    });
+                    
+                    info.el.addEventListener('mouseleave', () => {
+                      tooltip.style.display = 'none';
+                    });
+                  }
+                  
+                  if (commonConfig.eventDidMount) {
+                    commonConfig.eventDidMount(info);
+                  }
+                }
+              }}
+              calendarRefs={calendarRefs}
+              setCalendarApi={setCalendarApi}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
