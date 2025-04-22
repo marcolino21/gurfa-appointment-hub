@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
+import { StaffMember } from '@/types';
 import '../../styles/index.css';
 
 interface TimeGridViewProps {
