@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { StaffMember } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { SYSTEM_FEATURES } from '@/features/staff/types/permissions';
@@ -58,15 +58,25 @@ export const useStaffAppointments = () => {
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { currentSalonId } = useAuth();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitializedRef = useRef(false);
 
   // Funzione per ottenere lo staff visibile in base al salone corrente
   const refreshVisibleStaff = useCallback(() => {
+    // Previeni esecuzioni multiple durante il caricamento
+    if (isLoading) return;
+    
     console.log('Refreshing visible staff for salonId:', currentSalonId);
     setIsLoading(true);
     
+    // Pulizia del timeout precedente se esiste
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
     try {
       // Simuliamo una chiamata API
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         if (!currentSalonId) {
           console.warn('No salon selected, cannot load staff');
           setVisibleStaff([]);
@@ -80,7 +90,6 @@ export const useStaffAppointments = () => {
         );
         
         console.log(`Found ${filteredStaff.length} visible staff members for salon ${currentSalonId}`);
-        setVisibleStaff(filteredStaff);
         
         // Se non ci sono staff visibili per questo salone, creiamone uno per evitare pagina vuota
         if (filteredStaff.length === 0) {
@@ -102,22 +111,38 @@ export const useStaffAppointments = () => {
           };
           
           setVisibleStaff([demoStaff]);
+        } else {
+          setVisibleStaff(filteredStaff);
         }
         
         setIsLoading(false);
-      }, 500);
+        timeoutRef.current = null;
+      }, 300); // Ridotto a 300ms per migliorare reattività
     } catch (error) {
       console.error('Error loading staff:', error);
       setIsLoading(false);
+      timeoutRef.current = null;
     }
-  }, [currentSalonId]);
+  }, [currentSalonId, isLoading]);
 
   // Carica lo staff quando cambia il salone selezionato
   useEffect(() => {
     if (currentSalonId) {
       refreshVisibleStaff();
+      isInitializedRef.current = true;
+    } else if (isInitializedRef.current) {
+      // Reimposta lo stato solo se non è il primo render
+      setVisibleStaff([]);
     }
-  }, [currentSalonId, refreshVisibleStaff]);
+    
+    // Cleanup per evitare memory leak
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [currentSalonId]); // Rimosso refreshVisibleStaff dalle dipendenze
 
   return {
     visibleStaff,
