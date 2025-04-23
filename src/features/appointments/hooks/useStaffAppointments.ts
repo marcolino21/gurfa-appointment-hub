@@ -59,9 +59,16 @@ export const useStaffAppointments = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { currentSalonId } = useAuth();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstRender = useRef(true);
   const isUpdatingRef = useRef(false);
   const previousSalonIdRef = useRef<string | null>(null);
+  const visibleStaffRef = useRef<StaffMember[]>([]);
+  
+  // Mantieni sincronizzato lo stato con il ref
+  useEffect(() => {
+    visibleStaffRef.current = visibleStaff;
+  }, [visibleStaff]);
 
   // Funzione per ottenere lo staff visibile in base al salone corrente
   const refreshVisibleStaff = useCallback(() => {
@@ -69,7 +76,7 @@ export const useStaffAppointments = () => {
     if (isLoading || isUpdatingRef.current) return;
     
     // Evita aggiornamenti se il salonId è lo stesso di prima e abbiamo già staff
-    if (currentSalonId === previousSalonIdRef.current && visibleStaff.length > 0) {
+    if (currentSalonId === previousSalonIdRef.current && visibleStaffRef.current.length > 0) {
       console.log('Skipping staff refresh - same salon and staff exists');
       return;
     }
@@ -90,9 +97,7 @@ export const useStaffAppointments = () => {
         if (!currentSalonId) {
           console.warn('No salon selected, cannot load staff');
           setVisibleStaff([]);
-          setIsLoading(false);
-          isUpdatingRef.current = false;
-          timeoutRef.current = null;
+          finalizeLoading();
           return;
         }
 
@@ -143,35 +148,46 @@ export const useStaffAppointments = () => {
           return prevStaff;
         });
         
-        // Imposta un timeout differito per completare il caricamento
-        setTimeout(() => {
-          setIsLoading(false);
-          isUpdatingRef.current = false;
-          timeoutRef.current = null;
-        }, 50);
+        finalizeLoading();
       }, 300);
     } catch (error) {
       console.error('Error loading staff:', error);
+      finalizeLoading();
+    }
+  }, [currentSalonId, isLoading]);
+
+  // Funzione helper per resettare lo stato di caricamento
+  const finalizeLoading = () => {
+    // Ritardo minimo per evitare lampeggiamenti rapidi
+    setTimeout(() => {
       setIsLoading(false);
       isUpdatingRef.current = false;
       timeoutRef.current = null;
-    }
-  }, [currentSalonId, isLoading, visibleStaff.length]);
+    }, 50);
+  };
 
   // Carica lo staff quando cambia il salone selezionato
   useEffect(() => {
     // Aggiornamento solo se c'è un salonId o se non è il primo render
     if (currentSalonId || !isFirstRender.current) {
-      const debounceTimeout = setTimeout(() => {
+      // Pulizia del timeout precedente di debounce
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      
+      debounceTimeoutRef.current = setTimeout(() => {
         refreshVisibleStaff();
       }, 100);
-      
-      return () => {
-        clearTimeout(debounceTimeout);
-      };
     }
     
     isFirstRender.current = false;
+    
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+        debounceTimeoutRef.current = null;
+      }
+    };
   }, [currentSalonId, refreshVisibleStaff]);
 
   // Pulizia globale quando il componente viene smontato
