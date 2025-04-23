@@ -40,6 +40,7 @@ export const useAppointmentDialog = (onClose: () => void) => {
       let staffId = currentAppointment.staffId;
       if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
         const value = staffId.value;
+        // Use type assertion to handle the null case
         staffId = value === 'undefined' ? undefined : String(value);
       }
 

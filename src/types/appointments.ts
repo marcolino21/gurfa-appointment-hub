@@ -9,6 +9,6 @@ export interface Appointment {
   service?: string;
   notes?: string;
   salonId: string;
-  staffId?: string; // Corretto il tipo per essere sicuramente una stringa o undefined
+  staffId?: string | null | { value: string }; // Updated to include all possible types
   status: 'confirmed' | 'completed' | 'cancelled' | 'pending';
 }

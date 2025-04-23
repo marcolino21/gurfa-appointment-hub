@@ -51,13 +51,13 @@ export const useAppointmentEvents = () => {
       }
 
       // Assicuriamoci che staffId sia una stringa valida
-      let staffId = undefined;
-      if (appointment.staffId) {
+      let staffId: string | undefined = undefined;
+      if (appointment.staffId !== null && appointment.staffId !== undefined) {
         // Se è un oggetto con una proprietà value, usa quella
         if (typeof appointment.staffId === 'object' && appointment.staffId !== null && 'value' in appointment.staffId) {
-          staffId = String(appointment.staffId.value);
+          const value = appointment.staffId.value;
           // Se il valore è 'undefined', impostiamolo su undefined effettivo
-          if (staffId === 'undefined') staffId = undefined;
+          staffId = value === 'undefined' ? undefined : String(value);
         } 
         // Altrimenti usa direttamente il valore di staffId
         else {

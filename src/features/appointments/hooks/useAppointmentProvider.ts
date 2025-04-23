@@ -59,9 +59,11 @@ export const useAppointmentProvider = (): AppointmentContextType => {
       
       // Assicuriamoci che staffId sia una stringa
       let staffId = appointment.staffId;
-      if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
-        const value = staffId.value;
-        staffId = value === 'undefined' ? undefined : String(value);
+      if (staffId !== null && staffId !== undefined) {
+        if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
+          const value = staffId.value;
+          staffId = value === 'undefined' ? undefined : String(value);
+        }
       }
       
       const newAppointment: Appointment = {
