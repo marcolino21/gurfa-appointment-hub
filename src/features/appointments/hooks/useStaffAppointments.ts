@@ -1,8 +1,9 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { StaffMember } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { SYSTEM_FEATURES } from '@/features/staff/types/permissions';
+import { toast } from '@/components/ui/use-toast';
 
 // Mock data for staff members
 const mockStaffMembers: StaffMember[] = [
@@ -75,31 +76,21 @@ export const useStaffAppointments = () => {
   // Stati principali
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Contesto e refs
   const { currentSalonId } = useAuth();
-  const mounted = useRef(true);
-  const lastSalonId = useRef<string | null>(null);
   
   // Funzione per caricare lo staff visibile
-  const loadStaff = useCallback(() => {
-    if (!mounted.current || !currentSalonId) return;
+  const refreshVisibleStaff = useCallback(() => {
+    if (!currentSalonId) {
+      console.warn('Cannot refresh staff - no salon selected');
+      setVisibleStaff([]);
+      return;
+    }
     
-    // Previeni caricamenti ripetuti dello stesso salone
-    if (lastSalonId.current === currentSalonId) return;
-    
-    console.log('Loading staff for salon:', currentSalonId);
-    
-    // Traccia il salone attuale
-    lastSalonId.current = currentSalonId;
-    
-    // Imposta lo stato di caricamento
+    console.log('Refreshing staff for salon:', currentSalonId);
     setIsLoading(true);
     
-    // Simuliamo il fetch dei dati
-    setTimeout(() => {
-      if (!mounted.current) return;
-      
+    // Use requestAnimationFrame to ensure we don't block the main thread
+    requestAnimationFrame(() => {
       try {
         // Filtra lo staff per il salone corrente
         const salonStaff = mockStaffMembers.filter(
@@ -120,40 +111,66 @@ export const useStaffAppointments = () => {
         // In caso di errore, mostra uno staff demo comunque
         setVisibleStaff([createDemoStaff(currentSalonId)]);
       } finally {
-        // Completa il caricamento
-        if (mounted.current) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
-    }, 500); // Tempo sufficiente per la stabilità
+    });
   }, [currentSalonId]);
   
   // Effetto per il primo caricamento e quando cambia il salone
   useEffect(() => {
-    // Resetta il ref mounted
-    mounted.current = true;
+    let isMounted = true;
     
-    // Carica lo staff se abbiamo un salone
     if (currentSalonId) {
-      loadStaff();
+      console.log('Salon ID changed, loading staff');
+      setIsLoading(true);
+      
+      // Use setTimeout with 0 delay to defer execution to next tick
+      const timerId = setTimeout(() => {
+        if (!isMounted) return;
+        
+        try {
+          // Filtra lo staff per il salone corrente
+          const salonStaff = mockStaffMembers.filter(
+            staff => staff.salonId === currentSalonId && staff.showInCalendar
+          );
+          
+          if (salonStaff.length === 0) {
+            setVisibleStaff([createDemoStaff(currentSalonId)]);
+            
+            // Show toast notification for no visible staff
+            if (isMounted) {
+              toast({
+                title: "Nessuno staff visibile",
+                description: "Vai alla pagina Staff e seleziona 'Visibile in agenda' per i membri che vuoi visualizzare.",
+                variant: "default"
+              });
+            }
+          } else {
+            setVisibleStaff(salonStaff);
+          }
+        } catch (error) {
+          console.error('Error loading staff:', error);
+          setVisibleStaff([createDemoStaff(currentSalonId)]);
+        } finally {
+          if (isMounted) {
+            setIsLoading(false);
+          }
+        }
+      }, 0);
+      
+      return () => {
+        isMounted = false;
+        clearTimeout(timerId);
+      };
     } else {
       // Reset se non c'è un salone selezionato
       setVisibleStaff([]);
-      lastSalonId.current = null;
     }
     
-    // Cleanup quando il componente viene smontato
     return () => {
-      mounted.current = false;
+      isMounted = false;
     };
-  }, [currentSalonId, loadStaff]);
-  
-  // Funzione manuale per ricaricare lo staff
-  const refreshVisibleStaff = useCallback(() => {
-    // Reset del lastSalonId per forzare un nuovo caricamento
-    lastSalonId.current = null;
-    loadStaff();
-  }, [loadStaff]);
+  }, [currentSalonId]);
   
   return {
     visibleStaff,
