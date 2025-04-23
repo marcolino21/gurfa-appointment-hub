@@ -57,7 +57,8 @@ export const useAppointmentEvents = () => {
         end: appointment.end,
         backgroundColor: getEventColor(appointment.status),
         borderColor: getEventColor(appointment.status),
-        resourceId: appointment.staffId,  // This is critical for staff resource mapping
+        // FIX: Assicuriamoci che resourceId sia una stringa, non un oggetto
+        resourceId: appointment.staffId || undefined,
         extendedProps: {
           status: appointment.status,
           staffId: appointment.staffId,

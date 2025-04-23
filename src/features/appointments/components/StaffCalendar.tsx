@@ -31,7 +31,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // Log events and staff per render per debugging
+  // Log events and staff per render for debugging
   useEffect(() => {
     console.log("StaffCalendar rendering with:", {
       staffMembersCount: staffMembers.length,

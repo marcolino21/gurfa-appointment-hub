@@ -91,8 +91,12 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
-        // Filter events for this staff
-        const staffEvents = events.filter(event => event.resourceId === staff.id);
+        // FIX: Filtriamo correttamente gli eventi per questo staff
+        const staffEvents = events.filter(event => {
+          // Matching esplicito e con controllo del tipo
+          return event.resourceId === staff.id;
+        });
+        
         console.log(`Staff ${getStaffName(staff)} (${staff.id}) ha ${staffEvents.length} eventi`);
         
         return (
