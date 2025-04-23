@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +27,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { CustomCategoryField } from './CustomCategoryField';
 
 interface ProjectFormProps {
   clients: Client[];
@@ -49,6 +49,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [subcategories, setSubcategories] = useState<ProjectCategory[]>([]);
+  const [useCustomCategory, setUseCustomCategory] = useState(false);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -68,7 +69,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       progress: selectedProject?.progress || 0,
       feedback: selectedProject?.feedback || '',
       staffIds: selectedProject?.staffIds || [],
-      customFields: selectedProject?.customFields || []
+      customFields: selectedProject?.customFields || [],
+      customCategory: '',
     }
   });
 
@@ -100,7 +102,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         progress: selectedProject.progress,
         feedback: selectedProject.feedback,
         staffIds: selectedProject.staffIds,
-        customFields: selectedProject.customFields
+        customFields: selectedProject.customFields,
+        customCategory: ''
       });
       
       if (selectedProject.categoryId) {
@@ -115,12 +118,20 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     form.setValue('categoryId', value);
     form.setValue('subcategoryId', '');
     
-    if (value) {
+    if (value && !useCustomCategory) {
       const newSubcategories = getSubcategories(value);
       setSubcategories(newSubcategories);
     } else {
       setSubcategories([]);
     }
+  };
+
+  const handleSubmit = (data: ProjectFormValues) => {
+    // If using custom category, set it as the category
+    if (useCustomCategory && data.customCategory) {
+      data.categoryId = data.customCategory;
+    }
+    onSubmit(data);
   };
 
   const addObjective = () => {
@@ -135,7 +146,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="title"
@@ -178,35 +189,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="categoryId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Categoria</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={handleCategoryChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona una categoria" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <CustomCategoryField
+          form={form}
+          categories={categories}
+          useCustomCategory={useCustomCategory}
+          setUseCustomCategory={setUseCustomCategory}
+        />
 
+        {!useCustomCategory && selectedCategory && (
           <FormField
             control={form.control}
             name="subcategoryId"
@@ -220,7 +210,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona una sottocategoria" />
+                      <SelectValue placeholder="Seleziona sottocategoria" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -235,7 +225,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
               </FormItem>
             )}
           />
-        </div>
+        )}
 
         <FormField
           control={form.control}
