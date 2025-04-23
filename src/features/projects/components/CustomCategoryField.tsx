@@ -78,7 +78,10 @@ export const CustomCategoryField: React.FC<CustomCategoryFieldProps> = ({
             </div>
           </div>
           <FormControl>
-            <Input {...field} placeholder="Inserisci categoria personalizzata" />
+            <Input 
+              placeholder="Inserisci categoria personalizzata" 
+              {...field} 
+            />
           </FormControl>
           <FormMessage />
         </FormItem>
