@@ -1,135 +1,218 @@
-
-import { Appointment } from '@/types';
 import { AppointmentState } from '../types/appointmentContext';
+import { Appointment } from '@/types';
 
-// Mock data per lo sviluppo
-export const generateMockAppointments = (): Appointment[] => {
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
+export const MOCK_APPOINTMENTS: Appointment[] = [
+  {
+    id: '1',
+    title: 'Appuntamento con Mario Rossi',
+    start: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
+    clientName: 'Mario Rossi',
+    clientPhone: '3334445566',
+    service: 'Taglio Uomo',
+    notes: 'Note aggiuntive...',
+    salonId: '1',
+    staffId: '1',
+    status: 'confirmed',
+  },
+  {
+    id: '2',
+    title: 'Appuntamento con Luca Verdi',
+    start: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(),
+    clientName: 'Luca Verdi',
+    clientPhone: '3334445566',
+    service: 'Barba',
+    notes: 'Note aggiuntive...',
+    salonId: '1',
+    staffId: '2',
+    status: 'pending',
+  },
+  {
+    id: '3',
+    title: 'Appuntamento con Cliente 3',
+    start: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString(),
+    clientName: 'Cliente 3',
+    clientPhone: '3334445566',
+    service: 'Piega',
+    notes: 'Note aggiuntive...',
+    salonId: '1',
+    staffId: '1',
+    status: 'completed',
+  },
+  {
+    id: '4',
+    title: 'Appuntamento con Cliente 4',
+    start: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(),
+    clientName: 'Cliente 4',
+    clientPhone: '3334445566',
+    service: 'Colore',
+    notes: 'Note aggiuntive...',
+    salonId: '1',
+    staffId: '2',
+    status: 'cancelled',
+  },
+  {
+    id: '5',
+    title: 'Appuntamento con Cliente 5',
+    start: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(),
+    clientName: 'Cliente 5',
+    clientPhone: '3334445566',
+    service: 'Manicure',
+    notes: 'Note aggiuntive...',
+    salonId: '2',
+    staffId: '3',
+    status: 'confirmed',
+  },
+  {
+    id: '6',
+    title: 'Appuntamento con Cliente 6',
+    start: new Date(new Date().setDate(new Date().getDate() + 6)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 6)).toISOString(),
+    clientName: 'Cliente 6',
+    clientPhone: '3334445566',
+    service: 'Pedicure',
+    notes: 'Note aggiuntive...',
+    salonId: '2',
+    staffId: '4',
+    status: 'pending',
+  },
+  {
+    id: '7',
+    title: 'Appuntamento con Cliente 7',
+    start: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(),
+    clientName: 'Cliente 7',
+    clientPhone: '3334445566',
+    service: 'Massaggio',
+    notes: 'Note aggiuntive...',
+    salonId: '2',
+    staffId: '3',
+    status: 'completed',
+  },
+  {
+    id: '8',
+    title: 'Appuntamento con Cliente 8',
+    start: new Date(new Date().setDate(new Date().getDate() + 8)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 8)).toISOString(),
+    clientName: 'Cliente 8',
+    clientPhone: '3334445566',
+    service: 'Pulizia viso',
+    notes: 'Note aggiuntive...',
+    salonId: '2',
+    staffId: '4',
+    status: 'cancelled',
+  },
+  {
+    id: '9',
+    title: 'Appuntamento con Cliente 9',
+    start: new Date(new Date().setDate(new Date().getDate() + 9)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 9)).toISOString(),
+    clientName: 'Cliente 9',
+    clientPhone: '3334445566',
+    service: 'Trattamento capelli',
+    notes: 'Note aggiuntive...',
+    salonId: '3',
+    staffId: '5',
+    status: 'confirmed',
+  },
+  {
+    id: '10',
+    title: 'Appuntamento con Cliente 10',
+    start: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(),
+    clientName: 'Cliente 10',
+    clientPhone: '3334445566',
+    service: 'Extension ciglia',
+    notes: 'Note aggiuntive...',
+    salonId: '3',
+    staffId: '6',
+    status: 'pending',
+  },
+  {
+    id: '11',
+    title: 'Appuntamento con Cliente 11',
+    start: new Date(new Date().setDate(new Date().getDate() + 11)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 11)).toISOString(),
+    clientName: 'Cliente 11',
+    clientPhone: '3334445566',
+    service: 'Trucco',
+    notes: 'Note aggiuntive...',
+    salonId: '3',
+    staffId: '5',
+    status: 'completed',
+  },
+  {
+    id: '12',
+    title: 'Appuntamento con Cliente 12',
+    start: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(),
+    end: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(),
+    clientName: 'Cliente 12',
+    clientPhone: '3334445566',
+    service: 'Ceretta',
+    notes: 'Note aggiuntive...',
+    salonId: '3',
+    staffId: '6',
+    status: 'cancelled',
+  },
+];
 
-  const appointments: Appointment[] = [
-    {
-      id: '1',
-      title: 'Taglio e piega',
-      start: new Date(today.setHours(10, 0, 0, 0)).toISOString(),
-      end: new Date(today.setHours(11, 0, 0, 0)).toISOString(),
-      clientName: 'Mario Rossi',
-      clientPhone: '3331234567',
-      service: 'Taglio e piega',
-      notes: 'Cliente abituale',
-      salonId: 'a1',
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      title: 'Colore',
-      start: new Date(today.setHours(11, 30, 0, 0)).toISOString(),
-      end: new Date(today.setHours(13, 0, 0, 0)).toISOString(),
-      clientName: 'Giulia Bianchi',
-      clientPhone: '3387654321',
-      service: 'Colore',
-      salonId: 'a1',
-      status: 'confirmed'
-    },
-    {
-      id: '3',
-      title: 'Manicure',
-      start: new Date(today.setHours(14, 0, 0, 0)).toISOString(),
-      end: new Date(today.setHours(15, 0, 0, 0)).toISOString(),
-      clientName: 'Laura Verdi',
-      service: 'Manicure',
-      salonId: 'a1',
-      status: 'completed'
-    },
-    {
-      id: '4',
-      title: 'Massaggio',
-      start: new Date(today.setHours(9, 0, 0, 0)).toISOString(),
-      end: new Date(today.setHours(10, 0, 0, 0)).toISOString(),
-      clientName: 'Franco Neri',
-      clientPhone: '3391234567',
-      service: 'Massaggio',
-      salonId: 'a2',
-      status: 'confirmed'
-    },
-    {
-      id: '5', 
-      title: 'Taglio barba',
-      start: new Date(tomorrow.setHours(11, 0, 0, 0)).toISOString(),
-      end: new Date(tomorrow.setHours(11, 30, 0, 0)).toISOString(),
-      clientName: 'Andrea Gialli',
-      service: 'Taglio barba',
-      notes: 'Prima volta',
-      salonId: 'a2',
-      status: 'pending'
-    },
-    {
-      id: '6',
-      title: 'Trattamento viso',
-      start: new Date(today.setHours(16, 0, 0, 0)).toISOString(),
-      end: new Date(today.setHours(17, 0, 0, 0)).toISOString(),
-      clientName: 'Roberta Blu',
-      service: 'Trattamento viso',
-      salonId: 'f1',
-      status: 'confirmed'
-    },
-    {
-      id: '7',
-      title: 'Taglio uomo',
-      start: new Date(tomorrow.setHours(14, 0, 0, 0)).toISOString(),
-      end: new Date(tomorrow.setHours(14, 30, 0, 0)).toISOString(),
-      clientName: 'Marco Rosa',
-      clientPhone: '3351234567',
-      service: 'Taglio uomo',
-      salonId: 'f1',
-      status: 'confirmed'
+// Versione migliorata della funzione di filtro per gli appuntamenti
+export const filterAppointments = (filters: AppointmentState['filters']) => (appointment: Appointment) => {
+  // Filtro per stato
+  if (filters.status && appointment.status !== filters.status) {
+    return false;
+  }
+
+  // Filtro per intervallo di date
+  if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) {
+    const appointmentDate = new Date(appointment.start);
+    
+    if (filters.dateRange[0] && appointmentDate < filters.dateRange[0]) {
+      return false;
     }
-  ];
-
-  return appointments;
-};
-
-export const MOCK_APPOINTMENTS = generateMockAppointments();
-
-// Function to filter appointments
-export const filterAppointments = (filters: AppointmentState['filters']) => (appointment: Appointment): boolean => {
-  // Filter by status
-  if (filters.status && filters.status !== 'all' && appointment.status !== filters.status) {
-    return false;
-  }
-
-  // Filter by staff member
-  if (filters.staffId && appointment.staffId !== filters.staffId) {
-    return false;
-  }
-
-  // Filter by date range
-  const [startDate, endDate] = filters.dateRange;
-  const appointmentDate = new Date(appointment.start);
-
-  if (startDate && appointmentDate < startDate) {
-    return false;
-  }
-
-  if (endDate) {
-    // Set endDate to end of day for inclusivity
-    const endOfDay = new Date(endDate);
-    endOfDay.setHours(23, 59, 59, 999);
-    if (appointmentDate > endOfDay) {
+    
+    if (filters.dateRange[1] && appointmentDate > filters.dateRange[1]) {
       return false;
     }
   }
 
-  // Filter by search term (client name, service, notes)
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    return (
-      appointment.clientName.toLowerCase().includes(searchLower) ||
-      (appointment.service && appointment.service.toLowerCase().includes(searchLower)) ||
-      (appointment.notes && appointment.notes.toLowerCase().includes(searchLower))
-    );
+  // Filtro per operatore
+  if (filters.staffId) {
+    // Gestione dello staffId che potrebbe essere stringa o oggetto
+    let appointmentStaffId;
+    
+    if (typeof appointment.staffId === 'string') {
+      appointmentStaffId = appointment.staffId;
+    } else if (appointment.staffId && typeof appointment.staffId === 'object' && 'value' in appointment.staffId) {
+      appointmentStaffId = appointment.staffId.value;
+    }
+    
+    if (appointmentStaffId !== filters.staffId) {
+      return false;
+    }
   }
 
+  // Filtro per ricerca testuale
+  if (filters.search) {
+    const searchLower = filters.search.toLowerCase();
+    const clientNameLower = appointment.clientName.toLowerCase();
+    const serviceLower = appointment.service?.toLowerCase() || '';
+    const notesLower = appointment.notes?.toLowerCase() || '';
+    
+    const hasMatch = 
+      clientNameLower.includes(searchLower) || 
+      serviceLower.includes(searchLower) || 
+      notesLower.includes(searchLower);
+      
+    if (!hasMatch) {
+      return false;
+    }
+  }
+
+  // Se tutti i filtri sono superati, l'appuntamento è incluso
   return true;
 };

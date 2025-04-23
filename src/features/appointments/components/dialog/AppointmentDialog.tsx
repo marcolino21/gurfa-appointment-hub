@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAppointments } from '@/contexts/AppointmentContext';
@@ -6,6 +7,7 @@ import AppointmentForm from './AppointmentForm';
 import DeleteConfirmation from './DeleteConfirmation';
 import DialogFooterActions from './DialogFooterActions';
 import { useAppointmentDialog } from '../../hooks/dialog/useAppointmentDialog';
+import { toast } from '@/hooks/use-toast';
 
 interface AppointmentDialogProps {
   open: boolean;
@@ -39,6 +41,19 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
   } = useAppointmentDialog(handleClose);
   
   const isExistingAppointment = Boolean(formData.id);
+  
+  // Gestione del submit con feedback
+  const onSubmit = async () => {
+    try {
+      await handleSubmit();
+      
+      // Il toast di successo è gestito nelle funzioni di add/update
+      
+    } catch (err) {
+      // Errore già gestito dal hook, non serve fare nulla qui
+      console.error("Errore durante il salvataggio dell'appuntamento:", err);
+    }
+  };
   
   return (
     <Dialog open={open} onOpenChange={newOpen => {
@@ -75,7 +90,7 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
               isExistingAppointment={isExistingAppointment}
               isSubmitting={isSubmitting}
               onShowDeleteConfirm={() => setShowDeleteConfirm(true)}
-              onSubmit={handleSubmit}
+              onSubmit={onSubmit}
             />
           </>
         )}

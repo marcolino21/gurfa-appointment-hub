@@ -16,6 +16,7 @@ export const useAddAppointment = (
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      // Normalizzazione dello staffId
       let processedStaffId: string | undefined = undefined;
       
       if (appointment.staffId) {
@@ -35,6 +36,7 @@ export const useAddAppointment = (
         id: `app_${Date.now()}`
       };
       
+      // Verifica disponibilità dello slot
       if (!isSlotAvailable(
         new Date(appointment.start), 
         new Date(appointment.end), 
@@ -43,12 +45,20 @@ export const useAddAppointment = (
         throw new Error('Lo slot orario selezionato è già occupato');
       }
       
+      console.log("Creazione nuovo appuntamento:", newAppointment);
+      console.log("Staff assegnato:", processedStaffId);
+      
       dispatch({ type: 'ADD_APPOINTMENT', payload: newAppointment });
-      dispatch({ type: 'ADD_TO_FILTERED_APPOINTMENTS', payload: newAppointment });
+      
+      // Messaggio di conferma migliorato
+      const formattedDate = format(new Date(newAppointment.start), 'EEEE d MMMM yyyy', { locale: it });
+      const formattedTime = format(new Date(newAppointment.start), 'HH:mm', { locale: it });
+      const staffInfo = processedStaffId ? ` con operatore assegnato` : '';
       
       toast({
-        title: 'Appuntamento creato',
-        description: `Appuntamento con ${newAppointment.clientName} aggiunto per il ${format(new Date(newAppointment.start), 'PPP', { locale: it })}`
+        title: 'Appuntamento creato con successo',
+        description: `Appuntamento con ${newAppointment.clientName} aggiunto per ${formattedDate} alle ${formattedTime}${staffInfo}`,
+        duration: 5000
       });
       
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -58,8 +68,9 @@ export const useAddAppointment = (
       dispatch({ type: 'SET_LOADING', payload: false });
       toast({
         variant: 'destructive',
-        title: 'Errore',
-        description: error.message
+        title: 'Errore nella creazione dell\'appuntamento',
+        description: error.message,
+        duration: 5000
       });
       throw error;
     }

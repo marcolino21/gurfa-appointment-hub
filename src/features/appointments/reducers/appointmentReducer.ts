@@ -25,13 +25,21 @@ export const appointmentReducer = (state: AppointmentState, action: AppointmentA
       return { ...state, filteredAppointments: action.payload };
       
     case 'ADD_APPOINTMENT': {
-      const newAppointments = [...state.appointments, action.payload];
+      const newAppointment = action.payload;
+      const newAppointments = [...state.appointments, newAppointment];
+      
+      // Verifichiamo se l'appuntamento passa i filtri correnti
+      const shouldAddToFiltered = filterAppointments(state.filters)(newAppointment);
+      
+      console.log("Aggiunto nuovo appuntamento:", newAppointment);
+      console.log("Passa i filtri correnti:", shouldAddToFiltered);
+      
       return { 
         ...state, 
         appointments: newAppointments,
-        // Aggiungiamo direttamente agli appuntamenti filtrati se passa i filtri correnti
-        filteredAppointments: filterAppointments(state.filters)(action.payload) 
-          ? [...state.filteredAppointments, action.payload]
+        // Aggiungiamo sempre ai filtrati se non ci sono filtri attivi o se passa i filtri
+        filteredAppointments: shouldAddToFiltered 
+          ? [...state.filteredAppointments, newAppointment]
           : state.filteredAppointments
       };
     }
@@ -47,14 +55,32 @@ export const appointmentReducer = (state: AppointmentState, action: AppointmentA
       };
       
     case 'UPDATE_APPOINTMENT': {
+      const updatedAppointment = action.payload;
       const updatedAppointments = state.appointments.map(app => 
-        app.id === action.payload.id ? action.payload : app
+        app.id === updatedAppointment.id ? updatedAppointment : app
       );
+      
+      // Aggiorniamo anche gli appuntamenti filtrati
+      const updatedFilteredAppointments = state.filteredAppointments.map(app =>
+        app.id === updatedAppointment.id ? updatedAppointment : app
+      );
+      
+      // Se l'appuntamento aggiornato non è presente nei filtrati ma passa i filtri attuali, lo aggiungiamo
+      const isInFiltered = state.filteredAppointments.some(app => app.id === updatedAppointment.id);
+      const shouldBeInFiltered = filterAppointments(state.filters)(updatedAppointment);
+      
+      if (!isInFiltered && shouldBeInFiltered) {
+        updatedFilteredAppointments.push(updatedAppointment);
+      }
+      
+      console.log("Aggiornato appuntamento:", updatedAppointment);
+      
       return { 
         ...state, 
         appointments: updatedAppointments,
-        filteredAppointments: updatedAppointments
-          .filter(filterAppointments(state.filters))
+        filteredAppointments: shouldBeInFiltered 
+          ? updatedFilteredAppointments 
+          : updatedFilteredAppointments.filter(app => app.id !== updatedAppointment.id)
       };
     }
     

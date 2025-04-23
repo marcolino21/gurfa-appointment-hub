@@ -53,13 +53,19 @@ export const useAppointmentEvents = () => {
   
   // Transform appointments into calendar events
   const transformedEvents = useMemo(() => {
-    console.log("=== DEBUG EVENTI CALENDARIO ===");
+    console.log("=== EVENTI CALENDARIO ===");
     console.log("Appuntamenti totali:", appointments.length);
     console.log("Appuntamenti filtrati:", filteredAppointments.length);
     
-    return filteredAppointments.map(appointment => {
+    // Mappa degli ID degli appuntamenti trasformati per debug
+    const transformedIds = new Set<string>();
+    
+    const events = filteredAppointments.map(appointment => {
       // Normalize the staffId
       const staffId = normalizeStaffId(appointment.staffId);
+      
+      // Aggiungi all'insieme per debug
+      transformedIds.add(appointment.id);
       
       // Debug log
       console.log(`Transforming appointment ${appointment.id}, staffId original:`, appointment.staffId, "normalized:", staffId);
@@ -82,6 +88,18 @@ export const useAppointmentEvents = () => {
       
       return event;
     });
+    
+    // Verifica se ci sono appuntamenti che non sono stati trasformati
+    const missingIds = appointments
+      .filter(app => !transformedIds.has(app.id))
+      .map(app => app.id);
+    
+    if (missingIds.length > 0) {
+      console.warn("Appuntamenti non trasformati in eventi:", missingIds);
+      console.warn("Possibili filtri attivi che li escludono:", JSON.stringify(missingIds));
+    }
+    
+    return events;
   }, [filteredAppointments, appointments]);
   
   // Update events when transformed events change

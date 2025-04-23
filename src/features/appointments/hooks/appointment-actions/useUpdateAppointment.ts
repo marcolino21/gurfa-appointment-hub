@@ -16,31 +16,61 @@ export const useUpdateAppointment = (
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      // Normalizza staffId se necessario
+      let processedStaffId: string | undefined = undefined;
+      
+      if (appointment.staffId) {
+        if (typeof appointment.staffId === 'string') {
+          processedStaffId = appointment.staffId;
+        } else if (typeof appointment.staffId === 'object' && appointment.staffId !== null) {
+          if ('value' in appointment.staffId) {
+            const value = appointment.staffId.value;
+            processedStaffId = value === 'undefined' ? undefined : String(value);
+          }
+        }
+      }
+      
+      // Crea una versione aggiornata con staffId normalizzato
+      const updatedAppointment: Appointment = {
+        ...appointment,
+        staffId: processedStaffId
+      };
+      
       if (!isSlotAvailable(
-        new Date(appointment.start), 
-        new Date(appointment.end), 
-        appointment.salonId, 
-        appointment.id
+        new Date(updatedAppointment.start), 
+        new Date(updatedAppointment.end), 
+        updatedAppointment.salonId, 
+        updatedAppointment.id
       )) {
         throw new Error('Lo slot orario selezionato è già occupato');
       }
       
-      dispatch({ type: 'UPDATE_APPOINTMENT', payload: appointment });
+      console.log("Aggiornamento appuntamento:", updatedAppointment);
+      console.log("Staff assegnato:", processedStaffId);
+      
+      dispatch({ type: 'UPDATE_APPOINTMENT', payload: updatedAppointment });
+      
+      // Messaggio di conferma migliorato
+      const formattedDate = format(new Date(updatedAppointment.start), 'EEEE d MMMM yyyy', { locale: it });
+      const formattedTime = format(new Date(updatedAppointment.start), 'HH:mm', { locale: it });
+      const staffInfo = processedStaffId ? ` con operatore assegnato` : '';
       
       toast({
-        title: 'Appuntamento aggiornato',
-        description: `Appuntamento con ${appointment.clientName} aggiornato per il ${format(new Date(appointment.start), 'PPP', { locale: it })}`
+        title: 'Appuntamento aggiornato con successo',
+        description: `Appuntamento con ${updatedAppointment.clientName} aggiornato per ${formattedDate} alle ${formattedTime}${staffInfo}`,
+        duration: 5000
       });
       
       dispatch({ type: 'SET_LOADING', payload: false });
-      return appointment;
+      return updatedAppointment;
     } catch (error: any) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
       dispatch({ type: 'SET_LOADING', payload: false });
       toast({
         variant: 'destructive',
-        title: 'Errore',
-        description: error.message
+        title: 'Errore nell\'aggiornamento',
+        description: error.message,
+        duration: 5000
       });
       throw error;
     }

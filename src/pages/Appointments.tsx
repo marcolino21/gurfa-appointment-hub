@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useStaffAppointments } from '@/features/appointments/hooks/useStaffAppointments';
@@ -21,7 +22,7 @@ const Appointments: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
   
-  const { setFilters, currentAppointment, appointments } = useAppointments();
+  const { setFilters, currentAppointment, appointments, filteredAppointments } = useAppointments();
   const { currentSalonId } = useAuth();
   const { visibleStaff, refreshVisibleStaff } = useStaffAppointments();
   const { events } = useAppointmentEvents();
@@ -37,13 +38,20 @@ const Appointments: React.FC = () => {
     handleAddAppointment
   } = useAppointmentHandlers(visibleStaff);
   
+  // Applicazione dei filtri quando cambiano
   useEffect(() => {
+    console.log("Applying filters:", {
+      search: searchTerm || null,
+      status: statusFilter === 'all' ? null : statusFilter
+    });
+    
     setFilters({
       search: searchTerm || null,
       status: statusFilter === 'all' ? null : statusFilter
     });
   }, [searchTerm, statusFilter, setFilters]);
   
+  // Caricamento dello staff visibile quando cambia il salone
   useEffect(() => {
     console.log("Appointments component - currentSalonId:", currentSalonId);
     
@@ -52,30 +60,32 @@ const Appointments: React.FC = () => {
     }
   }, [refreshVisibleStaff, currentSalonId]);
   
+  // Debug e validazione delle visualizzazioni
   useEffect(() => {
-    console.log("Appointments component - visibleStaff:", visibleStaff);
-    console.log("Appointments component - events:", events);
-    console.log("Appointments component - appointments:", appointments);
-    
-    const appointmentsWithStaff = appointments.filter(app => {
-      const staffId = app.staffId;
-      
-      if (typeof staffId === 'string') {
-        return visibleStaff.some(staff => staff.id === staffId);
-      }
-      
-      if (typeof staffId === 'object' && staffId !== null && staffId !== undefined) {
-        const staffIdObject = staffId as { value?: string };
-        if ('value' in staffId && staffIdObject.value !== undefined) {
-          return visibleStaff.some(staff => staff.id === staffIdObject.value);
-        }
-      }
-      
-      return false;
+    console.log("Debug appuntamenti e staff:", {
+      allAppointments: appointments.length,
+      filteredAppointments: filteredAppointments.length,
+      visibleStaff: visibleStaff.length,
+      eventsGenerated: events.length
     });
     
-    console.log("Appointments with matching staff:", appointmentsWithStaff.length);
+    if (appointments.length > 0 && filteredAppointments.length === 0) {
+      console.warn("ATTENZIONE: Ci sono appuntamenti ma nessuno è filtrato/visibile");
+      console.log("Filtri attuali:", {
+        search: searchTerm || null,
+        status: statusFilter === 'all' ? null : statusFilter
+      });
+    }
     
+    // Riepilogo appuntamenti per monitoraggio
+    const appointmentsByStatus = appointments.reduce((acc, app) => {
+      acc[app.status] = (acc[app.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    console.log("Appuntamenti per stato:", appointmentsByStatus);
+    
+    // Notifica se non ci sono staff visibili
     if (visibleStaff.length === 0 && currentSalonId) {
       toast({
         title: "Nessuno staff visibile",
@@ -83,7 +93,7 @@ const Appointments: React.FC = () => {
         variant: "default"
       });
     }
-  }, [visibleStaff, currentSalonId, toast, events, appointments]);
+  }, [visibleStaff, currentSalonId, toast, events, appointments, filteredAppointments, searchTerm, statusFilter]);
   
   return (
     <div className="space-y-4">
@@ -105,7 +115,7 @@ const Appointments: React.FC = () => {
         onViewChange={setCalendarView}
       />
       
-      {currentAppointment && (
+      {isAppointmentDialogOpen && (
         <AppointmentDialog
           open={isAppointmentDialogOpen}
           onOpenChange={setIsAppointmentDialogOpen}
