@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { UseFormReset } from 'react-hook-form';
-import { Project, ProjectFormValues } from '@/types';
+import { Project, ProjectFormValues, ProjectCategory } from '@/types';
 
 interface UseProjectFormInitProps {
   selectedProject: Project | null;
