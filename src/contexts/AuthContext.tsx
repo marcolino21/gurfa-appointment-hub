@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const savedSession = localStorage.getItem('gurfa_session');
         const savedToken = localStorage.getItem('gurfa_token');
         const savedUser = localStorage.getItem('gurfa_user');
+        const savedSalonId = localStorage.getItem('gurfa_current_salon_id');
         
         if (savedSession && savedToken && savedUser) {
           const parsedSession = JSON.parse(savedSession);
@@ -45,6 +46,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 token: savedToken 
               } 
             });
+            
+            // Se esiste un salone salvato, impostalo come corrente
+            if (savedSalonId) {
+              dispatch({ type: 'SET_CURRENT_SALON', payload: savedSalonId });
+              
+              // Aggiorna anche il business name in localStorage
+              const savedSalons = state.salons.length > 0 
+                ? state.salons 
+                : parsedSession.salons || [];
+              
+              const currentSalon = savedSalons.find((s: Salon) => s.id === savedSalonId);
+              if (currentSalon) {
+                localStorage.setItem('salon_business_name', currentSalon.name);
+              }
+            }
             
             console.log("Sessione utente ripristinata con successo");
             return true;
@@ -94,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(sessionInterval);
     };
-  }, [state.user]);
+  }, [state.user, state.salons]);
 
   // Implementa un login ancora più persistente per impostazione predefinita
   const login = async (email: string, password: string): Promise<void> => {
@@ -103,12 +119,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     logoutService(dispatch);
-    // Clear business name from localStorage on logout
+    // Clear business name and salon id from localStorage on logout
     localStorage.removeItem('salon_business_name');
+    localStorage.removeItem('gurfa_current_salon_id');
   };
 
   const setCurrentSalon = (salonId: string) => {
     dispatch({ type: 'SET_CURRENT_SALON', payload: salonId });
+    
+    // Save current salon ID to localStorage for persistence
+    localStorage.setItem('gurfa_current_salon_id', salonId);
     
     // Update the business name in localStorage when changing salons
     const salon = state.salons.find(s => s.id === salonId);
@@ -128,6 +148,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: salon.id || `salon-${Date.now()}`,
     };
     dispatch({ type: 'ADD_SALON', payload: salonToAdd });
+    
+    // Se è il primo salone aggiunto, impostalo come quello corrente
+    if (state.salons.length === 0) {
+      setCurrentSalon(salonToAdd.id);
+    }
   };
 
   const updateSalonInfo = (salonId: string, updatedSalon: Salon) => {
@@ -139,6 +164,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatedSalon
       } 
     });
+    
+    // If this is the current salon, also update the business name in localStorage
+    if (salonId === state.currentSalonId) {
+      localStorage.setItem('salon_business_name', updatedSalon.name);
+    }
   };
 
   return (

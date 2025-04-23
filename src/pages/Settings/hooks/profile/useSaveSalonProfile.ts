@@ -24,7 +24,7 @@ export const useSaveSalonProfile = ({
   updateSalonInfo,
   toast
 }: UseSaveSalonProfileProps) => {
-  const { user, addSalon } = useAuth();
+  const { user, addSalon, setCurrentSalon } = useAuth();
 
   const handleSaveProfile = async () => {
     setIsLoading(true);
@@ -53,6 +53,9 @@ export const useSaveSalonProfile = ({
         
         // Aggiungi il salone al contesto
         addSalon(newSalon);
+        
+        // Imposta il nuovo salone come salone corrente
+        setCurrentSalon(newSalon.id);
         
         // Aggiorna le variabili locali
         salonId = newSalon.id;
@@ -93,6 +96,9 @@ export const useSaveSalonProfile = ({
         };
         
         updateSalonInfo(salonId, updatedSalon);
+        
+        // Assicuriamoci che questo salone sia selezionato come corrente
+        setCurrentSalon(salonId);
       }
       
       // Dispatch custom event to notify that business name changed
