@@ -36,8 +36,16 @@ export const useAppointmentDialog = (onClose: () => void) => {
       const startDate = new Date(currentAppointment.start);
       const endDate = new Date(currentAppointment.end);
       
+      // Assicuriamoci che staffId sia un valore valido
+      let staffId = currentAppointment.staffId;
+      if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
+        const value = staffId.value;
+        staffId = value === 'undefined' ? undefined : String(value);
+      }
+
       setFormData({
-        ...currentAppointment
+        ...currentAppointment,
+        staffId: staffId
       });
       
       setDate(startDate);

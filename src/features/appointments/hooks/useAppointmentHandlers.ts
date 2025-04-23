@@ -74,6 +74,9 @@ export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
     start.setHours(9, 0, 0, 0);
     const end = new Date(start);
     end.setHours(10, 0, 0, 0);
+
+    // Assegna un membro dello staff di default, se disponibile
+    const defaultStaffId = visibleStaff.length > 0 ? visibleStaff[0].id : undefined;
     
     const newAppointment: Partial<Appointment> = {
       title: '',
@@ -81,7 +84,7 @@ export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
       end: end.toISOString(),
       clientName: '',
       salonId: currentSalonId,
-      staffId: visibleStaff.length > 0 ? visibleStaff[0].id : undefined,
+      staffId: defaultStaffId, // Ora impostiamo correttamente lo staffId
       status: 'pending'
     };
     

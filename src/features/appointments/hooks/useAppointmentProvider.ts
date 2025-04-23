@@ -1,4 +1,3 @@
-
 import { useReducer, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -58,8 +57,16 @@ export const useAppointmentProvider = (): AppointmentContextType => {
       // Simula una richiesta API
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      // Assicuriamoci che staffId sia una stringa
+      let staffId = appointment.staffId;
+      if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
+        const value = staffId.value;
+        staffId = value === 'undefined' ? undefined : String(value);
+      }
+      
       const newAppointment: Appointment = {
         ...appointment,
+        staffId: staffId,
         id: `app_${Date.now()}`
       };
       

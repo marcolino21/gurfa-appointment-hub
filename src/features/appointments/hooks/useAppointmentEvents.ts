@@ -49,6 +49,21 @@ export const useAppointmentEvents = () => {
       if (!appointment.staffId) {
         console.warn("Appuntamento senza staffId:", appointment);
       }
+
+      // Assicuriamoci che staffId sia una stringa valida
+      let staffId = undefined;
+      if (appointment.staffId) {
+        // Se è un oggetto con una proprietà value, usa quella
+        if (typeof appointment.staffId === 'object' && appointment.staffId !== null && 'value' in appointment.staffId) {
+          staffId = String(appointment.staffId.value);
+          // Se il valore è 'undefined', impostiamolo su undefined effettivo
+          if (staffId === 'undefined') staffId = undefined;
+        } 
+        // Altrimenti usa direttamente il valore di staffId
+        else {
+          staffId = String(appointment.staffId);
+        }
+      }
       
       return {
         id: appointment.id,
@@ -57,10 +72,10 @@ export const useAppointmentEvents = () => {
         end: appointment.end,
         backgroundColor: getEventColor(appointment.status),
         borderColor: getEventColor(appointment.status),
-        resourceId: appointment.staffId,  // This is critical for staff resource mapping
+        resourceId: staffId,  // Ora usiamo il valore corretto di staffId
         extendedProps: {
           status: appointment.status,
-          staffId: appointment.staffId,
+          staffId: staffId, // Aggiorniamo anche qui per coerenza
           clientName: appointment.clientName,
           service: appointment.service
         }
