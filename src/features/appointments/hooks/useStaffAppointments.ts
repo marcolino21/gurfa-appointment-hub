@@ -1,14 +1,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { StaffMember } from '@/types';
+import { StaffMember, Service } from '@/types';
 import { getSalonStaff } from '@/features/staff/utils/staffDataUtils';
 import { BUSINESS_NAME_CHANGE_EVENT } from '@/utils/businessNameEvents';
 import { useToast } from '@/hooks/use-toast';
+import { MOCK_SERVICES } from '@/data/mock/services';
 
 export const useStaffAppointments = () => {
   const { currentSalonId } = useAuth();
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
   
   // Function to get visible staff
@@ -31,6 +33,9 @@ export const useStaffAppointments = () => {
         }
         
         setVisibleStaff(staffVisibleInCalendar);
+        
+        // Load services from mock data
+        setServices(MOCK_SERVICES[currentSalonId] || []);
       } catch (error) {
         console.error("Error fetching visible staff:", error);
       }
@@ -69,6 +74,7 @@ export const useStaffAppointments = () => {
 
   return { 
     visibleStaff,
+    services,
     refreshVisibleStaff: fetchVisibleStaff
   };
 };

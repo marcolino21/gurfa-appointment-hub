@@ -1,9 +1,11 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useStaffAppointments } from '../../hooks/useStaffAppointments';
 import { useAuth } from '@/contexts/AuthContext';
 import { MOCK_CLIENTS } from '@/data/mock/clients';
+import { Client } from '@/types/clients';
 import { ClientFields } from './form-fields/ClientFields';
 import { ServiceFields } from './form-fields/ServiceFields';
 import { DateTimeFields } from './form-fields/DateTimeFields';

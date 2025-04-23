@@ -13,7 +13,7 @@ interface ServiceEntry {
 
 interface ServiceFieldsProps {
   formData: any;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleInputChange: (e: any) => void;
   visibleStaff: StaffMember[];
   services: Service[];
 }
@@ -30,9 +30,10 @@ export const ServiceFields = ({
     const newEntries = [...serviceEntries];
     newEntries[index] = { ...newEntries[index], [field]: value };
     
+    // Use a custom event object that matches what handleInputChange expects
     handleInputChange({
       target: { name: 'serviceEntries', value: newEntries }
-    } as React.ChangeEvent<HTMLInputElement>);
+    });
   };
 
   const addServiceEntry = () => {
@@ -41,14 +42,14 @@ export const ServiceFields = ({
         name: 'serviceEntries', 
         value: [...serviceEntries, { serviceId: '', staffId: '' }]
       }
-    } as React.ChangeEvent<HTMLInputElement>);
+    });
   };
 
   const removeServiceEntry = (index: number) => {
     const newEntries = serviceEntries.filter((_, i) => i !== index);
     handleInputChange({
       target: { name: 'serviceEntries', value: newEntries }
-    } as React.ChangeEvent<HTMLInputElement>);
+    });
   };
 
   const getAvailableStaffForService = (serviceId: string) => {
