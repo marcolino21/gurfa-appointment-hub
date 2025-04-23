@@ -37,8 +37,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       staffMembersCount: staffMembers.length,
       eventsCount: events.length,
       view,
-      staffIds: staffMembers.map(s => s.id),
-      firstFewEvents: events.slice(0, 3)
+      staffIds: staffMembers.map(s => s.id)
     });
     
     // Debug eventi e interattività
@@ -98,37 +97,63 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Assicura che gli eventi siano interattivi dopo l'aggiornamento
+  // Refreshes events and ensures they are interactive after updates
   useEffect(() => {
     if (calendarApi && events.length >= 0) {
       try {
         console.log("Refreshing calendar with events:", events.length);
         
-        // Forza un aggiornamento più aggressivo
+        // Implementazione più aggressiva per garantire l'interattività
         const refreshCalendar = () => {
+          // Rimuovi tutti gli eventi e ri-aggiungili per un refresh completo
           calendarApi.removeAllEvents();
           calendarApi.addEventSource(events);
           calendarApi.refetchEvents();
-          calendarApi.render(); // Force complete re-render
+          calendarApi.updateSize(); // Forza ridimensionamento
           
-          // Ritardo breve per assicurare che gli eventi siano renderizzati
-          setTimeout(() => {
-            document.querySelectorAll('.fc-event').forEach(el => {
-              (el as HTMLElement).style.pointerEvents = 'auto';
-              (el as HTMLElement).style.cursor = 'pointer';
-              el.classList.add('fc-event-interactive');
+          // Verifica che gli eventi siano stati aggiunti correttamente
+          console.log("Events after refresh:", calendarApi.getEvents().length);
+          
+          // Seleziona tutti gli eventi e rendi esplicitamente interattivi
+          document.querySelectorAll('.fc-event').forEach(el => {
+            (el as HTMLElement).style.pointerEvents = 'auto';
+            (el as HTMLElement).style.cursor = 'pointer';
+            el.classList.add('fc-event-interactive');
+            
+            // Aggiungi un listener di click come fallback
+            el.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const eventId = el.getAttribute('data-event-id');
+              console.log("Direct click on event element:", eventId);
+              
+              // Trova l'evento corrispondente e chiama il handler
+              if (eventId) {
+                const event = events.find(evt => evt.id === eventId);
+                if (event && onEventClick) {
+                  onEventClick({ 
+                    event: { 
+                      id: event.id,
+                      title: event.title,
+                      extendedProps: event.extendedProps,
+                      // Simuliamo un oggetto fullcalendar event
+                      toPlainObject: () => event
+                    } 
+                  });
+                }
+              }
             });
-          }, 200);
+          });
         };
         
-        // Eseguiamo immediatamente e poi dopo un breve ritardo
+        // Eseguiamo immediatamente e poi dopo brevi ritardi
         refreshCalendar();
-        setTimeout(refreshCalendar, 300);
+        setTimeout(refreshCalendar, 200);
+        setTimeout(refreshCalendar, 500);
       } catch (error) {
         console.error("Error refreshing calendar events:", error);
       }
     }
-  }, [events, calendarApi]);
+  }, [events, calendarApi, onEventClick]);
 
   if (view === 'dayGridMonth') {
     return (

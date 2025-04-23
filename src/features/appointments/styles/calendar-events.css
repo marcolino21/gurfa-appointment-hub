@@ -8,6 +8,9 @@
   cursor: pointer !important;
   pointer-events: auto !important;
   z-index: 10 !important;
+  position: relative;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 /* Month view event styles */
@@ -24,7 +27,7 @@
   font-size: 0.75rem !important;
 }
 
-/* Importante: assicura che gli eventi rimangano interattivi */
+/* Aggiunta di stili specifici per garantire interattività */
 .fc-event-main,
 .fc-event-main-frame,
 .fc-event-title-container,
@@ -32,6 +35,7 @@
 .fc-event-title {
   pointer-events: auto !important;
   z-index: 5;
+  cursor: pointer !important;
 }
 
 /* Correzioni specifiche per la visualizzazione settimanale */
@@ -40,10 +44,33 @@
   z-index: 4 !important;
 }
 
-/* Stile di hover per gli eventi */
+/* Stile di hover più pronunciato per gli eventi */
 .fc-event:hover {
   filter: brightness(1.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.2s;
+  transform: translateY(-1px);
 }
 
+/* Assicuriamo che tutti gli stili siano applicati anche a eventi nidificati */
+.fc .fc-event,
+.fc .fc-event-main,
+.fc .fc-event-time,
+.fc .fc-event-title {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Impedire che elementi di sfondo blocchino l'interattività */
+.fc-highlight-skeleton,
+.fc-mirror-skeleton {
+  pointer-events: none !important;
+}
+
+/* Stile specifico per eventi interattivi */
+.fc-event-interactive {
+  position: relative;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 10;
+}

@@ -8,8 +8,8 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
-  contain: content; /* Optimization for rendering */
-  position: relative; /* Assicura un contesto di posizionamento */
+  contain: content;
+  position: relative;
 }
 
 .calendar-grid-body {
@@ -21,9 +21,8 @@
   max-height: calc(100vh - 400px);
   will-change: transform;
   transform: translateZ(0);
-  -webkit-transform-style: preserve-3d; /* Per Safari */
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
-  /* Added to prevent jump-back scroll issues */
   overscroll-behavior: none;
   scroll-behavior: auto !important;
 }
@@ -35,7 +34,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
-  -webkit-transform-style: preserve-3d; /* Per Safari */
+  -webkit-transform-style: preserve-3d;
 }
 
 /* Set min-height for daily views to ensure scrollability */
@@ -53,13 +52,13 @@
   min-height: 1200px !important;
 }
 
-/* Aumenta la fluidità dello scroll per tutti i contenitori FullCalendar */
+/* Miglioramenti per lo scroll fluido */
 .fc .fc-scroller-liquid-absolute,
 .calendar-time-col,
 .calendar-staff-col .fc-scroller {
   -webkit-overflow-scrolling: touch !important;
-  scroll-snap-type: none !important; /* Changed from y proximity to none */
-  scroll-behavior: auto !important; /* Changed from smooth to auto to prevent jump-backs */
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
   overscroll-behavior: none !important;
 }
 
@@ -73,9 +72,7 @@
 .calendar-grid-body, 
 .calendar-time-col,
 .calendar-staff-col .fc-scroller {
-  /* Disable scroll anchoring that can cause jumps */
   overflow-anchor: none;
-  /* Set consistent scroll behavior */
   scrollbar-width: thin;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
@@ -85,19 +82,17 @@
   .calendar-grid-body, 
   .calendar-time-col,
   .calendar-staff-col .fc-scroller {
-    /* Prevent bounce scroll on mobile */
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    /* Keep these for optimization */
     -webkit-overflow-scrolling: touch;
     -webkit-transform-style: preserve-3d;
   }
 }
 
-/* Assicurarsi che gli eventi e i loro contenitori siano interattivi */
+/* Miglioriamo l'interattività di tutti gli eventi e i loro contenitori */
 .fc-event, 
 .fc-event-container,
 .fc-timegrid-event-harness,
@@ -106,19 +101,49 @@
 .fc-daygrid-event {
   pointer-events: auto !important;
   cursor: pointer !important;
+  touch-action: manipulation;
+  z-index: 5;
 }
 
-/* Stile per indicare l'interattività */
+/* Stile visibile per eventi interattivi */
 .fc-event.fc-event-interactive:hover {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
 
-/* Assicurarsi che non ci siano elementi che possano interferire con i click */
+/* Garantiamo che nessun layer blocchi i click */
 .fc-highlight,
 .fc-bg-event,
 .fc-non-business,
 .fc-day-disabled {
   pointer-events: none !important;
+}
+
+/* Regole specifiche per forzare l'interattività */
+.fc-view-harness *,
+.fc-timegrid-body *,
+.fc-daygrid-body * {
+  pointer-events: auto;
+}
+
+/* Solo gli elementi specifici non devono essere interattivi */
+.fc-highlight,
+.fc-bg-event,
+.fc-non-business,
+.fc-day-disabled {
+  pointer-events: none !important;
+}
+
+/* Rimozione degli stili che interferiscono con l'interattività nelle versioni mobile */
+@media (hover: none) {
+  .fc-event {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  }
+  
+  .fc-event:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
 }
