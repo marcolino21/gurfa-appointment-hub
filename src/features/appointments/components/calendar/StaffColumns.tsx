@@ -6,6 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { StaffMember } from '@/types';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface StaffColumnsProps {
   staffMembers: StaffMember[];
@@ -26,6 +27,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
 }) => {
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
+  const { currentSalonId } = useAuth();
   
   // Helper function to get staff name
   const getStaffName = (staff: StaffMember) => {
@@ -52,17 +54,29 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     console.log("StaffColumns - gruppi di eventi per staff:", 
       staffMembers.map(staff => ({
         staffId: staff.id,
-        name: `${staff.firstName} ${staff.lastName}`, // Changed from staff.name
+        name: `${staff.firstName} ${staff.lastName}`,
         events: events.filter(event => event.resourceId === staff.id).length
       }))
     );
   }, [events, staffMembers]);
 
+  // Se non ci sono membri dello staff da visualizzare
   if (staffMembers.length === 0) {
     return (
-      <div className="flex items-center justify-center flex-1 h-full text-gray-500">
-        Nessun operatore visibile nel calendario. 
-        Aggiungi operatori e imposta "Visibile in agenda" nelle impostazioni staff.
+      <div className="flex flex-col items-center justify-center flex-1 h-full p-8 text-gray-500 bg-gray-50 rounded-md border border-dashed border-gray-300">
+        <div className="text-lg font-medium mb-2">Nessun operatore visibile nel calendario.</div>
+        <div className="text-sm text-center">
+          {currentSalonId ? (
+            <p>
+              Per visualizzare gli operatori nell'agenda:
+              <br />
+              1. Vai alla pagina Staff<br />
+              2. Seleziona "Visibile in agenda" nelle impostazioni dell'operatore
+            </p>
+          ) : (
+            <p>Seleziona prima un salone dalle impostazioni profilo</p>
+          )}
+        </div>
       </div>
     );
   }
@@ -158,4 +172,3 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     </div>
   );
 };
-
