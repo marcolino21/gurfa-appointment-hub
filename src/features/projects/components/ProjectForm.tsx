@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns'; // Add this import
+import { format } from 'date-fns';
 import { projectSchema } from '../schemas/projectSchema';
 import { Client, Project, ProjectCategory, StaffMember, ProjectFormValues } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ import { ProjectObjectives } from './project-form/ProjectObjectives';
 import { ProjectDates } from './project-form/ProjectDates';
 import { ProjectStatus } from './project-form/ProjectStatus';
 import { ProjectFeedback } from './project-form/ProjectFeedback';
+import { ProjectStaffSelector } from './project-form/ProjectStaffSelector';
+import { useProjectForm } from '../hooks/useProjectForm';
 
 interface ProjectFormProps {
   clients: Client[];
@@ -35,79 +37,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   selectedProject,
   onSubmit
 }) => {
-  const location = useLocation();
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [subcategories, setSubcategories] = useState<ProjectCategory[]>([]);
-  const [useCustomCategory, setUseCustomCategory] = useState(false);
-
-  const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectSchema),
-    defaultValues: {
-      title: selectedProject?.title || '',
-      clientId: selectedProject?.clientId || '',
-      categoryId: selectedProject?.categoryId || '',
-      subcategoryId: selectedProject?.subcategoryId || '',
-      description: selectedProject?.description || '',
-      objectives: selectedProject?.objectives.map(obj => ({
-        description: obj.description,
-        isCompleted: obj.isCompleted
-      })) || [{ description: '', isCompleted: false }],
-      startDate: selectedProject?.startDate || format(new Date(), 'yyyy-MM-dd'), // Corrected this line
-      endDate: selectedProject?.endDate || '',
-      status: selectedProject?.status || 'planning',
-      progress: selectedProject?.progress || 0,
-      feedback: selectedProject?.feedback || '',
-      staffIds: selectedProject?.staffIds || [],
-      customFields: selectedProject?.customFields || [],
-      customCategory: '',
-    }
+  const { form, handleSubmit, useCustomCategory, setUseCustomCategory } = useProjectForm({
+    clients,
+    categories,
+    getSubcategories,
+    selectedProject,
+    onSubmit
   });
-
-  // Check for clientId in URL query params
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const clientId = params.get('clientId');
-    
-    if (clientId) {
-      form.setValue('clientId', clientId);
-    }
-  }, [location.search, form]);
-
-  useEffect(() => {
-    if (selectedProject) {
-      form.reset({
-        title: selectedProject.title,
-        clientId: selectedProject.clientId,
-        categoryId: selectedProject.categoryId,
-        subcategoryId: selectedProject.subcategoryId,
-        description: selectedProject.description,
-        objectives: selectedProject.objectives.map(obj => ({
-          description: obj.description,
-          isCompleted: obj.isCompleted
-        })),
-        startDate: selectedProject.startDate,
-        endDate: selectedProject.endDate,
-        status: selectedProject.status,
-        progress: selectedProject.progress,
-        feedback: selectedProject.feedback,
-        staffIds: selectedProject.staffIds,
-        customFields: selectedProject.customFields,
-        customCategory: '',
-      });
-      
-      if (selectedProject.categoryId) {
-        setSelectedCategory(selectedProject.categoryId);
-        setSubcategories(getSubcategories(selectedProject.categoryId));
-      }
-    }
-  }, [selectedProject, form, getSubcategories]);
-
-  const handleSubmit = (data: ProjectFormValues) => {
-    if (useCustomCategory && data.customCategory) {
-      data.categoryId = data.customCategory;
-    }
-    onSubmit(data);
-  };
 
   return (
     <Form {...form}>
@@ -124,6 +60,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         <ProjectObjectives form={form} />
         <ProjectDates form={form} />
         <ProjectStatus form={form} />
+        <ProjectStaffSelector form={form} staffMembers={staffMembers} />
         <ProjectFeedback form={form} />
         
         <div className="flex justify-end space-x-2">
