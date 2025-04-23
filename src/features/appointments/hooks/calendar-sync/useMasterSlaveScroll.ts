@@ -13,8 +13,17 @@ export const useMasterSlaveScroll = () => {
   const masterScrollerRef = useRef<HTMLElement | null>(null);
   const slaveScrollersRef = useRef<HTMLElement[]>([]);
   
+  // Ultimo valore di scroll conosciuto per prevenire rimbalzi
+  const lastScrollPositionRef = useRef<number>(0);
+  
   // Optimized transform-based synchronization with debounce
   const synchronizeViaTransform = useCallback((scrollTop: number) => {
+    // Controlla se lo scorrimento è significativo
+    if (Math.abs(scrollTop - lastScrollPositionRef.current) < 1) return;
+    
+    // Aggiorna l'ultimo valore conosciuto
+    lastScrollPositionRef.current = scrollTop;
+    
     // Cancel any pending animation frame to avoid accumulation
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
@@ -55,6 +64,7 @@ export const useMasterSlaveScroll = () => {
     slaveScrollersRef,
     synchronizeViaTransform,
     cleanupAnimationFrame,
-    rafIdRef
+    rafIdRef,
+    lastScrollPositionRef
   };
 };

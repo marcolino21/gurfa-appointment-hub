@@ -22,7 +22,7 @@ export const useScrollSystemSetup = (
     const masterScroller = document.querySelector('.calendar-time-col') as HTMLElement;
     if (!masterScroller) {
       console.warn('Master scroller (.calendar-time-col) not found');
-      return;
+      return () => {};
     }
     
     // Save the master reference
@@ -32,7 +32,7 @@ export const useScrollSystemSetup = (
     const staffColumns = document.querySelectorAll('.calendar-staff-col .fc-scroller');
     if (staffColumns.length === 0) {
       console.warn('No staff columns found for scroll sync');
-      return;
+      return () => {};
     }
     
     console.log(`Setting up scroll sync system with ${staffColumns.length} staff columns`);

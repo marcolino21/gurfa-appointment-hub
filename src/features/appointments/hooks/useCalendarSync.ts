@@ -19,7 +19,8 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     slaveScrollersRef,
     synchronizeViaTransform,
     cleanupAnimationFrame,
-    rafIdRef
+    rafIdRef,
+    lastScrollPositionRef: lastKnownScrollRef
   } = useMasterSlaveScroll();
   
   // Get scroll system setup functionality
@@ -54,8 +55,6 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
       isInitializedRef.current = true;
       
       console.log('Calendar scroll sync initialized');
-      
-      return cleanup;
     }, 250);
     
     // Observer to reconfigure on DOM changes

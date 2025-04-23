@@ -52,7 +52,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     console.log("StaffColumns - gruppi di eventi per staff:", 
       staffMembers.map(staff => ({
         staffId: staff.id,
-        name: `${staff.firstName} ${staff.lastName}`, // Changed from staff.name
+        name: `${staff.firstName} ${staff.lastName}`,
         events: events.filter(event => event.resourceId === staff.id).length
       }))
     );
@@ -158,4 +158,3 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     </div>
   );
 };
-
