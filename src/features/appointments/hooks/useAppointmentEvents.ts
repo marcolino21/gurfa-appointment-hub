@@ -23,7 +23,7 @@ export const useAppointmentEvents = () => {
   const { filteredAppointments, appointments } = useAppointments();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   
-  // Moved getEventColor before its usage
+  // Function to get event color based on status
   const getEventColor = (status: string) => {
     switch (status) {
       case 'confirmed': return '#2563eb'; // blue
@@ -34,38 +34,37 @@ export const useAppointmentEvents = () => {
     }
   };
   
-  // Utilizziamo useMemo per ottimizzare la trasformazione degli appuntamenti in eventi
+  // Normalize staffId to ensure it's always a proper string or undefined
+  const normalizeStaffId = (staffId: any): string | undefined => {
+    // If it's null or undefined, return undefined
+    if (staffId === null || staffId === undefined) {
+      return undefined;
+    }
+    
+    // If it's an object with a value property
+    if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
+      // Check if the value is 'undefined' as a string
+      return staffId.value === 'undefined' ? undefined : String(staffId.value);
+    } 
+    
+    // If it's already a string or other value, convert to string
+    return String(staffId);
+  };
+  
+  // Transform appointments into calendar events
   const transformedEvents = useMemo(() => {
-    // Log dettagliati per debug
     console.log("=== DEBUG EVENTI CALENDARIO ===");
     console.log("Appuntamenti totali:", appointments.length);
     console.log("Appuntamenti filtrati:", filteredAppointments.length);
     
-    // Transform appointments into calendar events
     return filteredAppointments.map(appointment => {
-      console.log("Trasformando appuntamento in evento:", appointment);
+      // Normalize the staffId
+      const staffId = normalizeStaffId(appointment.staffId);
       
-      // Log per debugging
-      if (!appointment.staffId) {
-        console.warn("Appuntamento senza staffId:", appointment);
-      }
-
-      // Assicuriamoci che staffId sia una stringa valida
-      let staffId: string | undefined = undefined;
-      if (appointment.staffId !== null && appointment.staffId !== undefined) {
-        // Se è un oggetto con una proprietà value, usa quella
-        if (typeof appointment.staffId === 'object' && appointment.staffId !== null && 'value' in appointment.staffId) {
-          const value = appointment.staffId.value;
-          // Se il valore è 'undefined', impostiamolo su undefined effettivo
-          staffId = value === 'undefined' ? undefined : String(value);
-        } 
-        // Altrimenti usa direttamente il valore di staffId
-        else {
-          staffId = String(appointment.staffId);
-        }
-      }
+      // Debug log
+      console.log(`Transforming appointment ${appointment.id}, staffId original:`, appointment.staffId, "normalized:", staffId);
       
-      return {
+      const event = {
         id: appointment.id,
         title: `${appointment.clientName} - ${appointment.service || ''}`,
         start: appointment.start,
@@ -80,12 +79,15 @@ export const useAppointmentEvents = () => {
           service: appointment.service
         }
       };
+      
+      return event;
     });
   }, [filteredAppointments, appointments]);
   
-  // Aggiorniamo gli eventi quando cambiano gli appuntamenti trasformati
+  // Update events when transformed events change
   useEffect(() => {
-    console.log("Eventi calendario generati:", transformedEvents.length);
+    console.log("Events generated:", transformedEvents.length);
+    console.log("Events with valid resourceId:", transformedEvents.filter(e => e.resourceId !== undefined).length);
     setEvents(transformedEvents);
   }, [transformedEvents]);
   

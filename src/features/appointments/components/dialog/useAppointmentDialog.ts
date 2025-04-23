@@ -32,29 +32,40 @@ export const useAppointmentDialog = (onClose: () => void) => {
   
   const { currentSalonId } = useAuth();
   
+  // Helper function to normalize staffId
+  const normalizeStaffId = (rawStaffId: any): string | undefined => {
+    if (rawStaffId === null || rawStaffId === undefined) {
+      return undefined;
+    }
+    
+    if (typeof rawStaffId === 'object' && rawStaffId !== null && 'value' in rawStaffId) {
+      return rawStaffId.value === 'undefined' ? undefined : String(rawStaffId.value);
+    }
+    
+    return String(rawStaffId);
+  };
+  
   useEffect(() => {
     if (currentAppointment) {
       const startDate = new Date(currentAppointment.start);
       const endDate = new Date(currentAppointment.end);
       
-      // Assicuriamoci che staffId sia un valore valido
-      let staffId = currentAppointment.staffId;
-      if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
-        const value = staffId.value;
-        // Use type assertion to handle the null case
-        staffId = value === 'undefined' ? undefined : String(value);
-      }
+      // Normalize staffId
+      const normalizedStaffId = normalizeStaffId(currentAppointment.staffId);
+      
+      console.log("Appointment dialog - Original staffId:", currentAppointment.staffId);
+      console.log("Appointment dialog - Normalized staffId:", normalizedStaffId);
 
       setFormData({
         ...currentAppointment,
-        staffId: staffId
+        staffId: normalizedStaffId
       });
       
       setDate(startDate);
       setStartTime(format(startDate, 'HH:mm'));
       setEndTime(format(endDate, 'HH:mm'));
       
-      // Calcola la durata in minuti
+      // Calculate duration in minutes
       const diffMs = endDate.getTime() - startDate.getTime();
       const diffMins = Math.round(diffMs / 60000);
       setDuration(diffMins);
@@ -64,28 +75,28 @@ export const useAppointmentDialog = (onClose: () => void) => {
   useEffect(() => {
     if (date && startTime) {
       try {
-        // Parse del tempo di inizio
+        // Parse start time
         const parsedStartTime = parse(startTime, 'HH:mm', new Date());
         
-        // Combina la data con l'orario di inizio
+        // Combine date with start time
         const startDateTime = new Date(date);
         startDateTime.setHours(parsedStartTime.getHours());
         startDateTime.setMinutes(parsedStartTime.getMinutes());
         
-        // Calcola l'orario di fine in base alla durata
+        // Calculate end time based on duration
         const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
         
-        // Aggiorna il form data
+        // Update form data
         setFormData(prev => ({
           ...prev,
           start: startDateTime.toISOString(),
           end: endDateTime.toISOString()
         }));
         
-        // Aggiorna anche il campo endTime per la visualizzazione
+        // Update endTime display
         setEndTime(format(endDateTime, 'HH:mm'));
       } catch (e) {
-        console.error('Errore nel parsing della data/ora:', e);
+        console.error('Error parsing date/time:', e);
       }
     }
   }, [date, startTime, duration]);
@@ -114,7 +125,7 @@ export const useAppointmentDialog = (onClose: () => void) => {
     setError(null);
     
     try {
-      // Verifica se lo slot è disponibile
+      // Check if slot is available
       const isAvailable = isSlotAvailable(
         new Date(formData.start!), 
         new Date(formData.end!), 
@@ -126,17 +137,21 @@ export const useAppointmentDialog = (onClose: () => void) => {
         throw new Error('Lo slot orario selezionato è già occupato');
       }
       
+      // Ensure staffId is a plain string value before saving
       const appointmentData: Partial<Appointment> = {
         ...formData,
         title: formData.title || formData.service || 'Appuntamento',
-        salonId: currentSalonId
+        salonId: currentSalonId,
+        staffId: formData.staffId // This should already be normalized
       };
       
+      console.log("Saving appointment with staffId:", appointmentData.staffId);
+      
       if (formData.id) {
-        // Aggiornamento
+        // Update
         await updateAppointment(appointmentData as Appointment);
       } else {
-        // Creazione
+        // Create
         await addAppointment(appointmentData as Omit<Appointment, 'id'>);
       }
       

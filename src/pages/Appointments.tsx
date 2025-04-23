@@ -34,7 +34,7 @@ const Appointments: React.FC = () => {
     handleAddAppointment
   } = useAppointmentHandlers(visibleStaff);
   
-  // Applica i filtri quando cambiano
+  // Apply filters when they change
   useEffect(() => {
     setFilters({
       search: searchTerm || null,
@@ -42,7 +42,7 @@ const Appointments: React.FC = () => {
     });
   }, [searchTerm, statusFilter, setFilters]);
   
-  // Aggiorna gli staff visibili quando cambia il salone
+  // Update visible staff when the salon changes
   useEffect(() => {
     console.log("Appointments component - currentSalonId:", currentSalonId);
     
@@ -51,11 +51,25 @@ const Appointments: React.FC = () => {
     }
   }, [refreshVisibleStaff, currentSalonId]);
   
-  // Log per debug
+  // Debug logging
   useEffect(() => {
     console.log("Appointments component - visibleStaff:", visibleStaff);
     console.log("Appointments component - events:", events);
     console.log("Appointments component - appointments:", appointments);
+    
+    // Check if there are any appointments with properly formatted staffId that match visible staff
+    const appointmentsWithStaff = appointments.filter(app => {
+      const staffId = app.staffId;
+      if (typeof staffId === 'string') {
+        return visibleStaff.some(staff => staff.id === staffId);
+      }
+      if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
+        return visibleStaff.some(staff => staff.id === staffId.value);
+      }
+      return false;
+    });
+    
+    console.log("Appointments with matching staff:", appointmentsWithStaff.length);
     
     if (visibleStaff.length === 0 && currentSalonId) {
       toast({

@@ -46,16 +46,32 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     }, {} as Record<string, boolean>);
   }, [staffMembers, isStaffBlocked]);
 
-  // Debug log of events
+  // Debug log of events and staff
   useEffect(() => {
-    console.log("StaffColumns - eventi disponibili:", events.length);
-    console.log("StaffColumns - gruppi di eventi per staff:", 
-      staffMembers.map(staff => ({
-        staffId: staff.id,
-        name: `${staff.firstName} ${staff.lastName}`,
-        events: events.filter(event => event.resourceId === staff.id).length
-      }))
+    console.log("StaffColumns - Staff members:", staffMembers.map(s => ({ id: s.id, name: getStaffName(s) })));
+    console.log("StaffColumns - Available events:", events.length);
+    
+    // Log event-to-staff matching
+    staffMembers.forEach(staff => {
+      const staffEvents = events.filter(event => event.resourceId === staff.id);
+      console.log(`Staff ${getStaffName(staff)} (ID: ${staff.id}) has ${staffEvents.length} events:`, 
+        staffEvents.map(e => ({ id: e.id, title: e.title })));
+    });
+    
+    // Log orphaned events (events with resourceId that doesn't match any staff)
+    const orphanedEvents = events.filter(
+      event => event.resourceId && !staffMembers.some(staff => staff.id === event.resourceId)
     );
+    
+    if (orphanedEvents.length > 0) {
+      console.warn("Orphaned events (no matching staff):", orphanedEvents);
+    }
+    
+    // Log events with missing resourceId
+    const eventsWithoutResource = events.filter(event => !event.resourceId);
+    if (eventsWithoutResource.length > 0) {
+      console.warn("Events without resourceId:", eventsWithoutResource);
+    }
   }, [events, staffMembers]);
 
   if (staffMembers.length === 0) {
@@ -77,9 +93,8 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
-        // Filter events for this staff
+        // Filter events for this specific staff member
         const staffEvents = events.filter(event => event.resourceId === staff.id);
-        console.log(`Staff ${getStaffName(staff)} (${staff.id}) ha ${staffEvents.length} eventi`);
         
         return (
           <div
@@ -111,36 +126,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 return [];
               }}
               eventDidMount={(info) => {
-                // Add special handling for blocked time events
-                if (info.event.extendedProps?.isBlockedTime || 
-                    info.event.classNames?.includes('blocked-time-event') ||
-                    info.event.display === 'background') {
-                  info.el.classList.add('blocked-time-event');
-                  info.el.classList.add('fc-non-interactive');
-                  
-                  // Create tooltip for blocked time
-                  const tooltip = document.createElement('div');
-                  tooltip.className = 'calendar-tooltip';
-                  
-                  let tooltipContent = 'Operatore non disponibile';
-                  if (info.event.extendedProps?.reason) {
-                    tooltipContent += `: ${info.event.extendedProps.reason}`;
-                  }
-                  
-                  tooltip.innerText = tooltipContent;
-                  info.el.appendChild(tooltip);
-                  
-                  // Add event listeners for the tooltip visibility
-                  info.el.addEventListener('mouseenter', () => {
-                    tooltip.style.display = 'block';
-                  });
-                  
-                  info.el.addEventListener('mouseleave', () => {
-                    tooltip.style.display = 'none';
-                  });
-                }
-                
-                // Call the original eventDidMount if provided
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
                 }

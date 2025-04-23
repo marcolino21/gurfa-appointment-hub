@@ -9,6 +9,6 @@ export interface Appointment {
   service?: string;
   notes?: string;
   salonId: string;
-  staffId?: string | null | { value: string }; // Updated to include all possible types
+  staffId?: string | null;
   status: 'confirmed' | 'completed' | 'cancelled' | 'pending';
 }
