@@ -9,6 +9,7 @@
   border-radius: 8px;
   overflow: hidden;
   contain: content; /* Optimization for rendering */
+  overscroll-behavior: none; /* Previene il rimbalzo */
 }
 
 .calendar-grid-body {
@@ -22,6 +23,7 @@
   transform: translateZ(0);
   -webkit-transform-style: preserve-3d; /* Per Safari */
   transform-style: preserve-3d;
+  overscroll-behavior: none; /* Previene il rimbalzo */
 }
 
 /* Critical for performance - use hardware acceleration */
@@ -32,6 +34,7 @@
   backface-visibility: hidden;
   perspective: 1000px;
   -webkit-transform-style: preserve-3d; /* Per Safari */
+  overscroll-behavior: none; /* Previene il rimbalzo */
 }
 
 /* Set min-height for daily views to ensure scrollability */
@@ -49,12 +52,13 @@
   min-height: 1200px !important;
 }
 
-/* Aumenta la fluidità dello scroll per tutti i contenitori FullCalendar */
+/* Aumenta la fluidità dello scroll per tutti i contenitori FullCalendar 
+   ma rimuovi comportamenti che possono causare ritorni automatici */
 .fc .fc-scroller-liquid-absolute,
 .calendar-time-col,
 .calendar-staff-col .fc-scroller {
   -webkit-overflow-scrolling: touch !important;
-  scroll-snap-type: y proximity !important;
+  scroll-snap-type: none !important; /* Disabilita snap che può causare ritorni improvvisi */
   scroll-behavior: smooth !important;
   overscroll-behavior: none !important;
 }
@@ -63,4 +67,14 @@
 .fc-timegrid-slot-lane,
 .fc-timegrid-slot-label {
   contain: strict;
+}
+
+/* Impedisce il rimbalzo elastico su iOS */
+@supports (-webkit-touch-callout: none) {
+  .calendar-grid-body,
+  .calendar-time-col,
+  .calendar-staff-col .fc-scroller {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
 }

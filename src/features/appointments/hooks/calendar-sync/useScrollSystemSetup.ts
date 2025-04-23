@@ -76,55 +76,69 @@ export const useScrollSystemSetup = (
     
     // Throttled master scroll handler for better performance
     let lastScrollTime = 0;
-    const scrollThrottleMs = 10; // Throttle to 10ms
+    const scrollThrottleMs = 16; // Throttle to match 60fps (~16ms)
+    let scrollTimeout: number | null = null;
+    let userScrolling = false;
     
     const handleMasterScroll = () => {
       if (!masterScrollerRef.current) return;
+      
+      // Indica che un utente sta scrollando
+      userScrolling = true;
       
       const now = Date.now();
       if (now - lastScrollTime < scrollThrottleMs) return;
       lastScrollTime = now;
       
-      // Avoid redundant updates
+      // Ottieni la posizione corrente
       const currentScrollTop = masterScrollerRef.current.scrollTop;
-      if (Math.abs(currentScrollTop - lastScrollPositionRef.current) < 1) return;
       
-      // Update the reference position
-      lastScrollPositionRef.current = currentScrollTop;
-      
-      // Signal that we're scrolling
-      if (!isScrollingRef.current) {
-        document.body.classList.add('is-scrolling');
-        isScrollingRef.current = true;
+      // Aggiorna la posizione salvata
+      if (Math.abs(currentScrollTop - lastScrollPositionRef.current) > 1) {
+        lastScrollPositionRef.current = currentScrollTop;
+        
+        // Segnala che stiamo scrollando
+        if (!isScrollingRef.current) {
+          document.body.classList.add('is-scrolling');
+          isScrollingRef.current = true;
+        }
+        
+        // Sincronizza gli slave via transform
+        synchronizeViaTransform(currentScrollTop);
       }
       
-      // Synchronize slaves via transform
-      synchronizeViaTransform(currentScrollTop);
-      
-      // Cleanup class after short delay
-      clearTimeout(window.setTimeout(() => {
+      // Pulisci la classe dopo un breve ritardo
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
         document.body.classList.remove('is-scrolling');
         isScrollingRef.current = false;
-      }, 100));
+        scrollTimeout = null;
+      }, 150);
     };
     
-    // Optimize scroll event with passive: true for performance
+    // Ottimizza l'evento scroll con passive: true per prestazioni
     masterScroller.addEventListener('scroll', handleMasterScroll, { passive: true });
     
-    // Add touch event handling for better mobile experience
+    // Aggiungi gestione eventi touch per migliore esperienza mobile
     let touchStartY = 0;
     masterScroller.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
+      userScrolling = true;
     }, { passive: true });
     
-    // Initial sync
+    // Sincronizzazione iniziale
     lastScrollPositionRef.current = masterScroller.scrollTop;
     synchronizeViaTransform(masterScroller.scrollTop);
     
-    // Return cleanup function
+    // Funzione di pulizia
     return () => {
       if (masterScrollerRef.current) {
         masterScrollerRef.current.removeEventListener('scroll', handleMasterScroll);
+      }
+      
+      // Cleanup timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
       
       // Reset references
