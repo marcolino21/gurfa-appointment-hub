@@ -34,7 +34,6 @@
   transform: translateZ(0);
   -webkit-transform-style: preserve-3d; /* Per Safari */
   transform-style: preserve-3d;
-  z-index: 1;
 }
 
 /* Hide unnecessary FullCalendar elements */
@@ -61,15 +60,12 @@
   font-size: 0.9rem;
 }
 
-/* Stili migliorati per eventi interattivi */
+/* Ensure events remain interactive even during transform */
 .calendar-staff-col .fc-event {
   transform: translateZ(0);
   will-change: transform;
   z-index: 10;
   contain: content;
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  position: relative;
 }
 
 /* Evitare box-shadow durante lo scroll per migliorare le performance */
@@ -83,8 +79,6 @@
   contain: content;
   will-change: transform;
   transform: translateZ(0);
-  pointer-events: auto !important;
-  cursor: pointer !important;
 }
 
 /* Prevenire problemi di stacking context per contenuti interni */
@@ -92,9 +86,6 @@
 .fc-event-time {
   position: relative;
   z-index: 2;
-  pointer-events: auto !important;
-  user-select: none;
-  cursor: pointer !important;
 }
 
 /* Stile per staff bloccato (non disponibile) */
@@ -120,34 +111,4 @@
   );
   z-index: 1;
   pointer-events: none;
-}
-
-/* Assicura che tutti gli elementi interattivi del calendario funzionino */
-.fc-timegrid-event-harness,
-.fc-timegrid-event,
-.fc-daygrid-event-harness,
-.fc-daygrid-event {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  touch-action: manipulation;
-}
-
-/* Rimozione di eventuali layer che potrebbero bloccare i click */
-.fc-h-event .fc-event-resizer,
-.fc-event-resizer-start,
-.fc-event-resizer-end {
-  pointer-events: none !important;
-}
-
-/* Regole specifiche per mobile */
-@media (max-width: 768px) {
-  .fc-event {
-    padding: 2px 4px !important;
-    cursor: pointer !important;
-    touch-action: manipulation;
-  }
-  
-  .fc-event-title {
-    font-size: 12px !important;
-  }
 }

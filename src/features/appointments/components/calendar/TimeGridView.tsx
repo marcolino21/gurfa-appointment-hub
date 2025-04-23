@@ -40,74 +40,29 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     ? new Date(selectedDate.getTime())
     : new Date();
 
-  // Debug events
-  useEffect(() => {
-    console.log("TimeGridView events:", allEvents.length);
-    console.log("Sample event:", allEvents[0]);
-  }, [allEvents]);
-
-  // Set up synchronized grid columns after render
+  // Set up synchronized grid columns after render - simplified
   useEffect(() => {
     if (staffMembers.length > 0 && !gridInitialized) {
       setGridInitialized(true);
       
-      // Apply interactivity enhancements
+      // Single timeout with essential operations
       setTimeout(() => {
         try {
-          // Initialize grid layout
           const calendarGridBody = document.querySelector('.calendar-grid-body');
           if (calendarGridBody) {
             calendarGridBody.classList.add('unified-calendar-grid');
           }
           
-          // Add calendar scrollable class
           const appointmentCalendar = document.querySelector('.staff-calendar-block');
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
-          
-          // Remove any elements that might block interactivity
-          document.querySelectorAll('.fc-event-mirror').forEach(el => el.remove());
-          
-          // Add interactivity attributes to all events
-          document.querySelectorAll('.fc-event').forEach(el => {
-            el.setAttribute('data-interactive', 'true');
-            (el as HTMLElement).style.pointerEvents = 'auto';
-            (el as HTMLElement).style.cursor = 'pointer';
-            el.classList.add('fc-event-interactive');
-          });
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
       }, 300);
     }
   }, [staffMembers, gridInitialized]);
-
-  // Ensure events remain interactive after each render
-  useEffect(() => {
-    const makeEventsInteractive = () => {
-      document.querySelectorAll('.fc-event').forEach(el => {
-        (el as HTMLElement).style.pointerEvents = 'auto';
-        (el as HTMLElement).style.cursor = 'pointer';
-        el.classList.add('fc-event-interactive');
-      });
-      
-      console.log("Events made interactive");
-    };
-    
-    // Execute immediately
-    makeEventsInteractive();
-    
-    // Execute again after a short delay to catch dynamically added events
-    const timerId = setTimeout(makeEventsInteractive, 200);
-    // And once more after components settle
-    const timerId2 = setTimeout(makeEventsInteractive, 500);
-    
-    return () => {
-      clearTimeout(timerId);
-      clearTimeout(timerId2);
-    };
-  }, [events, allEvents]);
 
   return (
     <TooltipProvider>
@@ -135,34 +90,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               selectedDate={validSelectedDate}
               commonConfig={{
                 ...commonConfig,
-                eventClassNames: "interactive-event", 
-                eventClick: (info: any) => {
-                  console.log("Event clicked:", info.event.id);
-                  if (commonConfig.eventClick) {
-                    commonConfig.eventClick(info);
-                  }
-                },
                 eventDidMount: (info: any) => {
-                  // Make event explicitly interactive
-                  if (info.el) {
-                    info.el.style.pointerEvents = 'auto';
-                    info.el.style.cursor = 'pointer';
-                    info.el.classList.add('fc-event-interactive');
-                    
-                    // Add extra click handler just in case
-                    info.el.addEventListener('click', () => {
-                      console.log("Direct click on event:", info.event.id);
-                      if (commonConfig.eventClick) {
-                        commonConfig.eventClick({
-                          event: info.event,
-                          el: info.el,
-                          jsEvent: new MouseEvent('click')
-                        });
-                      }
-                    });
-                  }
-                  
-                  // Handle blocked time events
                   if (info.event.extendedProps.isBlockedTime || 
                       info.event.classNames?.includes('blocked-time-event') ||
                       info.event.display === 'background') {
@@ -187,7 +115,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
                     info.el.addEventListener('mouseenter', handleMouseEnter);
                     info.el.addEventListener('mouseleave', handleMouseLeave);
                     
-                    // Cleanup function
+                    // Cleanup function for FullCalendar
                     info.el.addEventListener('DOMNodeRemoved', () => {
                       info.el.removeEventListener('mouseenter', handleMouseEnter);
                       info.el.removeEventListener('mouseleave', handleMouseLeave);

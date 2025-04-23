@@ -31,26 +31,15 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // Log events and staff per render for debugging
+  // Log events and staff per render per debugging
   useEffect(() => {
     console.log("StaffCalendar rendering with:", {
       staffMembersCount: staffMembers.length,
       eventsCount: events.length,
       view,
-      staffIds: staffMembers.map(s => s.id)
+      staffIds: staffMembers.map(s => s.id),
+      firstFewEvents: events.slice(0, 3)
     });
-    
-    // Debug eventi e interattività
-    console.log("Eventi con resourceId:", events.filter(e => e.resourceId).length);
-    console.log("Eventi senza resourceId:", events.filter(e => !e.resourceId).length);
-    
-    // Log per verificare corrispondenza tra eventi e staff
-    const staffEventsMapping = staffMembers.map(staff => ({
-      staffId: staff.id,
-      staffName: `${staff.firstName} ${staff.lastName}`,
-      events: events.filter(event => event.resourceId === staff.id).length
-    }));
-    console.log("Mappatura staff-eventi:", staffEventsMapping);
   }, [staffMembers, events, view]);
 
   // Always ensure we have a valid date object
@@ -97,63 +86,24 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Refreshes events and ensures they are interactive after updates
+  // Improved refresh of calendars after events update
   useEffect(() => {
-    if (calendarApi && events.length >= 0) {
+    if (calendarApi && events.length >= 0) { // Changed from > 0 to >= 0 to refresh even when no events
       try {
         console.log("Refreshing calendar with events:", events.length);
         
-        // Implementazione più aggressiva per garantire l'interattività
-        const refreshCalendar = () => {
-          // Rimuovi tutti gli eventi e ri-aggiungili per un refresh completo
+        // Forza un aggiornamento più aggressivo
+        setTimeout(() => {
           calendarApi.removeAllEvents();
           calendarApi.addEventSource(events);
           calendarApi.refetchEvents();
-          calendarApi.updateSize(); // Forza ridimensionamento
-          
-          // Verifica che gli eventi siano stati aggiunti correttamente
-          console.log("Events after refresh:", calendarApi.getEvents().length);
-          
-          // Seleziona tutti gli eventi e rendi esplicitamente interattivi
-          document.querySelectorAll('.fc-event').forEach(el => {
-            (el as HTMLElement).style.pointerEvents = 'auto';
-            (el as HTMLElement).style.cursor = 'pointer';
-            el.classList.add('fc-event-interactive');
-            
-            // Aggiungi un listener di click come fallback
-            el.addEventListener('click', (e) => {
-              e.stopPropagation();
-              const eventId = el.getAttribute('data-event-id');
-              console.log("Direct click on event element:", eventId);
-              
-              // Trova l'evento corrispondente e chiama il handler
-              if (eventId) {
-                const event = events.find(evt => evt.id === eventId);
-                if (event && onEventClick) {
-                  onEventClick({ 
-                    event: { 
-                      id: event.id,
-                      title: event.title,
-                      extendedProps: event.extendedProps,
-                      // Simuliamo un oggetto fullcalendar event
-                      toPlainObject: () => event
-                    } 
-                  });
-                }
-              }
-            });
-          });
-        };
-        
-        // Eseguiamo immediatamente e poi dopo brevi ritardi
-        refreshCalendar();
-        setTimeout(refreshCalendar, 200);
-        setTimeout(refreshCalendar, 500);
+          calendarApi.render(); // Force complete re-render
+        }, 100);
       } catch (error) {
         console.error("Error refreshing calendar events:", error);
       }
     }
-  }, [events, calendarApi, onEventClick]);
+  }, [events, calendarApi]);
 
   if (view === 'dayGridMonth') {
     return (

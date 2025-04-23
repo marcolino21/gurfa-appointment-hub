@@ -35,7 +35,7 @@ export const useAppointmentProvider = (): AppointmentContextType => {
         dispatch({ type: 'SET_APPOINTMENTS', payload: filteredApps });
         dispatch({ type: 'SET_FILTERED_APPOINTMENTS', payload: filteredApps });
         dispatch({ type: 'SET_LOADING', payload: false });
-      }, 300); // Ridotto da 500 a 300 ms per migliorare velocità
+      }, 500);
     } catch (error: any) {
       console.error("Error fetching appointments:", error);
       dispatch({ type: 'SET_ERROR', payload: error.message });
@@ -43,15 +43,10 @@ export const useAppointmentProvider = (): AppointmentContextType => {
     }
   }, [user]);
 
-  // Utilizza useEffect per ricaricare gli appuntamenti quando cambia il salonId
   useEffect(() => {
     if (currentSalonId) {
-      console.log("CurrentSalonId changed, fetching appointments for:", currentSalonId);
+      console.log("Fetching appointments on mount with salonId:", currentSalonId);
       fetchAppointments(currentSalonId);
-    } else {
-      console.log("No currentSalonId available, clearing appointments");
-      dispatch({ type: 'SET_APPOINTMENTS', payload: [] });
-      dispatch({ type: 'SET_FILTERED_APPOINTMENTS', payload: [] });
     }
   }, [currentSalonId, fetchAppointments]);
 

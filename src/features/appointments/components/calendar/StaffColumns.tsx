@@ -6,7 +6,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { StaffMember } from '@/types';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface StaffColumnsProps {
   staffMembers: StaffMember[];
@@ -27,7 +26,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
 }) => {
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
-  const { currentSalonId } = useAuth();
   
   // Helper function to get staff name
   const getStaffName = (staff: StaffMember) => {
@@ -48,54 +46,23 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     }, {} as Record<string, boolean>);
   }, [staffMembers, isStaffBlocked]);
 
-  // Debug log per il problema degli eventi non interattivi
+  // Debug log of events
   useEffect(() => {
-    console.log("StaffColumns - eventi totali:", events.length);
-    
-    // Analisi degli eventi senza resourceId corretto
-    const eventsWithInvalidResourceId = events.filter(event => {
-      return event.resourceId && typeof event.resourceId === 'object';
-    });
-    
-    if (eventsWithInvalidResourceId.length > 0) {
-      console.warn("Eventi con resourceId non valido:", eventsWithInvalidResourceId.length);
-      console.warn("Esempio:", eventsWithInvalidResourceId[0]);
-    }
-    
-    // Verifichiamo la distribuzione di eventi
-    const staffEventsMapping = staffMembers.map(staff => ({
-      staffId: staff.id,
-      name: getStaffName(staff),
-      events: events.filter(event => {
-        // Correzione per resourceId come oggetto
-        const resourceId = typeof event.resourceId === 'object' 
-          ? event.resourceId?.value 
-          : event.resourceId;
-        
-        return resourceId === staff.id;
-      }).length
-    }));
-    
-    console.log("Mappatura staff-eventi:", staffEventsMapping);
+    console.log("StaffColumns - eventi disponibili:", events.length);
+    console.log("StaffColumns - gruppi di eventi per staff:", 
+      staffMembers.map(staff => ({
+        staffId: staff.id,
+        name: `${staff.firstName} ${staff.lastName}`, // Changed from staff.name
+        events: events.filter(event => event.resourceId === staff.id).length
+      }))
+    );
   }, [events, staffMembers]);
 
-  // Se non ci sono membri dello staff da visualizzare
   if (staffMembers.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center flex-1 h-full p-8 text-gray-500 bg-gray-50 rounded-md border border-dashed border-gray-300">
-        <div className="text-lg font-medium mb-2">Nessun operatore visibile nel calendario.</div>
-        <div className="text-sm text-center">
-          {currentSalonId ? (
-            <p>
-              Per visualizzare gli operatori nell'agenda:
-              <br />
-              1. Vai alla pagina Staff<br />
-              2. Seleziona "Visibile in agenda" nelle impostazioni dell'operatore
-            </p>
-          ) : (
-            <p>Seleziona prima un salone dalle impostazioni profilo</p>
-          )}
-        </div>
+      <div className="flex items-center justify-center flex-1 h-full text-gray-500">
+        Nessun operatore visibile nel calendario. 
+        Aggiungi operatori e imposta "Visibile in agenda" nelle impostazioni staff.
       </div>
     );
   }
@@ -110,27 +77,8 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
-        // Correggi il filtering degli eventi per questo staff
-        const staffEvents = events.filter(event => {
-          // Gestione di resourceId sia come stringa che come oggetto
-          let eventResourceId = event.resourceId;
-          
-          // Se resourceId è un oggetto, estraiamo il valore
-          if (typeof eventResourceId === 'object' && eventResourceId !== null) {
-            eventResourceId = eventResourceId.value;
-          }
-          
-          // Se staffId è un oggetto nelle extendedProps, usiamo quello
-          if (!eventResourceId && event.extendedProps?.staffId) {
-            eventResourceId = typeof event.extendedProps.staffId === 'object'
-              ? event.extendedProps.staffId.value
-              : event.extendedProps.staffId;
-          }
-          
-          // Matching con l'ID dello staff
-          return eventResourceId === staff.id;
-        });
-        
+        // Filter events for this staff
+        const staffEvents = events.filter(event => event.resourceId === staff.id);
         console.log(`Staff ${getStaffName(staff)} (${staff.id}) ha ${staffEvents.length} eventi`);
         
         return (
@@ -153,31 +101,17 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               height="100%"
               dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}
               viewClassNames={isBlocked ? 'blocked-staff-view' : ''}
-              eventClassNames={['fc-event-interactive', 'event-clickable']}
-              eventDidMount={(info) => {
-                // Add data attributes for debugging
-                if (info.el) {
-                  info.el.setAttribute('data-event-id', info.event.id);
-                  info.el.setAttribute('data-staff-id', staff.id);
-                  info.el.setAttribute('data-interactive', 'true');
-                  (info.el as HTMLElement).style.pointerEvents = 'auto';
-                  (info.el as HTMLElement).style.cursor = 'pointer';
-                  
-                  // Add click handler as a backup
-                  info.el.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    console.log("Direct click on event:", info.event.id, "on staff:", staff.id);
-                    if (commonConfig.eventClick) {
-                      commonConfig.eventClick({
-                        event: info.event,
-                        el: info.el,
-                        jsEvent: e
-                      });
-                    }
-                  });
+              eventClassNames={(arg) => {
+                // Add extra class for blocked time events
+                if (arg.event.extendedProps?.isBlockedTime || 
+                    arg.event.classNames?.includes('blocked-time-event') ||
+                    arg.event.display === 'background') {
+                  return ['blocked-time-event', 'fc-non-interactive'];
                 }
-                
-                // Special handling for blocked time events
+                return [];
+              }}
+              eventDidMount={(info) => {
+                // Add special handling for blocked time events
                 if (info.event.extendedProps?.isBlockedTime || 
                     info.event.classNames?.includes('blocked-time-event') ||
                     info.event.display === 'background') {
@@ -224,3 +158,4 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     </div>
   );
 };
+

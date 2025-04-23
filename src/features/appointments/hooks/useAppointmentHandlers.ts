@@ -26,8 +26,6 @@ export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
         staffId = selectInfo.resource.id;
       }
       
-      console.log("Date selected:", selectInfo);
-      
       const newAppointment: Partial<Appointment> = {
         title: '',
         start: selectInfo.startStr,
@@ -38,35 +36,20 @@ export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
         status: 'pending'
       };
       
-      console.log("Creating new appointment:", newAppointment);
       setCurrentAppointment(newAppointment as Appointment);
       setIsAppointmentDialogOpen(true);
     }
   };
   
   const handleEventClick = (clickInfo: any) => {
-    console.log("Event clicked:", clickInfo);
-    console.log("Event ID:", clickInfo.event.id);
-    console.log("Available appointments:", filteredAppointments);
-    
     const appointment = filteredAppointments.find(app => app.id === clickInfo.event.id);
-    console.log("Found appointment:", appointment);
-    
     if (appointment) {
       setCurrentAppointment(appointment);
       setIsAppointmentDialogOpen(true);
-    } else {
-      console.warn("No appointment found with ID:", clickInfo.event.id);
-      
-      // Debugging information
-      console.log("Event extendedProps:", clickInfo.event.extendedProps);
-      console.log("All appointment IDs:", filteredAppointments.map(a => a.id));
     }
   };
   
   const handleEventDrop = (dropInfo: any) => {
-    console.log("Event dropped:", dropInfo);
-    
     const appointment = filteredAppointments.find(app => app.id === dropInfo.event.id);
     if (appointment) {
       // Update staff if event is dragged to a different resource

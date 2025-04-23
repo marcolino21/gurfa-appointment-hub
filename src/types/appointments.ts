@@ -9,6 +9,6 @@ export interface Appointment {
   service?: string;
   notes?: string;
   salonId: string;
-  staffId?: string; // Questo è un campo opzionale di tipo stringa
+  staffId?: string;
   status: 'confirmed' | 'completed' | 'cancelled' | 'pending';
 }

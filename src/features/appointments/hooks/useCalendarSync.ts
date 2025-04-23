@@ -12,7 +12,6 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
   const isScrollingRef = useRef<boolean>(false);
   const lastScrollPositionRef = useRef<number>(0);
   const isInitializedRef = useRef<boolean>(false);
-  const lastViewRef = useRef<string>(view);
   
   // Get scroll synchronization functions from sub-hooks
   const {
@@ -20,7 +19,6 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     slaveScrollersRef,
     synchronizeViaTransform,
     cleanupAnimationFrame,
-    isManualScrollRef,
     rafIdRef
   } = useMasterSlaveScroll();
   
@@ -33,75 +31,38 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     lastScrollPositionRef
   );
   
-  // Store and restore scroll position when view changes
+  // Main effect that sets up the system when view changes
   useEffect(() => {
-    // If view changed, store position before changes
-    if (lastViewRef.current !== view && masterScrollerRef.current) {
-      try {
-        sessionStorage.setItem(
-          `calendarScrollPosition_${lastViewRef.current}`, 
-          masterScrollerRef.current.scrollTop.toString()
-        );
-      } catch (e) {
-        console.error("Error storing scroll position:", e);
-      }
-    }
-    
-    // Update last view ref
-    lastViewRef.current = view;
-    
     // Skip for month view that doesn't require synchronization
     if (view === 'dayGridMonth') {
       isInitializedRef.current = false;
       return;
     }
-
-    // Main setup function with delay to ensure DOM is ready
+    
+    console.log(`Setting up calendar sync for view: ${view}`);
+    
+    // Setup with delay to ensure DOM is ready
     const setupTimer = setTimeout(() => {
       // Apply optimization classes to main container
       const calendarBody = document.querySelector('.calendar-grid-body');
       if (calendarBody) {
         calendarBody.classList.add('hardware-accelerated');
       }
-
-      // Set up master-slave system
+      
+      // Setup master-slave system
       const cleanup = setupMasterSlaveScrollSystem();
       isInitializedRef.current = true;
       
-      // Restore scroll position after setup
-      try {
-        const storedPosition = sessionStorage.getItem(`calendarScrollPosition_${view}`);
-        if (storedPosition && masterScrollerRef.current) {
-          const position = parseInt(storedPosition, 10);
-          if (!isNaN(position) && position > 0) {
-            // Use RAF for smoother restoration
-            requestAnimationFrame(() => {
-              if (masterScrollerRef.current) {
-                isManualScrollRef.current = true;
-                masterScrollerRef.current.scrollTop = position;
-                // Reset manual flag after scroll completes
-                setTimeout(() => {
-                  isManualScrollRef.current = false;
-                }, 100);
-              }
-            });
-          }
-        }
-      } catch (e) {
-        console.error("Error restoring scroll position:", e);
-      }
-
       console.log('Calendar scroll sync initialized');
+      
       return cleanup;
     }, 250);
     
     // Observer to reconfigure on DOM changes
     const observer = new MutationObserver(() => {
       if (isInitializedRef.current) {
-        // Reconfigure only if already initialized and not currently scrolling
-        if (!isScrollingRef.current) {
-          setupMasterSlaveScrollSystem();
-        }
+        // Reconfigure only if already initialized, otherwise wait for timer
+        setupMasterSlaveScrollSystem();
       }
     });
     
@@ -120,21 +81,9 @@ export const useCalendarSync = (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridM
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = window.setTimeout(() => {
-        // Store position before resize
-        const currentPos = masterScrollerRef.current?.scrollTop || 0;
-        
         if (isInitializedRef.current) {
           console.log('Reinitializing calendar sync after resize');
           setupMasterSlaveScrollSystem();
-          
-          // Restore position after resize
-          if (masterScrollerRef.current && currentPos > 0) {
-            requestAnimationFrame(() => {
-              if (masterScrollerRef.current) {
-                masterScrollerRef.current.scrollTop = currentPos;
-              }
-            });
-          }
         }
       }, 200);
     };

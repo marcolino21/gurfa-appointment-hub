@@ -17,14 +17,11 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   overscroll-behavior: none;
-  /* Changed from smooth to auto to prevent jump-backs */
-  scroll-behavior: auto !important;
+  scroll-behavior: smooth;
   min-height: 1200px;
   transform: translateZ(0);
   -webkit-transform-style: preserve-3d; /* Per Safari */
   transform-style: preserve-3d;
-  /* Disable scroll anchoring to prevent jumps */
-  overflow-anchor: none;
 }
 
 .calendar-time-inner {
@@ -63,14 +60,14 @@
   }
 }
 
-/* Ottimizzazioni per dispositivi touch - removed scroll-snap to prevent jumps */
+/* Ottimizzazioni per dispositivi touch */
 @media (pointer: coarse) {
   .calendar-time-col {
-    scroll-snap-type: none;
+    scroll-snap-type: y proximity;
   }
   
   .fc-timegrid-slots tr {
-    scroll-snap-align: none;
+    scroll-snap-align: start;
   }
 }
 
@@ -83,16 +80,5 @@
   .calendar-time-col,
   .calendar-staff-col .fc-scroller {
     will-change: transform;
-    /* Added to fix Firefox-specific scroll issues */
-    scroll-behavior: auto !important;
-    overflow-anchor: none;
   }
-}
-
-/* Prevent scroll anchoring/jumping for all browsers */
-.calendar-time-col,
-.calendar-staff-col .fc-scroller,
-.calendar-grid-body {
-  overflow-anchor: none !important;
-  scroll-behavior: auto !important;
 }
