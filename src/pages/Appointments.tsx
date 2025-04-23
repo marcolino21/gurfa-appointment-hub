@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useStaffAppointments } from '@/features/appointments/hooks/useStaffAppointments';
@@ -12,6 +11,10 @@ import { useAppointmentEvents } from '@/features/appointments/hooks/useAppointme
 import { useAppointmentHandlers } from '@/features/appointments/hooks/useAppointmentHandlers';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
+interface StaffIdObject {
+  value: string;
+}
 
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,7 +37,6 @@ const Appointments: React.FC = () => {
     handleAddAppointment
   } = useAppointmentHandlers(visibleStaff);
   
-  // Apply filters when they change
   useEffect(() => {
     setFilters({
       search: searchTerm || null,
@@ -42,7 +44,6 @@ const Appointments: React.FC = () => {
     });
   }, [searchTerm, statusFilter, setFilters]);
   
-  // Update visible staff when the salon changes
   useEffect(() => {
     console.log("Appointments component - currentSalonId:", currentSalonId);
     
@@ -51,25 +52,25 @@ const Appointments: React.FC = () => {
     }
   }, [refreshVisibleStaff, currentSalonId]);
   
-  // Debug logging
   useEffect(() => {
     console.log("Appointments component - visibleStaff:", visibleStaff);
     console.log("Appointments component - events:", events);
     console.log("Appointments component - appointments:", appointments);
     
-    // Check if there are any appointments with properly formatted staffId that match visible staff
     const appointmentsWithStaff = appointments.filter(app => {
       const staffId = app.staffId;
+      
       if (typeof staffId === 'string') {
         return visibleStaff.some(staff => staff.id === staffId);
       }
+      
       if (typeof staffId === 'object' && staffId !== null && staffId !== undefined) {
-        // Safe check for object with value property
-        const hasValueProp = 'value' in staffId;
-        if (hasValueProp) {
-          return visibleStaff.some(staff => staff.id === staffId.value);
+        const staffIdObject = staffId as { value?: string };
+        if ('value' in staffId && staffIdObject.value !== undefined) {
+          return visibleStaff.some(staff => staff.id === staffIdObject.value);
         }
       }
+      
       return false;
     });
     
