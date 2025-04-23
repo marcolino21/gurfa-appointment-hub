@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { useLocation } from 'react-router-dom';
 import { projectSchema } from '../schemas/projectSchema';
 import { Client, Project, ProjectCategory, ProjectFormValues } from '@/types';
+import { useProjectCategories } from './useProjectCategories';
+import { useProjectUrlParams } from './useProjectUrlParams';
+import { useProjectFormInit } from './useProjectFormInit';
 
 interface UseProjectFormProps {
   clients: Client[];
@@ -22,71 +23,43 @@ export const useProjectForm = ({
   selectedProject,
   onSubmit
 }: UseProjectFormProps) => {
-  const location = useLocation();
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [subcategories, setSubcategories] = useState<ProjectCategory[]>([]);
-  const [useCustomCategory, setUseCustomCategory] = useState(false);
-
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      title: selectedProject?.title || '',
-      clientId: selectedProject?.clientId || '',
-      categoryId: selectedProject?.categoryId || '',
-      subcategoryId: selectedProject?.subcategoryId || '',
-      description: selectedProject?.description || '',
-      objectives: selectedProject?.objectives.map(obj => ({
-        description: obj.description,
-        isCompleted: obj.isCompleted
-      })) || [{ description: '', isCompleted: false }],
-      startDate: selectedProject?.startDate || format(new Date(), 'yyyy-MM-dd'),
-      endDate: selectedProject?.endDate || '',
-      status: selectedProject?.status || 'planning',
-      progress: selectedProject?.progress || 0,
-      feedback: selectedProject?.feedback || '',
-      staffIds: selectedProject?.staffIds || [],
-      customFields: selectedProject?.customFields || [],
+      title: '',
+      clientId: '',
+      categoryId: '',
+      subcategoryId: '',
+      description: '',
+      objectives: [{ description: '', isCompleted: false }],
+      startDate: format(new Date(), 'yyyy-MM-dd'),
+      endDate: '',
+      status: 'planning',
+      progress: 0,
+      feedback: '',
+      staffIds: [],
+      customFields: [],
       customCategory: '',
     }
   });
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const clientId = params.get('clientId');
-    
-    if (clientId) {
-      form.setValue('clientId', clientId);
-    }
-  }, [location.search, form]);
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    subcategories,
+    setSubcategories,
+    useCustomCategory,
+    setUseCustomCategory
+  } = useProjectCategories({ getSubcategories });
 
-  useEffect(() => {
-    if (selectedProject) {
-      form.reset({
-        title: selectedProject.title,
-        clientId: selectedProject.clientId,
-        categoryId: selectedProject.categoryId,
-        subcategoryId: selectedProject.subcategoryId,
-        description: selectedProject.description,
-        objectives: selectedProject.objectives.map(obj => ({
-          description: obj.description,
-          isCompleted: obj.isCompleted
-        })),
-        startDate: selectedProject.startDate,
-        endDate: selectedProject.endDate,
-        status: selectedProject.status,
-        progress: selectedProject.progress,
-        feedback: selectedProject.feedback,
-        staffIds: selectedProject.staffIds,
-        customFields: selectedProject.customFields,
-        customCategory: '',
-      });
-      
-      if (selectedProject.categoryId) {
-        setSelectedCategory(selectedProject.categoryId);
-        setSubcategories(getSubcategories(selectedProject.categoryId));
-      }
-    }
-  }, [selectedProject, form, getSubcategories]);
+  useProjectUrlParams(form.setValue);
+
+  useProjectFormInit({
+    selectedProject,
+    reset: form.reset,
+    setSelectedCategory,
+    getSubcategories
+  });
 
   const handleSubmit = (data: ProjectFormValues) => {
     if (useCustomCategory && data.customCategory) {
