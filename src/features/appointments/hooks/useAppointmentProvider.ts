@@ -1,3 +1,4 @@
+
 import { useReducer, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -60,7 +61,7 @@ export const useAppointmentProvider = (): AppointmentContextType => {
       // Assicuriamoci che staffId sia una stringa
       let staffId = appointment.staffId;
       if (staffId !== null && staffId !== undefined) {
-        if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
+        if (typeof staffId === 'object' && 'value' in staffId) {
           const value = staffId.value;
           staffId = value === 'undefined' ? undefined : String(value);
         }

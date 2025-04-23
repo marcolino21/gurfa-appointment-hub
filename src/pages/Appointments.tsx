@@ -63,8 +63,12 @@ const Appointments: React.FC = () => {
       if (typeof staffId === 'string') {
         return visibleStaff.some(staff => staff.id === staffId);
       }
-      if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
-        return visibleStaff.some(staff => staff.id === staffId.value);
+      if (typeof staffId === 'object' && staffId !== null && staffId !== undefined) {
+        // Safe check for object with value property
+        const hasValueProp = 'value' in staffId;
+        if (hasValueProp) {
+          return visibleStaff.some(staff => staff.id === staffId.value);
+        }
       }
       return false;
     });
