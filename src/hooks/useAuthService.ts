@@ -1,3 +1,4 @@
+
 import { useToast } from './use-toast';
 import { MOCK_USERS } from '../data/mockData';
 
@@ -8,7 +9,7 @@ export const useAuthService = () => {
     email: string, 
     password: string, 
     dispatch: React.Dispatch<any>,
-    stayLoggedIn: boolean = false
+    stayLoggedIn: boolean = true  // Cambiato il default a true
   ): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
@@ -31,17 +32,16 @@ export const useAuthService = () => {
       const user = userWithoutPassword;
       const token = `mock_token_${Date.now()}`;
       
-      // Enhanced session persistence based on stayLoggedIn flag
-      const session = { user, token };
+      // Salva sempre come sessione persistente
+      const session = { user, token, timestamp: Date.now() };
       
+      // Usa sessionStorage per dati temporanei e localStorage per persistenza a lungo termine
       localStorage.setItem('gurfa_session', JSON.stringify(session));
       localStorage.setItem('gurfa_user', JSON.stringify(user));
       localStorage.setItem('gurfa_token', token);
       
-      // Optional: Set session expiration for security if needed
-      if (stayLoggedIn) {
-        localStorage.setItem('session_type', 'persistent');
-      }
+      // Imposta sempre come sessione persistente
+      localStorage.setItem('session_type', 'persistent');
       
       dispatch({
         type: 'LOGIN',
@@ -63,9 +63,11 @@ export const useAuthService = () => {
   };
 
   const logout = (dispatch: React.Dispatch<any>) => {
+    // Rimuovi esplicitamente solo quando l'utente fa logout
     localStorage.removeItem('gurfa_session');
     localStorage.removeItem('gurfa_user');
     localStorage.removeItem('gurfa_token');
+    localStorage.removeItem('session_type');
     dispatch({ type: 'LOGOUT' });
     toast({
       title: 'Logout effettuato',

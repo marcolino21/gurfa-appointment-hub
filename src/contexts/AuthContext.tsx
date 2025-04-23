@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, Salon } from '../types';
 import { authReducer, initialState } from '../reducers/authReducer';
@@ -23,32 +24,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   } = useAuthService();
 
   useEffect(() => {
-    // More robust session check and restoration
-    const savedSession = localStorage.getItem('gurfa_session');
-    const savedToken = localStorage.getItem('gurfa_token');
-    
-    if (savedSession && savedToken) {
+    // Miglioramento del controllo e ripristino della sessione
+    const restoreSession = () => {
       try {
-        const { user } = JSON.parse(savedSession);
-        dispatch({ 
-          type: 'LOGIN', 
-          payload: { 
-            user, 
-            token: savedToken 
-          } 
-        });
+        const savedSession = localStorage.getItem('gurfa_session');
+        const savedToken = localStorage.getItem('gurfa_token');
+        const savedUser = localStorage.getItem('gurfa_user');
+        
+        if (savedSession && savedToken && savedUser) {
+          const parsedSession = JSON.parse(savedSession);
+          const parsedUser = JSON.parse(savedUser);
+          
+          // Verifica che le informazioni siano valide
+          if (parsedUser && parsedUser.id && savedToken) {
+            // Imposta lo stato iniziale con i dati utente
+            dispatch({ 
+              type: 'LOGIN', 
+              payload: { 
+                user: parsedUser, 
+                token: savedToken 
+              } 
+            });
+            
+            console.log("Sessione utente ripristinata con successo");
+            return true;
+          }
+        }
+        return false;
       } catch (error) {
-        console.error('Error parsing saved session:', error);
-        localStorage.removeItem('gurfa_session');
-        localStorage.removeItem('gurfa_user');
-        localStorage.removeItem('gurfa_token');
+        console.error('Errore nel ripristino della sessione:', error);
+        return false;
       }
-    }
-  }, []);
+    };
+    
+    // Tenta di ripristinare la sessione all'avvio dell'app
+    restoreSession();
+    
+    // Aggiungi un event listener per gestire la condivisione della sessione tra tab
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'gurfa_session' && event.newValue === null) {
+        // Se la sessione è stata rimossa in un'altra tab, esegui logout anche qui
+        dispatch({ type: 'LOGOUT' });
+      } else if (event.key === 'gurfa_session' && event.newValue && !state.user) {
+        // Se la sessione è stata aggiunta in un'altra tab e non c'è un utente attivo qui
+        restoreSession();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Tenta di mantenere viva la sessione periodicamente
+    const sessionInterval = setInterval(() => {
+      if (state.user) {
+        // Aggiorna il timestamp della sessione per mantenerla attiva
+        const savedSession = localStorage.getItem('gurfa_session');
+        if (savedSession) {
+          try {
+            const session = JSON.parse(savedSession);
+            session.timestamp = Date.now();
+            localStorage.setItem('gurfa_session', JSON.stringify(session));
+          } catch (e) {
+            console.error('Errore nell\'aggiornamento del timestamp della sessione:', e);
+          }
+        }
+      }
+    }, 60000); // Ogni minuto
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(sessionInterval);
+    };
+  }, [state.user]);
 
-  // Implemented more persistent login mechanism
+  // Implementa un login ancora più persistente per impostazione predefinita
   const login = async (email: string, password: string): Promise<void> => {
-    return loginService(email, password, dispatch, true); // Added persistent flag
+    return loginService(email, password, dispatch, true); // Sempre persistente
   };
 
   const logout = () => {
