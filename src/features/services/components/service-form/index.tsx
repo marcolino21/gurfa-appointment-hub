@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Service, ServiceCategory, StaffMember } from '@/types';
@@ -32,6 +32,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   onSubmit 
 }) => {
   const [useCustomCategory, setUseCustomCategory] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const serviceForm = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
@@ -58,9 +59,24 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     }
   });
 
+  // Gestisce la sottomissione del form includendo la categoria personalizzata se necessario
+  const handleSubmit = async (data: ServiceFormValues) => {
+    setIsSubmitting(true);
+    try {
+      // Se stiamo usando una categoria personalizzata, sovrascriviamo il valore della categoria
+      if (useCustomCategory && data.customCategory) {
+        data.category = data.customCategory;
+      }
+      
+      await onSubmit(data);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Form {...serviceForm}>
-      <form onSubmit={serviceForm.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={serviceForm.handleSubmit(handleSubmit)} className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-1 md:grid-cols-2">
             <TabsTrigger value="dettagli">Dettagli di base</TabsTrigger>
@@ -84,7 +100,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
           </TabsContent>
         </Tabs>
 
-        <ServiceFormFooter isEditing={!!selectedService} />
+        <ServiceFormFooter 
+          isEditing={!!selectedService} 
+          isSubmitting={isSubmitting}
+        />
       </form>
     </Form>
   );

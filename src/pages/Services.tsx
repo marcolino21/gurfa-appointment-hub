@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -19,6 +19,7 @@ import { Plus, Search } from 'lucide-react';
 import { useServicesData } from '@/features/services/hooks/useServicesData';
 import { ServicesTable } from '@/features/services/components/ServicesTable';
 import { ServiceForm } from '@/features/services/components/service-form';
+import { useToast } from '@/hooks/use-toast';
 
 const Services = () => {
   const {
@@ -40,6 +41,9 @@ const Services = () => {
     handleEditService,
     handleDeleteService
   } = useServicesData();
+
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <div className="container mx-auto py-6">
@@ -93,7 +97,19 @@ const Services = () => {
             selectedService={null}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            onSubmit={handleAddService}
+            onSubmit={(data) => {
+              try {
+                console.log('Dati form invio:', data);
+                handleAddService(data);
+              } catch (error) {
+                console.error('Errore durante l\'aggiunta del servizio:', error);
+                toast({
+                  title: 'Errore',
+                  description: 'Si è verificato un problema durante l\'aggiunta del servizio',
+                  variant: 'destructive',
+                });
+              }
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -113,7 +129,18 @@ const Services = () => {
               selectedService={selectedService}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-              onSubmit={handleEditService}
+              onSubmit={(data) => {
+                try {
+                  handleEditService(data);
+                } catch (error) {
+                  console.error('Errore durante la modifica del servizio:', error);
+                  toast({
+                    title: 'Errore',
+                    description: 'Si è verificato un problema durante la modifica del servizio',
+                    variant: 'destructive',
+                  });
+                }
+              }}
             />
           )}
         </DialogContent>
