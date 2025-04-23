@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns'; // Add this import
 import { projectSchema } from '../schemas/projectSchema';
 import { Client, Project, ProjectCategory, StaffMember, ProjectFormValues } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -51,7 +52,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         description: obj.description,
         isCompleted: obj.isCompleted
       })) || [{ description: '', isCompleted: false }],
-      startDate: selectedProject?.startDate || format(new Date(), 'yyyy-MM-dd'),
+      startDate: selectedProject?.startDate || format(new Date(), 'yyyy-MM-dd'), // Corrected this line
       endDate: selectedProject?.endDate || '',
       status: selectedProject?.status || 'planning',
       progress: selectedProject?.progress || 0,
