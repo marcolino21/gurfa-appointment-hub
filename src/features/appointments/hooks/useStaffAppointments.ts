@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { StaffMember } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { SYSTEM_FEATURES } from '@/features/staff/types/permissions';
 
 // Nota: questo è un mock per simulare il caricamento dello staff da un'API
 const mockStaffMembers: StaffMember[] = [
@@ -11,13 +12,14 @@ const mockStaffMembers: StaffMember[] = [
     lastName: 'Rossi',
     email: 'marco.rossi@example.com',
     phone: '+39123456789',
-    role: 'stylist',
+    position: 'stylist',
     salonId: 'salon-1',
     color: '#3b82f6',
-    permissions: {},
-    schedule: {},
-    services: [],
-    isVisibleInCalendar: true,
+    permissions: [],
+    workSchedule: [],
+    assignedServiceIds: [],
+    showInCalendar: true,
+    isActive: true
   },
   {
     id: 'staff-2',
@@ -25,13 +27,14 @@ const mockStaffMembers: StaffMember[] = [
     lastName: 'Bianchi',
     email: 'martina.bianchi@example.com',
     phone: '+39987654321',
-    role: 'colorist',
+    position: 'colorist',
     salonId: 'salon-1',
     color: '#ef4444',
-    permissions: {},
-    schedule: {},
-    services: [],
-    isVisibleInCalendar: true,
+    permissions: [],
+    workSchedule: [],
+    assignedServiceIds: [],
+    showInCalendar: true,
+    isActive: true
   },
   // Staff per altri saloni
   {
@@ -40,13 +43,14 @@ const mockStaffMembers: StaffMember[] = [
     lastName: 'Verdi',
     email: 'luca.verdi@example.com',
     phone: '+39123123123',
-    role: 'barber',
+    position: 'barber',
     salonId: 'salon-2',
     color: '#10b981',
-    permissions: {},
-    schedule: {},
-    services: [],
-    isVisibleInCalendar: true,
+    permissions: [],
+    workSchedule: [],
+    assignedServiceIds: [],
+    showInCalendar: true,
+    isActive: true
   },
 ];
 
@@ -72,7 +76,7 @@ export const useStaffAppointments = () => {
 
         // Filtra lo staff visibile per il salone corrente
         const filteredStaff = mockStaffMembers.filter(
-          staff => staff.salonId === currentSalonId && staff.isVisibleInCalendar
+          staff => staff.salonId === currentSalonId && staff.showInCalendar
         );
         
         console.log(`Found ${filteredStaff.length} visible staff members for salon ${currentSalonId}`);
@@ -87,13 +91,14 @@ export const useStaffAppointments = () => {
             lastName: 'Staff',
             email: 'demo.staff@example.com',
             phone: '+39000000000',
-            role: 'stylist',
+            position: 'stylist',
             salonId: currentSalonId,
             color: '#9333ea',
-            permissions: {},
-            schedule: {},
-            services: [],
-            isVisibleInCalendar: true,
+            permissions: [],
+            workSchedule: [],
+            assignedServiceIds: [],
+            showInCalendar: true,
+            isActive: true
           };
           
           setVisibleStaff([demoStaff]);
