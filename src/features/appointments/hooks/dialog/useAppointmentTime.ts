@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { parse } from 'date-fns';
+import { parse, format } from 'date-fns';
 import { Appointment } from '@/types';
 
 export const useAppointmentTime = (
@@ -21,11 +21,10 @@ export const useAppointmentTime = (
         
         const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
         
-        setFormData(prev => ({
-          ...prev,
+        setFormData({
           start: startDateTime.toISOString(),
           end: endDateTime.toISOString()
-        }));
+        });
         
         setEndTime(format(endDateTime, 'HH:mm'));
       } catch (e) {

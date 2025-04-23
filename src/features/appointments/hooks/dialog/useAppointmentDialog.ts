@@ -4,12 +4,13 @@ import { useAppointments } from '@/contexts/AppointmentContext';
 import { useAppointmentForm } from './useAppointmentForm';
 import { useAppointmentTime } from './useAppointmentTime';
 import { useAppointmentSubmit } from './useAppointmentSubmit';
-import { format } from 'date-fns';
+import { Appointment } from '@/types';
 
 export const useAppointmentDialog = (onClose: () => void) => {
   const { currentAppointment, deleteAppointment, setCurrentAppointment } = useAppointments();
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
     formData,
@@ -26,7 +27,7 @@ export const useAppointmentDialog = (onClose: () => void) => {
 
   useAppointmentTime(date, startTime, duration, setEndTime, setFormData);
 
-  const { isSubmitting, handleSubmit } = useAppointmentSubmit(onClose, setError);
+  const { handleSubmit } = useAppointmentSubmit(onClose, setError, setIsSubmitting);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

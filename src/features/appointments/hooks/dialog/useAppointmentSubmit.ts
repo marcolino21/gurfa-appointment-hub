@@ -6,9 +6,9 @@ import { Appointment } from '@/types';
 
 export const useAppointmentSubmit = (
   onClose: () => void,
-  setError: (error: string | null) => void
+  setError: (error: string | null) => void,
+  setIsSubmitting: (isSubmitting: boolean) => void
 ) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentSalonId } = useAuth();
   const { addAppointment, updateAppointment, setCurrentAppointment, isSlotAvailable } = useAppointments();
 
@@ -55,7 +55,6 @@ export const useAppointmentSubmit = (
   };
 
   return {
-    isSubmitting,
     handleSubmit
   };
 };
