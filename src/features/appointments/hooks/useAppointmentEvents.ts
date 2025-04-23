@@ -72,10 +72,10 @@ export const useAppointmentEvents = () => {
         end: appointment.end,
         backgroundColor: getEventColor(appointment.status),
         borderColor: getEventColor(appointment.status),
-        resourceId: staffId,  // Ora usiamo il valore corretto di staffId
+        resourceId: staffId,
         extendedProps: {
           status: appointment.status,
-          staffId: staffId, // Aggiorniamo anche qui per coerenza
+          staffId: staffId,
           clientName: appointment.clientName,
           service: appointment.service
         }

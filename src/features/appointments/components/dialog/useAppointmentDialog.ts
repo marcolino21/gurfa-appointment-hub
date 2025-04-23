@@ -20,7 +20,8 @@ export const useAppointmentDialog = (onClose: () => void) => {
     notes: '',
     status: 'pending',
     start: new Date().toISOString(),
-    end: new Date(Date.now() + 3600000).toISOString() // +1 ora
+    end: new Date(Date.now() + 3600000).toISOString(), // +1 ora
+    staffId: ''
   });
   
   // Time state

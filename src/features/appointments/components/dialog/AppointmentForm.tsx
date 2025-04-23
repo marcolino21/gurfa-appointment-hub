@@ -1,18 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Appointment } from '@/types';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, AlertCircle } from 'lucide-react';
+import { CalendarIcon, AlertCircle, Search } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useStaffAppointments } from '../../hooks/useStaffAppointments';
+import { MOCK_CLIENTS } from '@/data/mock/clients';
+import { useAuth } from '@/contexts/AuthContext';
+import { Client } from '@/types';
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 
 interface AppointmentFormProps {
   formData: Partial<Appointment>;
@@ -39,6 +44,45 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   handleDurationChange,
   error
 }) => {
+  const { visibleStaff } = useStaffAppointments();
+  const { currentSalonId } = useAuth();
+  const [availableClients, setAvailableClients] = useState<Client[]>([]);
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
+  const [openClientCombobox, setOpenClientCombobox] = useState(false);
+
+  useEffect(() => {
+    if (currentSalonId) {
+      // Filter clients by salon ID
+      const salonClients = MOCK_CLIENTS[currentSalonId] || [];
+      setAvailableClients(salonClients);
+    }
+  }, [currentSalonId]);
+  
+  const filteredClients = clientSearchTerm === ''
+    ? availableClients
+    : availableClients.filter(client => {
+        const fullName = `${client.firstName} ${client.lastName}`.toLowerCase();
+        return fullName.includes(clientSearchTerm.toLowerCase());
+      });
+
+  const handleSelectClient = (clientName: string) => {
+    handleInputChange({
+      target: { name: 'clientName', value: clientName }
+    } as React.ChangeEvent<HTMLInputElement>);
+    setOpenClientCombobox(false);
+    
+    // Find the selected client to get their phone
+    const selectedClient = availableClients.find(client => 
+      `${client.firstName} ${client.lastName}` === clientName
+    );
+    
+    if (selectedClient?.phone) {
+      handleInputChange({
+        target: { name: 'clientPhone', value: selectedClient.phone }
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
+  };
+
   const generateTimeOptions = () => {
     const times = [];
     for (let hour = 8; hour < 20; hour++) {
@@ -72,14 +116,45 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="clientName">Nome Cliente *</Label>
-          <Input
-            id="clientName"
-            name="clientName"
-            value={formData.clientName || ''}
-            onChange={handleInputChange}
-            placeholder="Nome e cognome"
-            required
-          />
+          <Popover open={openClientCombobox} onOpenChange={setOpenClientCombobox}>
+            <PopoverTrigger asChild>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="clientName"
+                  name="clientName"
+                  value={formData.clientName || ''}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    setClientSearchTerm(e.target.value);
+                  }}
+                  placeholder="Cerca cliente..."
+                  className="pl-8"
+                  onClick={() => setOpenClientCombobox(true)}
+                  autoComplete="off"
+                  required
+                />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>Nessun cliente trovato</CommandEmpty>
+                  <CommandGroup>
+                    {filteredClients.map((client) => (
+                      <CommandItem
+                        key={client.id}
+                        value={`${client.firstName} ${client.lastName}`}
+                        onSelect={handleSelectClient}
+                      >
+                        {client.firstName} {client.lastName}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         
         <div className="space-y-2">
@@ -94,16 +169,41 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         </div>
       </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="service">Servizio *</Label>
-        <Input
-          id="service"
-          name="service"
-          value={formData.service || ''}
-          onChange={handleInputChange}
-          placeholder="Tipo di servizio"
-          required
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="service">Servizio *</Label>
+          <Input
+            id="service"
+            name="service"
+            value={formData.service || ''}
+            onChange={handleInputChange}
+            placeholder="Tipo di servizio"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="staffId">Operatore</Label>
+          <Select 
+            value={formData.staffId ? String(formData.staffId) : ''} 
+            onValueChange={(value) => {
+              handleInputChange({
+                target: { name: 'staffId', value }
+              } as React.ChangeEvent<HTMLInputElement>);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleziona operatore" />
+            </SelectTrigger>
+            <SelectContent>
+              {visibleStaff.map((staff) => (
+                <SelectItem key={staff.id} value={staff.id}>
+                  {staff.firstName} {staff.lastName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
