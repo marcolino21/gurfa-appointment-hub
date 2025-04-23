@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Appointment } from '@/types';
-import { MOCK_APPOINTMENTS } from '../utils/appointmentUtils';
+import { MOCK_APPOINTMENTS } from '../../utils/appointmentUtils';
 
 export const useFetchAppointments = (dispatch: React.Dispatch<any>) => {
   const { user } = useAuth();
