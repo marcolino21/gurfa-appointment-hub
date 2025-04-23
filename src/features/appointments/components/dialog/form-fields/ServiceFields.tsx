@@ -2,12 +2,12 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Staff } from '@/types';
+import { StaffMember } from '@/types';
 
 interface ServiceFieldsProps {
   formData: any;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  visibleStaff: Staff[];
+  visibleStaff: StaffMember[];
 }
 
 export const ServiceFields = ({
