@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAppointments } from '@/contexts/AppointmentContext';
@@ -6,7 +5,7 @@ import AppointmentDialogHeader from './AppointmentDialogHeader';
 import AppointmentForm from './AppointmentForm';
 import DeleteConfirmation from './DeleteConfirmation';
 import DialogFooterActions from './DialogFooterActions';
-import { useAppointmentDialog } from './useAppointmentDialog';
+import { useAppointmentDialog } from '../../hooks/dialog/useAppointmentDialog';
 
 interface AppointmentDialogProps {
   open: boolean;
