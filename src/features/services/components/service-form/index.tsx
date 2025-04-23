@@ -63,12 +63,14 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const handleSubmit = async (data: ServiceFormValues) => {
     setIsSubmitting(true);
     try {
+      const formData = { ...data };
+      
       // Se stiamo usando una categoria personalizzata, sovrascriviamo il valore della categoria
-      if (useCustomCategory && data.customCategory) {
-        data.category = data.customCategory;
+      if (useCustomCategory && formData.customCategory) {
+        formData.category = formData.customCategory;
       }
       
-      await onSubmit(data);
+      await onSubmit(formData);
     } finally {
       setIsSubmitting(false);
     }

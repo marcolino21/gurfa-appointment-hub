@@ -1,3 +1,4 @@
+
 import { useToast } from '@/hooks/use-toast';
 import { Service } from '@/types/services';
 import { ServiceFormValues } from '../types';
@@ -25,11 +26,21 @@ export const useServiceOperations = (
     }
 
     try {
+      // Verifica se la categoria è valida
+      if (!data.category) {
+        toast({
+          title: 'Errore',
+          description: 'La categoria è obbligatoria',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       // Create service with required fields explicitly defined
       const newService: Service = {
         id: `s${Math.random().toString(36).substr(2, 9)}`,
         name: data.name,
-        category: data.category, 
+        category: data.category,
         duration: data.duration,
         tempoDiPosa: data.tempoDiPosa,
         price: data.price,
@@ -64,6 +75,16 @@ export const useServiceOperations = (
     if (!selectedService) return;
 
     try {
+      // Verifica se la categoria è valida
+      if (!data.category) {
+        toast({
+          title: 'Errore',
+          description: 'La categoria è obbligatoria',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const updatedServices = services.map(service => 
         service.id === selectedService.id ? { 
           ...service,

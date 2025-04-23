@@ -2,6 +2,7 @@
 import { z } from 'zod';
 import { Service } from '@/types';
 
+// Schema aggiornato per gestire meglio le categorie personalizzate
 export const serviceSchema = z.object({
   name: z.string().min(1, { message: 'Il nome è obbligatorio' }),
   category: z.string().min(1, { message: 'La categoria è obbligatoria' }),
