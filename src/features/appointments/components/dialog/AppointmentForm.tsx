@@ -1,6 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
-import { Client } from '@/types';
+import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useStaffAppointments } from '../../hooks/useStaffAppointments';
@@ -37,7 +35,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   handleDurationChange,
   error
 }) => {
-  const { visibleStaff } = useStaffAppointments();
+  const { visibleStaff, services } = useStaffAppointments();
   const { currentSalonId } = useAuth();
   const [availableClients, setAvailableClients] = useState<Client[]>([]);
   const [clientSearchTerm, setClientSearchTerm] = useState('');
@@ -120,6 +118,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         formData={formData}
         handleInputChange={handleInputChange}
         visibleStaff={visibleStaff}
+        services={services}
       />
       
       <DateTimeFields

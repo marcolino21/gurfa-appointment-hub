@@ -2,8 +2,13 @@
 import { useState } from 'react';
 import { Appointment } from '@/types';
 
+interface ServiceEntry {
+  serviceId?: string;
+  staffId?: string;
+}
+
 export const useAppointmentFormState = () => {
-  const [formData, setFormData] = useState<Partial<Appointment>>({
+  const [formData, setFormData] = useState<Partial<Appointment> & { serviceEntries?: ServiceEntry[] }>({
     title: '',
     clientName: '',
     clientPhone: '',
@@ -12,7 +17,8 @@ export const useAppointmentFormState = () => {
     status: 'pending',
     start: new Date().toISOString(),
     end: new Date(Date.now() + 3600000).toISOString(),
-    staffId: ''
+    staffId: '',
+    serviceEntries: [{ serviceId: '', staffId: '' }]
   });
 
   const [date, setDate] = useState<Date | undefined>(undefined);
