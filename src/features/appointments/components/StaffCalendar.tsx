@@ -40,6 +40,18 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       staffIds: staffMembers.map(s => s.id),
       firstFewEvents: events.slice(0, 3)
     });
+    
+    // Debug eventi e interattività
+    console.log("Eventi con resourceId:", events.filter(e => e.resourceId).length);
+    console.log("Eventi senza resourceId:", events.filter(e => !e.resourceId).length);
+    
+    // Log per verificare corrispondenza tra eventi e staff
+    const staffEventsMapping = staffMembers.map(staff => ({
+      staffId: staff.id,
+      staffName: `${staff.firstName} ${staff.lastName}`,
+      events: events.filter(event => event.resourceId === staff.id).length
+    }));
+    console.log("Mappatura staff-eventi:", staffEventsMapping);
   }, [staffMembers, events, view]);
 
   // Always ensure we have a valid date object
@@ -86,19 +98,32 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Improved refresh of calendars after events update
+  // Assicura che gli eventi siano interattivi dopo l'aggiornamento
   useEffect(() => {
-    if (calendarApi && events.length >= 0) { // Changed from > 0 to >= 0 to refresh even when no events
+    if (calendarApi && events.length >= 0) {
       try {
         console.log("Refreshing calendar with events:", events.length);
         
         // Forza un aggiornamento più aggressivo
-        setTimeout(() => {
+        const refreshCalendar = () => {
           calendarApi.removeAllEvents();
           calendarApi.addEventSource(events);
           calendarApi.refetchEvents();
           calendarApi.render(); // Force complete re-render
-        }, 100);
+          
+          // Ritardo breve per assicurare che gli eventi siano renderizzati
+          setTimeout(() => {
+            document.querySelectorAll('.fc-event').forEach(el => {
+              (el as HTMLElement).style.pointerEvents = 'auto';
+              (el as HTMLElement).style.cursor = 'pointer';
+              el.classList.add('fc-event-interactive');
+            });
+          }, 200);
+        };
+        
+        // Eseguiamo immediatamente e poi dopo un breve ritardo
+        refreshCalendar();
+        setTimeout(refreshCalendar, 300);
       } catch (error) {
         console.error("Error refreshing calendar events:", error);
       }

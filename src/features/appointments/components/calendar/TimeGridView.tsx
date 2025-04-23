@@ -57,12 +57,38 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
+          
+          // Rimuoviamo eventuali elementi che potrebbero bloccare l'interattività
+          document.querySelectorAll('.fc-event-mirror').forEach(el => el.remove());
+          
+          // Aggiungiamo un attributo specifico per il debugging
+          document.querySelectorAll('.fc-event').forEach(el => {
+            el.setAttribute('data-interactive', 'true');
+          });
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
       }, 300);
     }
   }, [staffMembers, gridInitialized]);
+
+  // Assicuriamo che FullCalendar non disabiliti gli eventi
+  useEffect(() => {
+    const makeEventsInteractive = () => {
+      document.querySelectorAll('.fc-event').forEach(el => {
+        (el as HTMLElement).style.pointerEvents = 'auto';
+        (el as HTMLElement).style.cursor = 'pointer';
+      });
+    };
+    
+    // Esegui immediatamente
+    makeEventsInteractive();
+    
+    // Esegui anche dopo un breve ritardo per catturare eventi aggiunti dinamicamente
+    const timerId = setTimeout(makeEventsInteractive, 500);
+    
+    return () => clearTimeout(timerId);
+  }, [events]);
 
   return (
     <TooltipProvider>
@@ -90,7 +116,21 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               selectedDate={validSelectedDate}
               commonConfig={{
                 ...commonConfig,
+                eventClassNames: "interactive-event", // Aggiungiamo una classe per l'interattività
+                eventClick: (info: any) => {
+                  console.log("Event clicked:", info.event.id);
+                  if (commonConfig.eventClick) {
+                    commonConfig.eventClick(info);
+                  }
+                },
                 eventDidMount: (info: any) => {
+                  // Rendiamo esplicitamente interattivo l'evento
+                  if (info.el) {
+                    info.el.style.pointerEvents = 'auto';
+                    info.el.style.cursor = 'pointer';
+                    info.el.classList.add('fc-event-interactive');
+                  }
+                  
                   if (info.event.extendedProps.isBlockedTime || 
                       info.event.classNames?.includes('blocked-time-event') ||
                       info.event.display === 'background') {

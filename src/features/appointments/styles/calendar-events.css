@@ -6,6 +6,8 @@
   margin: 1px;
   border: none;
   cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 10 !important;
 }
 
 /* Month view event styles */
@@ -20,5 +22,28 @@
 
 .fc-dayGridMonth-view .fc-event-title {
   font-size: 0.75rem !important;
+}
+
+/* Importante: assicura che gli eventi rimangano interattivi */
+.fc-event-main,
+.fc-event-main-frame,
+.fc-event-title-container,
+.fc-event-time,
+.fc-event-title {
+  pointer-events: auto !important;
+  z-index: 5;
+}
+
+/* Correzioni specifiche per la visualizzazione settimanale */
+.fc-timegrid-event {
+  pointer-events: auto !important;
+  z-index: 4 !important;
+}
+
+/* Stile di hover per gli eventi */
+.fc-event:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
 }
 
