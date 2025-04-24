@@ -18,6 +18,11 @@ export const useStaffIdNormalization = () => {
       return staffId.value === 'undefined' ? undefined : String(staffId.value);
     }
     
+    // Handle string that contains "undefined"
+    if (staffId === 'undefined') {
+      return undefined;
+    }
+    
     // Handle array of service entries (take first staffId)
     if (Array.isArray(staffId) && staffId.length > 0) {
       if (staffId[0] && typeof staffId[0] === 'object' && 'staffId' in staffId[0]) {

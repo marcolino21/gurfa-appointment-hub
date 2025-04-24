@@ -13,10 +13,6 @@ import { useAppointmentHandlers } from '@/features/appointments/hooks/useAppoint
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-interface StaffIdObject {
-  value: string;
-}
-
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');

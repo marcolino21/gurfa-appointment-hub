@@ -1,11 +1,11 @@
 
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Client } from '@/types/clients';
-import { useState, useEffect } from 'react';
 
 interface ClientFieldsProps {
   formData: any;
@@ -64,11 +64,10 @@ export const ClientFields = ({
                 className="pl-8"
                 onClick={() => setOpenClientCombobox(true)}
                 autoComplete="off"
-                required
               />
             </div>
           </PopoverTrigger>
-          <PopoverContent className="w-[300px] p-0" align="start">
+          <PopoverContent className="w-[300px] p-0 z-50 bg-white" align="start">
             <Command>
               <CommandList>
                 <CommandEmpty>Nessun cliente trovato</CommandEmpty>

@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StaffMember } from '@/types';
 import StaffCalendar from '@/features/appointments/components/StaffCalendar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import '../styles/index.css';
 
 interface AppointmentCalendarViewProps {
@@ -72,38 +74,51 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
             </TabsList>
           </div>
           
-          <TabsContent value="day" className="m-0">
-            <StaffCalendar
-              staffMembers={visibleStaff}
-              events={processedEvents}
-              view="timeGridDay"
-              onEventClick={handleEventClick}
-              onEventDrop={handleEventDrop}
-              onDateSelect={handleDateSelect}
-            />
-          </TabsContent>
-          
-          <TabsContent value="week" className="m-0">
-            <StaffCalendar
-              staffMembers={visibleStaff}
-              events={processedEvents}
-              view="timeGridWeek"
-              onEventClick={handleEventClick}
-              onEventDrop={handleEventDrop}
-              onDateSelect={handleDateSelect}
-            />
-          </TabsContent>
-          
-          <TabsContent value="month" className="m-0">
-            <StaffCalendar
-              staffMembers={visibleStaff}
-              events={processedEvents}
-              view="dayGridMonth"
-              onEventClick={handleEventClick}
-              onEventDrop={handleEventDrop}
-              onDateSelect={handleDateSelect}
-            />
-          </TabsContent>
+          {visibleStaff.length === 0 ? (
+            <Alert className="m-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Nessun operatore visibile</AlertTitle>
+              <AlertDescription>
+                Vai alla pagina Staff e seleziona "Visibile in agenda" per i membri 
+                che vuoi visualizzare nel calendario.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <TabsContent value="day" className="m-0">
+                <StaffCalendar
+                  staffMembers={visibleStaff}
+                  events={processedEvents}
+                  view="timeGridDay"
+                  onEventClick={handleEventClick}
+                  onEventDrop={handleEventDrop}
+                  onDateSelect={handleDateSelect}
+                />
+              </TabsContent>
+              
+              <TabsContent value="week" className="m-0">
+                <StaffCalendar
+                  staffMembers={visibleStaff}
+                  events={processedEvents}
+                  view="timeGridWeek"
+                  onEventClick={handleEventClick}
+                  onEventDrop={handleEventDrop}
+                  onDateSelect={handleDateSelect}
+                />
+              </TabsContent>
+              
+              <TabsContent value="month" className="m-0">
+                <StaffCalendar
+                  staffMembers={visibleStaff}
+                  events={processedEvents}
+                  view="dayGridMonth"
+                  onEventClick={handleEventClick}
+                  onEventDrop={handleEventDrop}
+                  onDateSelect={handleDateSelect}
+                />
+              </TabsContent>
+            </>
+          )}
         </Tabs>
       </CardContent>
     </Card>

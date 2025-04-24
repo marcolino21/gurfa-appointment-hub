@@ -31,7 +31,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // Log events and staff per render per debugging
+  // Log events and staff per render for debugging
   useEffect(() => {
     console.log("StaffCalendar rendering with:", {
       staffMembersCount: staffMembers.length,
@@ -88,7 +88,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   // Improved refresh of calendars after events update
   useEffect(() => {
-    if (calendarApi && events.length >= 0) { // Changed from > 0 to >= 0 to refresh even when no events
+    if (calendarApi && events.length >= 0) {
       try {
         console.log("Refreshing calendar with events:", events.length);
         
@@ -104,6 +104,18 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       }
     }
   }, [events, calendarApi]);
+
+  // Se non ci sono staffMembers visibili, mostra un messaggio
+  if (staffMembers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 rounded-lg p-8">
+        <h3 className="text-xl font-semibold mb-2">Nessun operatore visibile</h3>
+        <p className="text-gray-600 text-center">
+          Vai alla pagina Staff e verifica che ci siano operatori attivi e visibili nel calendario.
+        </p>
+      </div>
+    );
+  }
 
   if (view === 'dayGridMonth') {
     return (

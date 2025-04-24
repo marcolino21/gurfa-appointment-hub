@@ -1,10 +1,10 @@
 
+import React, { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { StaffMember, Service } from '@/types';
-import { useEffect } from 'react';
 
 interface ServiceEntry {
   serviceId?: string;
@@ -100,10 +100,10 @@ export const ServiceFields = ({
               value={entry.serviceId || ''} 
               onValueChange={(value) => handleServiceEntryChange(index, 'serviceId', value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Seleziona servizio" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
                 {services && services.length > 0 ? (
                   services.map((service) => (
                     <SelectItem key={service.id} value={service.id}>
@@ -137,10 +137,10 @@ export const ServiceFields = ({
               value={entry.staffId || ''} 
               onValueChange={(value) => handleServiceEntryChange(index, 'staffId', value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Seleziona operatore" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
                 {visibleStaff.length > 0 ? (
                   (entry.serviceId ? getAvailableStaffForService(entry.serviceId) : visibleStaff).map((staff) => (
                     <SelectItem key={staff.id} value={staff.id}>

@@ -10,13 +10,20 @@ interface ServiceEntry {
 interface FormHandlersProps {
   setFormData: (data: (prev: Partial<Appointment> & { serviceEntries?: ServiceEntry[] }) => Partial<Appointment> & { serviceEntries?: ServiceEntry[] }) => void;
   setDuration: (duration: number) => void;
+  setError: (error: string | null) => void;
 }
 
-export const useAppointmentFormHandlers = ({ setFormData, setDuration }: FormHandlersProps) => {
+export const useAppointmentFormHandlers = ({ setFormData, setDuration, setError }: FormHandlersProps) => {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
     const { name, value } = e.target;
     
     console.log(`Input changed: ${name} = `, value);
+    
+    if (name === 'clientName' && !value.trim()) {
+      setError('Il nome del cliente è obbligatorio');
+    } else {
+      setError(null);
+    }
     
     setFormData(prev => {
       if (name === 'serviceEntries') {

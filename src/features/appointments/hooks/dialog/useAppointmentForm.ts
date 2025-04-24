@@ -23,8 +23,7 @@ export const useAppointmentForm = (currentAppointment: Appointment | null) => {
       if (serviceEntries.length === 0 && normalizedStaffId && currentAppointment.service) {
         serviceEntries = [{ 
           staffId: normalizedStaffId, 
-          // Since we don't have serviceId, use a placeholder
-          serviceId: ''
+          serviceId: currentAppointment.service
         }];
         console.log("Created default service entry from staffId:", serviceEntries);
       }

@@ -45,11 +45,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [openClientCombobox, setOpenClientCombobox] = useState(false);
 
-  // Debug staffMembers
+  // Debug data for debugging
   useEffect(() => {
     console.log("AppointmentForm - visibleStaff:", visibleStaff);
     console.log("AppointmentForm - services:", services);
-  }, [visibleStaff, services]);
+    console.log("AppointmentForm - formData:", formData);
+  }, [visibleStaff, services, formData]);
 
   // Load clients for the current salon
   useEffect(() => {
@@ -57,8 +58,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       console.log("Loading clients for salon:", currentSalonId);
       const salonClients = MOCK_CLIENTS[currentSalonId] || [];
       setAvailableClients(salonClients);
-      console.log("Loaded clients:", salonClients);
+      console.log("Loaded clients:", salonClients.length);
       
+      // Mostriamo notifiche solo se non ci sono dati disponibili
       if (salonClients.length === 0) {
         toast({
           title: "Nessun cliente",
@@ -125,13 +127,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     { label: '1.5 ore', value: '90' },
     { label: '2 ore', value: '120' }
   ];
-
-  // Debug log for monitoring data
-  useEffect(() => {
-    console.log("Form data updated:", formData);
-    console.log("Available services:", services?.length || 0);
-    console.log("Available staff:", visibleStaff?.length || 0);
-  }, [formData, services, visibleStaff]);
 
   return (
     <div className="grid gap-4 py-4">

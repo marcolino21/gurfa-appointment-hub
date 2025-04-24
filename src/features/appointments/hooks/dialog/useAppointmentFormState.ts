@@ -18,13 +18,14 @@ export const useAppointmentFormState = () => {
     start: new Date().toISOString(),
     end: new Date(Date.now() + 3600000).toISOString(),
     staffId: '',
-    serviceEntries: [{ serviceId: '', staffId: '' }]
+    serviceEntries: []
   });
 
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
   const [duration, setDuration] = useState(60);
+  const [error, setError] = useState<string | null>(null);
 
   return {
     formData,
@@ -36,6 +37,8 @@ export const useAppointmentFormState = () => {
     endTime,
     setEndTime,
     duration,
-    setDuration
+    setDuration,
+    error,
+    setError
   };
 };

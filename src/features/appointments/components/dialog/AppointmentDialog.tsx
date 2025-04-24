@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAppointments } from '@/contexts/AppointmentContext';
@@ -44,11 +45,7 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
   const onSubmit = async () => {
     try {
       await handleSubmit();
-      
-      // Il toast di successo è gestito nelle funzioni di add/update
-      
     } catch (err) {
-      // Errore già gestito dal hook, non serve fare nulla qui
       console.error("Errore durante il salvataggio dell'appuntamento:", err);
     }
   };

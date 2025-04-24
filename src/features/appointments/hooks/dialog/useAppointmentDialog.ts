@@ -48,7 +48,8 @@ export const useAppointmentDialog = (onClose: () => void) => {
     handleDurationChange
   } = useAppointmentFormHandlers({
     setFormData,
-    setDuration
+    setDuration,
+    setError
   });
 
   return {

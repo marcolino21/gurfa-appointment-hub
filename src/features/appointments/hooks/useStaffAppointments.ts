@@ -22,6 +22,7 @@ export const useStaffAppointments = () => {
         
         console.log("All staff members:", allStaff);
         
+        // Per ora mostriamo tutti gli staff, senza filtri
         const staffVisibleInCalendar = allStaff;
         
         console.log("Staff visible in calendar:", staffVisibleInCalendar);
@@ -50,6 +51,8 @@ export const useStaffAppointments = () => {
       }
     } else {
       console.log("No currentSalonId available");
+      setVisibleStaff([]);
+      setServices([]);
     }
   }, [currentSalonId, toast]);
   
@@ -57,7 +60,7 @@ export const useStaffAppointments = () => {
   useEffect(() => {
     console.log("useStaffAppointments - currentSalonId:", currentSalonId);
     fetchVisibleStaff();
-  }, [fetchVisibleStaff]);
+  }, [fetchVisibleStaff, currentSalonId]);
   
   // Listen for staff data updates
   useEffect(() => {
