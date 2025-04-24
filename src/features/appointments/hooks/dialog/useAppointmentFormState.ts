@@ -18,7 +18,6 @@ export const useAppointmentFormState = () => {
     start: new Date().toISOString(),
     end: new Date(Date.now() + 3600000).toISOString(),
     staffId: '',
-    // Initialize with an empty service entry
     serviceEntries: [{ serviceId: '', staffId: '' }]
   });
 

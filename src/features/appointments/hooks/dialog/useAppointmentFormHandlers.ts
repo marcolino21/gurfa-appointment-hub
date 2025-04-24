@@ -19,7 +19,6 @@ export const useAppointmentFormHandlers = ({ setFormData, setDuration }: FormHan
     console.log(`Input changed: ${name} = `, value);
     
     setFormData(prev => {
-      // Make a deep copy if we're updating serviceEntries to avoid state mutation issues
       if (name === 'serviceEntries') {
         return { 
           ...prev, 
