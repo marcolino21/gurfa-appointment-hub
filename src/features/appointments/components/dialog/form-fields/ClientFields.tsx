@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
-import { Client } from '@/types';
+import { Client } from '@/types/clients';
 
 interface ClientFieldsProps {
   formData: any;
