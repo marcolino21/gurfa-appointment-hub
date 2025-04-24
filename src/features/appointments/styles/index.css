@@ -7,6 +7,8 @@
 @import './components/grid-lines.css';
 @import './components/staff-columns.css';
 @import './components/time-column.css';
+@import './calendar-views.css';
+@import './base-calendar.css';
 
 /* Override FullCalendar styles */
 .fc-event-main {
@@ -36,7 +38,7 @@
   cursor: pointer;
 }
 
-/* Estiliziamo meglio i dropdown e i popover */
+/* Miglioriamo lo stile dei dropdown e dei popover */
 .calendar-popup-content {
   background-color: white !important;
   z-index: 50 !important;
@@ -50,7 +52,7 @@
   z-index: 50 !important;
 }
 
-/* Fix per i menu a tendina */
+/* Fix per i menu a tendina - correzione z-index */
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
 }
@@ -58,4 +60,113 @@
 .select-content {
   background-color: white !important;
   z-index: 9999 !important;
+}
+
+/* Fix per gli eventi del calendario */
+.fc-event {
+  border-radius: 4px;
+  padding: 3px 5px;
+  margin: 1px;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+/* Fix per l'header dello staff */
+.staff-header-row {
+  display: grid;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.staff-header-col {
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 44px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-name {
+  max-width: calc(100% - 30px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time-col-header {
+  background-color: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+  padding: 8px;
+  height: 44px;
+}
+
+/* Stili per staffHeader quando bloccato */
+.staff-header-col.blocked {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Stili per tooltip negli eventi bloccati */
+.calendar-tooltip {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #374151;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  z-index: 1000;
+  display: none;
+  white-space: nowrap;
+}
+
+.calendar-tooltip:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: #374151 transparent transparent;
+}
+
+/* Stile per eventi bloccati */
+.blocked-time-event {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border-color: #f87171 !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
+
+/* Garantire che gli eventi siano sempre visibili */
+.fc-event.fc-bg-event {
+  opacity: 0.7 !important;
+}
+
+/* Rendere più visibile l'indicatore del tempo corrente */
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #ef4444 !important;
+  border-width: 2px !important;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-color: #ef4444 !important;
+  border-width: 6px 6px 0 !important;
+}
+
+/* Dimensione minima per il calendario */
+.staff-calendar-block {
+  min-height: 600px;
 }

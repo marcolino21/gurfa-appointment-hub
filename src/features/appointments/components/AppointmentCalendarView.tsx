@@ -59,26 +59,26 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   }, [visibleStaff]);
 
   return (
-    <Card>
-      <CardContent className="p-0 sm:p-6">
+    <Card className="shadow-md">
+      <CardContent className="p-0">
         <Tabs 
           value={activeTab} 
           onValueChange={handleTabChange}
           className="w-full"
         >
           <div className="flex justify-between items-center p-4 border-b">
-            <TabsList>
-              <TabsTrigger value="day">Giorno</TabsTrigger>
-              <TabsTrigger value="week">Settimana</TabsTrigger>
-              <TabsTrigger value="month">Mese</TabsTrigger>
+            <TabsList className="bg-gray-100">
+              <TabsTrigger value="day" className="font-medium">Giorno</TabsTrigger>
+              <TabsTrigger value="week" className="font-medium">Settimana</TabsTrigger>
+              <TabsTrigger value="month" className="font-medium">Mese</TabsTrigger>
             </TabsList>
           </div>
           
           {visibleStaff.length === 0 ? (
-            <Alert className="m-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Nessun operatore visibile</AlertTitle>
-              <AlertDescription>
+            <Alert className="m-6 border-yellow-300 bg-yellow-50">
+              <AlertCircle className="h-5 w-5 text-yellow-600" />
+              <AlertTitle className="text-yellow-800">Nessun operatore visibile</AlertTitle>
+              <AlertDescription className="text-yellow-700">
                 Vai alla pagina Staff e seleziona "Visibile in agenda" per i membri 
                 che vuoi visualizzare nel calendario.
               </AlertDescription>

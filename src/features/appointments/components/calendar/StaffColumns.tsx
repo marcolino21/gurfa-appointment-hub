@@ -48,7 +48,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
 
   // Debug log of events and staff
   useEffect(() => {
-    console.log("StaffColumns - Staff members:", staffMembers.map(s => ({ id: s.id, name: getStaffName(s) })));
+    console.log("StaffColumns - Staff members:", staffMembers.map(s => ({ id: s.id, name: getStaffName(s), showInCalendar: s.showInCalendar })));
     console.log("StaffColumns - Available events:", events.length);
     
     // Log event-to-staff matching
@@ -76,9 +76,11 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
 
   if (staffMembers.length === 0) {
     return (
-      <div className="flex items-center justify-center flex-1 h-full text-gray-500">
-        Nessun operatore visibile nel calendario. 
-        Aggiungi operatori e imposta "Visibile in agenda" nelle impostazioni staff.
+      <div className="flex items-center justify-center flex-1 h-full text-gray-500 p-8 bg-gray-50 rounded-lg">
+        <div className="text-center">
+          <p className="text-lg font-semibold mb-2">Nessun operatore visibile nel calendario</p>
+          <p>Aggiungi operatori e imposta "Visibile in agenda" nelle impostazioni staff.</p>
+        </div>
       </div>
     );
   }

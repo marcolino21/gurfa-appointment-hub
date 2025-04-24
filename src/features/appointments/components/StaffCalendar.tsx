@@ -7,6 +7,8 @@ import { useCalendarSync } from '../hooks/useCalendarSync';
 import { useAutoScroll } from '../hooks/useAutoScroll';
 import { useBusinessHours } from '../hooks/useBusinessHours';
 import { useCalendarConfig } from '../hooks/useCalendarConfig';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import '../styles/index.css';
 
 interface StaffCalendarProps {
@@ -108,12 +110,14 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   // Se non ci sono staffMembers visibili, mostra un messaggio
   if (staffMembers.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 rounded-lg p-8">
-        <h3 className="text-xl font-semibold mb-2">Nessun operatore visibile</h3>
-        <p className="text-gray-600 text-center">
-          Vai alla pagina Staff e verifica che ci siano operatori attivi e visibili nel calendario.
-        </p>
-      </div>
+      <Alert className="m-6 border-yellow-300 bg-yellow-50">
+        <AlertCircle className="h-5 w-5 text-yellow-600" />
+        <AlertTitle className="text-yellow-800">Nessun operatore visibile</AlertTitle>
+        <AlertDescription className="text-yellow-700">
+          Vai alla pagina Staff e assicurati che ci siano operatori attivi e con l'opzione 
+          "Visibile in agenda" selezionata.
+        </AlertDescription>
+      </Alert>
     );
   }
 

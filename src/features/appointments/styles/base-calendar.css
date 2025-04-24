@@ -41,3 +41,50 @@
   color: #dc2626;
 }
 
+/* Reimposta z-index per i menu e i dropdown */
+.fc-popover,
+.fc-event-mirror,
+.fc-daygrid-event-harness {
+  z-index: 10 !important;  /* Più basso del valore originale */
+}
+
+/* Assicura che i menu radix abbiano z-index più alto */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important; /* Molto più alto di qualsiasi elemento FullCalendar */
+}
+
+/* Stilizzazione degli eventi per il calendario */
+.fc-event {
+  border-left: 3px solid var(--event-color, #9b87f5) !important;
+}
+
+.fc-event-main-frame {
+  padding: 2px 4px;
+}
+
+.fc-event-time {
+  font-weight: 500;
+}
+
+.fc-event-title {
+  font-weight: 400;
+}
+
+/* Migliora visibilità eventi nel mese */
+.fc-daygrid-event {
+  padding: 2px 4px !important;
+}
+
+/* Stili specifici per il contenitore principale */
+.staff-calendar-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dimensione minima del calendario */
+.unified-calendar-grid {
+  min-height: 600px;
+}

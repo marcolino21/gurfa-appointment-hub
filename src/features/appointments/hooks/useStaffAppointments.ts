@@ -17,22 +17,29 @@ export const useStaffAppointments = () => {
   const fetchVisibleStaff = useCallback(async () => {
     if (currentSalonId) {
       try {
-        // Get staff from the database and filter only those visible in calendar
+        // Get staff from the database
         const allStaff = await getSalonStaff(currentSalonId);
         
         console.log("All staff members:", allStaff);
         
-        // Per ora mostriamo tutti gli staff, senza filtri
-        const staffVisibleInCalendar = allStaff;
+        // Solo membri dello staff attivi e impostati come visibili in agenda
+        // CORREZIONE: Ora mostriamo tutti gli staff attivi per default
+        const staffVisibleInCalendar = allStaff.filter(staff => 
+          staff.isActive && (staff.showInCalendar !== false)
+        );
         
         console.log("Staff visible in calendar:", staffVisibleInCalendar);
         
         if (staffVisibleInCalendar.length === 0 && allStaff.length > 0) {
           console.warn("No staff members are set to be visible in calendar");
-          toast({
-            title: "Nessun operatore visibile nel calendario",
-            description: "Vai alla pagina Staff e verifica che ci siano operatori attivi",
-          });
+          
+          // Mostriamo un toast solo se ci sono membri dello staff ma nessuno è visibile
+          if (allStaff.length > 0) {
+            toast({
+              title: "Nessun operatore visibile nel calendario",
+              description: "Vai alla pagina Staff e seleziona 'Visibile in agenda' per gli operatori",
+            });
+          }
         }
         
         setVisibleStaff(staffVisibleInCalendar);

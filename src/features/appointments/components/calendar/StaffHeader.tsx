@@ -107,7 +107,7 @@ export const StaffHeader: React.FC<StaffHeaderProps> = ({ staffMembers }) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="staff-name">
+                  <span className="staff-name truncate">
                     {staff.firstName} {staff.lastName}
                   </span>
                 </TooltipTrigger>
@@ -123,7 +123,7 @@ export const StaffHeader: React.FC<StaffHeaderProps> = ({ staffMembers }) => {
                   {isBlocked ? <Lock className="h-4 w-4" /> : <MoreVertical className="h-4 w-4 text-gray-500" />}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 z-[9999]">
                 <DropdownMenuItem onClick={() => handleBlockTime(staff)}>
                   Blocca orario
                 </DropdownMenuItem>
@@ -151,7 +151,7 @@ export const StaffHeader: React.FC<StaffHeaderProps> = ({ staffMembers }) => {
       })}
 
       <Dialog open={isBlockTimeOpen} onOpenChange={setIsBlockTimeOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] z-[9999]">
           <DialogHeader>
             <DialogTitle>
               Blocca orario{selectedStaff ? ` - ${selectedStaff.firstName} ${selectedStaff.lastName}` : ''}

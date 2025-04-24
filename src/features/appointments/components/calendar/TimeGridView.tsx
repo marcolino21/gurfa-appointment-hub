@@ -66,8 +66,8 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="h-[calc(100vh-320px)] staff-calendar-block">
-        <div className="flex items-center justify-between px-4 py-2">
+      <div className="h-[calc(100vh-320px)] min-h-[500px] staff-calendar-block">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
           <CalendarHeader selectedDate={validSelectedDate} />
           <CalendarControls 
             view={view} 

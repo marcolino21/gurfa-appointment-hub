@@ -54,7 +54,7 @@
 
 /* Nasconde tutte le scrollbar individuali mantenendo la funzionalità di scorrimento */
 .fc-scroller-liquid-absolute {
-  overflow: scroll !important;
+  overflow: auto !important;
   scroll-behavior: smooth;
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
