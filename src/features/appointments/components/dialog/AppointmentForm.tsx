@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -42,13 +43,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [openClientCombobox, setOpenClientCombobox] = useState(false);
 
+  // Load clients for the current salon
   useEffect(() => {
     if (currentSalonId) {
+      console.log("Loading clients for salon:", currentSalonId);
       const salonClients = MOCK_CLIENTS[currentSalonId] || [];
       setAvailableClients(salonClients);
+      console.log("Loaded clients:", salonClients.length);
     }
   }, [currentSalonId]);
 
+  // Filter clients based on search term
   const filteredClients = clientSearchTerm === ''
     ? availableClients
     : availableClients.filter(client => {
@@ -57,22 +62,26 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       });
 
   const handleSelectClient = (clientName: string) => {
+    console.log("Selected client:", clientName);
     handleInputChange({
       target: { name: 'clientName', value: clientName }
     } as React.ChangeEvent<HTMLInputElement>);
     setOpenClientCombobox(false);
     
+    // Find the selected client and fill in the phone number if available
     const selectedClient = availableClients.find(client => 
       `${client.firstName} ${client.lastName}` === clientName
     );
     
     if (selectedClient?.phone) {
+      console.log("Auto-filling phone:", selectedClient.phone);
       handleInputChange({
         target: { name: 'clientPhone', value: selectedClient.phone }
       } as React.ChangeEvent<HTMLInputElement>);
     }
   };
 
+  // For generating time options in time selectors
   const generateTimeOptions = () => {
     const times = [];
     for (let hour = 8; hour < 20; hour++) {
@@ -85,6 +94,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     return times;
   };
   
+  // Duration options for the duration selector
   const durations = [
     { label: '15 minuti', value: '15' },
     { label: '30 minuti', value: '30' },
@@ -93,6 +103,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     { label: '1.5 ore', value: '90' },
     { label: '2 ore', value: '120' }
   ];
+
+  // Debug log for monitoring data
+  useEffect(() => {
+    console.log("Form data updated:", formData);
+    console.log("Available services:", services?.length || 0);
+    console.log("Available staff:", visibleStaff?.length || 0);
+  }, [formData, services, visibleStaff]);
 
   return (
     <div className="grid gap-4 py-4">
@@ -119,7 +136,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         formData={formData}
         handleInputChange={handleInputChange}
         visibleStaff={visibleStaff}
-        services={services}
+        services={services || []}
       />
       
       <DateTimeFields

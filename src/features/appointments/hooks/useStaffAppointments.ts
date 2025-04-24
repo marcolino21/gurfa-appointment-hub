@@ -13,7 +13,7 @@ export const useStaffAppointments = () => {
   const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
   
-  // Function to get visible staff
+  // Function to get visible staff and services
   const fetchVisibleStaff = useCallback(async () => {
     if (currentSalonId) {
       try {
@@ -35,7 +35,9 @@ export const useStaffAppointments = () => {
         setVisibleStaff(staffVisibleInCalendar);
         
         // Load services from mock data
-        setServices(MOCK_SERVICES[currentSalonId] || []);
+        const salonServices = MOCK_SERVICES[currentSalonId] || [];
+        console.log("Loaded services for salon:", currentSalonId, salonServices.length);
+        setServices(salonServices);
       } catch (error) {
         console.error("Error fetching visible staff:", error);
       }

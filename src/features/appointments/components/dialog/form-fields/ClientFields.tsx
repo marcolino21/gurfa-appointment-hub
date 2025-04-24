@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Client } from '@/types/clients';
+import { useState, useEffect } from 'react';
 
 interface ClientFieldsProps {
   formData: any;
@@ -29,11 +30,21 @@ export const ClientFields = ({
   handleSelectClient,
   filteredClients
 }: ClientFieldsProps) => {
+
+  // Debug log to see available clients
+  useEffect(() => {
+    console.log("Available clients:", availableClients);
+    console.log("Filtered clients:", filteredClients);
+  }, [availableClients, filteredClients]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
         <Label htmlFor="clientName">Nome Cliente *</Label>
-        <Popover open={openClientCombobox} onOpenChange={setOpenClientCombobox}>
+        <Popover 
+          open={openClientCombobox} 
+          onOpenChange={setOpenClientCombobox}
+        >
           <PopoverTrigger asChild>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -44,6 +55,10 @@ export const ClientFields = ({
                 onChange={(e) => {
                   handleInputChange(e);
                   setClientSearchTerm(e.target.value);
+                  // Always open dropdown when typing
+                  if (e.target.value) {
+                    setOpenClientCombobox(true);
+                  }
                 }}
                 placeholder="Cerca cliente..."
                 className="pl-8"
@@ -63,6 +78,7 @@ export const ClientFields = ({
                       key={client.id}
                       value={`${client.firstName} ${client.lastName}`}
                       onSelect={handleSelectClient}
+                      className="cursor-pointer"
                     >
                       {client.firstName} {client.lastName}
                     </CommandItem>

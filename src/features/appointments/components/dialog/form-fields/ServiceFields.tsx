@@ -1,10 +1,10 @@
 
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { StaffMember, Service } from '@/types';
+import { useEffect } from 'react';
 
 interface ServiceEntry {
   serviceId?: string;
@@ -26,14 +26,21 @@ export const ServiceFields = ({
 }: ServiceFieldsProps) => {
   const serviceEntries: ServiceEntry[] = formData.serviceEntries || [{ serviceId: '', staffId: '' }];
 
+  // Debug log for services and staff
+  useEffect(() => {
+    console.log("Available services:", services);
+    console.log("Available staff:", visibleStaff);
+    console.log("Current service entries:", serviceEntries);
+  }, [services, visibleStaff, serviceEntries]);
+
   const handleServiceEntryChange = (index: number, field: 'serviceId' | 'staffId', value: string) => {
     const newEntries = [...serviceEntries];
     newEntries[index] = { ...newEntries[index], [field]: value };
     
-    // Use a custom event object that matches what handleInputChange expects
+    // Create a synthetic event that matches what handleInputChange expects
     handleInputChange({
       target: { name: 'serviceEntries', value: newEntries }
-    });
+    } as unknown as React.ChangeEvent<HTMLInputElement>);
   };
 
   const addServiceEntry = () => {
@@ -42,20 +49,25 @@ export const ServiceFields = ({
         name: 'serviceEntries', 
         value: [...serviceEntries, { serviceId: '', staffId: '' }]
       }
-    });
+    } as unknown as React.ChangeEvent<HTMLInputElement>);
   };
 
   const removeServiceEntry = (index: number) => {
     const newEntries = serviceEntries.filter((_, i) => i !== index);
     handleInputChange({
       target: { name: 'serviceEntries', value: newEntries }
-    });
+    } as unknown as React.ChangeEvent<HTMLInputElement>);
   };
 
   const getAvailableStaffForService = (serviceId: string) => {
+    if (!serviceId) return visibleStaff;
+    
     const service = services.find(s => s.id === serviceId);
-    if (!service?.assignedStaffIds) return visibleStaff;
-    return visibleStaff.filter(staff => service.assignedStaffIds?.includes(staff.id));
+    if (!service?.assignedStaffIds?.length) return visibleStaff;
+    
+    return visibleStaff.filter(staff => 
+      service.assignedStaffIds?.includes(staff.id)
+    );
   };
 
   return (
@@ -72,11 +84,17 @@ export const ServiceFields = ({
                 <SelectValue placeholder="Seleziona servizio" />
               </SelectTrigger>
               <SelectContent>
-                {services.map((service) => (
-                  <SelectItem key={service.id} value={service.id}>
-                    {service.name}
+                {services && services.length > 0 ? (
+                  services.map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-services" disabled>
+                    Nessun servizio disponibile
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -103,11 +121,23 @@ export const ServiceFields = ({
                 <SelectValue placeholder="Seleziona operatore" />
               </SelectTrigger>
               <SelectContent>
-                {getAvailableStaffForService(entry.serviceId || '').map((staff) => (
-                  <SelectItem key={staff.id} value={staff.id}>
-                    {staff.firstName} {staff.lastName}
+                {entry.serviceId ? (
+                  getAvailableStaffForService(entry.serviceId).length > 0 ? (
+                    getAvailableStaffForService(entry.serviceId).map((staff) => (
+                      <SelectItem key={staff.id} value={staff.id}>
+                        {staff.firstName} {staff.lastName}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-staff" disabled>
+                      Nessun operatore disponibile per questo servizio
+                    </SelectItem>
+                  )
+                ) : (
+                  <SelectItem value="select-service-first" disabled>
+                    Seleziona prima un servizio
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
