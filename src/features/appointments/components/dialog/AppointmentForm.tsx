@@ -11,6 +11,7 @@ import { ServiceFields } from './form-fields/ServiceFields';
 import { DateTimeFields } from './form-fields/DateTimeFields';
 import { DurationFields } from './form-fields/DurationFields';
 import { NotesField } from './form-fields/NotesField';
+import { useToast } from '@/hooks/use-toast';
 
 interface AppointmentFormProps {
   formData: any;
@@ -39,9 +40,16 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 }) => {
   const { visibleStaff, services } = useStaffAppointments();
   const { currentSalonId } = useAuth();
+  const { toast } = useToast();
   const [availableClients, setAvailableClients] = useState<Client[]>([]);
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [openClientCombobox, setOpenClientCombobox] = useState(false);
+
+  // Debug staffMembers
+  useEffect(() => {
+    console.log("AppointmentForm - visibleStaff:", visibleStaff);
+    console.log("AppointmentForm - services:", services);
+  }, [visibleStaff, services]);
 
   // Load clients for the current salon
   useEffect(() => {
@@ -49,9 +57,23 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       console.log("Loading clients for salon:", currentSalonId);
       const salonClients = MOCK_CLIENTS[currentSalonId] || [];
       setAvailableClients(salonClients);
-      console.log("Loaded clients:", salonClients.length);
+      console.log("Loaded clients:", salonClients);
+      
+      if (salonClients.length === 0) {
+        toast({
+          title: "Nessun cliente",
+          description: "Non ci sono clienti disponibili. Aggiungi clienti dalla sezione Clienti.",
+        });
+      }
+      
+      if (!services || services.length === 0) {
+        toast({
+          title: "Nessun servizio",
+          description: "Non ci sono servizi disponibili. Aggiungi servizi dalla sezione Servizi.",
+        });
+      }
     }
-  }, [currentSalonId]);
+  }, [currentSalonId, services, toast]);
 
   // Filter clients based on search term
   const filteredClients = clientSearchTerm === ''

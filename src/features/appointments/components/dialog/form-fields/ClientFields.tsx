@@ -68,7 +68,7 @@ export const ClientFields = ({
               />
             </div>
           </PopoverTrigger>
-          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+          <PopoverContent className="w-[300px] p-0" align="start">
             <Command>
               <CommandList>
                 <CommandEmpty>Nessun cliente trovato</CommandEmpty>
@@ -77,7 +77,10 @@ export const ClientFields = ({
                     <CommandItem
                       key={client.id}
                       value={`${client.firstName} ${client.lastName}`}
-                      onSelect={handleSelectClient}
+                      onSelect={(value) => {
+                        handleSelectClient(value);
+                        setOpenClientCombobox(false);
+                      }}
                       className="cursor-pointer"
                     >
                       {client.firstName} {client.lastName}

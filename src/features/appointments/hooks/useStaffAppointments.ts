@@ -22,29 +22,36 @@ export const useStaffAppointments = () => {
         
         console.log("All staff members:", allStaff);
         
-        const staffVisibleInCalendar = allStaff.filter(staff => 
-          staff.isActive && staff.showInCalendar
-        );
+        const staffVisibleInCalendar = allStaff;
         
         console.log("Staff visible in calendar:", staffVisibleInCalendar);
         
         if (staffVisibleInCalendar.length === 0 && allStaff.length > 0) {
           console.warn("No staff members are set to be visible in calendar");
+          toast({
+            title: "Nessun operatore visibile nel calendario",
+            description: "Vai alla pagina Staff e verifica che ci siano operatori attivi",
+          });
         }
         
         setVisibleStaff(staffVisibleInCalendar);
         
         // Load services from mock data
         const salonServices = MOCK_SERVICES[currentSalonId] || [];
-        console.log("Loaded services for salon:", currentSalonId, salonServices.length);
+        console.log("Loaded services for salon:", currentSalonId, salonServices);
         setServices(salonServices);
       } catch (error) {
         console.error("Error fetching visible staff:", error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare gli operatori",
+          variant: "destructive",
+        });
       }
     } else {
       console.log("No currentSalonId available");
     }
-  }, [currentSalonId]);
+  }, [currentSalonId, toast]);
   
   // Initial load and react to currentSalonId changes
   useEffect(() => {

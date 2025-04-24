@@ -28,8 +28,8 @@ export const ServiceFields = ({
 
   // Debug log for services and staff
   useEffect(() => {
-    console.log("Available services:", services);
-    console.log("Available staff:", visibleStaff);
+    console.log("Available services in ServiceFields:", services);
+    console.log("Available staff in ServiceFields:", visibleStaff);
     console.log("Current service entries:", serviceEntries);
   }, [services, visibleStaff, serviceEntries]);
 
@@ -37,10 +37,30 @@ export const ServiceFields = ({
     const newEntries = [...serviceEntries];
     newEntries[index] = { ...newEntries[index], [field]: value };
     
-    // Create a synthetic event that matches what handleInputChange expects
+    console.log(`Updating ${field} at index ${index} with value:`, value);
+    console.log("New entries:", newEntries);
+    
+    // Update the main form data
     handleInputChange({
       target: { name: 'serviceEntries', value: newEntries }
     } as unknown as React.ChangeEvent<HTMLInputElement>);
+    
+    // If this is the first service and serviceId is being changed, also update the legacy service field
+    if (index === 0 && field === 'serviceId') {
+      const selectedService = services.find(s => s.id === value);
+      if (selectedService) {
+        handleInputChange({
+          target: { name: 'service', value: selectedService.name }
+        } as React.ChangeEvent<HTMLInputElement>);
+      }
+    }
+    
+    // If this is the first staff and staffId is being changed, also update the legacy staffId field
+    if (index === 0 && field === 'staffId') {
+      handleInputChange({
+        target: { name: 'staffId', value }
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
   };
 
   const addServiceEntry = () => {
@@ -121,21 +141,15 @@ export const ServiceFields = ({
                 <SelectValue placeholder="Seleziona operatore" />
               </SelectTrigger>
               <SelectContent>
-                {entry.serviceId ? (
-                  getAvailableStaffForService(entry.serviceId).length > 0 ? (
-                    getAvailableStaffForService(entry.serviceId).map((staff) => (
-                      <SelectItem key={staff.id} value={staff.id}>
-                        {staff.firstName} {staff.lastName}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-staff" disabled>
-                      Nessun operatore disponibile per questo servizio
+                {visibleStaff.length > 0 ? (
+                  (entry.serviceId ? getAvailableStaffForService(entry.serviceId) : visibleStaff).map((staff) => (
+                    <SelectItem key={staff.id} value={staff.id}>
+                      {staff.firstName} {staff.lastName}
                     </SelectItem>
-                  )
+                  ))
                 ) : (
-                  <SelectItem value="select-service-first" disabled>
-                    Seleziona prima un servizio
+                  <SelectItem value="no-staff" disabled>
+                    Nessun operatore disponibile
                   </SelectItem>
                 )}
               </SelectContent>

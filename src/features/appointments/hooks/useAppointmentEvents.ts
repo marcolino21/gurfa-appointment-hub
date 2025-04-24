@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { Appointment } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface CalendarEvent {
   id: string;
@@ -22,6 +23,7 @@ interface CalendarEvent {
 export const useAppointmentEvents = () => {
   const { filteredAppointments, appointments } = useAppointments();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const { toast } = useToast();
   
   // Function to get event color based on status
   const getEventColor = (status: string) => {
@@ -42,10 +44,21 @@ export const useAppointmentEvents = () => {
     }
     
     // If it's an object with a value property
-    if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
-      // Check if the value is 'undefined' as a string
-      return staffId.value === 'undefined' ? undefined : String(staffId.value);
+    if (typeof staffId === 'object' && staffId !== null) {
+      if ('value' in staffId) {
+        return staffId.value === 'undefined' ? undefined : String(staffId.value);
+      }
+      console.warn("Unexpected staffId object format:", staffId);
+      return undefined;
     } 
+    
+    // Handle serviceEntries array case (multiple staff)
+    if (Array.isArray(staffId)) {
+      if (staffId.length > 0 && staffId[0].staffId) {
+        return String(staffId[0].staffId);
+      }
+      return undefined;
+    }
     
     // If it's already a string or other value, convert to string
     return String(staffId);
@@ -56,6 +69,10 @@ export const useAppointmentEvents = () => {
     console.log("=== EVENTI CALENDARIO ===");
     console.log("Appuntamenti totali:", appointments.length);
     console.log("Appuntamenti filtrati:", filteredAppointments.length);
+    
+    if (filteredAppointments.length === 0 && appointments.length > 0) {
+      console.warn("Ci sono appuntamenti ma nessuno è filtrato/visibile");
+    }
     
     // Mappa degli ID degli appuntamenti trasformati per debug
     const transformedIds = new Set<string>();
@@ -68,7 +85,8 @@ export const useAppointmentEvents = () => {
       transformedIds.add(appointment.id);
       
       // Debug log
-      console.log(`Transforming appointment ${appointment.id}, staffId original:`, appointment.staffId, "normalized:", staffId);
+      console.log(`Transforming appointment ${appointment.id}:`, appointment);
+      console.log(`staffId original:`, appointment.staffId, "normalized:", staffId);
       
       const event = {
         id: appointment.id,
@@ -96,7 +114,6 @@ export const useAppointmentEvents = () => {
     
     if (missingIds.length > 0) {
       console.warn("Appuntamenti non trasformati in eventi:", missingIds);
-      console.warn("Possibili filtri attivi che li escludono:", JSON.stringify(missingIds));
     }
     
     return events;

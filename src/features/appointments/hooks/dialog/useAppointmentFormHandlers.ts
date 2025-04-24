@@ -31,11 +31,13 @@ export const useAppointmentFormHandlers = ({ setFormData, setDuration }: FormHan
   };
   
   const handleStatusChange = (value: string) => {
+    console.log("Status changed:", value);
     setFormData(prev => ({ ...prev, status: value as Appointment['status'] }));
   };
   
   const handleDurationChange = (newDuration: string) => {
     const durationMinutes = parseInt(newDuration, 10);
+    console.log("Duration changed to:", durationMinutes);
     setDuration(durationMinutes);
   };
 
