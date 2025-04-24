@@ -11,4 +11,10 @@ export interface Appointment {
   salonId: string;
   staffId?: string | null | { value: string };
   status: 'confirmed' | 'completed' | 'cancelled' | 'pending';
+  serviceEntries?: ServiceEntry[];
+}
+
+interface ServiceEntry {
+  serviceId?: string;
+  staffId?: string;
 }

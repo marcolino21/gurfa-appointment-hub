@@ -1,5 +1,9 @@
-
 import { Appointment } from '@/types';
+
+export interface ServiceEntry {
+  serviceId?: string;
+  staffId?: string;
+}
 
 export interface AppointmentState {
   appointments: Appointment[];
