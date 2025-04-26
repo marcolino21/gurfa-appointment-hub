@@ -46,14 +46,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Debug data per il debugging
   useEffect(() => {
     console.log("AppointmentForm - visibleStaff:", visibleStaff);
     console.log("AppointmentForm - services:", services);
     console.log("AppointmentForm - formData:", formData);
   }, [visibleStaff, services, formData]);
 
-  // Validazione dei dati del form quando cambiano
   useEffect(() => {
     if (!formData.clientName || formData.clientName.trim() === '') {
       setValidationError('Il nome del cliente è obbligatorio');
@@ -62,7 +60,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [formData.clientName]);
 
-  // Caricamento dei clienti per il salone corrente
   useEffect(() => {
     if (currentSalonId) {
       console.log("Loading clients for salon:", currentSalonId);
@@ -70,7 +67,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       setAvailableClients(salonClients);
       console.log("Loaded clients:", salonClients.length);
       
-      // Mostriamo notifiche solo se non ci sono dati disponibili
       if (salonClients.length === 0) {
         toast({
           title: "Nessun cliente",
@@ -87,7 +83,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [currentSalonId, services, toast]);
 
-  // Filtraggio dei clienti in base al termine di ricerca
   const filteredClients = clientSearchTerm === ''
     ? availableClients
     : availableClients.filter(client => {
@@ -102,7 +97,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     } as React.ChangeEvent<HTMLInputElement>);
     setClientSearchTerm('');
     
-    // Trova il cliente selezionato e compila il numero di telefono se disponibile
     const selectedClient = availableClients.find(client => 
       `${client.firstName} ${client.lastName}` === clientName
     );
@@ -114,6 +108,27 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       } as React.ChangeEvent<HTMLInputElement>);
     }
   };
+
+  const generateTimeOptions = () => {
+    const times = [];
+    for (let hour = 8; hour < 20; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        const formattedHour = hour.toString().padStart(2, '0');
+        const formattedMinute = minute.toString().padStart(2, '0');
+        times.push(`${formattedHour}:${formattedMinute}`);
+      }
+    }
+    return times;
+  };
+
+  const durations = [
+    { label: '15 minuti', value: '15' },
+    { label: '30 minuti', value: '30' },
+    { label: '45 minuti', value: '45' },
+    { label: '1 ora', value: '60' },
+    { label: '1.5 ore', value: '90' },
+    { label: '2 ore', value: '120' }
+  ];
 
   return (
     <div className="space-y-6 py-4">
@@ -181,28 +196,5 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     </div>
   );
 };
-
-// Per generare time options in time selectors
-const generateTimeOptions = () => {
-  const times = [];
-  for (let hour = 8; hour < 20; hour++) {
-    for (let minute = 0; minute < 60; minute += 15) {
-      const formattedHour = hour.toString().padStart(2, '0');
-      const formattedMinute = minute.toString().padStart(2, '0');
-      times.push(`${formattedHour}:${formattedMinute}`);
-    }
-  }
-  return times;
-};
-
-// Opzioni di durata per il selettore di durata
-const durations = [
-  { label: '15 minuti', value: '15' },
-  { label: '30 minuti', value: '30' },
-  { label: '45 minuti', value: '45' },
-  { label: '1 ora', value: '60' },
-  { label: '1.5 ore', value: '90' },
-  { label: '2 ore', value: '120' }
-];
 
 export default AppointmentForm;

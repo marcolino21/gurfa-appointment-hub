@@ -31,12 +31,10 @@ export const ClientFields = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Debug logs for client selection
   useEffect(() => {
     console.log("ClientFields - filteredClients count:", filteredClients.length);
   }, [filteredClients]);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
@@ -51,9 +49,7 @@ export const ClientFields = ({
     };
   }, []);
 
-  // Miglioramento della selezione del cliente - assicuriamo che il click venga gestito correttamente
   const selectClient = (clientName: string, event: React.MouseEvent | React.KeyboardEvent) => {
-    // Preveniamo la propagazione dell'evento per evitare comportamenti indesiderati
     event.preventDefault();
     event.stopPropagation();
     
@@ -61,7 +57,6 @@ export const ClientFields = ({
     handleSelectClient(clientName);
     setDropdownOpen(false);
     
-    // Ritardo per assicurarci che l'input venga aggiornato prima di ripristinare il focus
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -69,9 +64,7 @@ export const ClientFields = ({
     }, 50);
   };
 
-  // Gestione degli eventi da tastiera per l'accessibilità
   const handleKeyDown = (e: React.KeyboardEvent, clientName: string) => {
-    // Selezioniamo il cliente se viene premuto Enter o Space
     if (e.key === 'Enter' || e.key === ' ') {
       selectClient(clientName, e);
     }
