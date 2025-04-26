@@ -1,8 +1,8 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Pencil, Download, Camera } from "lucide-react";
+import { Pencil, Download, Camera, Loader2 } from "lucide-react";
 
 interface ProfileHeaderProps {
   businessName: string;
@@ -20,27 +20,44 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onFileUpload
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      onFileUpload(files[0]);
+      setIsUploading(true);
+      try {
+        await onFileUpload(files[0]);
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
   
   return (
     <div className="flex flex-col md:flex-row gap-8">
       <div className="flex-shrink-0 relative">
-        <Avatar className="w-24 h-24 cursor-pointer" onClick={handleAvatarClick}>
+        <Avatar 
+          className={`w-24 h-24 cursor-pointer transition-opacity duration-200 ${isUploading ? 'opacity-50' : ''}`} 
+          onClick={handleAvatarClick}
+        >
           <AvatarImage src={profileImage || "/lovable-uploads/19614d1f-2829-41dc-adfc-940ca688a2f2.png"} alt={businessName} />
-          <AvatarFallback>{businessName?.slice(0, 2).toUpperCase()}</AvatarFallback>
-          <div className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 cursor-pointer">
-            <Camera className="h-4 w-4" />
-          </div>
+          <AvatarFallback>
+            {isUploading ? (
+              <Loader2 className="h-8 w-8 animate-spin" />
+            ) : (
+              businessName?.slice(0, 2).toUpperCase()
+            )}
+          </AvatarFallback>
+          {!isUploading && (
+            <div className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 cursor-pointer">
+              <Camera className="h-4 w-4" />
+            </div>
+          )}
         </Avatar>
         <input 
           type="file" 
@@ -48,6 +65,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           accept="image/*" 
           onChange={handleFileChange} 
           className="hidden" 
+          disabled={isUploading}
         />
       </div>
       
