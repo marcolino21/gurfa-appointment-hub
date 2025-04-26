@@ -81,7 +81,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     console.log("AppointmentForm - visibleStaff:", visibleStaff);
     console.log("AppointmentForm - services:", services);
     console.log("AppointmentForm - formData:", formData);
-  }, [visibleStaff, services, formData]);
+    
+    // Inizializza serviceEntries se non esistono
+    if (!formData.serviceEntries || formData.serviceEntries.length === 0) {
+      handleInputChange({
+        target: {
+          name: 'serviceEntries',
+          value: [{ serviceId: displayedServices[0]?.id || '', staffId: displayedStaff[0]?.id || '' }]
+        }
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
+  }, [visibleStaff, services, formData, displayedStaff, displayedServices, handleInputChange]);
 
   useEffect(() => {
     if (!formData.clientName || formData.clientName.trim() === '') {
@@ -139,9 +149,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
   const handleSelectClient = (clientName: string) => {
     console.log("Selected client:", clientName);
+    
+    // Importante: prima imposta il nome del cliente
     handleInputChange({
       target: { name: 'clientName', value: clientName }
     } as React.ChangeEvent<HTMLInputElement>);
+    
+    // Poi resetta il termine di ricerca
     setClientSearchTerm('');
     
     const selectedClient = availableClients.find(client => 

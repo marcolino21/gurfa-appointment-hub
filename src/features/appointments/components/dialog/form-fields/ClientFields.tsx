@@ -50,14 +50,20 @@ export const ClientFields = ({
     };
   }, []);
 
-  const selectClient = (clientName: string, event: React.MouseEvent | React.KeyboardEvent) => {
+  const selectClient = (client: Client, event: React.MouseEvent | React.KeyboardEvent) => {
     event.preventDefault();
     event.stopPropagation();
     
-    console.log("Selecting client:", clientName);
-    handleSelectClient(clientName);
+    const fullName = `${client.firstName} ${client.lastName}`;
+    console.log("Selecting client:", fullName);
+    
+    // Direttamente aggiorna il formData nel genitore
+    handleSelectClient(fullName);
+    
+    // Chiudi il dropdown
     setDropdownOpen(false);
     
+    // Focus sull'input dopo un breve ritardo
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -65,9 +71,9 @@ export const ClientFields = ({
     }, 50);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, clientName: string) => {
+  const handleKeyDown = (e: React.KeyboardEvent, client: Client) => {
     if (e.key === 'Enter' || e.key === ' ') {
-      selectClient(clientName, e);
+      selectClient(client, e);
     }
   };
 
@@ -100,7 +106,9 @@ export const ClientFields = ({
               onChange={(e) => {
                 handleInputChange(e);
                 setClientSearchTerm(e.target.value);
-                setDropdownOpen(true);
+                if (e.target.value) {
+                  setDropdownOpen(true);
+                }
               }}
               placeholder="Cerca cliente..."
               className="pl-8 bg-white"
@@ -108,7 +116,7 @@ export const ClientFields = ({
               autoComplete="off"
               aria-expanded={dropdownOpen}
             />
-            {dropdownOpen && (
+            {dropdownOpen && displayedClients.length > 0 && (
               <div 
                 ref={dropdownRef}
                 className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
@@ -120,8 +128,8 @@ export const ClientFields = ({
                       <li
                         key={client.id}
                         className="px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors flex items-center"
-                        onClick={(e) => selectClient(fullName, e)}
-                        onKeyDown={(e) => handleKeyDown(e, fullName)}
+                        onClick={(e) => selectClient(client, e)}
+                        onKeyDown={(e) => handleKeyDown(e, client)}
                         tabIndex={0}
                         role="option"
                         aria-selected={formData.clientName === fullName}
