@@ -46,14 +46,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Debug data for debugging
+  // Debug data per il debugging
   useEffect(() => {
     console.log("AppointmentForm - visibleStaff:", visibleStaff);
     console.log("AppointmentForm - services:", services);
     console.log("AppointmentForm - formData:", formData);
   }, [visibleStaff, services, formData]);
 
-  // Validate form data when it changes
+  // Validazione dei dati del form quando cambiano
   useEffect(() => {
     if (!formData.clientName || formData.clientName.trim() === '') {
       setValidationError('Il nome del cliente è obbligatorio');
@@ -62,7 +62,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [formData.clientName]);
 
-  // Load clients for the current salon
+  // Caricamento dei clienti per il salone corrente
   useEffect(() => {
     if (currentSalonId) {
       console.log("Loading clients for salon:", currentSalonId);
@@ -87,7 +87,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [currentSalonId, services, toast]);
 
-  // Filter clients based on search term
+  // Filtraggio dei clienti in base al termine di ricerca
   const filteredClients = clientSearchTerm === ''
     ? availableClients
     : availableClients.filter(client => {
@@ -102,7 +102,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     } as React.ChangeEvent<HTMLInputElement>);
     setClientSearchTerm('');
     
-    // Find the selected client and fill in the phone number if available
+    // Trova il cliente selezionato e compila il numero di telefono se disponibile
     const selectedClient = availableClients.find(client => 
       `${client.firstName} ${client.lastName}` === clientName
     );
@@ -124,7 +124,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         </Alert>
       )}
       
-      <div className="bg-white rounded-md">
+      <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
         <ClientFields
           formData={formData}
           handleInputChange={handleInputChange}
@@ -137,7 +137,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         />
       </div>
       
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-gray-200" />
       
       <ServiceFields
         formData={formData}
@@ -146,9 +146,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         services={services || []}
       />
       
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-gray-200" />
       
-      <div className="bg-white rounded-md">
+      <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
+        <div className="font-medium text-lg text-gray-800 mb-3 border-b pb-2">Data e Orario</div>
         <DateTimeFields
           formData={formData}
           date={date}
@@ -171,7 +172,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         </div>
       </div>
       
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-gray-200" />
       
       <NotesField
         formData={formData}
@@ -194,7 +195,7 @@ const generateTimeOptions = () => {
   return times;
 };
 
-// Duration options for the duration selector
+// Opzioni di durata per il selettore di durata
 const durations = [
   { label: '15 minuti', value: '15' },
   { label: '30 minuti', value: '30' },
