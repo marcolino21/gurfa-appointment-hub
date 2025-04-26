@@ -68,7 +68,7 @@ const NewProject = () => {
       queryClient.invalidateQueries({
         queryKey: ['projects', currentSalonId]
       });
-      navigate('/projects');
+      navigate('/progetti'); // Fixed navigation path to Italian version
     },
     onError: (error: any) => {
       toast({
