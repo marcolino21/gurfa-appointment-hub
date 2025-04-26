@@ -8,7 +8,7 @@ export const useAuthService = () => {
     email: string, 
     password: string, 
     dispatch: React.Dispatch<any>,
-    stayLoggedIn: boolean = false
+    stayLoggedIn: boolean = true
   ): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
@@ -31,17 +31,12 @@ export const useAuthService = () => {
       const user = userWithoutPassword;
       const token = `mock_token_${Date.now()}`;
       
-      // Enhanced session persistence based on stayLoggedIn flag
       const session = { user, token };
       
       localStorage.setItem('gurfa_session', JSON.stringify(session));
       localStorage.setItem('gurfa_user', JSON.stringify(user));
       localStorage.setItem('gurfa_token', token);
-      
-      // Optional: Set session expiration for security if needed
-      if (stayLoggedIn) {
-        localStorage.setItem('session_type', 'persistent');
-      }
+      localStorage.setItem('session_type', 'persistent');
       
       dispatch({
         type: 'LOGIN',
@@ -66,6 +61,7 @@ export const useAuthService = () => {
     localStorage.removeItem('gurfa_session');
     localStorage.removeItem('gurfa_user');
     localStorage.removeItem('gurfa_token');
+    localStorage.removeItem('session_type');
     dispatch({ type: 'LOGOUT' });
     toast({
       title: 'Logout effettuato',
@@ -89,7 +85,6 @@ export const useAuthService = () => {
         throw new Error('Email non trovata');
       }
       
-      // In a real app, we would send a reset email here
       toast({
         title: 'Email inviata',
         description: 'Se l\'indirizzo esiste nel nostro sistema, riceverai un\'email con le istruzioni per reimpostare la password.'

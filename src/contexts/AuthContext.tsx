@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, Salon } from '../types';
 import { authReducer, initialState } from '../reducers/authReducer';
@@ -22,43 +23,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetPassword: resetPasswordService 
   } = useAuthService();
 
+  // Enhanced session restoration with error handling
   useEffect(() => {
-    // More robust session check and restoration
-    const savedSession = localStorage.getItem('gurfa_session');
-    const savedToken = localStorage.getItem('gurfa_token');
-    
-    if (savedSession && savedToken) {
+    const restoreSession = () => {
       try {
-        const { user } = JSON.parse(savedSession);
-        dispatch({ 
-          type: 'LOGIN', 
-          payload: { 
-            user, 
-            token: savedToken 
-          } 
-        });
+        // Check for saved session
+        const savedSession = localStorage.getItem('gurfa_session');
+        const savedToken = localStorage.getItem('gurfa_token');
+        
+        if (savedSession && savedToken) {
+          const { user } = JSON.parse(savedSession);
+          
+          if (user && savedToken) {
+            console.log('Restoring session for user:', user.name || user.email);
+            
+            dispatch({ 
+              type: 'LOGIN', 
+              payload: { 
+                user, 
+                token: savedToken 
+              } 
+            });
+            
+            // Also restore salon selection if available
+            const currentSalon = localStorage.getItem('currentSalonId');
+            if (currentSalon) {
+              dispatch({ type: 'SET_CURRENT_SALON', payload: currentSalon });
+            }
+          }
+        }
       } catch (error) {
-        console.error('Error parsing saved session:', error);
+        console.error('Error restoring session:', error);
+        // Clear potentially corrupted session data
         localStorage.removeItem('gurfa_session');
         localStorage.removeItem('gurfa_user');
         localStorage.removeItem('gurfa_token');
       }
-    }
+    };
+    
+    restoreSession();
   }, []);
 
-  // Implemented more persistent login mechanism
+  // Always use persistent login by default
   const login = async (email: string, password: string): Promise<void> => {
-    return loginService(email, password, dispatch, true); // Added persistent flag
+    return loginService(email, password, dispatch, true);
   };
 
   const logout = () => {
     logoutService(dispatch);
-    // Clear business name from localStorage on logout
+    // Clear business name and salon ID from localStorage on logout
     localStorage.removeItem('salon_business_name');
+    localStorage.removeItem('currentSalonId');
   };
 
   const setCurrentSalon = (salonId: string) => {
     dispatch({ type: 'SET_CURRENT_SALON', payload: salonId });
+    
+    // Store the current salon ID in localStorage
+    localStorage.setItem('currentSalonId', salonId);
     
     // Update the business name in localStorage when changing salons
     const salon = state.salons.find(s => s.id === salonId);
