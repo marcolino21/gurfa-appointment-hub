@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { projectSchema } from '../schemas/projectSchema';
 import { Client, Project, ProjectCategory, ProjectFormValues } from '@/types';
-import { useProjectCategories } from './useProjectCategories';
 import { useProjectUrlParams } from './useProjectUrlParams';
 import { useProjectFormInit } from './useProjectFormInit';
 import { useState, useEffect } from 'react';
@@ -53,8 +52,18 @@ export const useProjectForm = ({
     if (selectedCategory && !useCustomCategory) {
       const categorySubcategories = getSubcategories(selectedCategory);
       setSubcategories(categorySubcategories);
+    } else {
+      setSubcategories([]);
     }
   }, [selectedCategory, getSubcategories, useCustomCategory]);
+
+  // Update selectedCategory when form's categoryId changes
+  useEffect(() => {
+    const categoryId = form.watch('categoryId');
+    if (categoryId) {
+      setSelectedCategory(categoryId);
+    }
+  }, [form.watch('categoryId')]);
 
   useProjectUrlParams(form.setValue);
 
@@ -80,6 +89,5 @@ export const useProjectForm = ({
     selectedCategory,
     setSelectedCategory,
     subcategories,
-    setSubcategories
   };
 };

@@ -12,13 +12,15 @@ interface CustomCategoryFieldProps {
   categories: ProjectCategory[];
   useCustomCategory: boolean;
   setUseCustomCategory: (value: boolean) => void;
+  subcategories: ProjectCategory[];
 }
 
 export const CustomCategoryField: React.FC<CustomCategoryFieldProps> = ({
   form,
   categories,
   useCustomCategory,
-  setUseCustomCategory
+  setUseCustomCategory,
+  subcategories
 }) => {
   return (
     <div className="space-y-4">
@@ -94,9 +96,6 @@ export const CustomCategoryField: React.FC<CustomCategoryFieldProps> = ({
               control={form.control}
               name="subcategoryId"
               render={({ field }) => {
-                const categoryId = form.watch('categoryId');
-                const subcategories = categoryId ? categories.find(c => c.id === categoryId)?.subcategories || [] : [];
-                
                 return (
                   <FormItem>
                     <FormLabel>Sottocategoria</FormLabel>

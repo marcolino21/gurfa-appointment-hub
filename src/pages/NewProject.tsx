@@ -9,7 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSalonClients } from '@/features/clients/utils/clientDataUtils';
 import { getSalonProjectCategories, getProjectCategorySubcategories } from '@/features/projects/utils/projectCategoryDataUtils';
 import { getSalonStaff } from '@/features/staff/utils/staffDataUtils';
-import { createProject, updateProject } from '@/lib/api/projects';
+import { createProject } from '@/lib/api/projects';
 
 const NewProject = () => {
   const { currentSalonId } = useAuth();
@@ -30,14 +30,25 @@ const NewProject = () => {
     enabled: !!currentSalonId
   });
 
-  const getSubcategories = (categoryId: string) => {
-    const { data = [] } = useQuery({
-      queryKey: ['projectCategorySubcategories', categoryId],
-      queryFn: () => getProjectCategorySubcategories(categoryId),
-      enabled: !!categoryId
+  const getSubcategories = React.useCallback((categoryId: string): ProjectCategory[] => {
+    if (!categoryId) return [];
+    
+    // Use the pre-fetched subcategories if possible
+    const subcategoriesQueryKey = ['projectCategorySubcategories', categoryId];
+    const subcategoriesData = queryClient.getQueryData<ProjectCategory[]>(subcategoriesQueryKey);
+    
+    if (subcategoriesData) {
+      return subcategoriesData;
+    }
+    
+    // Fetch the data if it's not in the cache
+    queryClient.fetchQuery({
+      queryKey: subcategoriesQueryKey,
+      queryFn: () => getProjectCategorySubcategories(categoryId)
     });
-    return data;
-  };
+    
+    return [];
+  }, [queryClient]);
 
   const { data: staffMembers = [], isLoading: isLoadingStaff } = useQuery({
     queryKey: ['staffMembers', currentSalonId],

@@ -1,7 +1,5 @@
+
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { projectSchema } from '../schemas/projectSchema';
 import { Client, Project, ProjectCategory, StaffMember, ProjectFormValues } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
@@ -35,7 +33,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   selectedProject,
   onSubmit
 }) => {
-  const { form, handleSubmit, useCustomCategory, setUseCustomCategory } = useProjectForm({
+  const { 
+    form, 
+    handleSubmit, 
+    useCustomCategory, 
+    setUseCustomCategory, 
+    selectedCategory,
+    subcategories 
+  } = useProjectForm({
     clients,
     categories,
     getSubcategories,
@@ -55,6 +60,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
               categories={categories}
               useCustomCategory={useCustomCategory}
               setUseCustomCategory={setUseCustomCategory}
+              subcategories={subcategories}
             />
             <ProjectDescription form={form} />
             <ProjectObjectives form={form} />
