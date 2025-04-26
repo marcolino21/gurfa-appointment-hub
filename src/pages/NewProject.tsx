@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProjectForm from '@/features/projects/components/ProjectForm';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,41 +18,44 @@ const NewProject = () => {
   const queryClient = useQueryClient();
 
   // Fetch clients, categories, and staff members using react-query
-  const { data: clients = [], isLoading: isLoadingClients } = useQuery(
-    ['clients', currentSalonId],
-    () => getSalonClients(currentSalonId || ''),
-    { enabled: !!currentSalonId }
-  );
+  const { data: clients = [], isLoading: isLoadingClients } = useQuery({
+    queryKey: ['clients', currentSalonId],
+    queryFn: () => getSalonClients(currentSalonId || ''),
+    enabled: !!currentSalonId
+  });
 
-  const { data: categories = [], isLoading: isLoadingCategories } = useQuery(
-    ['projectCategories', currentSalonId],
-    () => getSalonProjectCategories(currentSalonId || ''),
-    { enabled: !!currentSalonId }
-  );
+  const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['projectCategories', currentSalonId],
+    queryFn: () => getSalonProjectCategories(currentSalonId || ''),
+    enabled: !!currentSalonId
+  });
 
   const getSubcategories = (categoryId: string) => {
-    const { data: subcategories = [] } = useQuery(
-      ['projectCategorySubcategories', categoryId],
-      () => getProjectCategorySubcategories(categoryId),
-      { enabled: !!categoryId }
-    );
-    return subcategories;
+    const { data = [] } = useQuery({
+      queryKey: ['projectCategorySubcategories', categoryId],
+      queryFn: () => getProjectCategorySubcategories(categoryId),
+      enabled: !!categoryId
+    });
+    return data;
   };
 
-  const { data: staffMembers = [], isLoading: isLoadingStaff } = useQuery(
-    ['staffMembers', currentSalonId],
-    () => getSalonStaff(currentSalonId || ''),
-    { enabled: !!currentSalonId }
-  );
+  const { data: staffMembers = [], isLoading: isLoadingStaff } = useQuery({
+    queryKey: ['staffMembers', currentSalonId],
+    queryFn: () => getSalonStaff(currentSalonId || ''),
+    enabled: !!currentSalonId
+  });
 
   // Mutation for creating a new project
-  const createProjectMutation = useMutation(createProject, {
+  const createProjectMutation = useMutation({
+    mutationFn: createProject,
     onSuccess: () => {
       toast({
         title: "Progetto creato!",
         description: "Il progetto è stato creato con successo.",
       });
-      queryClient.invalidateQueries(['projects', currentSalonId]);
+      queryClient.invalidateQueries({
+        queryKey: ['projects', currentSalonId]
+      });
       navigate('/projects');
     },
     onError: (error: any) => {

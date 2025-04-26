@@ -7,6 +7,7 @@ import { Client, Project, ProjectCategory, ProjectFormValues } from '@/types';
 import { useProjectCategories } from './useProjectCategories';
 import { useProjectUrlParams } from './useProjectUrlParams';
 import { useProjectFormInit } from './useProjectFormInit';
+import { useState, useEffect } from 'react';
 
 interface UseProjectFormProps {
   clients: Client[];
@@ -43,14 +44,17 @@ export const useProjectForm = ({
     }
   });
 
-  const {
-    selectedCategory,
-    setSelectedCategory,
-    subcategories,
-    setSubcategories,
-    useCustomCategory,
-    setUseCustomCategory
-  } = useProjectCategories({ getSubcategories });
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [subcategories, setSubcategories] = useState<ProjectCategory[]>([]);
+  const [useCustomCategory, setUseCustomCategory] = useState<boolean>(false);
+
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (selectedCategory && !useCustomCategory) {
+      const categorySubcategories = getSubcategories(selectedCategory);
+      setSubcategories(categorySubcategories);
+    }
+  }, [selectedCategory, getSubcategories, useCustomCategory]);
 
   useProjectUrlParams(form.setValue);
 

@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { UseFormReset } from 'react-hook-form';
-import { Project, ProjectFormValues, ProjectCategory } from '@/types';
+import { Project, ProjectCategory, ProjectFormValues } from '@/types';
 
 interface UseProjectFormInitProps {
   selectedProject: Project | null;
@@ -16,31 +16,32 @@ export const useProjectFormInit = ({
   setSelectedCategory,
   getSubcategories
 }: UseProjectFormInitProps) => {
+  
   useEffect(() => {
     if (selectedProject) {
+      // Reset form with selected project values
       reset({
         title: selectedProject.title,
         clientId: selectedProject.clientId,
         categoryId: selectedProject.categoryId,
-        subcategoryId: selectedProject.subcategoryId,
-        description: selectedProject.description,
+        subcategoryId: selectedProject.subcategoryId || '',
+        description: selectedProject.description || '',
         objectives: selectedProject.objectives.map(obj => ({
           description: obj.description,
           isCompleted: obj.isCompleted
         })),
         startDate: selectedProject.startDate,
-        endDate: selectedProject.endDate,
+        endDate: selectedProject.endDate || '',
         status: selectedProject.status,
         progress: selectedProject.progress,
-        feedback: selectedProject.feedback,
+        feedback: selectedProject.feedback || '',
         staffIds: selectedProject.staffIds,
-        customFields: selectedProject.customFields,
-        customCategory: '',
+        customFields: selectedProject.customFields || [],
+        customCategory: ''
       });
       
-      if (selectedProject.categoryId) {
-        setSelectedCategory(selectedProject.categoryId);
-      }
+      // Set selected category for subcategory loading
+      setSelectedCategory(selectedProject.categoryId);
     }
   }, [selectedProject, reset, setSelectedCategory, getSubcategories]);
 };
