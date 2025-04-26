@@ -31,7 +31,12 @@ export const ClientFields = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Gestione del click fuori dal dropdown per chiuderlo
+  // Debug logs for client selection
+  useEffect(() => {
+    console.log("ClientFields - filteredClients count:", filteredClients.length);
+  }, [filteredClients]);
+
+  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
@@ -46,12 +51,16 @@ export const ClientFields = ({
     };
   }, []);
 
-  // Debug per la selezione del cliente
-  useEffect(() => {
-    console.log("ClientFields - formData.clientName:", formData.clientName);
-    console.log("ClientFields - availableClients:", availableClients.length);
-    console.log("ClientFields - filteredClients:", filteredClients.length);
-  }, [formData.clientName, availableClients, filteredClients]);
+  // Handle client selection - improved to ensure the click gets processed
+  const selectClient = (clientName: string) => {
+    console.log("Selecting client:", clientName);
+    handleSelectClient(clientName);
+    setDropdownOpen(false);
+    // Focus back to the input field after selection
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -83,6 +92,7 @@ export const ClientFields = ({
               className="pl-8 bg-white"
               onFocus={() => setDropdownOpen(true)}
               autoComplete="off"
+              aria-expanded={dropdownOpen}
             />
             {dropdownOpen && filteredClients.length > 0 && (
               <div 
@@ -90,19 +100,22 @@ export const ClientFields = ({
                 className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
               >
                 <ul className="py-1">
-                  {filteredClients.map((client) => (
-                    <li
-                      key={client.id}
-                      className="px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors flex items-center"
-                      onClick={() => {
-                        handleSelectClient(`${client.firstName} ${client.lastName}`);
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      <User className="h-4 w-4 mr-2 text-blue-500" />
-                      {client.firstName} {client.lastName}
-                    </li>
-                  ))}
+                  {filteredClients.map((client) => {
+                    const fullName = `${client.firstName} ${client.lastName}`;
+                    return (
+                      <li
+                        key={client.id}
+                        className="px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors flex items-center"
+                        onClick={() => selectClient(fullName)}
+                        tabIndex={0}
+                        role="option"
+                        aria-selected={formData.clientName === fullName}
+                      >
+                        <User className="h-4 w-4 mr-2 text-blue-500" />
+                        {fullName}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
