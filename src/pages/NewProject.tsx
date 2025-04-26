@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ProjectCategory } from '@/types';
 import ProjectForm from '@/features/projects/components/ProjectForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +11,6 @@ import { getSalonClients } from '@/features/clients/utils/clientDataUtils';
 import { getSalonProjectCategories, getProjectCategorySubcategories } from '@/features/projects/utils/projectCategoryDataUtils';
 import { getSalonStaff } from '@/features/staff/utils/staffDataUtils';
 import { createProject } from '@/lib/api/projects';
-import { ProjectCategory } from '@/types';
 
 const NewProject = () => {
   const { currentSalonId } = useAuth();

@@ -50,8 +50,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="relative">
-        <ScrollArea className="h-[calc(100vh-12rem)] px-1">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 pb-16 relative">
+        <ScrollArea className="h-[calc(100vh-16rem)] pr-4">
           <div className="space-y-6 pb-6">
             <ProjectTitle form={form} />
             <ClientSelector form={form} clients={clients} />
@@ -71,7 +71,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
           </div>
         </ScrollArea>
         
-        <div className="sticky bottom-0 flex justify-end mt-4 py-4 px-1 bg-background border-t">
+        <div className="sticky bottom-0 flex justify-end mt-6 py-4 px-1 bg-background border-t w-full">
           <Button type="submit">
             {selectedProject ? 'Aggiorna Progetto' : 'Crea Progetto'}
           </Button>
