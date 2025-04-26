@@ -51,14 +51,29 @@ export const ClientFields = ({
     };
   }, []);
 
-  // Handle client selection - improved to ensure the click gets processed
-  const selectClient = (clientName: string) => {
+  // Miglioramento della selezione del cliente - assicuriamo che il click venga gestito correttamente
+  const selectClient = (clientName: string, event: React.MouseEvent | React.KeyboardEvent) => {
+    // Preveniamo la propagazione dell'evento per evitare comportamenti indesiderati
+    event.preventDefault();
+    event.stopPropagation();
+    
     console.log("Selecting client:", clientName);
     handleSelectClient(clientName);
     setDropdownOpen(false);
-    // Focus back to the input field after selection
-    if (inputRef.current) {
-      inputRef.current.focus();
+    
+    // Ritardo per assicurarci che l'input venga aggiornato prima di ripristinare il focus
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 50);
+  };
+
+  // Gestione degli eventi da tastiera per l'accessibilità
+  const handleKeyDown = (e: React.KeyboardEvent, clientName: string) => {
+    // Selezioniamo il cliente se viene premuto Enter o Space
+    if (e.key === 'Enter' || e.key === ' ') {
+      selectClient(clientName, e);
     }
   };
 
@@ -106,7 +121,8 @@ export const ClientFields = ({
                       <li
                         key={client.id}
                         className="px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors flex items-center"
-                        onClick={() => selectClient(fullName)}
+                        onClick={(e) => selectClient(fullName, e)}
+                        onKeyDown={(e) => handleKeyDown(e, fullName)}
                         tabIndex={0}
                         role="option"
                         aria-selected={formData.clientName === fullName}
