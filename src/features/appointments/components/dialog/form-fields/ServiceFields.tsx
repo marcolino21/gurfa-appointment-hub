@@ -1,10 +1,10 @@
 
 import React, { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { StaffMember, Service } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ServiceEntry {
   serviceId?: string;
@@ -79,44 +79,26 @@ export const ServiceFields = ({
     } as unknown as React.ChangeEvent<HTMLInputElement>);
   };
 
-  const getAvailableStaffForService = (serviceId: string) => {
-    if (!serviceId) return visibleStaff;
-    
-    const service = services.find(s => s.id === serviceId);
-    if (!service?.assignedStaffIds?.length) return visibleStaff;
-    
-    return visibleStaff.filter(staff => 
-      service.assignedStaffIds?.includes(staff.id)
-    );
-  };
-
   return (
     <div className="space-y-4">
       {serviceEntries.map((entry, index) => (
         <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
           <div className="space-y-2">
             <Label>Servizio {index + 1}</Label>
-            <Select 
-              value={entry.serviceId || ''} 
-              onValueChange={(value) => handleServiceEntryChange(index, 'serviceId', value)}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Seleziona servizio" />
-              </SelectTrigger>
-              <SelectContent className="bg-white z-50">
-                {services && services.length > 0 ? (
-                  services.map((service) => (
-                    <SelectItem key={service.id} value={service.id}>
-                      {service.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-services" disabled>
-                    Nessun servizio disponibile
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <select
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={entry.serviceId || ''}
+                onChange={(e) => handleServiceEntryChange(index, 'serviceId', e.target.value)}
+              >
+                <option value="" disabled>Seleziona servizio</option>
+                {services && services.map(service => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -133,27 +115,20 @@ export const ServiceFields = ({
                 </Button>
               )}
             </div>
-            <Select 
-              value={entry.staffId || ''} 
-              onValueChange={(value) => handleServiceEntryChange(index, 'staffId', value)}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Seleziona operatore" />
-              </SelectTrigger>
-              <SelectContent className="bg-white z-50">
-                {visibleStaff.length > 0 ? (
-                  (entry.serviceId ? getAvailableStaffForService(entry.serviceId) : visibleStaff).map((staff) => (
-                    <SelectItem key={staff.id} value={staff.id}>
-                      {staff.firstName} {staff.lastName}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-staff" disabled>
-                    Nessun operatore disponibile
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <select
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={entry.staffId || ''}
+                onChange={(e) => handleServiceEntryChange(index, 'staffId', e.target.value)}
+              >
+                <option value="" disabled>Seleziona operatore</option>
+                {visibleStaff.map(staff => (
+                  <option key={staff.id} value={staff.id}>
+                    {staff.firstName} {staff.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       ))}

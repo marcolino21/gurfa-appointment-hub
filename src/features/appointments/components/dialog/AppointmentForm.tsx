@@ -90,7 +90,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     handleInputChange({
       target: { name: 'clientName', value: clientName }
     } as React.ChangeEvent<HTMLInputElement>);
-    setOpenClientCombobox(false);
+    setClientSearchTerm('');
     
     // Find the selected client and fill in the phone number if available
     const selectedClient = availableClients.find(client => 
@@ -104,29 +104,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       } as React.ChangeEvent<HTMLInputElement>);
     }
   };
-
-  // For generating time options in time selectors
-  const generateTimeOptions = () => {
-    const times = [];
-    for (let hour = 8; hour < 20; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const formattedHour = hour.toString().padStart(2, '0');
-        const formattedMinute = minute.toString().padStart(2, '0');
-        times.push(`${formattedHour}:${formattedMinute}`);
-      }
-    }
-    return times;
-  };
-  
-  // Duration options for the duration selector
-  const durations = [
-    { label: '15 minuti', value: '15' },
-    { label: '30 minuti', value: '30' },
-    { label: '45 minuti', value: '45' },
-    { label: '1 ora', value: '60' },
-    { label: '1.5 ore', value: '90' },
-    { label: '2 ore', value: '120' }
-  ];
 
   return (
     <div className="grid gap-4 py-4">
@@ -182,5 +159,28 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     </div>
   );
 };
+
+// Per generare time options in time selectors
+const generateTimeOptions = () => {
+  const times = [];
+  for (let hour = 8; hour < 20; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const formattedHour = hour.toString().padStart(2, '0');
+      const formattedMinute = minute.toString().padStart(2, '0');
+      times.push(`${formattedHour}:${formattedMinute}`);
+    }
+  }
+  return times;
+};
+
+// Duration options for the duration selector
+const durations = [
+  { label: '15 minuti', value: '15' },
+  { label: '30 minuti', value: '30' },
+  { label: '45 minuti', value: '45' },
+  { label: '1 ora', value: '60' },
+  { label: '1.5 ore', value: '90' },
+  { label: '2 ore', value: '120' }
+];
 
 export default AppointmentForm;

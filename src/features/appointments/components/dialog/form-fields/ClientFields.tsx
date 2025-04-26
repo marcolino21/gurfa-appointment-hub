@@ -41,55 +41,43 @@ export const ClientFields = ({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
         <Label htmlFor="clientName">Nome Cliente *</Label>
-        <Popover 
-          open={openClientCombobox} 
-          onOpenChange={setOpenClientCombobox}
-        >
-          <PopoverTrigger asChild>
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
-                id="clientName"
-                name="clientName"
-                value={formData.clientName || ''}
-                onChange={(e) => {
-                  handleInputChange(e);
-                  setClientSearchTerm(e.target.value);
-                  // Always open dropdown when typing
-                  if (e.target.value) {
-                    setOpenClientCombobox(true);
-                  }
-                }}
-                placeholder="Cerca cliente..."
-                className="pl-8"
-                onClick={() => setOpenClientCombobox(true)}
-                autoComplete="off"
-              />
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            id="clientName"
+            name="clientName"
+            value={formData.clientName || ''}
+            onChange={(e) => {
+              handleInputChange(e);
+              setClientSearchTerm(e.target.value);
+              if (e.target.value) {
+                setOpenClientCombobox(true);
+              }
+            }}
+            placeholder="Cerca cliente..."
+            className="pl-8"
+            onClick={() => setOpenClientCombobox(true)}
+            autoComplete="off"
+          />
+          {clientSearchTerm && filteredClients.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
+              <ul className="py-1 max-h-60 overflow-auto">
+                {filteredClients.map((client) => (
+                  <li
+                    key={client.id}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={() => {
+                      handleSelectClient(`${client.firstName} ${client.lastName}`);
+                      setClientSearchTerm('');
+                    }}
+                  >
+                    {client.firstName} {client.lastName}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-[300px] p-0 z-50 bg-white" align="start">
-            <Command>
-              <CommandList>
-                <CommandEmpty>Nessun cliente trovato</CommandEmpty>
-                <CommandGroup>
-                  {filteredClients.map((client) => (
-                    <CommandItem
-                      key={client.id}
-                      value={`${client.firstName} ${client.lastName}`}
-                      onSelect={(value) => {
-                        handleSelectClient(value);
-                        setOpenClientCombobox(false);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      {client.firstName} {client.lastName}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+          )}
+        </div>
       </div>
       
       <div className="space-y-2">
