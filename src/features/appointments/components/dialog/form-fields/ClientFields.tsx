@@ -66,9 +66,11 @@ export const ClientFields = ({
     // Auto-compila il telefono se disponibile
     if (client.phone) {
       console.log("Auto-filling phone:", client.phone);
-      handleInputChange({
+      const phoneEvent = {
         target: { name: 'clientPhone', value: client.phone }
-      } as unknown as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      
+      handleInputChange(phoneEvent);
     }
     
     // Focus sull'input dopo un breve ritardo

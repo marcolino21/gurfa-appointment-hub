@@ -55,17 +55,21 @@ export const useServiceFieldsState = ({
     console.log(`Updating ${field} at index ${index} with value:`, value);
     
     // Aggiorna il formData principale
-    handleInputChange({
+    const entriesEvent = {
       target: { name: 'serviceEntries', value: newEntries }
-    } as unknown as React.ChangeEvent<HTMLInputElement>);
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+    
+    handleInputChange(entriesEvent);
     
     // Se questo è il primo servizio e stiamo cambiando serviceId, aggiorna anche il campo legacy service
     if (index === 0 && field === 'serviceId') {
       const selectedService = services.find(s => s.id === value);
       if (selectedService) {
-        handleInputChange({
+        const serviceEvent = {
           target: { name: 'service', value: selectedService.name }
-        } as unknown as React.ChangeEvent<HTMLInputElement>);
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        
+        handleInputChange(serviceEvent);
         
         // Se il servizio ha una durata, imposta anche quella
         if (selectedService.duration) {
@@ -80,20 +84,24 @@ export const useServiceFieldsState = ({
     
     // Se questo è il primo staff e stiamo cambiando staffId, aggiorna anche il campo legacy staffId
     if (index === 0 && field === 'staffId') {
-      handleInputChange({
+      const staffEvent = {
         target: { name: 'staffId', value }
-      } as unknown as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      
+      handleInputChange(staffEvent);
     }
   };
 
   const addServiceEntry = () => {
     // Aggiungi una nuova voce vuota
-    handleInputChange({
+    const addEvent = {
       target: { 
         name: 'serviceEntries', 
         value: [...serviceEntries, { serviceId: '', staffId: '' }]
       }
-    } as unknown as React.ChangeEvent<HTMLInputElement>);
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+    
+    handleInputChange(addEvent);
   };
 
   const removeServiceEntry = (index: number) => {
@@ -105,9 +113,11 @@ export const useServiceFieldsState = ({
       newEntries.push({ serviceId: '', staffId: '' });
     }
     
-    handleInputChange({
+    const removeEvent = {
       target: { name: 'serviceEntries', value: newEntries }
-    } as unknown as React.ChangeEvent<HTMLInputElement>);
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+    
+    handleInputChange(removeEvent);
   };
 
   return {

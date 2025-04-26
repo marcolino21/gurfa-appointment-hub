@@ -153,9 +153,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     console.log("Selected client:", clientName);
     
     // Importante: prima imposta il nome del cliente
-    handleInputChange({
+    const clientEvent = {
       target: { name: 'clientName', value: clientName }
-    } as unknown as React.ChangeEvent<HTMLInputElement>);
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+    
+    handleInputChange(clientEvent);
     
     // Poi resetta il termine di ricerca
     setClientSearchTerm('');
@@ -166,9 +168,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     
     if (selectedClient?.phone) {
       console.log("Auto-filling phone:", selectedClient.phone);
-      handleInputChange({
+      const phoneEvent = {
         target: { name: 'clientPhone', value: selectedClient.phone }
-      } as unknown as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      
+      handleInputChange(phoneEvent);
     }
   };
 
