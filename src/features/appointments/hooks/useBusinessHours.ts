@@ -32,6 +32,7 @@ export const useBusinessHours = (selectedDate: Date) => {
           
         if (error) {
           console.error("Error fetching business hours:", error);
+          setDefaults();
           return;
         }
         
@@ -44,9 +45,18 @@ export const useBusinessHours = (selectedDate: Date) => {
             'thursday', 'friday', 'saturday'
           ];
           
-          const hidden = dayMap
-            .map((key, idx) => (hoursData[key as keyof BusinessHoursByDay] ? null : idx))
-            .filter((v) => v !== null) as number[];
+          // Ensure hidden days array is constructed correctly
+          const hidden: number[] = [];
+          
+          // For each day index (0-6), check if it should be hidden (no business hours)
+          for (let idx = 0; idx < 7; idx++) {
+            const dayKey = dayMap[idx] as keyof BusinessHoursByDay;
+            if (!hoursData[dayKey]) {
+              hidden.push(idx);
+            }
+          }
+          
+          console.log("Hidden days calculated:", hidden);
           setHiddenDays(hidden);
 
           let currentDate = new Date(selectedDate);
@@ -58,6 +68,7 @@ export const useBusinessHours = (selectedDate: Date) => {
             setSlotMinTime(todayHours.openTime + ':00');
             setSlotMaxTime(todayHours.closeTime + ':00');
           } else {
+            // Find first open day for fallback hours
             const firstOpenDayKey = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
             if (firstOpenDayKey && hoursData[firstOpenDayKey]) {
               setSlotMinTime(hoursData[firstOpenDayKey].openTime + ':00');
