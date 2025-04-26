@@ -1,11 +1,10 @@
 
 import React, { useEffect } from 'react';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { StaffMember, Service } from '@/types';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { ServiceAlert } from './service/ServiceAlert';
+import { ServiceEntry } from './service/ServiceEntry';
 
 interface ServiceEntry {
   serviceId?: string;
@@ -26,6 +25,8 @@ export const ServiceFields = ({
   services
 }: ServiceFieldsProps) => {
   const serviceEntries: ServiceEntry[] = formData.serviceEntries || [{ serviceId: '', staffId: '' }];
+  const hasServices = services && services.length > 0;
+  const hasStaff = visibleStaff && visibleStaff.length > 0;
 
   useEffect(() => {
     console.log("Current service entries:", serviceEntries);
@@ -39,12 +40,10 @@ export const ServiceFields = ({
     
     console.log(`Updating ${field} at index ${index} with value:`, value);
     
-    // Update the main form data
     handleInputChange({
       target: { name: 'serviceEntries', value: newEntries }
     } as unknown as React.ChangeEvent<HTMLInputElement>);
     
-    // If this is the first service and serviceId is being changed, also update the legacy service field
     if (index === 0 && field === 'serviceId') {
       const selectedService = services.find(s => s.id === value);
       if (selectedService) {
@@ -54,7 +53,6 @@ export const ServiceFields = ({
       }
     }
     
-    // If this is the first staff and staffId is being changed, also update the legacy staffId field
     if (index === 0 && field === 'staffId') {
       handleInputChange({
         target: { name: 'staffId', value }
@@ -78,72 +76,24 @@ export const ServiceFields = ({
     } as unknown as React.ChangeEvent<HTMLInputElement>);
   };
 
-  const hasServices = services && services.length > 0;
-  const hasStaff = visibleStaff && visibleStaff.length > 0;
-
   return (
     <div className="space-y-4 bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
       <div className="font-medium text-lg text-gray-800 mb-3 border-b pb-2">Servizi e Operatori</div>
       
-      {(!hasServices || !hasStaff) && (
-        <Alert 
-          variant="default" 
-          className="mb-4 bg-amber-50 border-amber-200 text-amber-700"
-        >
-          <AlertCircle className="h-4 w-4 text-amber-700" />
-          <AlertDescription>
-            {!hasServices && "Nessun servizio disponibile. Aggiungi servizi dalla sezione Servizi."}
-            {!hasStaff && hasServices && "Nessuno staff visibile. Aggiungi operatori dalla sezione Staff."}
-          </AlertDescription>
-        </Alert>
-      )}
+      <ServiceAlert hasServices={hasServices} hasStaff={hasStaff} />
       
       {serviceEntries.map((entry, index) => (
-        <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start p-4 border rounded-md bg-gray-50 shadow-sm">
-          <div className="space-y-2">
-            <Label className="font-medium text-gray-700">Servizio {index + 1} *</Label>
-            <select
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              value={entry.serviceId || ''}
-              onChange={(e) => handleServiceEntryChange(index, 'serviceId', e.target.value)}
-            >
-              <option value="" disabled>Seleziona servizio</option>
-              {services && services.map(service => (
-                <option key={service.id} value={service.id}>
-                  {service.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label className="font-medium text-gray-700">Operatore {index + 1} *</Label>
-              {index > 0 && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeServiceEntry(index)}
-                  className="h-6 w-6 text-destructive hover:text-destructive hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            <select
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              value={entry.staffId || ''}
-              onChange={(e) => handleServiceEntryChange(index, 'staffId', e.target.value)}
-            >
-              <option value="" disabled>Seleziona operatore</option>
-              {visibleStaff.map(staff => (
-                <option key={staff.id} value={staff.id}>
-                  {staff.firstName} {staff.lastName}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <ServiceEntry
+          key={index}
+          entry={entry}
+          index={index}
+          services={services}
+          visibleStaff={visibleStaff}
+          hasServices={hasServices}
+          hasStaff={hasStaff}
+          onServiceChange={handleServiceEntryChange}
+          onRemove={removeServiceEntry}
+        />
       ))}
 
       <Button
@@ -151,10 +101,11 @@ export const ServiceFields = ({
         variant="outline"
         className="w-full mt-2 flex items-center justify-center border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
         onClick={addServiceEntry}
+        disabled={!hasServices || !hasStaff}
       >
         <Plus className="w-4 h-4 mr-2 text-blue-600" />
         Aggiungi servizio
       </Button>
     </div>
   );
-}; 
+};
