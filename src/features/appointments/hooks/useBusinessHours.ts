@@ -21,7 +21,10 @@ export const useBusinessHours = (selectedDate: Date) => {
   useEffect(() => {
     async function fetchBusinessHours() {
       const salonId = localStorage.getItem('currentSalonId');
-      if (!salonId) return;
+      if (!salonId) {
+        setDefaults();
+        return;
+      }
       
       try {
         const { data, error } = await supabase
@@ -56,26 +59,36 @@ export const useBusinessHours = (selectedDate: Date) => {
             }
           }
           
-          console.log("Hidden days calculated:", hidden);
-          setHiddenDays(hidden);
-
-          let currentDate = new Date(selectedDate);
-          const dayOfWeek = currentDate.getDay();
-          const todayKey = dayMap[dayOfWeek] as keyof BusinessHoursByDay;
-          const todayHours = hoursData[todayKey];
-          
-          if (todayHours) {
-            setSlotMinTime(todayHours.openTime + ':00');
-            setSlotMaxTime(todayHours.closeTime + ':00');
+          // IMPORTANT: FullCalendar requires at least one visible day
+          // If all days would be hidden, show Monday (index 1) as fallback
+          if (hidden.length === 7) {
+            console.log("All days would be hidden, showing Monday as fallback");
+            setHiddenDays([0, 2, 3, 4, 5, 6]); // Hide all except Monday (index 1)
+            // Set default hours for Monday if all days are hidden
+            setSlotMinTime('08:00:00');
+            setSlotMaxTime('20:00:00');
           } else {
-            // Find first open day for fallback hours
-            const firstOpenDayKey = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
-            if (firstOpenDayKey && hoursData[firstOpenDayKey]) {
-              setSlotMinTime(hoursData[firstOpenDayKey].openTime + ':00');
-              setSlotMaxTime(hoursData[firstOpenDayKey].closeTime + ':00');
+            console.log("Hidden days calculated:", hidden);
+            setHiddenDays(hidden);
+
+            let currentDate = new Date(selectedDate);
+            const dayOfWeek = currentDate.getDay();
+            const todayKey = dayMap[dayOfWeek] as keyof BusinessHoursByDay;
+            const todayHours = hoursData[todayKey];
+            
+            if (todayHours) {
+              setSlotMinTime(todayHours.openTime + ':00');
+              setSlotMaxTime(todayHours.closeTime + ':00');
             } else {
-              setSlotMinTime('08:00:00');
-              setSlotMaxTime('20:00:00');
+              // Find first open day for fallback hours
+              const firstOpenDayKey = Object.keys(hoursData)[0] as keyof BusinessHoursByDay;
+              if (firstOpenDayKey && hoursData[firstOpenDayKey]) {
+                setSlotMinTime(hoursData[firstOpenDayKey].openTime + ':00');
+                setSlotMaxTime(hoursData[firstOpenDayKey].closeTime + ':00');
+              } else {
+                setSlotMinTime('08:00:00');
+                setSlotMaxTime('20:00:00');
+              }
             }
           }
         } else {
@@ -92,6 +105,7 @@ export const useBusinessHours = (selectedDate: Date) => {
 
   const setDefaults = () => {
     setBusinessHours({});
+    // Show all days by default when no business hours are set
     setHiddenDays([]);
     setSlotMinTime('08:00:00');
     setSlotMaxTime('20:00:00');
