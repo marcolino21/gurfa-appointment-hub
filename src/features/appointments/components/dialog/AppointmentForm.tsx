@@ -13,6 +13,8 @@ import { DurationFields } from './form-fields/DurationFields';
 import { NotesField } from './form-fields/NotesField';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Service } from '@/types/services';
+import { StaffMember } from '@/types/staff';
 
 interface AppointmentFormProps {
   formData: any;
@@ -46,6 +48,35 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  // Create default staff if none are available
+  const displayedStaff: StaffMember[] = visibleStaff && visibleStaff.length > 0 ? visibleStaff : [
+    {
+      id: 'default-staff-1',
+      firstName: 'Operatore',
+      lastName: 'Predefinito',
+      email: 'operatore@esempio.it',
+      isActive: true,
+      showInCalendar: true,
+      salonId: currentSalonId || 'default'
+    }
+  ];
+
+  // Create default services if none are available
+  const displayedServices: Service[] = services && services.length > 0 ? services : [
+    { 
+      id: 'default-service-1',
+      name: 'Servizio Generico',
+      category: 'default',
+      description: 'Servizio predefinito',
+      duration: 30,
+      tempoDiPosa: 0,
+      price: 30,
+      color: '#9b87f5',
+      salonId: currentSalonId || 'default',
+      assignedServiceIds: []
+    }
+  ];
+
   useEffect(() => {
     console.log("AppointmentForm - visibleStaff:", visibleStaff);
     console.log("AppointmentForm - services:", services);
@@ -63,21 +94,37 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   useEffect(() => {
     if (currentSalonId) {
       console.log("Loading clients for salon:", currentSalonId);
-      const salonClients = MOCK_CLIENTS[currentSalonId] || [];
+      let salonClients = MOCK_CLIENTS[currentSalonId] || [];
+      
+      // Add a default client if none are available
+      if (salonClients.length === 0) {
+        salonClients = [
+          {
+            id: 'default-client-1',
+            firstName: 'Cliente',
+            lastName: 'Di Prova',
+            gender: 'M' as 'M',
+            salonId: currentSalonId,
+            isPrivate: true,
+            phone: '3331234567'
+          }
+        ];
+      }
+      
       setAvailableClients(salonClients);
       console.log("Loaded clients:", salonClients.length);
       
       if (salonClients.length === 0) {
         toast({
-          title: "Nessun cliente",
-          description: "Non ci sono clienti disponibili. Aggiungi clienti dalla sezione Clienti.",
+          title: "Clienti di prova caricati",
+          description: "È stato aggiunto un cliente di prova per poter creare appuntamenti.",
         });
       }
       
       if (!services || services.length === 0) {
         toast({
-          title: "Nessun servizio",
-          description: "Non ci sono servizi disponibili. Aggiungi servizi dalla sezione Servizi.",
+          title: "Servizi di prova caricati",
+          description: "È stato aggiunto un servizio di prova per poter creare appuntamenti.",
         });
       }
     }
@@ -157,8 +204,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       <ServiceFields
         formData={formData}
         handleInputChange={handleInputChange}
-        visibleStaff={visibleStaff}
-        services={services || []}
+        visibleStaff={displayedStaff}
+        services={displayedServices}
       />
       
       <Separator className="my-4 bg-gray-200" />

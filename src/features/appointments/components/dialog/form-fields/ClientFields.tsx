@@ -33,7 +33,8 @@ export const ClientFields = ({
 
   useEffect(() => {
     console.log("ClientFields - filteredClients count:", filteredClients.length);
-  }, [filteredClients]);
+    console.log("Available clients:", availableClients.length);
+  }, [filteredClients, availableClients]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -70,6 +71,11 @@ export const ClientFields = ({
     }
   };
 
+  // Ensure there's always at least one dummy client if no clients are available
+  const displayedClients = filteredClients.length > 0 ? filteredClients : [
+    { id: 'dummy-1', firstName: 'Cliente', lastName: 'Di Prova', phone: '3331234567', gender: 'M' as 'M', isPrivate: true, salonId: 'dummy' }
+  ];
+
   return (
     <div className="space-y-4">
       <div className="font-medium text-lg text-gray-800 mb-3 border-b pb-2">Informazioni Cliente</div>
@@ -102,13 +108,13 @@ export const ClientFields = ({
               autoComplete="off"
               aria-expanded={dropdownOpen}
             />
-            {dropdownOpen && filteredClients.length > 0 && (
+            {dropdownOpen && (
               <div 
                 ref={dropdownRef}
                 className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
               >
                 <ul className="py-1">
-                  {filteredClients.map((client) => {
+                  {displayedClients.map((client) => {
                     const fullName = `${client.firstName} ${client.lastName}`;
                     return (
                       <li

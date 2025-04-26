@@ -39,7 +39,6 @@ export const ServiceEntry = ({
           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           value={entry.serviceId || ''}
           onChange={(e) => onServiceChange(index, 'serviceId', e.target.value)}
-          disabled={!hasServices}
         >
           <option value="" disabled>Seleziona servizio</option>
           {services.map(service => (
@@ -68,7 +67,6 @@ export const ServiceEntry = ({
           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           value={entry.staffId || ''}
           onChange={(e) => onServiceChange(index, 'staffId', e.target.value)}
-          disabled={!hasStaff}
         >
           <option value="" disabled>Seleziona operatore</option>
           {visibleStaff.map(staff => (

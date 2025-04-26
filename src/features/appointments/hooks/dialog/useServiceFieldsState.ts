@@ -23,6 +23,16 @@ export const useServiceFieldsState = ({
   useEffect(() => {
     console.log("Current service entries:", serviceEntries);
     console.log("Available services:", services);
+    
+    // Set default service and staff if we have entries but they're empty
+    if (serviceEntries.length > 0 && 
+        services.length > 0 && 
+        (!serviceEntries[0].serviceId || serviceEntries[0].serviceId === '')) {
+      const defaultService = services[0];
+      if (defaultService) {
+        handleServiceEntryChange(0, 'serviceId', defaultService.id);
+      }
+    }
   }, [serviceEntries, services]);
 
   const handleServiceEntryChange = (index: number, field: 'serviceId' | 'staffId', value: string) => {
