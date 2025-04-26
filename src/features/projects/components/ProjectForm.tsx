@@ -1,13 +1,11 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
 import { projectSchema } from '../schemas/projectSchema';
 import { Client, Project, ProjectCategory, StaffMember, ProjectFormValues } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { useLocation } from 'react-router-dom';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { ProjectTitle } from './project-form/ProjectTitle';
 import { ClientSelector } from './project-form/ClientSelector';
@@ -47,23 +45,27 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <ProjectTitle form={form} />
-        <ClientSelector form={form} clients={clients} />
-        <CustomCategoryField
-          form={form}
-          categories={categories}
-          useCustomCategory={useCustomCategory}
-          setUseCustomCategory={setUseCustomCategory}
-        />
-        <ProjectDescription form={form} />
-        <ProjectObjectives form={form} />
-        <ProjectDates form={form} />
-        <ProjectStatus form={form} />
-        <ProjectStaffSelector form={form} staffMembers={staffMembers} />
-        <ProjectFeedback form={form} />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="relative">
+        <ScrollArea className="h-[calc(100vh-12rem)] px-1">
+          <div className="space-y-6 pb-6">
+            <ProjectTitle form={form} />
+            <ClientSelector form={form} clients={clients} />
+            <CustomCategoryField
+              form={form}
+              categories={categories}
+              useCustomCategory={useCustomCategory}
+              setUseCustomCategory={setUseCustomCategory}
+            />
+            <ProjectDescription form={form} />
+            <ProjectObjectives form={form} />
+            <ProjectDates form={form} />
+            <ProjectStatus form={form} />
+            <ProjectStaffSelector form={form} staffMembers={staffMembers} />
+            <ProjectFeedback form={form} />
+          </div>
+        </ScrollArea>
         
-        <div className="flex justify-end space-x-2">
+        <div className="sticky bottom-0 flex justify-end mt-4 py-4 px-1 bg-background border-t">
           <Button type="submit">
             {selectedProject ? 'Aggiorna Progetto' : 'Crea Progetto'}
           </Button>
