@@ -57,7 +57,7 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
       }
       onOpenChange(newOpen);
     }}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] p-0 gap-0 appointment-form">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 gap-0 appointment-form">
         <AppointmentDialogHeader isExistingAppointment={isExistingAppointment} />
         
         <ScrollArea className="max-h-[calc(90vh-160px)] overflow-y-auto px-6">

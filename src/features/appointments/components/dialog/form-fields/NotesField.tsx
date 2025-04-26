@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -13,14 +14,14 @@ export const NotesField = ({
 }: NotesFieldProps) => {
   return (
     <div className="space-y-2">
-      <Label htmlFor="notes">Note</Label>
+      <div className="font-medium text-base mb-2">Note</div>
       <Textarea
         id="notes"
         name="notes"
+        placeholder="Aggiungi note per l'appuntamento..."
         value={formData.notes || ''}
         onChange={handleInputChange}
-        placeholder="Note aggiuntive"
-        rows={3}
+        className="h-24 w-full resize-none border rounded-md p-2"
       />
     </div>
   );

@@ -1,6 +1,11 @@
 
+import React from 'react';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+interface DurationOption {
+  label: string;
+  value: string;
+}
 
 interface DurationFieldsProps {
   startTime: string;
@@ -8,49 +13,33 @@ interface DurationFieldsProps {
   duration: number;
   handleDurationChange: (value: string) => void;
   generateTimeOptions: () => string[];
-  durations: Array<{ label: string; value: string; }>;
+  durations: DurationOption[];
 }
 
 export const DurationFields = ({
   startTime,
-  setStartTime,
   duration,
   handleDurationChange,
-  generateTimeOptions,
   durations
 }: DurationFieldsProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="startTime">Ora inizio *</Label>
-        <Select value={startTime} onValueChange={setStartTime}>
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona ora" />
-          </SelectTrigger>
-          <SelectContent>
-            {generateTimeOptions().map((time) => (
-              <SelectItem key={time} value={time}>
-                {time}
-              </SelectItem>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="duration" className="font-medium">Durata *</Label>
+          <select
+            id="duration"
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={duration.toString()}
+            onChange={(e) => handleDurationChange(e.target.value)}
+          >
+            {durations.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="duration">Durata *</Label>
-        <Select value={duration.toString()} onValueChange={handleDurationChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Durata" />
-          </SelectTrigger>
-          <SelectContent>
-            {durations.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          </select>
+        </div>
       </div>
     </div>
   );

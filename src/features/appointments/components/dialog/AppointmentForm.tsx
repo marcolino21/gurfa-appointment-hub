@@ -12,6 +12,7 @@ import { DateTimeFields } from './form-fields/DateTimeFields';
 import { DurationFields } from './form-fields/DurationFields';
 import { NotesField } from './form-fields/NotesField';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 interface AppointmentFormProps {
   formData: any;
@@ -43,7 +44,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const { toast } = useToast();
   const [availableClients, setAvailableClients] = useState<Client[]>([]);
   const [clientSearchTerm, setClientSearchTerm] = useState('');
-  const [openClientCombobox, setOpenClientCombobox] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Debug data for debugging
   useEffect(() => {
@@ -51,6 +52,15 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     console.log("AppointmentForm - services:", services);
     console.log("AppointmentForm - formData:", formData);
   }, [visibleStaff, services, formData]);
+
+  // Validate form data when it changes
+  useEffect(() => {
+    if (!formData.clientName || formData.clientName.trim() === '') {
+      setValidationError('Il nome del cliente è obbligatorio');
+    } else {
+      setValidationError(null);
+    }
+  }, [formData.clientName]);
 
   // Load clients for the current salon
   useEffect(() => {
@@ -106,25 +116,28 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   };
 
   return (
-    <div className="grid gap-4 py-4">
+    <div className="space-y-6 py-4">
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
       
-      <ClientFields
-        formData={formData}
-        handleInputChange={handleInputChange}
-        availableClients={availableClients}
-        clientSearchTerm={clientSearchTerm}
-        setClientSearchTerm={setClientSearchTerm}
-        openClientCombobox={openClientCombobox}
-        setOpenClientCombobox={setOpenClientCombobox}
-        handleSelectClient={handleSelectClient}
-        filteredClients={filteredClients}
-      />
+      <div className="bg-white rounded-md">
+        <ClientFields
+          formData={formData}
+          handleInputChange={handleInputChange}
+          availableClients={availableClients}
+          clientSearchTerm={clientSearchTerm}
+          setClientSearchTerm={setClientSearchTerm}
+          handleSelectClient={handleSelectClient}
+          filteredClients={filteredClients}
+          error={validationError}
+        />
+      </div>
+      
+      <Separator className="my-4" />
       
       <ServiceFields
         formData={formData}
@@ -133,24 +146,32 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         services={services || []}
       />
       
-      <DateTimeFields
-        formData={formData}
-        date={date}
-        setDate={setDate}
-        startTime={startTime}
-        setStartTime={setStartTime}
-        handleStatusChange={handleStatusChange}
-        generateTimeOptions={generateTimeOptions}
-      />
+      <Separator className="my-4" />
       
-      <DurationFields
-        startTime={startTime}
-        setStartTime={setStartTime}
-        duration={duration}
-        handleDurationChange={handleDurationChange}
-        generateTimeOptions={generateTimeOptions}
-        durations={durations}
-      />
+      <div className="bg-white rounded-md">
+        <DateTimeFields
+          formData={formData}
+          date={date}
+          setDate={setDate}
+          startTime={startTime}
+          setStartTime={setStartTime}
+          handleStatusChange={handleStatusChange}
+          generateTimeOptions={generateTimeOptions}
+        />
+        
+        <div className="mt-4">
+          <DurationFields
+            startTime={startTime}
+            setStartTime={setStartTime}
+            duration={duration}
+            handleDurationChange={handleDurationChange}
+            generateTimeOptions={generateTimeOptions}
+            durations={durations}
+          />
+        </div>
+      </div>
+      
+      <Separator className="my-4" />
       
       <NotesField
         formData={formData}
