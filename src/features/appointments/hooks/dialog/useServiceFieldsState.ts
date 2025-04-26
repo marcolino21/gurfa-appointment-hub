@@ -65,13 +65,15 @@ export const useServiceFieldsState = ({
       if (selectedService) {
         handleInputChange({
           target: { name: 'service', value: selectedService.name }
-        } as React.ChangeEvent<HTMLInputElement>);
+        } as unknown as React.ChangeEvent<HTMLInputElement>);
         
         // Se il servizio ha una durata, imposta anche quella
         if (selectedService.duration) {
-          handleInputChange({
+          const durationEvent = {
             target: { name: 'duration', value: selectedService.duration }
-          } as React.ChangeEvent<HTMLInputElement>);
+          } as unknown as React.ChangeEvent<HTMLInputElement>;
+          
+          handleInputChange(durationEvent);
         }
       }
     }
@@ -80,7 +82,7 @@ export const useServiceFieldsState = ({
     if (index === 0 && field === 'staffId') {
       handleInputChange({
         target: { name: 'staffId', value }
-      } as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
     }
   };
 

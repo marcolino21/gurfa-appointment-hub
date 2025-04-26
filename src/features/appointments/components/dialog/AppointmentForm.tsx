@@ -84,12 +84,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     
     // Inizializza serviceEntries se non esistono
     if (!formData.serviceEntries || formData.serviceEntries.length === 0) {
-      handleInputChange({
+      const event = {
         target: {
           name: 'serviceEntries',
           value: [{ serviceId: displayedServices[0]?.id || '', staffId: displayedStaff[0]?.id || '' }]
         }
-      } as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      
+      handleInputChange(event);
     }
   }, [visibleStaff, services, formData, displayedStaff, displayedServices, handleInputChange]);
 
@@ -153,7 +155,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     // Importante: prima imposta il nome del cliente
     handleInputChange({
       target: { name: 'clientName', value: clientName }
-    } as React.ChangeEvent<HTMLInputElement>);
+    } as unknown as React.ChangeEvent<HTMLInputElement>);
     
     // Poi resetta il termine di ricerca
     setClientSearchTerm('');
@@ -166,7 +168,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       console.log("Auto-filling phone:", selectedClient.phone);
       handleInputChange({
         target: { name: 'clientPhone', value: selectedClient.phone }
-      } as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
     }
   };
 

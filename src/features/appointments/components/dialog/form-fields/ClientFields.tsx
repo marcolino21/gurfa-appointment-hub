@@ -63,6 +63,14 @@ export const ClientFields = ({
     // Chiudi il dropdown
     setDropdownOpen(false);
     
+    // Auto-compila il telefono se disponibile
+    if (client.phone) {
+      console.log("Auto-filling phone:", client.phone);
+      handleInputChange({
+        target: { name: 'clientPhone', value: client.phone }
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
+    }
+    
     // Focus sull'input dopo un breve ritardo
     setTimeout(() => {
       if (inputRef.current) {
