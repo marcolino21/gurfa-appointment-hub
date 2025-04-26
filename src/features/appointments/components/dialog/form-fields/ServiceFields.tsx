@@ -86,11 +86,14 @@ export const ServiceFields = ({
       <div className="font-medium text-lg text-gray-800 mb-3 border-b pb-2">Servizi e Operatori</div>
       
       {(!hasServices || !hasStaff) && (
-        <Alert variant="default" className="mb-4 bg-amber-50 border-amber-200">
+        <Alert 
+          variant="default" 
+          className="mb-4 bg-amber-50 border-amber-200 text-amber-700"
+        >
           <AlertCircle className="h-4 w-4 text-amber-700" />
-          <AlertDescription className="text-amber-700">
+          <AlertDescription>
             {!hasServices && "Nessun servizio disponibile. Aggiungi servizi dalla sezione Servizi."}
-            {!hasStaff && "Nessuno staff visibile. Aggiungi operatori dalla sezione Staff."}
+            {!hasStaff && hasServices && "Nessuno staff visibile. Aggiungi operatori dalla sezione Staff."}
           </AlertDescription>
         </Alert>
       )}
@@ -154,5 +157,4 @@ export const ServiceFields = ({
       </Button>
     </div>
   );
-};
-
+}; 
