@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -166,4 +167,30 @@
   .appointment-form .grid-cols-2 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Custom styles for calendar events visibility */
+.fc-event {
+  min-height: 24px !important;
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  margin: 1px !important;
+  border-left-width: 3px !important;
+}
+
+.fc-event-main {
+  padding: 2px 4px !important;
+}
+
+.fc-event-title {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: 0.85rem !important;
+  line-height: 1.2 !important;
+}
+
+.fc-timegrid-event-harness {
+  margin: 0 2px !important;
 }

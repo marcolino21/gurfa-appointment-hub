@@ -44,22 +44,32 @@ export const useAppointmentEvents = () => {
           resourceId: staffId
         });
         
-        // Creo l'evento del calendario
+        // Determina il colore in base allo stato
+        const statusColor = getStatusColor(appointment.status);
+        
+        // Creo l'evento del calendario con proprietà migliorate
         return {
           id: appointment.id,
           title: title,
           start: start,
           end: end,
           resourceId: staffId, // Assicura che sia sempre una stringa o undefined
+          display: 'block', // Forza la visualizzazione come blocco
+          allDay: false,
+          editable: true,
+          backgroundColor: statusColor.background,
+          borderColor: statusColor.border,
+          textColor: '#333333',
           extendedProps: {
             clientName: appointment.clientName,
             service: appointment.service || '',
-            status: appointment.status,
+            status: appointment.status || 'default',
             notes: appointment.notes || '',
-            staffId: staffId // Salva anche qui lo staffId normalizzato
+            staffId: staffId, // Salva anche qui lo staffId normalizzato
+            source: 'appointment' // Utile per distinguere da altri tipi di eventi
           },
           classNames: [
-            `appointment-status-${appointment.status}`,
+            `appointment-status-${appointment.status || 'default'}`,
             'calendar-appointment'
           ]
         };
@@ -72,3 +82,29 @@ export const useAppointmentEvents = () => {
 
   return { events };
 };
+
+// Funzione per determinare il colore in base allo stato
+function getStatusColor(status?: string): { background: string; border: string } {
+  switch (status) {
+    case 'confirmed':
+      return {
+        background: 'rgba(16, 185, 129, 0.1)', // verde chiaro
+        border: 'rgba(16, 185, 129, 0.8)' // verde più forte
+      };
+    case 'pending':
+      return {
+        background: 'rgba(245, 158, 11, 0.1)', // giallo chiaro
+        border: 'rgba(245, 158, 11, 0.8)' // giallo più forte
+      };
+    case 'cancelled':
+      return {
+        background: 'rgba(239, 68, 68, 0.1)', // rosso chiaro
+        border: 'rgba(239, 68, 68, 0.8)' // rosso più forte
+      };
+    default:
+      return {
+        background: 'rgba(59, 130, 246, 0.1)', // blu chiaro
+        border: 'rgba(59, 130, 246, 0.8)' // blu più forte
+      };
+  }
+}

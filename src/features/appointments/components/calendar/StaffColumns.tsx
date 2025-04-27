@@ -6,6 +6,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { StaffMember } from '@/types';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 interface StaffColumnsProps {
   staffMembers: StaffMember[];
@@ -73,20 +75,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         );
       }
     });
-    
-    // Log degli eventi senza resourceId o con resourceId non corrispondente
-    const orphanedEvents = events.filter(
-      event => event.resourceId && !staffMembers.some(staff => String(staff.id) === String(event.resourceId))
-    );
-    
-    if (orphanedEvents.length > 0) {
-      console.warn("Events with invalid resourceId:", orphanedEvents);
-    }
-    
-    const eventsWithoutResource = events.filter(event => !event.resourceId);
-    if (eventsWithoutResource.length > 0) {
-      console.warn("Events without resourceId:", eventsWithoutResource);
-    }
   }, [events, staffMembers, getStaffName]);
 
   if (staffMembers.length === 0) {
@@ -141,6 +129,26 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               height="100%"
               dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}
               viewClassNames={isBlocked ? 'blocked-staff-view' : ''}
+              // Improved event display options
+              eventDisplay="block"
+              eventTimeFormat={{
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              }}
+              // Custom event content rendering
+              eventContent={(eventInfo) => {
+                return (
+                  <>
+                    <div className="fc-event-time">
+                      {format(eventInfo.event.start!, 'HH:mm', { locale: it })}
+                    </div>
+                    <div className="fc-event-title">
+                      {eventInfo.event.title}
+                    </div>
+                  </>
+                );
+              }}
               eventClassNames={(arg) => {
                 // Add extra class for blocked time events
                 if (arg.event.extendedProps?.isBlockedTime || 
@@ -148,10 +156,21 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                     arg.event.display === 'background') {
                   return ['blocked-time-event', 'fc-non-interactive'];
                 }
-                return [];
+                
+                // Add classes for regular appointments
+                const status = arg.event.extendedProps?.status || 'default';
+                return ['calendar-appointment', `appointment-status-${status}`];
               }}
               eventDidMount={(info) => {
                 console.log(`Event mounted: ${info.event.title} for staff ${staff.firstName}`);
+                
+                // Add data attributes for debugging
+                const eventEl = info.el;
+                if (eventEl) {
+                  eventEl.setAttribute('data-event-id', info.event.id);
+                  eventEl.setAttribute('data-staff-id', String(info.event.extendedProps?.staffId || ''));
+                }
+                
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
                 }
