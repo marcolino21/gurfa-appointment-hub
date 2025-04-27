@@ -46,22 +46,17 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     ? new Date(selectedDate.getTime())
     : new Date();
 
-  // Set up synchronized grid columns after render - simplified
+  // Set up synchronized grid columns after render
   useEffect(() => {
     if (staffMembers.length > 0 && !gridInitialized) {
       setGridInitialized(true);
       
-      // Single timeout with essential operations
       setTimeout(() => {
         try {
+          // Add classes for synchronization
           const calendarGridBody = document.querySelector('.calendar-grid-body');
           if (calendarGridBody) {
             calendarGridBody.classList.add('unified-calendar-grid');
-          }
-          
-          const appointmentCalendar = document.querySelector('.staff-calendar-block');
-          if (appointmentCalendar) {
-            appointmentCalendar.classList.add('calendar-scrollable');
           }
           
           console.log("Grid initialized for TimeGridView");
@@ -72,7 +67,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     }
   }, [staffMembers, gridInitialized]);
 
-  // Funzione per gestire lo zoom dal controllo slider
+  // Handle zoom slider change
   const handleZoomSliderChange = (value: number[]) => {
     if (onZoomChange && value[0]) {
       onZoomChange(value[0]);
@@ -93,7 +88,7 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
           <CalendarHeader selectedDate={validSelectedDate} />
           <div className="flex items-center space-x-4">
-            {/* Controllo zoom */}
+            {/* Zoom control */}
             <div className="flex items-center space-x-2">
               <ZoomOut className="h-4 w-4 text-gray-500" />
               <Slider
@@ -116,18 +111,32 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
 
         <StaffHeader staffMembers={staffMembers} />
         
-        <div className="calendar-grid-body sync-scroll-container" style={{ minHeight: '450px' }}>
+        <div className="calendar-grid-body sync-scroll-container" style={{ 
+          minHeight: '450px',
+          display: 'flex',
+          position: 'relative',
+          overflowX: 'auto'
+        }}>
           <TimeColumn 
             selectedDate={validSelectedDate}
             commonConfig={commonConfig}
           />
-          <div className="calendar-staff-cols unified-calendar-content" style={{ minHeight: '450px' }}>
+          <div className="calendar-staff-cols" style={{ 
+            flex: '1',
+            overflow: 'auto',
+            position: 'relative',
+            minHeight: '450px' 
+          }}>
             <StaffColumns
               staffMembers={staffMembers}
               events={allEvents}
               selectedDate={validSelectedDate}
               commonConfig={{
                 ...commonConfig,
+                // Fix for FullCalendar standard version
+                height: 'auto',
+                contentHeight: 'auto',
+                aspectRatio: 1.8,
                 eventDidMount: (info: any) => {
                   if (info.event.extendedProps.isBlockedTime || 
                       info.event.classNames?.includes('blocked-time-event') ||

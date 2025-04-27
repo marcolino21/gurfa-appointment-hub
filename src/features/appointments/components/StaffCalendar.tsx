@@ -32,7 +32,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [calendarApi, setCalendarApi] = useState<any>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [zoomLevel, setZoomLevel] = useState(1); // Nuovo stato per lo zoom
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   // Log events and staff per render for debugging
   useEffect(() => {
@@ -61,7 +61,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     onEventDrop
   );
   
-  // Enhanced scroll synchronization - now applies to all calendar views
+  // Use custom hooks to enhance functionality
   useCalendarSync(view);
   useAutoScroll(calendarApi, view);
 
@@ -81,20 +81,18 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Nuova funzione per gestire lo zoom
+  // Function to handle zoom changes
   const handleZoomChange = (level: number) => {
     setZoomLevel(level);
     
-    // Applica lo zoom ai calendari
+    // Apply zoom to calendars
     if (calendarRefs.current.length > 0) {
       try {
-        // Modifica l'altezza degli slot in base al livello di zoom
-        const slotHeight = 40 * level; // Altezza slot di base * livello zoom
+        const slotHeight = 40 * level;
         
         calendarRefs.current.forEach(calRef => {
           const api = calRef.getApi();
           if (api) {
-            // Trova tutti gli slot nel calendario e modifica l'altezza
             const calendarEl = api.el as HTMLElement;
             const slotEls = calendarEl.querySelectorAll('.fc-timegrid-slot');
             
@@ -112,18 +110,15 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   };
 
-  // Improved refresh of calendars after events update
+  // Refresh calendar when events change
   useEffect(() => {
     if (calendarApi && events.length >= 0) {
       try {
         console.log("Refreshing calendar with events:", events.length);
         
-        // Forza un aggiornamento più aggressivo
         setTimeout(() => {
           calendarApi.removeAllEvents();
           calendarApi.addEventSource(events);
-          calendarApi.refetchEvents();
-          calendarApi.render(); // Force complete re-render
         }, 100);
       } catch (error) {
         console.error("Error refreshing calendar events:", error);
@@ -131,7 +126,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   }, [events, calendarApi]);
 
-  // Stile di base per il calendario
+  // Base calendar style
   const calendarStyle = {
     height: '100%',
     minHeight: '500px',
@@ -141,7 +136,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     overflow: 'hidden'
   };
 
-  // Se non ci sono staffMembers visibili, mostra un messaggio
+  // Display alert if no staff members
   if (staffMembers.length === 0) {
     return (
       <Alert className="m-6 border-yellow-300 bg-yellow-50">
@@ -155,6 +150,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     );
   }
 
+  // Render appropriate view based on selected view
   if (view === 'dayGridMonth') {
     return (
       <MonthView

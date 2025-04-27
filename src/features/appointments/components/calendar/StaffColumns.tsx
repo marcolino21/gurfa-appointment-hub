@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react'
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import dayGridPlugin from '@fullcalendar/daygrid'; // Added dayGrid for standard-compliant views
 import { StaffMember } from '@/types';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
@@ -10,7 +11,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 
-// Importazione diretta degli stili specifici
+// Import specific styles
 import '../../styles/components/calendar-events.css';
 
 interface StaffColumnsProps {
@@ -42,24 +43,24 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     return `${staff.firstName} ${staff.lastName}`.trim() || 'Operatore';
   }, []);
   
-  // Applica i blocchi di tempo dopo il rendering iniziale
+  // Apply time blocks after initial rendering
   useEffect(() => {
     const timer = setTimeout(applyBlockedTimeStyles, 300);
     return () => clearTimeout(timer);
   }, [applyBlockedTimeStyles]);
   
-  // Gestisce il drag-and-drop degli eventi
+  // Handle event drag start
   const handleEventDragStart = useCallback((info: any) => {
     setIsDragging(true);
     info.el.classList.add('event-dragging');
     
-    // Crea un tooltip di trascinamento
+    // Create drag tooltip
     const dragTooltip = document.createElement('div');
     dragTooltip.className = 'drag-tooltip';
     dragTooltip.textContent = 'Rilascia per riposizionare';
     document.body.appendChild(dragTooltip);
     
-    // Aggiorna la posizione del tooltip durante il trascinamento
+    // Update tooltip position during drag
     const updateTooltipPosition = (e: MouseEvent) => {
       dragTooltip.style.left = `${e.clientX + 15}px`;
       dragTooltip.style.top = `${e.clientY + 15}px`;
@@ -67,18 +68,17 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     
     document.addEventListener('mousemove', updateTooltipPosition);
     
-    // Salva i riferimenti per la pulizia
+    // Save references for cleanup
     info.el.dragTooltip = dragTooltip;
     info.el.updateTooltipPosition = updateTooltipPosition;
-    
   }, []);
   
-  // Gestisce il rilascio degli eventi dopo il drag
+  // Handle event drag stop
   const handleEventDragStop = useCallback((info: any) => {
     setIsDragging(false);
     info.el.classList.remove('event-dragging');
     
-    // Rimuovi il tooltip di trascinamento
+    // Remove drag tooltip
     if (info.el.dragTooltip) {
       document.body.removeChild(info.el.dragTooltip);
       document.removeEventListener('mousemove', info.el.updateTooltipPosition);
@@ -87,12 +87,12 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     }
   }, []);
   
-  // Gestisce l'inizio del ridimensionamento
+  // Handle resize start
   const handleEventResizeStart = useCallback((info: any) => {
     setIsResizing(true);
     info.el.classList.add('event-resizing');
     
-    // Mostra un tooltip informativo
+    // Show informational tooltip
     toast({
       title: "Ridimensionamento",
       description: "Trascina per modificare la durata",
@@ -100,7 +100,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     });
   }, [toast]);
   
-  // Gestisce la fine del ridimensionamento
+  // Handle resize stop
   const handleEventResizeStop = useCallback((info: any) => {
     setIsResizing(false);
     info.el.classList.remove('event-resizing');
@@ -136,10 +136,10 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
-        // Normalizza l'ID dello staff per il confronto
+        // Normalize staff ID for comparison
         const staffIdStr = String(staff.id);
         
-        // Filtra gli eventi per questo membro dello staff specifico
+        // Filter events for this specific staff member
         const staffEvents = events.filter(event => {
           const eventStaffId = event.resourceId ? String(event.resourceId) : undefined;
           return eventStaffId === staffIdStr;
@@ -155,17 +155,17 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
           >
             <FullCalendar
               key={`staff-calendar-${staffIdStr}`}
-              plugins={[timeGridPlugin, interactionPlugin]}
+              plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]} // Added dayGridPlugin
               initialView="timeGridDay"
               initialDate={selectedDate}
               {...commonConfig}
-              // Configurazione semplificata
+              // Simplified configuration for standard version
               eventMinHeight={30}
               slotEventOverlap={false}
               slotDuration={'00:30:00'}
               snapDuration={'00:15:00'}
               nowIndicator={false}
-              // Abilita caratteristiche interattive
+              // Interactive features
               eventDurationEditable={true}
               eventStartEditable={true}
               eventResizableFromStart={true}
@@ -175,6 +175,8 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               displayEventEnd={true}
               allDaySlot={false}
               dayMaxEvents={false}
+              // Fix for standard FullCalendar
+              height="auto", // Changed from 100% to auto
               dayHeaderContent={() => null}
               slotLabelContent={({ date }) => (
                 <div style={{ fontSize: '0.7rem', color: '#888' }}>
@@ -183,10 +185,9 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               )}
               events={staffEvents}
               headerToolbar={false}
-              height="100%"
               dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}
               viewClassNames={isBlocked ? 'blocked-staff-view' : ''}
-              // Eventi di interazione
+              // Interaction events
               eventDragStart={handleEventDragStart}
               eventDragStop={handleEventDragStop}
               eventResizeStart={handleEventResizeStart}
@@ -195,7 +196,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 if (commonConfig.eventResize) {
                   commonConfig.eventResize(info);
                 } else if (commonConfig.eventDrop) {
-                  // Usa eventDrop come fallback se eventResize non è definito
+                  // Use eventDrop as fallback if eventResize isn't defined
                   commonConfig.eventDrop(info);
                 }
               }}
@@ -205,25 +206,25 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 }
               }}
               eventDidMount={(info) => {
-                // Salva i riferimenti agli elementi degli eventi
+                // Save event element references
                 eventElRefs.current.set(info.event.id, info.el);
                 
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
                 }
                 
-                // Aggiungi le maniglie di ridimensionamento personalizzate
+                // Add custom resize handles
                 const eventEl = info.el;
                 
-                // Aggiungi classe per stile interattivo
+                // Add class for interactive styling
                 eventEl.classList.add('interactive-event');
                 
-                // Aggiungi attributi per accessibilità
+                // Add accessibility attributes
                 eventEl.setAttribute('aria-label', `Appuntamento: ${info.event.title}`);
                 eventEl.setAttribute('role', 'button');
                 eventEl.setAttribute('tabindex', '0');
                 
-                // Aggiungi dati sull'evento
+                // Add event data
                 eventEl.dataset.eventId = info.event.id;
                 eventEl.dataset.eventStatus = info.event.extendedProps?.status || 'default';
               }}

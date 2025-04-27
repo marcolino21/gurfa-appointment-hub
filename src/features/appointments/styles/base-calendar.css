@@ -8,9 +8,10 @@
   border-radius: 8px;
   overflow: hidden;
   font-family: inherit;
+  margin: 0; /* Added to fix spacing */
 }
 
-/* Grid structure */
+/* Grid structure - simplified */
 .fc .fc-timegrid-slots table {
   border-collapse: separate;
   border-spacing: 0;
@@ -50,8 +51,9 @@
   visibility: visible !important;
 }
 
-/* Force visibility for critical elements */
-.fc-timegrid,
+/* Ensure visibility */
+.fc-view,
+.fc-timegrid-body,
 .fc-timegrid-slots,
 .fc-timegrid-cols,
 .fc-timegrid-col-frame {
@@ -84,17 +86,58 @@
   border-color: #e5e7eb;
 }
 
-/* Ensure proper scrolling */
+/* Fix for scrollbars */
 .fc-scroller {
   overflow: auto !important;
-  height: 100% !important;
+}
+
+/* Critical fixes for standard FullCalendar */
+.fc-scrollgrid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.fc-scrollgrid table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.fc-scrollgrid-section {
+  height: 0;
+}
+
+.fc-scrollgrid-section-body {
+  height: auto;
+}
+
+/* Make sure column widths are respected */
+.fc .fc-scrollgrid-section-header table,
+.fc .fc-scrollgrid-section-footer table {
+  width: 100%;
+}
+
+/* Added specific height rules */
+.fc-view-harness {
+  min-height: 500px;
+}
+
+/* Fix border and spacing issues */
+.fc .fc-daygrid-day {
+  padding: 2px;
+}
+
+.fc-direction-ltr .fc-daygrid-event.fc-event-end,
+.fc-direction-rtl .fc-daygrid-event.fc-event-start {
+  margin-right: 2px;
+}
+
+.fc-direction-ltr .fc-daygrid-event.fc-event-start,
+.fc-direction-rtl .fc-daygrid-event.fc-event-end {
+  margin-left: 2px;
 }
 
 /* Ensure proper heights */
-.fc-view-harness,
-.fc-view,
-.fc-timegrid,
-.fc-timegrid-body {
-  height: 100% !important;
-  min-height: 600px !important;
+.fc-timegrid-slots {
+  min-height: 500px;
 }

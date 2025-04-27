@@ -31,10 +31,11 @@ export const useCalendarConfig = (
     eventClick: onEventClick,
     editable: true,
     droppable: true,
-    height: '100%',
+    height: 'auto', // Changed from 100% to auto
     handleWindowResize: true,
     stickyHeaderDates: true,
-    expandRows: true,
+    fixedWeekCount: false, // New option to prevent excessive empty weeks
+    // Removed expandRows which is a premium feature
     dayMinWidth: 100,
     themeSystem: 'standard',
     headerToolbar: false,
@@ -61,6 +62,7 @@ export const useCalendarConfig = (
       minute: '2-digit',
       hour12: false
     },
+    // Simplify class names to avoid potential conflicts
     eventClassNames: 'calendar-event',
     slotLaneClassNames: 'calendar-slot-lane',
     dayCellClassNames: 'calendar-day-cell',
