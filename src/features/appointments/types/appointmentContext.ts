@@ -42,4 +42,5 @@ export interface AppointmentContextType extends AppointmentState {
   setFilters: (filters: Partial<AppointmentState['filters']>) => void;
   isSlotAvailable: (start: Date, end: Date, salonId: string, excludeAppointmentId?: string) => boolean;
   setCurrentAppointment: (appointment: Appointment | null) => void;
+  forceCalendarUpdate: () => void; // Aggiunta questa nuova funzione
 }

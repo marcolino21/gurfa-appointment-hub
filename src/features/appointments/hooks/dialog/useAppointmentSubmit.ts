@@ -1,4 +1,3 @@
-
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Appointment } from '@/types';
@@ -10,7 +9,7 @@ export const useAppointmentSubmit = (
   setIsSubmitting: (isSubmitting: boolean) => void
 ) => {
   const { currentSalonId } = useAuth();
-  const { addAppointment, updateAppointment, setCurrentAppointment, isSlotAvailable } = useAppointments();
+  const { addAppointment, updateAppointment, setCurrentAppointment, isSlotAvailable, forceCalendarUpdate } = useAppointments();
   const { toast } = useToast();
 
   const validateForm = (formData: Partial<Appointment>): string | null => {
@@ -98,9 +97,8 @@ export const useAppointmentSubmit = (
       if (result) {
         // Force calendar update by dispatching the action
         setTimeout(() => {
-          // Dispatch to force a rerender of calendar events
-          // This is important to make sure new events appear immediately
-          useAppointments().forceCalendarUpdate();
+          // Utilizziamo direttamente la funzione dal context invece di chiamare useAppointments()
+          forceCalendarUpdate();
         }, 100);
       }
       
