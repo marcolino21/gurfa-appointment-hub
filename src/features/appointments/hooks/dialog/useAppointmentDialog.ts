@@ -123,15 +123,25 @@ export const useAppointmentDialog = (onClose: () => void) => {
     }
   }, [date, startTime, duration]);
   
-  // Reset form to defaults for new appointments
+  // Reset form to defaults for new appointments - ora preserva staffId e orari da slot
   const resetForm = useCallback(() => {
-    console.log("Resetting appointment form");
+    console.log("Resetting appointment form, preserving staff and time if present");
     
     const now = new Date();
-    const defaultStart = new Date(now);
-    defaultStart.setHours(9, 0, 0, 0); // 9:00 AM
     
-    const defaultEnd = addMinutes(defaultStart, 30);
+    // Usa la data/ora esistente se presente, altrimenti usa i valori predefiniti
+    const defaultStart = currentAppointment?.start ? new Date(currentAppointment.start) : new Date(now);
+    if (!currentAppointment?.start) {
+      defaultStart.setHours(9, 0, 0, 0); // 9:00 AM solo se non c'è un currentAppointment.start
+    }
+    
+    const defaultEnd = currentAppointment?.end ? new Date(currentAppointment.end) : addMinutes(defaultStart, 30);
+    
+    // Normalizza lo staffId dall'appuntamento corrente se presente
+    const existingStaffId = currentAppointment?.staffId ? normalizeStaffId(currentAppointment.staffId) : '';
+    
+    console.log("Reset form using staffId:", existingStaffId);
+    console.log("Reset form using startTime:", format(defaultStart, 'HH:mm'));
     
     setFormData({
       title: '',
@@ -142,16 +152,16 @@ export const useAppointmentDialog = (onClose: () => void) => {
       status: 'pending',
       start: defaultStart.toISOString(),
       end: defaultEnd.toISOString(),
-      staffId: '',
-      serviceEntries: [{ serviceId: '', staffId: '' }]
+      staffId: existingStaffId,
+      serviceEntries: [{ serviceId: '', staffId: existingStaffId }]
     });
     
     setDate(defaultStart);
     setStartTime(format(defaultStart, 'HH:mm'));
     setEndTime(format(defaultEnd, 'HH:mm'));
-    setDuration(30);
+    setDuration(Math.round((defaultEnd.getTime() - defaultStart.getTime()) / 60000));
     setError(null);
-  }, []);
+  }, [currentAppointment, normalizeStaffId]);
   
   const handleDurationChange = (newDuration: string) => {
     const durationMinutes = parseInt(newDuration, 10);
