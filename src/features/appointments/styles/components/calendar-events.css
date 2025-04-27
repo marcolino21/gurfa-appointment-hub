@@ -7,27 +7,62 @@
   overflow: visible;
 }
 
+/* Container per gli eventi manuali */
+.manual-event-overlay {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+
+/* Stile base per gli eventi manuali */
 .manual-appointment-event {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  min-height: 24px;
+  position: absolute !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  background-color: #3b82f6 !important;
+  color: white !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
   z-index: 1000 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  border-radius: 4px;
-  color: white;
-  padding: 4px;
-  overflow: hidden;
-  pointer-events: all;
-  cursor: pointer;
+  font-size: 12px !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-left: 4px solid #1d4ed8 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  overflow: hidden !important;
+  pointer-events: all !important;
+  cursor: pointer !important;
+  min-height: 30px !important;
 }
 
-/* Nasconde completamente gli eventi nativi di FullCalendar nella vista giornaliera */
+/* Stili per i diversi stati degli appuntamenti */
+.manual-appointment-event.appointment-status-confirmed {
+  background-color: #10b981 !important; /* verde */
+  border-left: 4px solid #047857 !important;
+}
+
+.manual-appointment-event.appointment-status-pending {
+  background-color: #f59e0b !important; /* giallo */
+  border-left: 4px solid #b45309 !important;
+}
+
+.manual-appointment-event.appointment-status-cancelled {
+  background-color: #ef4444 !important; /* rosso */
+  border-left: 4px solid #b91c1c !important;
+  text-decoration: line-through !important;
+}
+
+.manual-appointment-event.appointment-status-completed {
+  background-color: #3b82f6 !important; /* blu */
+  border-left: 4px solid #1d4ed8 !important;
+}
+
+/* Nascondi completamente gli eventi nativi di FullCalendar nella vista giornaliera */
 .fc-timegrid-event,
 .fc-timegrid-event-harness {
   display: none !important;
@@ -60,7 +95,7 @@
   height: 100% !important;
 }
 
-/* Status-specific styles per eventi manuali */
+/* Stili specifici per i diversi stati degli appuntamenti */
 .manual-appointment-event.appointment-status-confirmed {
   background-color: #10b981 !important; /* verde */
   border-left: 4px solid #047857 !important;
@@ -77,7 +112,22 @@
   text-decoration: line-through !important;
 }
 
-.manual-appointment-event.appointment-status-completed {
-  background-color: #3b82f6 !important; /* blu */
-  border-left: 4px solid #1d4ed8 !important;
+/* Stili per migliorare il contenuto interno degli eventi */
+.manual-appointment-event div {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Aggiunge una striscia superiore per distinguere il bordo dell'evento */
+.manual-appointment-event::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 }
