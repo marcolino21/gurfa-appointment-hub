@@ -77,6 +77,44 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     });
   }, [events, staffMembers, getStaffName]);
 
+  // Force event visibility after render
+  useEffect(() => {
+    const forceEventVisibility = () => {
+      document.querySelectorAll('.fc-event').forEach(el => {
+        if (el instanceof HTMLElement) {
+          // Ensure event has proper sizing
+          el.style.minHeight = '30px';
+          el.style.visibility = 'visible';
+          el.style.display = 'block';
+          el.style.opacity = '1';
+          
+          // Ensure title is visible
+          const titleEl = el.querySelector('.fc-event-title');
+          if (titleEl instanceof HTMLElement) {
+            titleEl.style.display = 'block';
+            titleEl.style.visibility = 'visible';
+          }
+          
+          // Ensure time is visible
+          const timeEl = el.querySelector('.fc-event-time');
+          if (timeEl instanceof HTMLElement) {
+            timeEl.style.display = 'block';
+            timeEl.style.visibility = 'visible';
+          }
+        }
+      });
+    };
+    
+    // Apply after a delay and periodically
+    const initialTimer = setTimeout(forceEventVisibility, 500);
+    const intervalTimer = setInterval(forceEventVisibility, 2000);
+    
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(intervalTimer);
+    };
+  }, [events]);
+
   if (staffMembers.length === 0) {
     return (
       <div className="flex items-center justify-center flex-1 h-full text-gray-500 p-8 bg-gray-50 rounded-lg">
