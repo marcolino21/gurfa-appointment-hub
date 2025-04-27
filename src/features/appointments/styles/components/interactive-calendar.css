@@ -1,0 +1,158 @@
+
+/* Stili per il ridimensionamento interattivo */
+.fc-event-resizer {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid #3b82f6;
+  z-index: 10;
+}
+
+.fc-event-resizer-start {
+  left: -4px;
+  top: calc(50% - 4px);
+  cursor: w-resize;
+}
+
+.fc-event-resizer-end {
+  right: -4px;
+  top: calc(50% - 4px);
+  cursor: e-resize;
+}
+
+/* Tooltip per eventi */
+.calendar-tooltip {
+  position: absolute;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 10001;
+  pointer-events: none;
+  max-width: 250px;
+  white-space: normal;
+  top: -30px;
+  left: 0;
+}
+
+/* Indicatore di disponibilità per i blocchi di tempo */
+.blocked-time-event {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(241, 245, 249, 0.7),
+    rgba(241, 245, 249, 0.7) 10px,
+    rgba(226, 232, 240, 0.7) 10px,
+    rgba(226, 232, 240, 0.7) 20px
+  ) !important;
+  border-color: #cbd5e0 !important;
+  border-left-color: #94a3b8 !important;
+  color: #475569 !important;
+}
+
+/* Stili per animazioni fluide */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fc-event {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Stile per eventi con conflitti */
+.fc-event.event-conflict {
+  border: 2px dashed #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Stili per migliorare la visualizzazione con zoom diversi */
+.zoom-level-0-5 .fc-timegrid-slot {
+  height: 20px !important;
+  min-height: 20px !important;
+}
+
+.zoom-level-0-75 .fc-timegrid-slot {
+  height: 30px !important;
+  min-height: 30px !important;
+}
+
+.zoom-level-1 .fc-timegrid-slot {
+  height: 40px !important;
+  min-height: 40px !important;
+}
+
+.zoom-level-1-5 .fc-timegrid-slot {
+  height: 60px !important;
+  min-height: 60px !important;
+}
+
+.zoom-level-2 .fc-timegrid-slot {
+  height: 80px !important;
+  min-height: 80px !important;
+}
+
+/* Stili per indicare il trascinamento */
+.drag-ghost {
+  opacity: 0.5;
+  border: 2px dashed #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Indicatore per le posizioni possibili durante il trascinamento */
+.fc-event-mirror {
+  opacity: 0.8 !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Stili per apparenza migliorata degli appuntamenti */
+.fc-event-main {
+  padding: 2px 4px !important;
+}
+
+.fc-event-title {
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+
+.fc-event-time {
+  font-size: 10px !important;
+  opacity: 0.9 !important;
+}
+
+/* Indicatori di stato più visibili */
+.fc-event::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  top: 8px;
+  right: 8px;
+}
+
+.fc-event.appointment-status-confirmed::after {
+  background-color: #10b981;
+}
+
+.fc-event.appointment-status-pending::after {
+  background-color: #f59e0b;
+}
+
+.fc-event.appointment-status-cancelled::after {
+  background-color: #ef4444;
+}
+
+.fc-event.appointment-status-completed::after {
+  background-color: #3b82f6;
+}

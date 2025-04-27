@@ -8,6 +8,8 @@ import { it } from 'date-fns/locale';
 import { StaffMember } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from '@/components/ui/calendar';
+import { Slider } from '@/components/ui/slider';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import '../../styles/index.css';
 
 interface MonthViewProps {
@@ -20,6 +22,8 @@ interface MonthViewProps {
   setCalendarApi: (api: any) => void;
   datePickerOpen: boolean;
   setDatePickerOpen: (open: boolean) => void;
+  zoomLevel?: number;
+  onZoomChange?: (level: number) => void;
 }
 
 export const MonthView: React.FC<MonthViewProps> = ({
@@ -32,6 +36,8 @@ export const MonthView: React.FC<MonthViewProps> = ({
   setCalendarApi,
   datePickerOpen,
   setDatePickerOpen,
+  zoomLevel = 1,
+  onZoomChange
 }) => {
   // Ensure we have a valid date to avoid formatting errors
   const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
@@ -93,10 +99,31 @@ export const MonthView: React.FC<MonthViewProps> = ({
     }
   };
 
+  // Funzione per gestire lo zoom dal controllo slider
+  const handleZoomSliderChange = (value: number[]) => {
+    if (onZoomChange && value[0]) {
+      onZoomChange(value[0]);
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-320px)] staff-calendar-container">
-      <div className="month-view-date-header">
-        {safeFormat(validSelectedDate, 'MMMM yyyy')}
+      <div className="month-view-date-header flex justify-between items-center px-4">
+        <div>{safeFormat(validSelectedDate, 'MMMM yyyy')}</div>
+        
+        {/* Controllo zoom */}
+        <div className="flex items-center space-x-2">
+          <ZoomOut className="h-4 w-4 text-gray-500" />
+          <Slider
+            className="w-24"
+            defaultValue={[zoomLevel]}
+            min={0.5}
+            max={2}
+            step={0.1}
+            onValueChange={handleZoomSliderChange}
+          />
+          <ZoomIn className="h-4 w-4 text-gray-500" />
+        </div>
       </div>
       
       <div className="mb-2 flex justify-center">
@@ -164,10 +191,24 @@ export const MonthView: React.FC<MonthViewProps> = ({
                       cellContent.innerHTML = '';
                       cellContent.appendChild(dateNum);
                     }
+                    
+                    // Apply zoom level to the cell
+                    if (zoomLevel && zoomLevel !== 1) {
+                      const cell = info.el;
+                      const defaultHeight = 80; // Altezza predefinita della cella
+                      const newHeight = defaultHeight * zoomLevel;
+                      cell.style.height = `${newHeight}px`;
+                    }
                   } catch (error) {
                     console.error('Error in dayCellDidMount:', error);
                   }
                 }}
+                // Abilita il drag & drop
+                editable={true}
+                eventDraggable={true}
+                eventStartEditable={true}
+                droppable={true}
+                eventResizableFromStart={false}
               />
             </div>
           </div>

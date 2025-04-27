@@ -12,10 +12,10 @@ export const useCalendarConfig = (
   const commonConfig = {
     locale: 'it',
     locales: [itLocale],
-    slotDuration: '00:30:00',
+    slotDuration: '00:15:00', // Ridotto per avere più controllo sulla precisione
     slotMinTime,
     slotMaxTime,
-    snapDuration: '00:30:00',
+    snapDuration: '00:15:00',
     slotLabelInterval: '00:30',
     slotLabelFormat: {
       hour: '2-digit',
@@ -31,6 +31,9 @@ export const useCalendarConfig = (
     editable: true,
     droppable: true,
     eventDrop: onEventDrop,
+    // Nuovi config per resize
+    eventResize: onEventDrop, // Riutilizziamo la stessa funzione per semplicità
+    eventResizableFromStart: true, // Consente il ridimensionamento dall'inizio
     headerToolbar: false,
     height: '100%',
     nowIndicator: true,
@@ -62,7 +65,7 @@ export const useCalendarConfig = (
       },
       timeGridWeek: {
         type: 'timeGrid',
-        duration: { days: 1 }, // Make week view behave like day view
+        duration: { days: 7 }, // Visualizza una settimana intera
         dayHeaderFormat: { 
           weekday: 'long', 
           month: 'short', 

@@ -32,6 +32,7 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const [calendarApi, setCalendarApi] = useState<any>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [zoomLevel, setZoomLevel] = useState(1); // Nuovo stato per lo zoom
 
   // Log events and staff per render for debugging
   useEffect(() => {
@@ -72,19 +73,42 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
       if (calendarApi) {
         try {
           calendarApi.gotoDate(date);
-
-          // Always ensure we're in day view for consistency
-          if (view === 'timeGridWeek') {
-            const tabsTrigger = document.querySelector('[value="timeGridDay"]') as HTMLElement;
-            if (tabsTrigger) {
-              setTimeout(() => tabsTrigger.click(), 100);
-            }
-          }
         } catch (error) {
           console.error("Error navigating to date:", error);
         }
       }
       setDatePickerOpen(false);
+    }
+  };
+
+  // Nuova funzione per gestire lo zoom
+  const handleZoomChange = (level: number) => {
+    setZoomLevel(level);
+    
+    // Applica lo zoom ai calendari
+    if (calendarRefs.current.length > 0) {
+      try {
+        // Modifica l'altezza degli slot in base al livello di zoom
+        const slotHeight = 40 * level; // Altezza slot di base * livello zoom
+        
+        calendarRefs.current.forEach(calRef => {
+          const api = calRef.getApi();
+          if (api) {
+            // Trova tutti gli slot nel calendario e modifica l'altezza
+            const calendarEl = api.el as HTMLElement;
+            const slotEls = calendarEl.querySelectorAll('.fc-timegrid-slot');
+            
+            slotEls.forEach((slotEl) => {
+              if (slotEl instanceof HTMLElement) {
+                slotEl.style.height = `${slotHeight}px`;
+                slotEl.style.minHeight = `${slotHeight}px`;
+              }
+            });
+          }
+        });
+      } catch (error) {
+        console.error("Error applying zoom:", error);
+      }
     }
   };
 
@@ -133,20 +157,23 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         setCalendarApi={setCalendarApi}
         datePickerOpen={datePickerOpen}
         setDatePickerOpen={setDatePickerOpen}
+        zoomLevel={zoomLevel}
+        onZoomChange={handleZoomChange}
       />
     );
   }
 
-  // Always use timeGridDay view for consistency between day and week views
   return (
     <TimeGridView
       staffMembers={staffMembers}
       events={events}
-      view={view === 'timeGridWeek' ? 'timeGridDay' : view}
+      view={view}
       selectedDate={selectedDate}
       commonConfig={commonConfig}
       calendarRefs={calendarRefs}
       setCalendarApi={setCalendarApi}
+      zoomLevel={zoomLevel}
+      onZoomChange={handleZoomChange}
     />
   );
 };

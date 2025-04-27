@@ -31,6 +31,7 @@ const Appointments: React.FC = () => {
     handleDateSelect,
     handleEventClick,
     handleEventDrop,
+    handleEventResize,
     handleAddAppointment
   } = useAppointmentHandlers(visibleStaff);
   
@@ -116,6 +117,7 @@ const Appointments: React.FC = () => {
         handleDateSelect={handleDateSelect}
         handleEventClick={handleEventClick}
         handleEventDrop={handleEventDrop}
+        handleEventResize={handleEventResize}
         onViewChange={setCalendarView}
       />
       

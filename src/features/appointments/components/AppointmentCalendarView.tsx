@@ -15,6 +15,7 @@ interface AppointmentCalendarViewProps {
   handleEventClick: (clickInfo: any) => void;
   handleEventDrop: (dropInfo: any) => void;
   onViewChange: (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => void;
+  handleEventResize?: (resizeInfo: any) => void;
 }
 
 const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
@@ -23,9 +24,10 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   handleDateSelect,
   handleEventClick,
   handleEventDrop,
-  onViewChange
+  onViewChange,
+  handleEventResize
 }) => {
-  const [activeTab, setActiveTab] = useState('day');
+  const [activeTab, setActiveTab] = useState('week'); // Imposta la settimana come vista predefinita
 
   // Process events to add staff names for the month view
   const processedEvents = events.map(event => {
@@ -57,6 +59,16 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   useEffect(() => {
     console.log("Visible staff in AppointmentCalendarView:", visibleStaff);
   }, [visibleStaff]);
+
+  // Funzione per gestire il ridimensionamento degli eventi
+  const handleAppointmentResize = (resizeInfo: any) => {
+    if (handleEventResize) {
+      handleEventResize(resizeInfo);
+    } else {
+      // Fallback: usa handleEventDrop come ultima risorsa
+      handleEventDrop(resizeInfo);
+    }
+  };
 
   return (
     <Card className="shadow-md">

@@ -8,6 +8,8 @@ import { StaffColumns } from './StaffColumns';
 import { CalendarControls } from './CalendarControls';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Slider } from '@/components/ui/slider';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import '../../styles/index.css';
 
 interface TimeGridViewProps {
@@ -18,6 +20,8 @@ interface TimeGridViewProps {
   commonConfig: any;
   calendarRefs: React.MutableRefObject<any[]>;
   setCalendarApi: (api: any) => void;
+  zoomLevel?: number;
+  onZoomChange?: (level: number) => void;
 }
 
 export const TimeGridView: React.FC<TimeGridViewProps> = ({
@@ -27,7 +31,9 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
   selectedDate,
   commonConfig,
   calendarRefs,
-  setCalendarApi
+  setCalendarApi,
+  zoomLevel = 1,
+  onZoomChange
 }) => {
   const [gridInitialized, setGridInitialized] = useState(false);
   const { enhancedBlockTimeEvents } = useCalendarBlockTime();
@@ -64,16 +70,38 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     }
   }, [staffMembers, gridInitialized]);
 
+  // Funzione per gestire lo zoom dal controllo slider
+  const handleZoomSliderChange = (value: number[]) => {
+    if (onZoomChange && value[0]) {
+      onZoomChange(value[0]);
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="h-[calc(100vh-320px)] min-h-[500px] staff-calendar-block">
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
           <CalendarHeader selectedDate={validSelectedDate} />
-          <CalendarControls 
-            view={view} 
-            selectedDate={validSelectedDate} 
-            calendarRefs={calendarRefs}
-          />
+          <div className="flex items-center space-x-4">
+            {/* Controllo zoom */}
+            <div className="flex items-center space-x-2">
+              <ZoomOut className="h-4 w-4 text-gray-500" />
+              <Slider
+                className="w-24"
+                defaultValue={[zoomLevel]}
+                min={0.5}
+                max={2}
+                step={0.1}
+                onValueChange={handleZoomSliderChange}
+              />
+              <ZoomIn className="h-4 w-4 text-gray-500" />
+            </div>
+            <CalendarControls 
+              view={view} 
+              selectedDate={validSelectedDate} 
+              calendarRefs={calendarRefs}
+            />
+          </div>
         </div>
 
         <StaffHeader staffMembers={staffMembers} />

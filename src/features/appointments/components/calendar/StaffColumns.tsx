@@ -8,6 +8,7 @@ import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 // Importazione diretta degli stili specifici
 import '../../styles/components/calendar-events.css';
@@ -31,175 +32,15 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
 }) => {
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
-  const [renderCount, setRenderCount] = useState(0);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const { toast } = useToast();
+  const eventElRefs = useRef<Map<string, HTMLElement>>(new Map());
   
   // Helper function to get staff name
   const getStaffName = useCallback((staff: StaffMember) => {
     return `${staff.firstName} ${staff.lastName}`.trim() || 'Operatore';
   }, []);
-  
-  // Log di diagnostica dettagliato
-  const debugDOMElements = useCallback(() => {
-    console.group("🔍 Debug DOM Elements");
-    
-    // Verifica elementi rilevanti
-    const calendarElements = document.querySelectorAll('.fc');
-    const staffColumns = document.querySelectorAll('.calendar-staff-col');
-    const reactEvents = document.querySelectorAll('.react-appointment-event');
-    
-    console.log(`Elementi calendario (.fc): ${calendarElements.length}`);
-    console.log(`Colonne staff (.calendar-staff-col): ${staffColumns.length}`);
-    console.log(`React events (.react-appointment-event): ${reactEvents.length}`);
-    console.log(`Eventi originali: ${events.length}`);
-    
-    console.groupEnd();
-  }, [events]);
-
-  // APPROCCIO REACT: Renderizzazione degli eventi come componenti React
-  const renderAppointmentEvents = useCallback((staffId: string, staffEvents: any[]) => {
-    if (!staffEvents.length) return null;
-    
-    // Calcoli per posizionamento
-    const dayStart = new Date(selectedDate);
-    dayStart.setHours(0, 0, 0, 0);
-    
-    const dayEnd = new Date(selectedDate);
-    dayEnd.setHours(23, 59, 59, 999);
-    
-    const totalMinutesInDay = 24 * 60;
-    
-    return (
-      <div className="appointments-overlay" style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        pointerEvents: 'none',
-        zIndex: 10000
-      }}>
-        {staffEvents.map(event => {
-          // Calcoli per posizionamento
-          const eventStart = new Date(event.start);
-          const eventEnd = event.end ? new Date(event.end) : new Date(eventStart.getTime() + 30 * 60000);
-          
-          // Minuti dall'inizio della giornata
-          const minutesFromDayStart = (eventStart.getTime() - dayStart.getTime()) / 60000;
-          const durationMinutes = (eventEnd.getTime() - eventStart.getTime()) / 60000;
-          
-          // Calcolo percentuale per posizionamento
-          const topPercent = (minutesFromDayStart / totalMinutesInDay) * 100;
-          const heightPercent = (durationMinutes / totalMinutesInDay) * 100;
-          
-          // Determinazione dello stato
-          const status = event.extendedProps?.status || 'default';
-          
-          // Determinazione colori in base allo stato
-          let bgColor, borderColor;
-          switch (status) {
-            case 'confirmed':
-              bgColor = '#10b981'; // verde
-              borderColor = '#047857';
-              break;
-            case 'pending':
-              bgColor = '#f59e0b'; // giallo
-              borderColor = '#b45309';
-              break;
-            case 'cancelled':
-              bgColor = '#ef4444'; // rosso
-              borderColor = '#b91c1c';
-              break;
-            default:
-              bgColor = '#3b82f6'; // blu
-              borderColor = '#1d4ed8';
-          }
-          
-          return (
-            <div
-              key={event.id}
-              className={`react-appointment-event appointment-status-${status}`}
-              data-event-id={event.id}
-              style={{
-                position: 'absolute',
-                top: `${topPercent}%`,
-                left: '4px',
-                right: '4px',
-                height: `${Math.max(4, heightPercent)}%`,
-                minHeight: '30px',
-                backgroundColor: bgColor,
-                borderLeft: `4px solid ${borderColor}`,
-                color: 'white',
-                borderRadius: '4px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                padding: '4px',
-                zIndex: 1000,
-                pointerEvents: 'auto',
-                cursor: 'pointer',
-                overflow: 'hidden'
-              }}
-              onClick={() => {
-                if (commonConfig.eventClick) {
-                  commonConfig.eventClick({ 
-                    event: {
-                      ...event,
-                      start: eventStart,
-                      end: eventEnd,
-                      title: event.title,
-                      extendedProps: event.extendedProps || {}
-                    }
-                  });
-                }
-              }}
-            >
-              <div style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1.2 }}>
-                {format(eventStart, 'HH:mm', { locale: it })}
-              </div>
-              <div style={{ 
-                fontSize: '12px', 
-                fontWeight: 'bold', 
-                lineHeight: 1.2,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}>
-                {event.title}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }, [selectedDate, commonConfig]);
-  
-  // Completamente rimuove gli eventi nativi FullCalendar
-  const hideNativeEvents = useCallback(() => {
-    document.querySelectorAll('.fc-timegrid-event, .fc-timegrid-event-harness, .fc-event').forEach(el => {
-      if (el instanceof HTMLElement) {
-        el.style.cssText = `
-          display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-          height: 0 !important;
-          width: 0 !important;
-        `;
-      }
-    });
-  }, []);
-  
-  // Funzione per eseguire le operazioni necessarie
-  const setupEvents = useCallback(() => {
-    console.log("🔄 Setup eventi - SOLUZIONE REACT");
-    
-    // Nascondi gli eventi nativi
-    hideNativeEvents();
-    
-    // Incrementa il contatore di rendering
-    setRenderCount(prev => prev + 1);
-    
-    // Esegui debug
-    debugDOMElements();
-  }, [hideNativeEvents, debugDOMElements]);
   
   // Applica i blocchi di tempo dopo il rendering iniziale
   useEffect(() => {
@@ -207,56 +48,63 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     return () => clearTimeout(timer);
   }, [applyBlockedTimeStyles]);
   
-  // Esecuzione periodica del setup
-  useEffect(() => {
-    // Esegui subito
-    setupEvents();
+  // Gestisce il drag-and-drop degli eventi
+  const handleEventDragStart = useCallback((info: any) => {
+    setIsDragging(true);
+    info.el.classList.add('event-dragging');
     
-    // Esegui più volte con timing diversi per assicurarsi che funzioni
-    const timers = [
-      setTimeout(setupEvents, 100),
-      setTimeout(setupEvents, 500),
-      setTimeout(setupEvents, 1000),
-      setTimeout(setupEvents, 2000)
-    ];
+    // Crea un tooltip di trascinamento
+    const dragTooltip = document.createElement('div');
+    dragTooltip.className = 'drag-tooltip';
+    dragTooltip.textContent = 'Rilascia per riposizionare';
+    document.body.appendChild(dragTooltip);
     
-    // Observer per rilevare cambiamenti
-    const viewObserver = new MutationObserver((mutations) => {
-      const relevantMutation = mutations.some(mutation => {
-        return mutation.type === 'childList' || 
-               (mutation.type === 'attributes' && 
-               (mutation.target as Element).className?.includes('fc'));
-      });
-      
-      if (relevantMutation) {
-        setupEvents();
-      }
-    });
-    
-    // Trova l'elemento calendario
-    const calendarElement = document.querySelector('.fc');
-    if (calendarElement) {
-      viewObserver.observe(calendarElement, {
-        attributes: true,
-        childList: true,
-        subtree: true
-      });
-    }
-    
-    // Interval per sicurezza
-    const intervalId = setInterval(setupEvents, 5000);
-    
-    return () => {
-      timers.forEach(clearTimeout);
-      clearInterval(intervalId);
-      viewObserver.disconnect();
+    // Aggiorna la posizione del tooltip durante il trascinamento
+    const updateTooltipPosition = (e: MouseEvent) => {
+      dragTooltip.style.left = `${e.clientX + 15}px`;
+      dragTooltip.style.top = `${e.clientY + 15}px`;
     };
-  }, [setupEvents]);
+    
+    document.addEventListener('mousemove', updateTooltipPosition);
+    
+    // Salva i riferimenti per la pulizia
+    info.el.dragTooltip = dragTooltip;
+    info.el.updateTooltipPosition = updateTooltipPosition;
+    
+  }, []);
   
-  // Esegui il setup quando cambiano gli eventi o la data
-  useEffect(() => {
-    setupEvents();
-  }, [events, selectedDate, setupEvents]);
+  // Gestisce il rilascio degli eventi dopo il drag
+  const handleEventDragStop = useCallback((info: any) => {
+    setIsDragging(false);
+    info.el.classList.remove('event-dragging');
+    
+    // Rimuovi il tooltip di trascinamento
+    if (info.el.dragTooltip) {
+      document.body.removeChild(info.el.dragTooltip);
+      document.removeEventListener('mousemove', info.el.updateTooltipPosition);
+      delete info.el.dragTooltip;
+      delete info.el.updateTooltipPosition;
+    }
+  }, []);
+  
+  // Gestisce l'inizio del ridimensionamento
+  const handleEventResizeStart = useCallback((info: any) => {
+    setIsResizing(true);
+    info.el.classList.add('event-resizing');
+    
+    // Mostra un tooltip informativo
+    toast({
+      title: "Ridimensionamento",
+      description: "Trascina per modificare la durata",
+      duration: 2000
+    });
+  }, [toast]);
+  
+  // Gestisce la fine del ridimensionamento
+  const handleEventResizeStop = useCallback((info: any) => {
+    setIsResizing(false);
+    info.el.classList.remove('event-resizing');
+  }, []);
   
   // Memoize blocked staff status
   const blockedStaffStatus = useMemo(() => {
@@ -305,9 +153,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
             data-blocked={isBlocked ? 'true' : 'false'}
             style={{ position: 'relative', height: '100%', overflow: 'visible' }}
           >
-            {/* NUOVO SISTEMA: Aggiungiamo gli appuntamenti come componenti React */}
-            {renderAppointmentEvents(staffIdStr, staffEvents)}
-            
             <FullCalendar
               key={`staff-calendar-${staffIdStr}`}
               plugins={[timeGridPlugin, interactionPlugin]}
@@ -320,8 +165,12 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               slotDuration={'00:30:00'}
               snapDuration={'00:15:00'}
               nowIndicator={false}
-              eventDurationEditable={false}
-              eventStartEditable={false}
+              // Abilita caratteristiche interattive
+              eventDurationEditable={true}
+              eventStartEditable={true}
+              eventResizableFromStart={true}
+              dragRevertDuration={200}
+              dragScroll={true}
               forceEventDuration={true}
               displayEventEnd={true}
               allDaySlot={false}
@@ -337,19 +186,46 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               height="100%"
               dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}
               viewClassNames={isBlocked ? 'blocked-staff-view' : ''}
-              // Nascondi eventi nativi
-              eventDisplay="none"
+              // Eventi di interazione
+              eventDragStart={handleEventDragStart}
+              eventDragStop={handleEventDragStop}
+              eventResizeStart={handleEventResizeStart}
+              eventResizeStop={handleEventResizeStop}
+              eventResize={(info) => {
+                if (commonConfig.eventResize) {
+                  commonConfig.eventResize(info);
+                } else if (commonConfig.eventDrop) {
+                  // Usa eventDrop come fallback se eventResize non è definito
+                  commonConfig.eventDrop(info);
+                }
+              }}
+              eventDrop={(info) => {
+                if (commonConfig.eventDrop) {
+                  commonConfig.eventDrop(info);
+                }
+              }}
               eventDidMount={(info) => {
+                // Salva i riferimenti agli elementi degli eventi
+                eventElRefs.current.set(info.event.id, info.el);
+                
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
                 }
-                // Nascondi immediatamente l'evento
+                
+                // Aggiungi le maniglie di ridimensionamento personalizzate
                 const eventEl = info.el;
-                if (eventEl instanceof HTMLElement) {
-                  eventEl.style.display = 'none';
-                  eventEl.style.visibility = 'hidden';
-                  eventEl.style.opacity = '0';
-                }
+                
+                // Aggiungi classe per stile interattivo
+                eventEl.classList.add('interactive-event');
+                
+                // Aggiungi attributi per accessibilità
+                eventEl.setAttribute('aria-label', `Appuntamento: ${info.event.title}`);
+                eventEl.setAttribute('role', 'button');
+                eventEl.setAttribute('tabindex', '0');
+                
+                // Aggiungi dati sull'evento
+                eventEl.dataset.eventId = info.event.id;
+                eventEl.dataset.eventStatus = info.event.extendedProps?.status || 'default';
               }}
               ref={el => {
                 if (el) {

@@ -4,10 +4,12 @@ import { useAppointments } from '@/contexts/AppointmentContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Appointment } from '@/types';
 import { StaffMember } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
   const [isAppointmentDialogOpen, setIsAppointmentDialogOpen] = useState(false);
   const [calendarView, setCalendarView] = useState<'timeGridWeek' | 'timeGridDay' | 'dayGridMonth'>('timeGridWeek');
+  const { toast } = useToast();
   
   const { 
     filteredAppointments, 
@@ -55,12 +57,38 @@ export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
       // Update staff if event is dragged to a different resource
       const staffId = dropInfo.newResource ? dropInfo.newResource.id : appointment.staffId;
       
+      // Gestisci lo spostamento dell'appuntamento
+      toast({
+        title: "Appuntamento spostato",
+        description: "L'appuntamento è stato riposizionato. Conferma per salvare.",
+      });
+      
       const updatedAppointment = {
         ...appointment,
         start: dropInfo.event.startStr,
         end: dropInfo.event.endStr,
         staffId
       };
+      setCurrentAppointment(updatedAppointment);
+      setIsAppointmentDialogOpen(true);
+    }
+  };
+  
+  // Aggiungiamo la funzione per gestire il resize degli appuntamenti
+  const handleEventResize = (resizeInfo: any) => {
+    const appointment = filteredAppointments.find(app => app.id === resizeInfo.event.id);
+    if (appointment) {
+      toast({
+        title: "Durata modificata",
+        description: "La durata dell'appuntamento è stata modificata. Conferma per salvare.",
+      });
+      
+      const updatedAppointment = {
+        ...appointment,
+        start: resizeInfo.event.startStr,
+        end: resizeInfo.event.endStr
+      };
+      
       setCurrentAppointment(updatedAppointment);
       setIsAppointmentDialogOpen(true);
     }
@@ -100,6 +128,7 @@ export const useAppointmentHandlers = (visibleStaff: StaffMember[]) => {
     handleDateSelect,
     handleEventClick,
     handleEventDrop,
+    handleEventResize,
     handleAddAppointment
   };
 };

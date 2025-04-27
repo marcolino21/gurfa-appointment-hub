@@ -1,3 +1,4 @@
+
 /* Stili per gli eventi manuali */
 .manual-event-wrapper {
   position: absolute;
@@ -18,8 +19,8 @@
   overflow: visible !important;
 }
 
-/* Stile base per gli eventi manuali */
-.manual-appointment-event {
+/* Stile base per gli eventi FullCalendar */
+.fc-event {
   position: absolute !important;
   display: block !important;
   visibility: visible !important;
@@ -37,86 +38,102 @@
   pointer-events: all !important;
   cursor: pointer !important;
   min-height: 30px !important;
+  transition: box-shadow 0.2s, transform 0.1s !important;
+}
+
+/* Stile per eventi interattivi */
+.interactive-event {
+  cursor: move !important;
+  user-select: none !important;
+}
+
+/* Stile per eventi durante il trascinamento */
+.event-dragging {
+  opacity: 0.7 !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
+  z-index: 10000 !important;
+}
+
+/* Stile per eventi durante il ridimensionamento */
+.event-resizing {
+  opacity: 0.8 !important;
+  border: 2px dashed #1d4ed8 !important;
+  background-color: rgba(59, 130, 246, 0.7) !important;
+}
+
+/* Tooltip durante il trascinamento */
+.drag-tooltip {
+  position: fixed;
+  background-color: rgba(0,0,0,0.75);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 10001;
+  transform: translate(10px, 10px);
+}
+
+/* Maniglie per il ridimensionamento */
+.fc-event .fc-event-resizer {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background-color: white !important;
+  border: 1px solid #3b82f6 !important;
+  z-index: 10 !important;
+}
+
+.fc-event .fc-event-resizer-start {
+  top: calc(50% - 4px) !important;
+  left: -4px !important;
+}
+
+.fc-event .fc-event-resizer-end {
+  top: calc(50% - 4px) !important;
+  right: -4px !important;
 }
 
 /* Stili per i diversi stati degli appuntamenti */
-.manual-appointment-event.appointment-status-confirmed {
+.fc-event.appointment-status-confirmed {
   background-color: #10b981 !important; /* verde */
   border-left: 4px solid #047857 !important;
 }
 
-.manual-appointment-event.appointment-status-pending {
+.fc-event.appointment-status-pending {
   background-color: #f59e0b !important; /* giallo */
   border-left: 4px solid #b45309 !important;
 }
 
-.manual-appointment-event.appointment-status-cancelled {
+.fc-event.appointment-status-cancelled {
   background-color: #ef4444 !important; /* rosso */
   border-left: 4px solid #b91c1c !important;
   text-decoration: line-through !important;
 }
 
-.manual-appointment-event.appointment-status-completed {
+.fc-event.appointment-status-completed {
   background-color: #3b82f6 !important; /* blu */
   border-left: 4px solid #1d4ed8 !important;
-}
-
-/* Stili per gli appuntamenti React */
-.react-appointment-event {
-  position: absolute !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  min-height: 30px !important;
-  z-index: 9999 !important;
-  
-  /* Stile estetico */
-  background-color: #3b82f6 !important;
-  color: white !important;
-  padding: 4px !important;
-  border-radius: 4px !important;
-  font-size: 12px !important;
-  border: 1px solid rgba(0,0,0,0.1) !important;
-  border-left: 4px solid #1d4ed8 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-  overflow: hidden !important;
-}
-
-/* Stili per i diversi stati degli appuntamenti */
-.react-appointment-event.appointment-status-confirmed {
-  background-color: #10b981 !important; /* verde */
-  border-left-color: #047857 !important;
-}
-
-.react-appointment-event.appointment-status-pending {
-  background-color: #f59e0b !important; /* giallo */
-  border-left-color: #b45309 !important;
-}
-
-.react-appointment-event.appointment-status-cancelled {
-  background-color: #ef4444 !important; /* rosso */
-  border-left-color: #b91c1c !important;
-  text-decoration: line-through !important;
-}
-
-.react-appointment-event.appointment-status-completed {
-  background-color: #3b82f6 !important; /* blu */
-  border-left-color: #1d4ed8 !important;
 }
 
 /* Styling per il contenuto interno degli eventi */
-.react-appointment-event > div {
+.fc-event-title {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   color: white !important;
   font-family: inherit !important;
+  font-weight: 600 !important;
+}
+
+.fc-event-time {
+  font-size: 11px !important;
+  opacity: 0.9 !important;
 }
 
 /* Aggiunge una striscia superiore per distinguere il bordo dell'evento */
-.react-appointment-event::before {
+.fc-event::before {
   content: "";
   position: absolute;
   top: 0;
@@ -143,9 +160,9 @@
 /* Rendiamo nuovamente visibili gli elementi della griglia temporale */
 .fc-timegrid-event,
 .fc-timegrid-event-harness {
-  display: none !important; /* Nascondiamo solo gli eventi, non la griglia */
-  visibility: hidden !important;
-  opacity: 0 !important;
+  display: block !important; /* Mostra gli eventi */
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* NON nascondiamo completamente gli elementi della griglia */
