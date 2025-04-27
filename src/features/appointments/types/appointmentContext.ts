@@ -18,6 +18,7 @@ export interface AppointmentState {
     search: string | null;
   };
   currentAppointment: Appointment | null;
+  calendarUpdateTimestamp: number; // Aggiunto per forzare aggiornamenti del calendario
 }
 
 export type AppointmentAction =
@@ -30,7 +31,8 @@ export type AppointmentAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_FILTERS'; payload: Partial<AppointmentState['filters']> }
-  | { type: 'SET_CURRENT_APPOINTMENT'; payload: Appointment | null };
+  | { type: 'SET_CURRENT_APPOINTMENT'; payload: Appointment | null }
+  | { type: 'FORCE_CALENDAR_UPDATE'; payload: number }; // Nuova azione
 
 export interface AppointmentContextType extends AppointmentState {
   fetchAppointments: (salonId: string) => Promise<void>;

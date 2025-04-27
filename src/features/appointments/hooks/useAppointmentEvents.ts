@@ -5,11 +5,12 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 export const useAppointmentEvents = () => {
-  const { filteredAppointments } = useAppointments();
+  const { filteredAppointments, calendarUpdateTimestamp } = useAppointments();
 
   // Mappa gli appuntamenti in eventi per FullCalendar
+  // Aggiunto calendarUpdateTimestamp come dipendenza per forzare il ricalcolo
   const events = useMemo(() => {
-    console.log("Mapping appointments to calendar events:", filteredAppointments.length);
+    console.log("Mapping appointments to calendar events:", filteredAppointments.length, "at timestamp", calendarUpdateTimestamp);
     
     return filteredAppointments.map(appointment => {
       try {
@@ -67,7 +68,7 @@ export const useAppointmentEvents = () => {
         return null;
       }
     }).filter(Boolean); // Rimuove eventuali eventi null
-  }, [filteredAppointments]);
+  }, [filteredAppointments, calendarUpdateTimestamp]);
 
   return { events };
 };

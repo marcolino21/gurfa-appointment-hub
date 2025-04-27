@@ -1,8 +1,8 @@
-
 import { Appointment } from '@/types';
 import { AppointmentState, AppointmentAction } from '../types/appointmentContext';
 import { filterAppointments } from '../utils/appointmentUtils';
 
+// Aggiunto calendarUpdateTimestamp a initialState
 export const initialState: AppointmentState = {
   appointments: [],
   filteredAppointments: [],
@@ -14,7 +14,8 @@ export const initialState: AppointmentState = {
     staffId: null,
     search: null
   },
-  currentAppointment: null
+  currentAppointment: null,
+  calendarUpdateTimestamp: Date.now() // Nuovo campo per forzare aggiornamenti
 };
 
 export const appointmentReducer = (state: AppointmentState, action: AppointmentAction): AppointmentState => {
@@ -23,45 +24,36 @@ export const appointmentReducer = (state: AppointmentState, action: AppointmentA
       return {
         ...state,
         appointments: action.payload,
-        filteredAppointments: action.payload
+        calendarUpdateTimestamp: Date.now()
       };
-      
     case 'SET_FILTERED_APPOINTMENTS':
       return {
         ...state,
-        filteredAppointments: action.payload
+        filteredAppointments: action.payload,
+        calendarUpdateTimestamp: Date.now()
       };
-      
+    
     case 'ADD_APPOINTMENT': {
       const updatedAppointments = [...state.appointments, action.payload];
-      
-      // Aggiungi sempre il nuovo appuntamento anche alla lista filtrata
-      // Questo assicura che venga visualizzato immediatamente
-      const updatedFiltered = [...state.filteredAppointments, action.payload];
-      
-      console.log(`Added appointment ${action.payload.id} with staffId ${action.payload.staffId}`);
-      console.log("Updated appointments count:", updatedAppointments.length);
-      console.log("Updated filtered appointments count:", updatedFiltered.length);
-      
       return {
         ...state,
         appointments: updatedAppointments,
-        filteredAppointments: updatedFiltered
+        calendarUpdateTimestamp: Date.now() // Forza aggiornamento del calendario
       };
     }
     
     case 'ADD_TO_FILTERED_APPOINTMENTS': {
       // Verifica che l'appuntamento non sia già nella lista filtrata
       if (!state.filteredAppointments.some(app => app.id === action.payload.id)) {
-        console.log("Adding to filtered appointments:", action.payload);
         return {
           ...state,
-          filteredAppointments: [...state.filteredAppointments, action.payload]
+          filteredAppointments: [...state.filteredAppointments, action.payload],
+          calendarUpdateTimestamp: Date.now() // Forza aggiornamento del calendario
         };
       }
       return state;
     }
-      
+    
     case 'UPDATE_APPOINTMENT': {
       const updatedAppointments = state.appointments.map(appointment => 
         appointment.id === action.payload.id ? action.payload : appointment
@@ -72,46 +64,43 @@ export const appointmentReducer = (state: AppointmentState, action: AppointmentA
         appointment.id === action.payload.id ? action.payload : appointment
       );
       
-      console.log(`Updated appointment ${action.payload.id} with staffId ${action.payload.staffId}`);
-      
       return {
         ...state,
         appointments: updatedAppointments,
-        filteredAppointments: updatedFiltered
+        filteredAppointments: updatedFiltered,
+        calendarUpdateTimestamp: Date.now() // Forza aggiornamento del calendario
       };
     }
     
-    case 'DELETE_APPOINTMENT':
+    case 'DELETE_APPOINTMENT': {
       return {
         ...state,
         appointments: state.appointments.filter(appointment => appointment.id !== action.payload),
-        filteredAppointments: state.filteredAppointments.filter(appointment => appointment.id !== action.payload)
-      };
-      
-    case 'SET_LOADING':
-      return {
-        ...state,
-        loading: action.payload
-      };
-      
-    case 'SET_ERROR':
-      return {
-        ...state,
-        error: action.payload
-      };
-      
-    case 'SET_FILTERS': {
-      const updatedFilters = { ...state.filters, ...action.payload };
-      return {
-        ...state,
-        filters: updatedFilters
+        filteredAppointments: state.filteredAppointments.filter(appointment => appointment.id !== action.payload),
+        calendarUpdateTimestamp: Date.now() // Forza aggiornamento del calendario
       };
     }
     
-    case 'SET_CURRENT_APPOINTMENT':
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload };
+    case 'SET_FILTERS': {
       return {
         ...state,
-        currentAppointment: action.payload
+        filters: { ...state.filters, ...action.payload },
+        calendarUpdateTimestamp: Date.now()
+      };
+    }
+    case 'SET_CURRENT_APPOINTMENT':
+      return { ...state, currentAppointment: action.payload };
+    
+    // Aggiungi questo nuovo case per forzare l'aggiornamento del calendario
+    case 'FORCE_CALENDAR_UPDATE':
+      console.log("Forcing calendar update...");
+      return {
+        ...state,
+        calendarUpdateTimestamp: action.payload || Date.now()
       };
       
     default:
