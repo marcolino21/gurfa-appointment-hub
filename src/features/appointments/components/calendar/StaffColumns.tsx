@@ -9,6 +9,9 @@ import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
+// Importazione diretta degli stili specifici
+import '../../styles/components/calendar-events.css';
+
 interface StaffColumnsProps {
   staffMembers: StaffMember[];
   events: any[];
@@ -29,21 +32,67 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
   const [renderCount, setRenderCount] = useState(0);
+  const eventsContainerRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   
   // Helper function to get staff name
-  const getStaffName = (staff: StaffMember) => {
+  const getStaffName = useCallback((staff: StaffMember) => {
     return `${staff.firstName} ${staff.lastName}`.trim() || 'Operatore';
-  };
+  }, []);
+  
+  // Funzione di debug per ispezionare gli elementi del DOM
+  const debugDOMElements = useCallback(() => {
+    console.group("🔍 Debug DOM Elements");
+    
+    // Verifica se gli elementi del calendario esistono
+    const calendarElements = document.querySelectorAll('.fc');
+    console.log(`Elementi calendario (.fc): ${calendarElements.length}`);
+    
+    // Verifica se le colonne dello staff esistono
+    const staffColumns = document.querySelectorAll('.calendar-staff-col');
+    console.log(`Colonne staff (.calendar-staff-col): ${staffColumns.length}`);
+    
+    // Verifica la struttura del timegrid
+    const timegridBodies = document.querySelectorAll('.fc-timegrid-body');
+    console.log(`Timegrid bodies (.fc-timegrid-body): ${timegridBodies.length}`);
+    
+    // Verifica gli slot temporali
+    const timeSlots = document.querySelectorAll('.fc-timegrid-slot');
+    console.log(`Time slots (.fc-timegrid-slot): ${timeSlots.length}`);
+    
+    // Verifica overlay degli eventi manuali
+    const manualOverlays = document.querySelectorAll('.manual-event-overlay');
+    console.log(`Manual event overlays (.manual-event-overlay): ${manualOverlays.length}`);
+    
+    // Verifica eventi manuali
+    const manualEvents = document.querySelectorAll('.manual-appointment-event');
+    console.log(`Manual events (.manual-appointment-event): ${manualEvents.length}`);
+    
+    // Analizza stili e visibilità del primo evento manuale
+    if (manualEvents.length > 0) {
+      const firstEvent = manualEvents[0] as HTMLElement;
+      const style = window.getComputedStyle(firstEvent);
+      console.log("Primo evento manuale:", {
+        display: style.display,
+        visibility: style.visibility,
+        opacity: style.opacity,
+        zIndex: style.zIndex,
+        position: style.position,
+        top: style.top,
+        left: style.left,
+        width: style.width,
+        height: style.height,
+        backgroundColor: style.backgroundColor
+      });
+    }
+    
+    console.groupEnd();
+  }, []);
   
   /**
-   * VERSIONE COMPLETAMENTE RISCRITTO DELLA FUNZIONE CHE CREA EVENTI MANUALI
-   * Questa implementazione è più robusta ed evita i problemi di visibilità
+   * VERSIONE OTTIMIZZATA DELLA FUNZIONE CHE CREA EVENTI MANUALI
    */
   const createManualEvents = useCallback(() => {
-    console.log("🔄 Creazione eventi manuali (versione migliorata)");
-    
-    // Rimuove eventuali eventi manuali precedenti per evitare duplicati
-    document.querySelectorAll('.manual-event-overlay').forEach(el => el.remove());
+    console.log("🔄 Creazione eventi manuali (versione ultra-ottimizzata)");
     
     // Per ogni membro dello staff
     staffMembers.forEach(staff => {
@@ -56,46 +105,51 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         return;
       }
       
+      // Ottieni o crea il container per gli eventi di questo staff
+      let eventsContainer = eventsContainerRefs.current.get(staffIdStr);
+      
+      // Se il container non esiste o non è nel DOM, crealo
+      if (!eventsContainer || !document.body.contains(eventsContainer)) {
+        // Prima rimuovi eventuali container esistenti per questo staff
+        document.querySelectorAll(`.manual-events-${staffIdStr}`).forEach(el => el.remove());
+        
+        // Crea un nuovo container
+        eventsContainer = document.createElement('div');
+        eventsContainer.className = `manual-event-overlay manual-events-${staffIdStr}`;
+        eventsContainer.setAttribute('data-staff-id', staffIdStr);
+        
+        // Memorizza il riferimento
+        eventsContainerRefs.current.set(staffIdStr, eventsContainer);
+        
+        // Aggiungi il container direttamente alla colonna dello staff
+        staffColumn.appendChild(eventsContainer);
+        
+        console.log(`🆕 Creato nuovo container per eventi dello staff ${staffIdStr}`);
+      } else {
+        // Pulisci il container esistente
+        eventsContainer.innerHTML = '';
+        console.log(`🔄 Riutilizzo container esistente per lo staff ${staffIdStr}`);
+      }
+      
       // Filtra gli eventi per questo staff
       const staffEvents = events.filter(event => {
         const eventStaffId = event.resourceId ? String(event.resourceId) : undefined;
         return eventStaffId === staffIdStr;
       });
       
-      // Trova il container degli slot temporali - cerchiamo in più posizioni
-      let timeGridContainer = staffColumn.querySelector('.fc-timegrid-body');
-      if (!timeGridContainer) {
-        timeGridContainer = staffColumn.querySelector('.fc-timegrid');
-      }
-      if (!timeGridContainer) {
-        timeGridContainer = staffColumn.querySelector('.fc-view');
-      }
-      if (!timeGridContainer) {
-        timeGridContainer = staffColumn;
-      }
-      
       console.log(`📅 Creando ${staffEvents.length} eventi manuali per ${getStaffName(staff)}`);
       
-      // Crea un container per gli eventi manuali
-      const eventsContainer = document.createElement('div');
-      eventsContainer.className = 'manual-event-overlay';
-      eventsContainer.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1000;
-        pointer-events: none;
-        overflow: visible;
-      `;
-      
-      // Aggiungilo alla colonna
-      timeGridContainer.appendChild(eventsContainer);
-      
-      // Ottieni la geometria del container per calcolare le posizioni
-      const containerRect = timeGridContainer.getBoundingClientRect();
+      // Ottieni dimensioni del container per il calcolo delle posizioni
+      const containerRect = staffColumn.getBoundingClientRect();
       const containerHeight = containerRect.height;
+      const headerHeight = 44; // Altezza dell'header se presente
+      const availableHeight = containerHeight - headerHeight;
+      
+      // Assumiamo che la vista copra 24 ore, adatta per il tuo caso
+      const startHour = 0;
+      const endHour = 24;
+      const hoursDisplayed = endHour - startHour;
+      const pixelsPerHour = availableHeight / hoursDisplayed;
       
       // Crea un elemento manuale per ogni evento
       staffEvents.forEach(event => {
@@ -104,76 +158,30 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
           const eventStart = new Date(event.start);
           const eventEnd = event.end ? new Date(event.end) : new Date(eventStart.getTime() + 30 * 60000);
           
-          // Durata in minuti
-          const durationMinutes = (eventEnd.getTime() - eventStart.getTime()) / 60000;
+          // Calcola ore dall'inizio del giorno
+          const startHour = eventStart.getHours() + (eventStart.getMinutes() / 60);
+          const endHour = eventEnd.getHours() + (eventEnd.getMinutes() / 60);
+          const durationHours = endHour - startHour;
           
-          // Calcolo della posizione oraria
-          // Assumiamo che il calendario mostri 24 ore (dalle 00:00 alle 24:00)
-          const totalMinutesInDay = 24 * 60;
+          // Calcola posizione e dimensione
+          const topPosition = headerHeight + (startHour * pixelsPerHour);
+          const eventHeight = Math.max(30, durationHours * pixelsPerHour);
           
-          // Minuti dall'inizio della giornata
-          const startOfDay = new Date(eventStart);
-          startOfDay.setHours(0, 0, 0, 0);
-          const minutesFromStartOfDay = (eventStart.getTime() - startOfDay.getTime()) / 60000;
-          
-          // Percentuale della giornata per inizio e durata
-          const topPercent = (minutesFromStartOfDay / totalMinutesInDay) * 100;
-          const heightPercent = (durationMinutes / totalMinutesInDay) * 100;
-          
-          // Top position in pixel (percentuale dell'altezza del container)
-          const topPosition = (containerHeight * topPercent) / 100;
-          const eventHeight = Math.max(30, (containerHeight * heightPercent) / 100);
-          
-          // Determina colori in base allo stato
-          let bgColor, borderColor;
+          // Determina stato dell'appuntamento
           const status = event.extendedProps?.status || 'default';
-          
-          switch (status) {
-            case 'confirmed':
-              bgColor = '#10b981'; // verde
-              borderColor = '#047857';
-              break;
-            case 'pending':
-              bgColor = '#f59e0b'; // giallo
-              borderColor = '#b45309';
-              break;
-            case 'cancelled':
-              bgColor = '#ef4444'; // rosso
-              borderColor = '#b91c1c';
-              break;
-            default:
-              bgColor = '#3b82f6'; // blu
-              borderColor = '#1d4ed8';
-          }
           
           // Crea l'elemento manuale
           const manualEvent = document.createElement('div');
           manualEvent.className = `manual-appointment-event appointment-status-${status}`;
           manualEvent.setAttribute('data-event-id', event.id);
           
-          // Imposta lo stile in modo esplicito e dettagliato
-          manualEvent.style.cssText = `
-            position: absolute;
-            top: ${topPosition}px;
-            left: 4px;
-            right: 4px;
-            height: ${eventHeight}px;
-            background-color: ${bgColor};
-            color: white;
-            padding: 4px;
-            border-radius: 4px;
-            z-index: 1000;
-            font-size: 12px;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-left: 4px solid ${borderColor};
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            overflow: hidden;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            pointer-events: all;
-            cursor: pointer;
-          `;
+          // Imposta lo stile e la posizione
+          manualEvent.style.position = 'absolute';
+          manualEvent.style.top = `${topPosition}px`;
+          manualEvent.style.left = '4px';
+          manualEvent.style.right = '4px';
+          manualEvent.style.height = `${eventHeight}px`;
+          manualEvent.style.zIndex = '1000';
           
           // Crea la struttura interna dell'evento
           manualEvent.innerHTML = `
@@ -210,66 +218,63 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         }
       });
     });
-  }, [events, staffMembers, commonConfig, getStaffName]);
+    
+    // Esegui debug dopo la creazione
+    setTimeout(debugDOMElements, 500);
+    
+  }, [events, staffMembers, commonConfig, getStaffName, debugDOMElements]);
   
   // Completamente rimuove gli eventi nativi FullCalendar
   const hideNativeEvents = useCallback(() => {
-    const hideEvents = () => {
-      document.querySelectorAll('.fc-timegrid-event, .fc-timegrid-event-harness').forEach(el => {
-        if (el instanceof HTMLElement) {
-          el.style.cssText = `
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          `;
-        }
-      });
-    };
-    
-    hideEvents(); // Esegui subito
-    
-    // E poi con un piccolo ritardo per catturare elementi che potrebbero essere aggiunti dopo
-    setTimeout(hideEvents, 50);
-    setTimeout(hideEvents, 200);
+    document.querySelectorAll('.fc-timegrid-event, .fc-timegrid-event-harness').forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+      }
+    });
   }, []);
   
   // Funzione che esegue tutte le operazioni necessarie per gli eventi manuali
-  const setupManualEvents = useCallback(() => {
+  const setupEvents = useCallback(() => {
+    console.log("🔄 Setup eventi manuali");
+    
     // Prima nascondi gli eventi nativi
     hideNativeEvents();
+    
     // Poi crea gli eventi manuali
     createManualEvents();
+    
     // Incrementa il contatore di rendering
     setRenderCount(prev => prev + 1);
   }, [hideNativeEvents, createManualEvents]);
   
-  // Apply block time styles once after initial render
+  // Applica i blocchi di tempo dopo il rendering iniziale
   useEffect(() => {
     const timer = setTimeout(applyBlockedTimeStyles, 300);
     return () => clearTimeout(timer);
   }, [applyBlockedTimeStyles]);
   
-  // Setup completo degli eventi manuali
+  // Setup completo degli eventi manuali con approccio robusto
   useEffect(() => {
     console.log("🔄 Inizializzazione eventi manuali");
     
-    // Esegui subito
-    setupManualEvents();
+    // Esegui immediatamente
+    setupEvents();
     
-    // Programma più esecuzioni con tempi crescenti per assicurare che funzioni
+    // Programma esecuzioni con tempi crescenti
     const timers = [
-      setTimeout(setupManualEvents, 100),
-      setTimeout(setupManualEvents, 300),
-      setTimeout(setupManualEvents, 1000),
-      setTimeout(setupManualEvents, 2000),
-      setTimeout(setupManualEvents, 5000) // Molto ritardato per assicurarsi che tutto sia pronto
+      setTimeout(setupEvents, 100),
+      setTimeout(setupEvents, 500),
+      setTimeout(setupEvents, 1000),
+      setTimeout(setupEvents, 2000)
     ];
     
-    // Configurazione di un observer per rilevare cambiamenti nella vista
+    // Observer per rilevare cambiamenti nella vista
     const viewObserver = new MutationObserver(() => {
       console.log("🔍 Rilevato cambiamento nella vista, ricreo eventi manuali");
-      setupManualEvents();
+      setupEvents();
     });
     
     // Trova l'elemento principale del calendario
@@ -282,33 +287,30 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       });
     }
     
-    // Imposta anche un interval per sicurezza (periodicità più lunga)
-    const intervalId = setInterval(setupManualEvents, 10000);
+    // Interval per sicurezza
+    const intervalId = setInterval(setupEvents, 5000);
     
     return () => {
       timers.forEach(clearTimeout);
       clearInterval(intervalId);
       viewObserver.disconnect();
     };
-  }, [setupManualEvents, events, selectedDate]);
+  }, [setupEvents]);
   
-  // Log di diagnostica per debug
+  // Esegui il setup quando cambiano gli eventi o la data
+  useEffect(() => {
+    setupEvents();
+  }, [events, selectedDate, setupEvents]);
+  
+  // Log di diagnostica
   useEffect(() => {
     console.log(`📊 Render #${renderCount}: ${events.length} eventi totali per ${staffMembers.length} staff`);
     
-    // Diagnostica rapida degli eventi creati
-    const manualEventsCount = document.querySelectorAll('.manual-appointment-event').length;
-    console.log(`🔍 Eventi manuali trovati nel DOM: ${manualEventsCount}`);
+    // Debug del DOM dopo ogni rendering
+    const debugTimer = setTimeout(debugDOMElements, 500);
     
-    // Test di visibilità
-    setTimeout(() => {
-      const firstManualEvent = document.querySelector('.manual-appointment-event');
-      if (firstManualEvent instanceof HTMLElement) {
-        const style = window.getComputedStyle(firstManualEvent);
-        console.log(`🔍 Primo evento manuale - display: ${style.display}, visibility: ${style.visibility}, opacity: ${style.opacity}`);
-      }
-    }, 500);
-  }, [renderCount, events, staffMembers]);
+    return () => clearTimeout(debugTimer);
+  }, [renderCount, events, staffMembers, debugDOMElements]);
   
   // Memoize blocked staff status to prevent unnecessary recalculations
   const blockedStaffStatus = useMemo(() => {
@@ -401,6 +403,9 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 if (el) {
                   calendarRefs.current[index] = el;
                   if (index === 0) setCalendarApi(el.getApi());
+                  
+                  // Forza la creazione degli eventi manuali dopo che il calendario è pronto
+                  setTimeout(setupEvents, 100);
                 }
               }}
             />
