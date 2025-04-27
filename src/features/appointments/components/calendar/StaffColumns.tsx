@@ -40,6 +40,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     
     // Rimuove eventuali eventi manuali precedenti
     document.querySelectorAll('.manual-appointment-event').forEach(el => el.remove());
+    document.querySelectorAll('.manual-event-wrapper').forEach(el => el.remove());
     
     // Per ogni membro dello staff
     staffMembers.forEach(staff => {

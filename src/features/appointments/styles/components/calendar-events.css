@@ -69,3 +69,31 @@
 .fc-timegrid-event-harness {
   margin: 0 2px;
 }
+
+/* Manual event styling */
+.manual-event-wrapper {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+  overflow: visible;
+}
+
+.manual-appointment-event {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 24px;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 1000 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  color: white;
+  padding: 4px;
+  overflow: hidden;
+  pointer-events: all;
+  cursor: pointer;
+}

@@ -62,6 +62,11 @@ export const useAppointmentProvider = (): AppointmentContextType => {
     dispatch({ type: 'SET_CURRENT_APPOINTMENT', payload: appointment });
   }, []);
 
+  const forceCalendarUpdate = useCallback(() => {
+    console.log("Forcing calendar update");
+    dispatch({ type: 'FORCE_CALENDAR_UPDATE', payload: Date.now() });
+  }, []);
+
   return {
     ...state,
     fetchAppointments,
@@ -70,6 +75,7 @@ export const useAppointmentProvider = (): AppointmentContextType => {
     deleteAppointment,
     setFilters,
     isSlotAvailable,
-    setCurrentAppointment
+    setCurrentAppointment,
+    forceCalendarUpdate
   };
 };

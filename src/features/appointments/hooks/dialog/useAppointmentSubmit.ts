@@ -79,18 +79,29 @@ export const useAppointmentSubmit = (
       
       console.log("Final appointment data to save:", appointmentData);
       
+      let result;
       if (formData.id) {
-        await updateAppointment(appointmentData as Appointment);
+        result = await updateAppointment(appointmentData as Appointment);
         toast({
           title: "Appuntamento aggiornato",
           description: "L'appuntamento è stato aggiornato con successo"
         });
       } else {
-        await addAppointment(appointmentData as Omit<Appointment, 'id'>);
+        result = await addAppointment(appointmentData as Omit<Appointment, 'id'>);
         toast({
           title: "Appuntamento creato",
           description: "L'appuntamento è stato creato con successo"
         });
+      }
+      
+      // Force calendar update timestamp
+      if (result) {
+        // Force calendar update by dispatching the action
+        setTimeout(() => {
+          // Dispatch to force a rerender of calendar events
+          // This is important to make sure new events appear immediately
+          useAppointments().forceCalendarUpdate();
+        }, 100);
       }
       
       onClose();
