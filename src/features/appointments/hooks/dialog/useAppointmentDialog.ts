@@ -28,7 +28,8 @@ export const useAppointmentDialog = (onClose: () => void) => {
     endTime,
     setEndTime,
     duration,
-    setDuration
+    setDuration,
+    resetForm
   } = useAppointmentForm(currentAppointment);
 
   useAppointmentTime(date, startTime, duration, setEndTime, setFormData);
@@ -68,6 +69,7 @@ export const useAppointmentDialog = (onClose: () => void) => {
     handleStatusChange,
     handleDurationChange,
     handleSubmit: () => handleSubmit(formData),
-    handleDelete: () => handleDelete(formData.id)
+    handleDelete: () => handleDelete(formData.id),
+    resetForm
   };
 };

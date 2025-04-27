@@ -41,7 +41,7 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
   
   const isExistingAppointment = Boolean(formData.id);
 
-  // Resetta il form quando si riapre il dialog con un nuovo appuntamento
+  // Reset the form when dialog opens with a new appointment
   useEffect(() => {
     if (open && currentAppointment) {
       console.log("Dialog opened with appointment:", currentAppointment);
