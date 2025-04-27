@@ -9,10 +9,11 @@ export const useCalendarConfig = (
   onEventClick: (info: any) => void,
   onEventDrop: (info: any) => void
 ) => {
-  const commonConfig = {
+  return {
     locale: 'it',
     locales: [itLocale],
-    slotDuration: '00:15:00', // Ridotto per avere più controllo sulla precisione
+    initialView: 'timeGridWeek',
+    slotDuration: '00:15:00',
     slotMinTime,
     slotMaxTime,
     snapDuration: '00:15:00',
@@ -30,64 +31,39 @@ export const useCalendarConfig = (
     eventClick: onEventClick,
     editable: true,
     droppable: true,
-    eventDragStart: (info: any) => {
-      // Aggiunge una classe durante il trascinamento
-      info.el.classList.add('event-dragging');
-    },
-    eventDragStop: (info: any) => {
-      // Rimuove la classe dopo il trascinamento
-      info.el.classList.remove('event-dragging');
-    },
-    eventDrop: onEventDrop,
-    // Eventi per resize
-    eventResizeStart: (info: any) => {
-      info.el.classList.add('event-resizing');
-    },
-    eventResizeStop: (info: any) => {
-      info.el.classList.remove('event-resizing');
-    },
-    eventResize: onEventDrop, // Riutilizziamo la stessa funzione per semplicità
-    eventResizableFromStart: true, // Consente il ridimensionamento dall'inizio
-    headerToolbar: false,
     height: '100%',
-    nowIndicator: true,
+    handleWindowResize: true,
     stickyHeaderDates: true,
+    expandRows: true,
+    dayMinWidth: 100,
+    themeSystem: 'standard',
+    headerToolbar: false,
+    eventDisplay: 'block',
+    eventOverlap: false,
+    eventResizableFromStart: true,
+    eventDragMinDistance: 5,
+    nowIndicator: true,
     scrollTimeReset: false,
     hiddenDays,
     timeZone: 'local',
+    views: {
+      timeGridDay: {
+        dayHeaderFormat: { weekday: 'long', month: 'short', day: 'numeric' }
+      },
+      timeGridWeek: {
+        type: 'timeGrid',
+        duration: { days: 7 },
+        dayHeaderFormat: { weekday: 'long', month: 'short', day: 'numeric' }
+      }
+    },
     eventTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
     },
-    dayCellBorderColor: '#e5e7eb',
-    slotLaneClassNames: 'border-r border-gray-200 bg-white',
-    slotLabelClassNames: 'text-sm font-medium text-gray-500 pr-2',
-    slotLabelContent: (arg) => {
-      // Display hours and minutes for each slot with improved formatting
-      const hour = arg.date.getHours().toString().padStart(2, '0');
-      const minute = arg.date.getMinutes().toString().padStart(2, '0');
-      return `${hour}:${minute}`;
-    },
-    views: {
-      timeGridDay: {
-        dayHeaderFormat: { 
-          weekday: 'long', 
-          month: 'short', 
-          day: 'numeric'
-        }
-      },
-      timeGridWeek: {
-        type: 'timeGrid',
-        duration: { days: 7 }, // Visualizza una settimana intera
-        dayHeaderFormat: { 
-          weekday: 'long', 
-          month: 'short', 
-          day: 'numeric'
-        }
-      }
-    }
+    eventClassNames: 'calendar-event',
+    slotLaneClassNames: 'calendar-slot-lane',
+    dayCellClassNames: 'calendar-day-cell',
+    slotLabelClassNames: 'calendar-slot-label'
   };
-
-  return commonConfig;
 };

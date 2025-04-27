@@ -1,309 +1,58 @@
 
-/* Event styles */
-.fc-event {
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 1px;
-  border: none;
-  cursor: pointer !important;
+/* Event base styles */
+.calendar-event {
   position: absolute !important;
   display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
   background-color: #3b82f6 !important;
   color: white !important;
   border-radius: 4px !important;
-  z-index: 1000 !important;
-  font-size: 12px !important;
-  border: 1px solid rgba(0,0,0,0.1) !important;
-  border-left: 4px solid #1d4ed8 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-  overflow: hidden !important;
-  pointer-events: all !important;
-  min-height: 25px !important;
-  transition: box-shadow 0.2s, transform 0.1s !important;
-}
-
-/* Month view event styles */
-.fc-dayGridMonth-view .fc-daygrid-event {
-  position: relative !important;
-}
-
-.fc-dayGridMonth-view .fc-daygrid-event .fc-event-title:before {
-  content: attr(data-staff-name) " - ";
-  font-weight: 500;
-}
-
-.fc-dayGridMonth-view .fc-event-title {
-  font-size: 0.75rem !important;
-}
-
-/* Stili per gli eventi manuali */
-.manual-event-wrapper {
-  position: absolute;
-  pointer-events: none;
-  z-index: 100;
-  overflow: visible;
-}
-
-/* Container per gli eventi manuali */
-.manual-event-overlay {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  z-index: 1000 !important;
-  pointer-events: none !important;
-  overflow: visible !important;
-}
-
-/* Stile base per gli eventi FullCalendar */
-.fc-event {
-  position: absolute !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  background-color: #3b82f6 !important;
-  color: white !important;
   padding: 4px !important;
-  border-radius: 4px !important;
-  z-index: 1000 !important;
-  font-size: 12px !important;
-  border: 1px solid rgba(0,0,0,0.1) !important;
-  border-left: 4px solid #1d4ed8 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-  overflow: hidden !important;
-  pointer-events: all !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
   cursor: pointer !important;
-  min-height: 30px !important;
-  transition: box-shadow 0.2s, transform 0.1s !important;
+  z-index: 3 !important;
+  min-height: 25px !important;
+  margin: 0 2px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-/* Stile per eventi interattivi */
-.interactive-event {
-  cursor: move !important;
-  user-select: none !important;
-}
-
-/* Stile per eventi durante il trascinamento */
-.event-dragging {
-  opacity: 0.7 !important;
-  transform: scale(1.02) !important;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
-  z-index: 10000 !important;
-}
-
-/* Stile per eventi durante il ridimensionamento */
-.event-resizing {
-  opacity: 0.8 !important;
-  border: 2px dashed #1d4ed8 !important;
-  background-color: rgba(59, 130, 246, 0.7) !important;
-}
-
-/* Tooltip durante il trascinamento */
-.drag-tooltip {
-  position: fixed;
-  background-color: rgba(0,0,0,0.75);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  pointer-events: none;
-  z-index: 10001;
-  transform: translate(10px, 10px);
-}
-
-/* Maniglie per il ridimensionamento */
-.fc-event .fc-event-resizer {
-  width: 8px !important;
-  height: 8px !important;
-  border-radius: 50% !important;
-  background-color: white !important;
-  border: 1px solid #3b82f6 !important;
-  z-index: 10 !important;
-}
-
-.fc-event .fc-event-resizer-start {
-  top: calc(50% - 4px) !important;
-  left: -4px !important;
-}
-
-.fc-event .fc-event-resizer-end {
-  top: calc(50% - 4px) !important;
-  right: -4px !important;
-}
-
-/* Stili per i diversi stati degli appuntamenti */
-.fc-event.appointment-status-confirmed {
-  background-color: #10b981 !important; /* verde */
-  border-left: 4px solid #047857 !important;
-}
-
-.fc-event.appointment-status-pending {
-  background-color: #f59e0b !important; /* giallo */
-  border-left: 4px solid #b45309 !important;
-}
-
-.fc-event.appointment-status-cancelled {
-  background-color: #ef4444 !important; /* rosso */
-  border-left: 4px solid #b91c1c !important;
-  text-decoration: line-through !important;
-}
-
-.fc-event.appointment-status-completed {
-  background-color: #3b82f6 !important; /* blu */
-  border-left: 4px solid #1d4ed8 !important;
-}
-
-/* Styling per il contenuto interno degli eventi */
+/* Event content */
+.fc-event-time,
 .fc-event-title {
+  display: block !important;
+  padding: 0 4px !important;
+  font-weight: 500 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  color: white !important;
-  font-family: inherit !important;
-  font-weight: 600 !important;
-}
-
-.fc-event-time {
-  font-size: 11px !important;
-  opacity: 0.9 !important;
-}
-
-/* Aggiunge una striscia superiore per distinguere il bordo dell'evento */
-.fc-event::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-
-/* Assicura che il container degli appuntamenti abbia la priorità massima */
-.appointments-overlay {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  pointer-events: none !important;
-  z-index: 10000 !important;
-}
-
-/* ---- RIPRISTINO VISIBILITÀ DELLA GRIGLIA ---- */
-/* Rendiamo nuovamente visibili gli elementi della griglia temporale */
-.fc-timegrid-event,
-.fc-timegrid-event-harness {
-  display: block !important; /* Mostra gli eventi */
   visibility: visible !important;
-  opacity: 1 !important;
 }
 
-/* NON nascondiamo completamente gli elementi della griglia */
-.fc-timegrid-body,
-.fc-timegrid-slots,
-.fc-timegrid-slot,
-.fc-timegrid-slot-lane,
-.fc-timegrid-slot-minor,
-.fc-timegrid-cols,
-.fc-timegrid-col-frame {
-  display: block !important; /* Forza la visualizzazione */
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important; /* Importante per mantenere la struttura */
-  overflow: visible !important;
-  z-index: 1 !important; /* Z-index basso ma visibile */
+/* Event interactions */
+.calendar-event:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px);
 }
 
-/* Ripristina la visibilità degli slot temporali */
-.fc-timegrid-slot {
-  height: 40px !important;
-  min-height: 40px !important;
-  border-color: #e5e7eb !important;
-  border-bottom: 1px solid #e5e7eb !important;
-  background: white !important;
-  visibility: visible !important;
-  display: table-row !important; /* Importante per mantenere la struttura */
+/* Event dragging state */
+.calendar-event.is-dragging {
+  opacity: 0.7 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* Mantieni visibile la struttura del calendario */
-.fc-view-harness,
-.fc-view,
-.fc-timegrid {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  z-index: 1 !important;
-  height: 100% !important;
-  min-height: 500px !important;
-  overflow: auto !important;
+/* Event status colors */
+.calendar-event.status-confirmed {
+  background-color: #10b981 !important;
 }
 
-/* Configura correttamente lo scrolling */
-.fc-scroller {
-  overflow: auto !important;
-  height: 100% !important;
+.calendar-event.status-pending {
+  background-color: #f59e0b !important;
 }
 
-/* Assicura che le etichette delle ore siano visibili */
-.fc-timegrid-axis,
-.fc-timegrid-slot-label {
-  display: table-cell !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Gestione migliore dello z-index */
-.fc .fc-timegrid-slot-label-frame {
-  visibility: visible !important;
-  opacity: 1 !important;
-  z-index: 1 !important;
-}
-
-/* Assicura visibilità delle linee orizzontali della griglia */
-.fc-timegrid-slot-minor {
-  border-top: 1px dashed #e5e7eb !important;
-  visibility: visible !important;
-  display: table-row !important;
-}
-
-/* Forcemen for legacy browsers */
-.fc-timegrid-slots table,
-.fc-timegrid-slots tr,
-.fc-timegrid-slots td {
-  display: table !important;
-  display: table-row !important;
-  display: table-cell !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Adattamento per gli eventi React nello stesso contenitore */
-.react-appointment-event {
-  z-index: 100 !important; /* Alto ma non troppo da coprire UI elementi */
-}
-
-/* Migliore visibilità per le etichette del tempo */
-.time-slot-label {
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: block !important;
-  z-index: 2 !important;
-}
-
-/* Assicura spazio sufficiente per ogni slot temporale */
-.fc-timegrid-slot-lane {
-  height: 40px !important;
-}
-
-/* Importante: visibilità del contenitore principale */
-.fc .fc-scrollgrid-liquid {
-  height: 100%;
-  min-height: 400px !important;
+.calendar-event.status-cancelled {
+  background-color: #ef4444 !important;
+  text-decoration: line-through !important;
 }

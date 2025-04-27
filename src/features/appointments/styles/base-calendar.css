@@ -2,38 +2,69 @@
 /* Base calendar styles */
 .fc {
   height: 100%;
+  min-height: 600px;
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+  overflow: hidden;
+  font-family: inherit;
 }
 
-/* Time column styles */
-.fc-timegrid-axis {
-  padding: 8px;
-  font-size: 0.875rem;
-  color: #64748b;
-  border-right: 1px solid #e5e7eb;
-  background-color: #f8fafc;
+/* Grid structure */
+.fc .fc-timegrid-slots table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
 }
 
-/* Resource header styles */
+/* Slot styling */
+.fc .fc-timegrid-slot {
+  height: 40px !important;
+  min-height: 40px !important;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+}
+
+/* Column headers */
 .fc-col-header-cell {
   background-color: #f8fafc;
   text-align: center !important;
-  padding: 8px !important;
+  padding: 12px 8px !important;
   font-weight: 600;
   border-bottom: 2px solid #e5e7eb;
+  color: #1e293b;
 }
 
-/* Timeline slot styles */
-.fc-timegrid-slot {
-  height: 40px !important;
-  border-color: #e5e7eb;
+/* Time labels */
+.calendar-slot-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  padding: 2px 8px;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* Event container */
+.fc-timegrid-event-harness {
+  position: absolute;
+  visibility: visible !important;
+}
+
+/* Force visibility for critical elements */
+.fc-timegrid,
+.fc-timegrid-slots,
+.fc-timegrid-cols,
+.fc-timegrid-col-frame {
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 1;
+  min-height: inherit;
 }
 
 /* Current time indicator */
 .fc-timegrid-now-indicator-line {
   border-color: #dc2626;
+  z-index: 4;
 }
 
 .fc-timegrid-now-indicator-arrow {
@@ -41,78 +72,29 @@
   color: #dc2626;
 }
 
-/* Reimposta z-index per i menu e i dropdown */
-.fc-popover,
-.fc-event-mirror,
-.fc-daygrid-event-harness {
-  z-index: 10 !important;  /* Più basso del valore originale */
+/* Lane styling */
+.calendar-slot-lane {
+  border-right: 1px solid #e5e7eb;
+  background: white;
 }
 
-/* Assicura che i menu radix abbiano z-index più alto */
-[data-radix-popper-content-wrapper] {
-  z-index: 9999 !important; /* Molto più alto di qualsiasi elemento FullCalendar */
+/* Day cell styling */
+.calendar-day-cell {
+  background: white;
+  border-color: #e5e7eb;
 }
 
-/* Stilizzazione degli eventi per il calendario */
-.fc-event {
-  border-left: 3px solid var(--event-color, #9b87f5) !important;
-  min-height: 24px;
+/* Ensure proper scrolling */
+.fc-scroller {
+  overflow: auto !important;
+  height: 100% !important;
 }
 
-.fc-event-main-frame {
-  padding: 2px 4px;
-}
-
-.fc-event-time {
-  font-weight: 500;
-}
-
-.fc-event-title {
-  font-weight: 400;
-}
-
-/* Migliora visibilità eventi nel mese */
-.fc-daygrid-event {
-  padding: 2px 4px !important;
-}
-
-/* Stili specifici per il contenitore principale */
-.staff-calendar-block {
-  border: 1px solid #e5e7eb;
-  border-radius: 0 0 8px 8px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Dimensione minima del calendario */
-.unified-calendar-grid {
-  min-height: 600px;
-}
-
-/* Enhanced event visibility */
-.fc-timegrid-event {
-  display: block !important;
-  min-height: 24px !important;
-  background-color: var(--bg-color, rgba(59, 130, 246, 0.1)) !important;
-  border-color: var(--border-color, rgba(59, 130, 246, 0.7)) !important;
-}
-
-.fc-timegrid-event .fc-event-main {
-  padding: 3px 4px !important;
-}
-
-.fc-event-title-container {
-  padding: 0 !important;
-}
-
-.fc-event-title {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Ensure event dimensions */
-.calendar-appointment {
-  min-height: 24px !important;
-  padding: 2px 4px !important;
+/* Ensure proper heights */
+.fc-view-harness,
+.fc-view,
+.fc-timegrid,
+.fc-timegrid-body {
+  height: 100% !important;
+  min-height: 600px !important;
 }
