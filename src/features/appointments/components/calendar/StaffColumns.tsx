@@ -32,223 +32,174 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
   const { applyBlockedTimeStyles } = useCalendarBlockTime();
   const { isStaffBlocked } = useStaffBlockTime();
   const [renderCount, setRenderCount] = useState(0);
-  const eventsContainerRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   
   // Helper function to get staff name
   const getStaffName = useCallback((staff: StaffMember) => {
     return `${staff.firstName} ${staff.lastName}`.trim() || 'Operatore';
   }, []);
   
-  // Funzione di debug per ispezionare gli elementi del DOM
+  // Log di diagnostica dettagliato
   const debugDOMElements = useCallback(() => {
     console.group("🔍 Debug DOM Elements");
     
-    // Verifica se gli elementi del calendario esistono
+    // Verifica elementi rilevanti
     const calendarElements = document.querySelectorAll('.fc');
-    console.log(`Elementi calendario (.fc): ${calendarElements.length}`);
-    
-    // Verifica se le colonne dello staff esistono
     const staffColumns = document.querySelectorAll('.calendar-staff-col');
+    const reactEvents = document.querySelectorAll('.react-appointment-event');
+    
+    console.log(`Elementi calendario (.fc): ${calendarElements.length}`);
     console.log(`Colonne staff (.calendar-staff-col): ${staffColumns.length}`);
-    
-    // Verifica la struttura del timegrid
-    const timegridBodies = document.querySelectorAll('.fc-timegrid-body');
-    console.log(`Timegrid bodies (.fc-timegrid-body): ${timegridBodies.length}`);
-    
-    // Verifica gli slot temporali
-    const timeSlots = document.querySelectorAll('.fc-timegrid-slot');
-    console.log(`Time slots (.fc-timegrid-slot): ${timeSlots.length}`);
-    
-    // Verifica overlay degli eventi manuali
-    const manualOverlays = document.querySelectorAll('.manual-event-overlay');
-    console.log(`Manual event overlays (.manual-event-overlay): ${manualOverlays.length}`);
-    
-    // Verifica eventi manuali
-    const manualEvents = document.querySelectorAll('.manual-appointment-event');
-    console.log(`Manual events (.manual-appointment-event): ${manualEvents.length}`);
-    
-    // Analizza stili e visibilità del primo evento manuale
-    if (manualEvents.length > 0) {
-      const firstEvent = manualEvents[0] as HTMLElement;
-      const style = window.getComputedStyle(firstEvent);
-      console.log("Primo evento manuale:", {
-        display: style.display,
-        visibility: style.visibility,
-        opacity: style.opacity,
-        zIndex: style.zIndex,
-        position: style.position,
-        top: style.top,
-        left: style.left,
-        width: style.width,
-        height: style.height,
-        backgroundColor: style.backgroundColor
-      });
-    }
+    console.log(`React events (.react-appointment-event): ${reactEvents.length}`);
+    console.log(`Eventi originali: ${events.length}`);
     
     console.groupEnd();
-  }, []);
-  
-  /**
-   * VERSIONE OTTIMIZZATA DELLA FUNZIONE CHE CREA EVENTI MANUALI
-   */
-  const createManualEvents = useCallback(() => {
-    console.log("🔄 Creazione eventi manuali (versione ultra-ottimizzata)");
+  }, [events]);
+
+  // APPROCCIO REACT: Renderizzazione degli eventi come componenti React
+  const renderAppointmentEvents = useCallback((staffId: string, staffEvents: any[]) => {
+    if (!staffEvents.length) return null;
     
-    // Per ogni membro dello staff
-    staffMembers.forEach(staff => {
-      const staffIdStr = String(staff.id);
-      
-      // Trova la colonna del calendario per questo staff
-      const staffColumn = document.querySelector(`[data-staff-id="${staffIdStr}"]`);
-      if (!staffColumn) {
-        console.warn(`Colonna per lo staff ${staffIdStr} non trovata`);
-        return;
-      }
-      
-      // Ottieni o crea il container per gli eventi di questo staff
-      let eventsContainer = eventsContainerRefs.current.get(staffIdStr);
-      
-      // Se il container non esiste o non è nel DOM, crealo
-      if (!eventsContainer || !document.body.contains(eventsContainer)) {
-        // Prima rimuovi eventuali container esistenti per questo staff
-        document.querySelectorAll(`.manual-events-${staffIdStr}`).forEach(el => el.remove());
-        
-        // Crea un nuovo container
-        eventsContainer = document.createElement('div');
-        eventsContainer.className = `manual-event-overlay manual-events-${staffIdStr}`;
-        eventsContainer.setAttribute('data-staff-id', staffIdStr);
-        
-        // Memorizza il riferimento
-        eventsContainerRefs.current.set(staffIdStr, eventsContainer);
-        
-        // Aggiungi il container direttamente alla colonna dello staff
-        staffColumn.appendChild(eventsContainer);
-        
-        console.log(`🆕 Creato nuovo container per eventi dello staff ${staffIdStr}`);
-      } else {
-        // Pulisci il container esistente
-        eventsContainer.innerHTML = '';
-        console.log(`🔄 Riutilizzo container esistente per lo staff ${staffIdStr}`);
-      }
-      
-      // Filtra gli eventi per questo staff
-      const staffEvents = events.filter(event => {
-        const eventStaffId = event.resourceId ? String(event.resourceId) : undefined;
-        return eventStaffId === staffIdStr;
-      });
-      
-      console.log(`📅 Creando ${staffEvents.length} eventi manuali per ${getStaffName(staff)}`);
-      
-      // Ottieni dimensioni del container per il calcolo delle posizioni
-      const containerRect = staffColumn.getBoundingClientRect();
-      const containerHeight = containerRect.height;
-      const headerHeight = 44; // Altezza dell'header se presente
-      const availableHeight = containerHeight - headerHeight;
-      
-      // Assumiamo che la vista copra 24 ore, adatta per il tuo caso
-      const startHour = 0;
-      const endHour = 24;
-      const hoursDisplayed = endHour - startHour;
-      const pixelsPerHour = availableHeight / hoursDisplayed;
-      
-      // Crea un elemento manuale per ogni evento
-      staffEvents.forEach(event => {
-        try {
-          // Ottieni l'ora di inizio e fine dell'evento
+    // Calcoli per posizionamento
+    const dayStart = new Date(selectedDate);
+    dayStart.setHours(0, 0, 0, 0);
+    
+    const dayEnd = new Date(selectedDate);
+    dayEnd.setHours(23, 59, 59, 999);
+    
+    const totalMinutesInDay = 24 * 60;
+    
+    return (
+      <div className="appointments-overlay" style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+        zIndex: 10000
+      }}>
+        {staffEvents.map(event => {
+          // Calcoli per posizionamento
           const eventStart = new Date(event.start);
           const eventEnd = event.end ? new Date(event.end) : new Date(eventStart.getTime() + 30 * 60000);
           
-          // Calcola ore dall'inizio del giorno
-          const startHour = eventStart.getHours() + (eventStart.getMinutes() / 60);
-          const endHour = eventEnd.getHours() + (eventEnd.getMinutes() / 60);
-          const durationHours = endHour - startHour;
+          // Minuti dall'inizio della giornata
+          const minutesFromDayStart = (eventStart.getTime() - dayStart.getTime()) / 60000;
+          const durationMinutes = (eventEnd.getTime() - eventStart.getTime()) / 60000;
           
-          // Calcola posizione e dimensione
-          const topPosition = headerHeight + (startHour * pixelsPerHour);
-          const eventHeight = Math.max(30, durationHours * pixelsPerHour);
+          // Calcolo percentuale per posizionamento
+          const topPercent = (minutesFromDayStart / totalMinutesInDay) * 100;
+          const heightPercent = (durationMinutes / totalMinutesInDay) * 100;
           
-          // Determina stato dell'appuntamento
+          // Determinazione dello stato
           const status = event.extendedProps?.status || 'default';
           
-          // Crea l'elemento manuale
-          const manualEvent = document.createElement('div');
-          manualEvent.className = `manual-appointment-event appointment-status-${status}`;
-          manualEvent.setAttribute('data-event-id', event.id);
+          // Determinazione colori in base allo stato
+          let bgColor, borderColor;
+          switch (status) {
+            case 'confirmed':
+              bgColor = '#10b981'; // verde
+              borderColor = '#047857';
+              break;
+            case 'pending':
+              bgColor = '#f59e0b'; // giallo
+              borderColor = '#b45309';
+              break;
+            case 'cancelled':
+              bgColor = '#ef4444'; // rosso
+              borderColor = '#b91c1c';
+              break;
+            default:
+              bgColor = '#3b82f6'; // blu
+              borderColor = '#1d4ed8';
+          }
           
-          // Imposta lo stile e la posizione
-          manualEvent.style.position = 'absolute';
-          manualEvent.style.top = `${topPosition}px`;
-          manualEvent.style.left = '4px';
-          manualEvent.style.right = '4px';
-          manualEvent.style.height = `${eventHeight}px`;
-          manualEvent.style.zIndex = '1000';
-          
-          // Crea la struttura interna dell'evento
-          manualEvent.innerHTML = `
-            <div style="font-size: 11px; font-weight: 600; line-height: 1.2;">
-              ${format(eventStart, 'HH:mm', { locale: it })}
-            </div>
-            <div style="font-size: 12px; font-weight: bold; line-height: 1.2; 
-                      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${event.title}
-            </div>
-          `;
-          
-          // Aggiungi l'evento al container
-          eventsContainer.appendChild(manualEvent);
-          
-          // Aggiungi gestione del click
-          manualEvent.addEventListener('click', (e) => {
-            e.stopPropagation(); // Previene la propagazione del click
-            if (commonConfig.eventClick) {
-              commonConfig.eventClick({ 
-                event: {
-                  ...event,
-                  start: eventStart,
-                  end: eventEnd,
-                  title: event.title,
-                  extendedProps: event.extendedProps || {}
+          return (
+            <div
+              key={event.id}
+              className={`react-appointment-event appointment-status-${status}`}
+              data-event-id={event.id}
+              style={{
+                position: 'absolute',
+                top: `${topPercent}%`,
+                left: '4px',
+                right: '4px',
+                height: `${Math.max(4, heightPercent)}%`,
+                minHeight: '30px',
+                backgroundColor: bgColor,
+                borderLeft: `4px solid ${borderColor}`,
+                color: 'white',
+                borderRadius: '4px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                padding: '4px',
+                zIndex: 1000,
+                pointerEvents: 'auto',
+                cursor: 'pointer',
+                overflow: 'hidden'
+              }}
+              onClick={() => {
+                if (commonConfig.eventClick) {
+                  commonConfig.eventClick({ 
+                    event: {
+                      ...event,
+                      start: eventStart,
+                      end: eventEnd,
+                      title: event.title,
+                      extendedProps: event.extendedProps || {}
+                    }
+                  });
                 }
-              });
-            }
-          });
-          
-        } catch (error) {
-          console.error(`Errore nella creazione dell'evento manuale: ${error}`);
-        }
-      });
-    });
-    
-    // Esegui debug dopo la creazione
-    setTimeout(debugDOMElements, 500);
-    
-  }, [events, staffMembers, commonConfig, getStaffName, debugDOMElements]);
+              }}
+            >
+              <div style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1.2 }}>
+                {format(eventStart, 'HH:mm', { locale: it })}
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: 'bold', 
+                lineHeight: 1.2,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {event.title}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }, [selectedDate, commonConfig]);
   
   // Completamente rimuove gli eventi nativi FullCalendar
   const hideNativeEvents = useCallback(() => {
-    document.querySelectorAll('.fc-timegrid-event, .fc-timegrid-event-harness').forEach(el => {
+    document.querySelectorAll('.fc-timegrid-event, .fc-timegrid-event-harness, .fc-event').forEach(el => {
       if (el instanceof HTMLElement) {
-        el.style.display = 'none';
-        el.style.visibility = 'hidden';
-        el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
+        el.style.cssText = `
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          height: 0 !important;
+          width: 0 !important;
+        `;
       }
     });
   }, []);
   
-  // Funzione che esegue tutte le operazioni necessarie per gli eventi manuali
+  // Funzione per eseguire le operazioni necessarie
   const setupEvents = useCallback(() => {
-    console.log("🔄 Setup eventi manuali");
+    console.log("🔄 Setup eventi - SOLUZIONE REACT");
     
-    // Prima nascondi gli eventi nativi
+    // Nascondi gli eventi nativi
     hideNativeEvents();
-    
-    // Poi crea gli eventi manuali
-    createManualEvents();
     
     // Incrementa il contatore di rendering
     setRenderCount(prev => prev + 1);
-  }, [hideNativeEvents, createManualEvents]);
+    
+    // Esegui debug
+    debugDOMElements();
+  }, [hideNativeEvents, debugDOMElements]);
   
   // Applica i blocchi di tempo dopo il rendering iniziale
   useEffect(() => {
@@ -256,14 +207,12 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     return () => clearTimeout(timer);
   }, [applyBlockedTimeStyles]);
   
-  // Setup completo degli eventi manuali con approccio robusto
+  // Esecuzione periodica del setup
   useEffect(() => {
-    console.log("🔄 Inizializzazione eventi manuali");
-    
-    // Esegui immediatamente
+    // Esegui subito
     setupEvents();
     
-    // Programma esecuzioni con tempi crescenti
+    // Esegui più volte con timing diversi per assicurarsi che funzioni
     const timers = [
       setTimeout(setupEvents, 100),
       setTimeout(setupEvents, 500),
@@ -271,13 +220,20 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       setTimeout(setupEvents, 2000)
     ];
     
-    // Observer per rilevare cambiamenti nella vista
-    const viewObserver = new MutationObserver(() => {
-      console.log("🔍 Rilevato cambiamento nella vista, ricreo eventi manuali");
-      setupEvents();
+    // Observer per rilevare cambiamenti
+    const viewObserver = new MutationObserver((mutations) => {
+      const relevantMutation = mutations.some(mutation => {
+        return mutation.type === 'childList' || 
+               (mutation.type === 'attributes' && 
+               (mutation.target as Element).className?.includes('fc'));
+      });
+      
+      if (relevantMutation) {
+        setupEvents();
+      }
     });
     
-    // Trova l'elemento principale del calendario
+    // Trova l'elemento calendario
     const calendarElement = document.querySelector('.fc');
     if (calendarElement) {
       viewObserver.observe(calendarElement, {
@@ -302,17 +258,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     setupEvents();
   }, [events, selectedDate, setupEvents]);
   
-  // Log di diagnostica
-  useEffect(() => {
-    console.log(`📊 Render #${renderCount}: ${events.length} eventi totali per ${staffMembers.length} staff`);
-    
-    // Debug del DOM dopo ogni rendering
-    const debugTimer = setTimeout(debugDOMElements, 500);
-    
-    return () => clearTimeout(debugTimer);
-  }, [renderCount, events, staffMembers, debugDOMElements]);
-  
-  // Memoize blocked staff status to prevent unnecessary recalculations
+  // Memoize blocked staff status
   const blockedStaffStatus = useMemo(() => {
     return staffMembers.reduce((acc, staff) => {
       acc[staff.id] = isStaffBlocked(staff.id);
@@ -359,14 +305,16 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
             data-blocked={isBlocked ? 'true' : 'false'}
             style={{ position: 'relative', height: '100%', overflow: 'visible' }}
           >
+            {/* NUOVO SISTEMA: Aggiungiamo gli appuntamenti come componenti React */}
+            {renderAppointmentEvents(staffIdStr, staffEvents)}
+            
             <FullCalendar
               key={`staff-calendar-${staffIdStr}`}
               plugins={[timeGridPlugin, interactionPlugin]}
               initialView="timeGridDay"
               initialDate={selectedDate}
               {...commonConfig}
-              // Utilizziamo una configurazione molto semplice per il calendario
-              // dato che renderizzeremo gli eventi manualmente
+              // Configurazione semplificata
               eventMinHeight={30}
               slotEventOverlap={false}
               slotDuration={'00:30:00'}
@@ -379,14 +327,18 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               allDaySlot={false}
               dayMaxEvents={false}
               dayHeaderContent={() => null}
-              slotLabelContent={() => null}
+              slotLabelContent={({ date }) => (
+                <div style={{ fontSize: '0.7rem', color: '#888' }}>
+                  {format(date, 'HH:mm', { locale: it })}
+                </div>
+              )}
               events={staffEvents}
               headerToolbar={false}
               height="100%"
               dayCellClassNames={isBlocked ? 'blocked-staff-column' : ''}
               viewClassNames={isBlocked ? 'blocked-staff-view' : ''}
-              // Versione più minimalista per eventi nativi
-              eventDisplay="none" // Nascondi del tutto gli eventi nativi
+              // Nascondi eventi nativi
+              eventDisplay="none"
               eventDidMount={(info) => {
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
@@ -403,9 +355,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 if (el) {
                   calendarRefs.current[index] = el;
                   if (index === 0) setCalendarApi(el.getApi());
-                  
-                  // Forza la creazione degli eventi manuali dopo che il calendario è pronto
-                  setTimeout(setupEvents, 100);
                 }
               }}
             />

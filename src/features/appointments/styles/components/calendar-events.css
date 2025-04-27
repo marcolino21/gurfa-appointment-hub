@@ -1,5 +1,5 @@
 
-/* Nuovi stili ottimizzati per gli eventi manuali */
+/* Stili per gli eventi manuali */
 .manual-event-wrapper {
   position: absolute;
   pointer-events: none;
@@ -62,15 +62,100 @@
   border-left: 4px solid #1d4ed8 !important;
 }
 
-/* Nascondi completamente gli eventi nativi di FullCalendar nella vista giornaliera */
+/* Stili per gli appuntamenti React */
+.react-appointment-event {
+  position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  min-height: 30px !important;
+  z-index: 9999 !important;
+  
+  /* Stile estetico */
+  background-color: #3b82f6 !important;
+  color: white !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-left: 4px solid #1d4ed8 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  overflow: hidden !important;
+}
+
+/* Stili per i diversi stati degli appuntamenti */
+.react-appointment-event.appointment-status-confirmed {
+  background-color: #10b981 !important; /* verde */
+  border-left-color: #047857 !important;
+}
+
+.react-appointment-event.appointment-status-pending {
+  background-color: #f59e0b !important; /* giallo */
+  border-left-color: #b45309 !important;
+}
+
+.react-appointment-event.appointment-status-cancelled {
+  background-color: #ef4444 !important; /* rosso */
+  border-left-color: #b91c1c !important;
+  text-decoration: line-through !important;
+}
+
+.react-appointment-event.appointment-status-completed {
+  background-color: #3b82f6 !important; /* blu */
+  border-left-color: #1d4ed8 !important;
+}
+
+/* Styling per il contenuto interno degli eventi */
+.react-appointment-event > div {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: white !important;
+  font-family: inherit !important;
+}
+
+/* Aggiunge una striscia superiore per distinguere il bordo dell'evento */
+.react-appointment-event::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+/* Assicura che il container degli appuntamenti abbia la priorità massima */
+.appointments-overlay {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  pointer-events: none !important;
+  z-index: 10000 !important;
+}
+
+/* Nascondi completamente gli eventi nativi di FullCalendar */
 .fc-timegrid-event,
-.fc-timegrid-event-harness {
+.fc-timegrid-event-harness,
+.fc-daygrid-event,
+.fc-daygrid-event-harness,
+.fc-event {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   height: 0 !important;
   width: 0 !important;
   pointer-events: none !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
 }
 
 /* Migliora la visibilità del contenitore degli slot temporali */
@@ -95,39 +180,15 @@
   height: 100% !important;
 }
 
-/* Stili specifici per i diversi stati degli appuntamenti */
-.manual-appointment-event.appointment-status-confirmed {
-  background-color: #10b981 !important; /* verde */
-  border-left: 4px solid #047857 !important;
-}
-
-.manual-appointment-event.appointment-status-pending {
-  background-color: #f59e0b !important; /* giallo */
-  border-left: 4px solid #b45309 !important;
-}
-
-.manual-appointment-event.appointment-status-cancelled {
-  background-color: #ef4444 !important; /* rosso */
-  border-left: 4px solid #b91c1c !important;
-  text-decoration: line-through !important;
-}
-
-/* Stili per migliorare il contenuto interno degli eventi */
-.manual-appointment-event div {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Aggiunge una striscia superiore per distinguere il bordo dell'evento */
-.manual-appointment-event::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+/* Fix per lo z-index nella griglia temporale */
+.fc,
+.fc-view-harness,
+.fc-view,
+.fc-timegrid,
+.fc-timegrid-body,
+.fc-timegrid-slots,
+.fc-timegrid-cols,
+.fc-timegrid-col-frame {
+  z-index: auto !important;
+  overflow: visible !important;
 }
