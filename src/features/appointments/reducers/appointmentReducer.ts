@@ -50,11 +50,17 @@ export const appointmentReducer = (state: AppointmentState, action: AppointmentA
       };
     }
     
-    case 'ADD_TO_FILTERED_APPOINTMENTS':
-      return {
-        ...state,
-        filteredAppointments: [...state.filteredAppointments, action.payload]
-      };
+    case 'ADD_TO_FILTERED_APPOINTMENTS': {
+      // Verifica che l'appuntamento non sia già nella lista filtrata
+      if (!state.filteredAppointments.some(app => app.id === action.payload.id)) {
+        console.log("Adding to filtered appointments:", action.payload);
+        return {
+          ...state,
+          filteredAppointments: [...state.filteredAppointments, action.payload]
+        };
+      }
+      return state;
+    }
       
     case 'UPDATE_APPOINTMENT': {
       const updatedAppointments = state.appointments.map(appointment => 

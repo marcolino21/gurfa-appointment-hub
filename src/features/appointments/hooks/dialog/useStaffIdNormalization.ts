@@ -12,15 +12,20 @@ export const useStaffIdNormalization = () => {
       return undefined;
     }
     
-    // Handle object with value property
+    // Handle object with value property (like Select component value)
     if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
       console.log(`normalizeStaffId: staff ID is object with value ${staffId.value}`);
-      return staffId.value === 'undefined' ? undefined : String(staffId.value);
+      return staffId.value === 'undefined' || staffId.value === null || staffId.value === '' 
+        ? undefined 
+        : String(staffId.value);
     }
     
-    // Handle string that contains "undefined"
-    if (staffId === 'undefined') {
-      return undefined;
+    // Handle string that contains "undefined" or is empty
+    if (typeof staffId === 'string') {
+      if (staffId === 'undefined' || staffId === 'null' || staffId.trim() === '') {
+        return undefined;
+      }
+      return staffId.trim();
     }
     
     // Handle array of service entries (take first staffId)
@@ -33,9 +38,10 @@ export const useStaffIdNormalization = () => {
       return undefined;
     }
     
-    // Default: convert to string
+    // Default: convert to string if not empty
     console.log(`normalizeStaffId: staff ID converting to string: ${staffId}`);
-    return String(staffId);
+    const stringValue = String(staffId);
+    return stringValue === 'undefined' || stringValue === 'null' || stringValue === '' ? undefined : stringValue;
   }, []);
 
   return { normalizeStaffId };

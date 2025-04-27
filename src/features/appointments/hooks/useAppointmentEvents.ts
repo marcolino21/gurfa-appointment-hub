@@ -1,7 +1,6 @@
 
 import { useMemo } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
-import { StaffMember } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -14,9 +13,12 @@ export const useAppointmentEvents = () => {
     
     return filteredAppointments.map(appointment => {
       try {
+        // Normalizza lo staffId sempre a una stringa valida
+        const staffId = appointment.staffId ? String(appointment.staffId) : undefined;
+        
         // Verifico che appointment.staffId sia definito
-        if (!appointment.staffId) {
-          console.warn(`Appointment ${appointment.id} has no staffId. It won't be visible in the calendar.`);
+        if (!staffId) {
+          console.warn(`Appointment ${appointment.id} has no staffId. It won't be visible in a specific staff column.`);
         }
         
         // Verifico che start e end siano validi
@@ -33,12 +35,12 @@ export const useAppointmentEvents = () => {
         }
         
         // Fornisco informazioni di debug
-        console.log(`Creating calendar event for appointment ${appointment.id} with staffId ${appointment.staffId}`, {
+        console.log(`Creating calendar event for appointment ${appointment.id} with staffId "${staffId}"`, {
           id: appointment.id,
           title: title,
           start: format(start, 'yyyy-MM-dd HH:mm', { locale: it }),
           end: format(end, 'yyyy-MM-dd HH:mm', { locale: it }),
-          resourceId: appointment.staffId
+          resourceId: staffId
         });
         
         // Creo l'evento del calendario
@@ -47,12 +49,13 @@ export const useAppointmentEvents = () => {
           title: title,
           start: start,
           end: end,
-          resourceId: String(appointment.staffId),
+          resourceId: staffId, // Assicura che sia sempre una stringa o undefined
           extendedProps: {
             clientName: appointment.clientName,
             service: appointment.service || '',
             status: appointment.status,
-            notes: appointment.notes || ''
+            notes: appointment.notes || '',
+            staffId: staffId // Salva anche qui lo staffId normalizzato
           },
           classNames: [
             `appointment-status-${appointment.status}`,

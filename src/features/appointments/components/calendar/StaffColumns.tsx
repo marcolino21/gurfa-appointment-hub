@@ -53,13 +53,30 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     
     // Log degli eventi per ogni membro dello staff
     staffMembers.forEach(staff => {
-      const staffEvents = events.filter(event => event.resourceId === staff.id);
-      console.log(`Staff ${getStaffName(staff)} (ID: ${staff.id}) has ${staffEvents.length} events`);
+      // Normalizza l'ID dello staff per il confronto
+      const staffIdStr = String(staff.id);
+      
+      // Filtra gli eventi per questo staff membro
+      const staffEvents = events.filter(event => {
+        const eventStaffId = event.resourceId ? String(event.resourceId) : undefined;
+        return eventStaffId === staffIdStr;
+      });
+      
+      console.log(`Staff ${getStaffName(staff)} (ID: ${staffIdStr}) has ${staffEvents.length} events`);
+      if (staffEvents.length > 0) {
+        console.log(`First few events for ${getStaffName(staff)}:`, 
+          staffEvents.slice(0, 2).map(e => ({
+            id: e.id,
+            title: e.title,
+            resourceId: e.resourceId
+          }))
+        );
+      }
     });
     
     // Log degli eventi senza resourceId o con resourceId non corrispondente
     const orphanedEvents = events.filter(
-      event => event.resourceId && !staffMembers.some(staff => staff.id === event.resourceId)
+      event => event.resourceId && !staffMembers.some(staff => String(staff.id) === String(event.resourceId))
     );
     
     if (orphanedEvents.length > 0) {
@@ -70,7 +87,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     if (eventsWithoutResource.length > 0) {
       console.warn("Events without resourceId:", eventsWithoutResource);
     }
-  }, [events, staffMembers]);
+  }, [events, staffMembers, getStaffName]);
 
   if (staffMembers.length === 0) {
     return (
@@ -93,27 +110,26 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
+        // Normalizza l'ID dello staff per il confronto
+        const staffIdStr = String(staff.id);
+        
         // Filtra gli eventi per questo membro dello staff specifico
         const staffEvents = events.filter(event => {
-          const eventStaffId = String(event.resourceId);
-          const staffMatched = eventStaffId === staff.id;
-          if (!staffMatched && eventStaffId === staff.id) {
-            console.log(`Event ${event.id} has resourceId ${eventStaffId} that almost matches staff ${staff.id} but types differ`);
-          }
-          return staffMatched;
+          const eventStaffId = event.resourceId ? String(event.resourceId) : undefined;
+          return eventStaffId === staffIdStr;
         });
         
-        console.log(`Rendering calendar for ${staff.firstName} ${staff.lastName} (ID: ${staff.id}) with ${staffEvents.length} events`);
+        console.log(`Rendering calendar for ${staff.firstName} ${staff.lastName} (ID: ${staffIdStr}) with ${staffEvents.length} events`);
         
         return (
           <div
-            key={staff.id}
+            key={staffIdStr}
             className={`calendar-staff-col ${isBlocked ? 'staff-blocked' : ''}`}
-            data-staff-id={staff.id}
+            data-staff-id={staffIdStr}
             data-blocked={isBlocked ? 'true' : 'false'}
           >
             <FullCalendar
-              key={`staff-calendar-${staff.id}`}
+              key={`staff-calendar-${staffIdStr}`}
               plugins={[timeGridPlugin, interactionPlugin]}
               initialView="timeGridDay"
               initialDate={selectedDate}

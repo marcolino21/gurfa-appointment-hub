@@ -3,12 +3,14 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Appointment } from '@/types';
+import { useStaffIdNormalization } from '../dialog/useStaffIdNormalization';
 
 export const useUpdateAppointment = (
   dispatch: React.Dispatch<any>,
   isSlotAvailable: (start: Date, end: Date, salonId: string, excludeAppointmentId?: string) => boolean
 ) => {
   const { toast } = useToast();
+  const { normalizeStaffId } = useStaffIdNormalization();
 
   const updateAppointment = async (appointment: Appointment): Promise<Appointment> => {
     dispatch({ type: 'SET_LOADING', payload: true });
@@ -16,19 +18,8 @@ export const useUpdateAppointment = (
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Normalizza staffId se necessario
-      let processedStaffId: string | undefined = undefined;
-      
-      if (appointment.staffId) {
-        if (typeof appointment.staffId === 'string') {
-          processedStaffId = appointment.staffId;
-        } else if (typeof appointment.staffId === 'object' && appointment.staffId !== null) {
-          if ('value' in appointment.staffId) {
-            const value = appointment.staffId.value;
-            processedStaffId = value === 'undefined' ? undefined : String(value);
-          }
-        }
-      }
+      // Usa la funzione normalizeStaffId per ottenere uno staffId consistente
+      const processedStaffId = normalizeStaffId(appointment.staffId);
       
       console.log("Original staffId for update:", appointment.staffId);
       console.log("Processed staffId for update:", processedStaffId);

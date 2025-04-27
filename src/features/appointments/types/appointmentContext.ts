@@ -1,3 +1,4 @@
+
 import { Appointment } from '@/types';
 
 export interface ServiceEntry {
@@ -23,7 +24,7 @@ export type AppointmentAction =
   | { type: 'SET_APPOINTMENTS'; payload: Appointment[] }
   | { type: 'SET_FILTERED_APPOINTMENTS'; payload: Appointment[] }
   | { type: 'ADD_APPOINTMENT'; payload: Appointment }
-  | { type: 'ADD_TO_FILTERED_APPOINTMENTS'; payload: Appointment } // Nuovo tipo aggiunto
+  | { type: 'ADD_TO_FILTERED_APPOINTMENTS'; payload: Appointment }
   | { type: 'UPDATE_APPOINTMENT'; payload: Appointment }
   | { type: 'DELETE_APPOINTMENT'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -32,7 +33,7 @@ export type AppointmentAction =
   | { type: 'SET_CURRENT_APPOINTMENT'; payload: Appointment | null };
 
 export interface AppointmentContextType extends AppointmentState {
-  fetchAppointments: (salonId: string) => void;
+  fetchAppointments: (salonId: string) => Promise<void>;
   addAppointment: (appointment: Omit<Appointment, 'id'>) => Promise<Appointment>;
   updateAppointment: (appointment: Appointment) => Promise<Appointment>;
   deleteAppointment: (id: string) => Promise<void>;
