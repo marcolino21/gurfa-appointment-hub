@@ -155,11 +155,11 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
           >
             <FullCalendar
               key={`staff-calendar-${staffIdStr}`}
-              plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]} // Added dayGridPlugin
+              plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]}
               initialView="timeGridDay"
               initialDate={selectedDate}
               {...commonConfig}
-              // Simplified configuration for standard version
+              // Standard configuration that works with free version
               eventMinHeight={30}
               slotEventOverlap={false}
               slotDuration={'00:30:00'}
@@ -176,7 +176,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               allDaySlot={false}
               dayMaxEvents={false}
               // Fix for standard FullCalendar
-              height="auto" // Fixed: Removed comma and corrected syntax
+              height="auto"
               dayHeaderContent={() => null}
               slotLabelContent={({ date }) => (
                 <div style={{ fontSize: '0.7rem', color: '#888' }}>

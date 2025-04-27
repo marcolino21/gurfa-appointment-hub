@@ -34,8 +34,8 @@ export const useCalendarConfig = (
     height: 'auto', // Changed from 100% to auto
     handleWindowResize: true,
     stickyHeaderDates: true,
-    fixedWeekCount: false, // New option to prevent excessive empty weeks
-    // Removed expandRows which is a premium feature
+    fixedWeekCount: false, // No excessive empty weeks
+    // Standard version compatible options
     dayMinWidth: 100,
     themeSystem: 'standard',
     headerToolbar: false,

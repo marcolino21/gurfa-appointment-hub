@@ -11,11 +11,14 @@
   margin: 0; /* Added to fix spacing */
 }
 
-/* Grid structure - simplified */
-.fc .fc-timegrid-slots table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: 100%;
+/* Grid structure - simplified for standard version */
+.fc .fc-scrollgrid {
+  border-collapse: collapse !important;
+  border: none !important;
+}
+
+.fc .fc-scrollgrid-section > td {
+  border: none !important;
 }
 
 /* Slot styling */
@@ -96,19 +99,13 @@
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
+  border: none !important;
 }
 
-.fc-scrollgrid table {
-  width: 100%;
-  table-layout: fixed;
-}
-
-.fc-scrollgrid-section {
-  height: 0;
-}
-
-.fc-scrollgrid-section-body {
-  height: auto;
+.fc-scrollgrid-section-header,
+.fc-scrollgrid-section-body,
+.fc-scrollgrid-section-footer {
+  height: auto !important;
 }
 
 /* Make sure column widths are respected */
@@ -137,7 +134,31 @@
   margin-left: 2px;
 }
 
-/* Ensure proper heights */
-.fc-timegrid-slots {
-  min-height: 500px;
+/* Fix content overflow issues in events */
+.fc-event-main {
+  padding: 2px 4px;
+  overflow: hidden;
+}
+
+/* Fix day grid issues */
+.fc-daygrid-day-frame {
+  min-height: 100px;
+}
+
+/* Main timegrid fixes */
+.fc-timegrid-body {
+  min-height: 600px;
+}
+
+.fc-timegrid-axis-frame,
+.fc-timegrid-axis-cushion {
+  padding: 2px 4px;
+}
+
+/* Ensure tables have correct layout */
+.fc table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 1em;
+  width: 100%;
 }

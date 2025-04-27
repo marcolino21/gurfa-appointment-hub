@@ -158,7 +158,13 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
         events={events}
         selectedDate={selectedDate}
         onDateSelect={handleDateSelect}
-        commonConfig={commonConfig}
+        commonConfig={{
+          ...commonConfig,
+          // Standard FullCalendar month view options
+          height: 'auto',
+          dayMaxEventRows: true,
+          fixedWeekCount: false
+        }}
         calendarRefs={calendarRefs}
         setCalendarApi={setCalendarApi}
         datePickerOpen={datePickerOpen}
