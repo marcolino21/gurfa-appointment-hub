@@ -133,7 +133,6 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
               selectedDate={validSelectedDate}
               commonConfig={{
                 ...commonConfig,
-                // Fixes for standard FullCalendar version
                 height: 'auto',
                 contentHeight: 'auto',
                 aspectRatio: 1.8,

@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react'
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import dayGridPlugin from '@fullcalendar/daygrid'; // Added dayGrid for standard-compliant views
+import dayGridPlugin from '@fullcalendar/daygrid';
 import { StaffMember } from '@/types';
 import { useCalendarBlockTime } from '../../hooks/useCalendarBlockTime';
 import { useStaffBlockTime } from '../../hooks/useStaffBlockTime';
@@ -162,7 +162,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               // Standard configuration that works with free version
               eventMinHeight={30}
               slotEventOverlap={false}
-              slotDuration={'00:30:00'}
+              slotDuration={'00:15:00'}
               snapDuration={'00:15:00'}
               nowIndicator={false}
               // Interactive features

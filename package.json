@@ -14,7 +14,7 @@
     "@fullcalendar/core": "^6.1.11",
     "@fullcalendar/daygrid": "^6.1.11",
     "@fullcalendar/interaction": "^6.1.17",
-    "@fullcalendar/premium-common": "^6.1.10",
+    "@fullcalendar/premium-common": "^6.1.17",
     "@fullcalendar/react": "^6.1.17",
     "@fullcalendar/resource-timegrid": "^6.1.17",
     "@fullcalendar/timegrid": "^6.1.11",
