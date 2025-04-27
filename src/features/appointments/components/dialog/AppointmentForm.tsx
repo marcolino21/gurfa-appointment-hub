@@ -39,7 +39,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   handleDurationChange,
   error
 }) => {
-  const { visibleStaff, services } = useStaffAppointments();
+  const { visibleStaff, services, refreshVisibleStaff } = useStaffAppointments();
   const { toast } = useToast();
   const { displayedStaff, displayedServices } = useDefaultResources(visibleStaff, services);
   const {
@@ -50,19 +50,33 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     availableClients
   } = useAppointmentClients();
 
+  // Forza un refresh dei dati quando il componente viene montato
+  useEffect(() => {
+    refreshVisibleStaff();
+  }, [refreshVisibleStaff]);
+
+  // Inizializza serviceEntries se non esistono
   useEffect(() => {
     if (!formData.serviceEntries || formData.serviceEntries.length === 0) {
+      console.log("Initializing service entries with default values");
+      
       const event = {
         target: {
           name: 'serviceEntries',
-          value: [{ serviceId: displayedServices[0]?.id || '', staffId: displayedStaff[0]?.id || '' }]
+          value: [{ 
+            serviceId: displayedServices[0]?.id || '', 
+            staffId: displayedStaff[0]?.id || '' 
+          }]
         }
       } as unknown as React.ChangeEvent<HTMLInputElement>;
       
       handleInputChange(event);
+    } else {
+      console.log("Existing service entries:", formData.serviceEntries);
     }
   }, [displayedStaff, displayedServices, formData.serviceEntries, handleInputChange]);
 
+  // Gestione della selezione del cliente
   const handleSelectClient = (clientName: string) => {
     console.log("Selected client:", clientName);
     
@@ -87,14 +101,15 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   };
 
+  // Notifiche per l'utente
   useEffect(() => {
-    if (!services || services.length === 0) {
+    if (services.length === 0 || visibleStaff.length === 0) {
       toast({
-        title: "Servizi di prova caricati",
-        description: "È stato aggiunto un servizio di prova per poter creare appuntamenti.",
+        title: "Dati predefiniti caricati",
+        description: "Sono stati caricati servizi e operatori predefiniti per creare appuntamenti.",
       });
     }
-  }, [services, toast]);
+  }, [services, visibleStaff, toast]);
 
   return (
     <div className="space-y-6 py-4">

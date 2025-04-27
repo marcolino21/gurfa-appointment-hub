@@ -14,19 +14,19 @@ export const useStaffAppointments = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
   
-  // Refs to control updates
+  // Refs per controllare gli aggiornamenti
   const isUpdatingRef = useRef<boolean>(false);
   const previousSalonIdRef = useRef<string | null>(null);
   const mountedRef = useRef<boolean>(true);
   
-  // Function to get visible staff and services
-  const fetchVisibleStaff = useCallback(async () => {
-    // Prevent multiple calls or if salon hasn't changed
-    if (isUpdatingRef.current || currentSalonId === previousSalonIdRef.current) {
+  // Funzione per ottenere staff e servizi visibili
+  const fetchVisibleStaff = useCallback(async (forceRefresh: boolean = false) => {
+    // Previene chiamate multiple o se il salone non è cambiato e non è forzato l'aggiornamento
+    if (isUpdatingRef.current || (!forceRefresh && currentSalonId === previousSalonIdRef.current)) {
       return;
     }
     
-    // Update ref to indicate update in progress
+    // Aggiorna il ref per indicare che è in corso un aggiornamento
     isUpdatingRef.current = true;
     setIsLoading(true);
     
@@ -35,13 +35,13 @@ export const useStaffAppointments = () => {
         console.log("Fetching staff for salon:", currentSalonId);
         previousSalonIdRef.current = currentSalonId;
         
-        // Get staff from the database
+        // Ottieni staff dal database
         const allStaff = await getSalonStaff(currentSalonId);
         
-        // Verify component is still mounted
+        // Verifica che il componente sia ancora montato
         if (!mountedRef.current) return;
         
-        // Only active staff members set as visible in calendar
+        // Solo i membri dello staff attivi e impostati come visibili nel calendario
         const staffVisibleInCalendar = allStaff.filter(staff => 
           staff.isActive && (staff.showInCalendar !== false)
         );
@@ -49,7 +49,7 @@ export const useStaffAppointments = () => {
         if (staffVisibleInCalendar.length === 0 && allStaff.length > 0) {
           console.warn("No staff members are set to be visible in calendar");
           
-          // Show toast only if there are staff members but none visible
+          // Mostra toast solo se ci sono membri dello staff ma nessuno visibile
           if (mountedRef.current) {
             toast({
               title: "Nessun operatore visibile nel calendario",
@@ -61,9 +61,12 @@ export const useStaffAppointments = () => {
         if (mountedRef.current) {
           setVisibleStaff(staffVisibleInCalendar);
           
-          // Load services from mock data
+          // Carica servizi dai dati simulati
           const salonServices = MOCK_SERVICES[currentSalonId] || [];
           setServices(salonServices);
+          
+          console.log("Loaded staff:", staffVisibleInCalendar.length);
+          console.log("Loaded services:", salonServices.length);
         }
       } catch (error) {
         console.error("Error fetching visible staff:", error);
@@ -75,18 +78,18 @@ export const useStaffAppointments = () => {
           });
         }
       } finally {
-        // Cleanup state only if component is still mounted
+        // Pulisce lo stato solo se il componente è ancora montato
         if (mountedRef.current) {
           setIsLoading(false);
         }
         
-        // Wait briefly before allowing further updates
+        // Attendi brevemente prima di consentire ulteriori aggiornamenti
         setTimeout(() => {
           isUpdatingRef.current = false;
         }, 100);
       }
     } else {
-      // No salon ID
+      // Nessun ID salone
       if (mountedRef.current) {
         setVisibleStaff([]);
         setServices([]);
@@ -96,13 +99,13 @@ export const useStaffAppointments = () => {
     }
   }, [currentSalonId, toast]);
   
-  // Initial load
+  // Caricamento iniziale
   useEffect(() => {
     mountedRef.current = true;
     
     const timerId = setTimeout(() => {
       if (mountedRef.current) {
-        fetchVisibleStaff();
+        fetchVisibleStaff(true);
       }
     }, 50);
     
@@ -112,27 +115,27 @@ export const useStaffAppointments = () => {
     };
   }, [fetchVisibleStaff]);
   
-  // Single listener for all events requiring update
+  // Listener unico per tutti gli eventi che richiedono aggiornamento
   useEffect(() => {
     const handleUpdate = (event: Event | CustomEvent) => {
       if (!isUpdatingRef.current && mountedRef.current) {
-        // For CustomEvent with detail
+        // Per CustomEvent con detail
         if ('detail' in event && event.detail && currentSalonId) {
           if (event.detail.salonId !== currentSalonId) {
-            return; // Ignore events from other salons
+            return; // Ignora eventi da altri saloni
           }
         }
         
-        // Debounce to prevent too frequent updates
+        // Debounce per prevenire aggiornamenti troppo frequenti
         setTimeout(() => {
           if (mountedRef.current) {
-            fetchVisibleStaff();
+            fetchVisibleStaff(true);
           }
         }, 100);
       }
     };
     
-    // Register listeners
+    // Registra listeners
     window.addEventListener('staffDataUpdated', handleUpdate);
     window.addEventListener(BUSINESS_NAME_CHANGE_EVENT, handleUpdate);
     
@@ -146,6 +149,6 @@ export const useStaffAppointments = () => {
     visibleStaff,
     services,
     isLoading,
-    refreshVisibleStaff: fetchVisibleStaff
+    refreshVisibleStaff: () => fetchVisibleStaff(true)
   };
 };
