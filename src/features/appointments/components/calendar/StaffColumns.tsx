@@ -176,7 +176,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               allDaySlot={false}
               dayMaxEvents={false}
               // Fix for standard FullCalendar
-              height="auto", // Changed from 100% to auto
+              height="auto" // Fixed: Removed comma and corrected syntax
               dayHeaderContent={() => null}
               slotLabelContent={({ date }) => (
                 <div style={{ fontSize: '0.7rem', color: '#888' }}>
