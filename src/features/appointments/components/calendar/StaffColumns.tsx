@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -45,6 +45,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
           z-index: 100 !important;
           margin: 0 2px !important;
           height: auto !important;
+          min-height: 30px !important;
           position: absolute !important;
           right: 0 !important;
           left: 0 !important;
@@ -77,6 +78,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
           box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
           border-radius: 4px !important;
           overflow: visible !important;
+          margin: 0 !important;
         `;
         
         // Status-specific styling
@@ -120,6 +122,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            padding: 2px 0 !important;
           `;
         }
         
@@ -138,6 +141,124 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       }
     });
   }, []);
+  
+  // Implementazione di eventi manuali che bypassano completamente il sistema di rendering di FullCalendar
+  const createManualEvents = useCallback(() => {
+    console.log("Creazione eventi manuali come soluzione alternativa");
+    
+    // Rimuove eventuali eventi manuali precedenti
+    document.querySelectorAll('.manual-appointment-event').forEach(el => el.remove());
+    
+    // Per ogni membro dello staff
+    staffMembers.forEach(staff => {
+      const staffIdStr = String(staff.id);
+      
+      // Trova la colonna del calendario per questo staff
+      const staffColumn = document.querySelector(`[data-staff-id="${staffIdStr}"]`);
+      if (!staffColumn) return;
+      
+      // Trova il container degli slot temporali
+      const timeGridBody = staffColumn.querySelector('.fc-timegrid-body');
+      if (!timeGridBody) return;
+      
+      // Filtra gli eventi per questo staff
+      const staffEvents = events.filter(event => {
+        const eventStaffId = event.resourceId ? String(event.resourceId) : undefined;
+        return eventStaffId === staffIdStr;
+      });
+      
+      console.log(`Creando ${staffEvents.length} eventi manuali per ${staff.firstName}`);
+      
+      // Crea un elemento manuale per ogni evento
+      staffEvents.forEach(event => {
+        try {
+          // Ottieni l'ora di inizio dell'evento
+          const eventStart = new Date(event.start);
+          
+          // Calcola la posizione verticale (approssimativa) basata sull'ora
+          // Assumendo che ogni ora nel calendario sia alta 40px
+          const hour = eventStart.getHours();
+          const minutes = eventStart.getMinutes();
+          const topPosition = (hour * 60 + minutes) * (40/60);
+          
+          // Determina colori in base allo stato
+          let bgColor, borderColor;
+          const status = event.extendedProps?.status || 'default';
+          
+          switch (status) {
+            case 'confirmed':
+              bgColor = '#10b981';
+              borderColor = '#047857';
+              break;
+            case 'pending':
+              bgColor = '#f59e0b';
+              borderColor = '#b45309';
+              break;
+            case 'cancelled':
+              bgColor = '#ef4444';
+              borderColor = '#b91c1c';
+              break;
+            default:
+              bgColor = '#3b82f6';
+              borderColor = '#1d4ed8';
+          }
+          
+          // Crea l'elemento manuale
+          const manualEvent = document.createElement('div');
+          manualEvent.className = `manual-appointment-event appointment-status-${status}`;
+          manualEvent.setAttribute('data-event-id', event.id);
+          
+          // Imposta lo stile in modo esplicito
+          manualEvent.style.cssText = `
+            position: absolute;
+            top: ${topPosition}px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            min-height: 24px;
+            background-color: ${bgColor};
+            color: white;
+            padding: 4px;
+            margin: 0 4px;
+            border-radius: 4px;
+            z-index: 1000;
+            font-size: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-left: 4px solid ${borderColor};
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: block;
+            visibility: visible;
+            opacity: 1;
+          `;
+          
+          // Crea la struttura interna dell'evento
+          manualEvent.innerHTML = `
+            <div style="font-size: 11px; font-weight: 600; line-height: 1.2;">
+              ${format(eventStart, 'HH:mm', { locale: it })}
+            </div>
+            <div style="font-size: 12px; font-weight: bold; line-height: 1.2; 
+                       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${event.title}
+            </div>
+          `;
+
+          // Aggiungi l'evento al DOM
+          timeGridBody.appendChild(manualEvent);
+          
+          // Aggiungi gestione del click
+          manualEvent.addEventListener('click', () => {
+            if (commonConfig.eventClick) {
+              commonConfig.eventClick({ event });
+            }
+          });
+          
+        } catch (error) {
+          console.error(`Errore nella creazione dell'evento manuale: ${error}`);
+        }
+      });
+    });
+  }, [events, staffMembers, commonConfig]);
 
   // Apply block time styles once after initial render
   useEffect(() => {
@@ -165,6 +286,22 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       clearInterval(intervalTimer);
     };
   }, [forceEventVisibility, events]);
+
+  // Add manual events rendering
+  useEffect(() => {
+    // Aspetta che il calendario sia completamente renderizzato
+    const timer1 = setTimeout(createManualEvents, 500);
+    const timer2 = setTimeout(createManualEvents, 1500);
+    
+    // Applica anche periodicamente per assicurare la persistenza
+    const intervalTimer = setInterval(createManualEvents, 5000);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearInterval(intervalTimer);
+    };
+  }, [createManualEvents, events]);
   
   // Funzione di diagnostica per aiutare a risolvere i problemi rimanenti
   useEffect(() => {
@@ -188,22 +325,22 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         }
       }
       
-      // Verifica se ci sono contenitori degli eventi mal configurati
-      const eventHarnesses = document.querySelectorAll('.fc-timegrid-event-harness');
-      console.log(`Event harnesses: ${eventHarnesses.length}`);
+      // Verifica eventi manuali
+      const manualEvents = document.querySelectorAll('.manual-appointment-event');
+      console.log(`Manual events created: ${manualEvents.length}`);
       
-      if (eventHarnesses.length > 0) {
-        const firstHarness = eventHarnesses[0];
-        if (firstHarness instanceof HTMLElement) {
-          console.log('First harness styles:', {
-            height: firstHarness.offsetHeight,
-            width: firstHarness.offsetWidth,
-            position: window.getComputedStyle(firstHarness).position,
-            visibility: window.getComputedStyle(firstHarness).visibility,
-            display: window.getComputedStyle(firstHarness).display
+      if (manualEvents.length > 0) {
+        const firstManualEvent = manualEvents[0];
+        if (firstManualEvent instanceof HTMLElement) {
+          console.log('First manual event styles:', {
+            top: firstManualEvent.style.top,
+            height: firstManualEvent.offsetHeight,
+            width: firstManualEvent.offsetWidth,
+            visibility: window.getComputedStyle(firstManualEvent).visibility
           });
         }
       }
+      
       console.groupEnd();
     };
     
@@ -293,6 +430,18 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
               initialView="timeGridDay"
               initialDate={selectedDate}
               {...commonConfig}
+              // Configurazione ottimizzata per la vista giornaliera
+              eventMinHeight={30}
+              slotEventOverlap={false}
+              slotDuration={'00:30:00'}
+              snapDuration={'00:15:00'}
+              nowIndicator={false}
+              eventDurationEditable={false}
+              eventStartEditable={false}
+              forceEventDuration={true}
+              displayEventEnd={true}
+              allDaySlot={false}
+              dayMaxEvents={false}
               dayHeaderContent={() => null}
               slotLabelContent={() => null}
               events={staffEvents}

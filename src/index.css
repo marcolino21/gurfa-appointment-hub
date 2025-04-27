@@ -135,15 +135,9 @@
   height: 40px !important;
 }
 
-.appointment-form .dialog-content {
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-}
-
-.appointment-form .scroll-area {
-  flex: 1;
-  padding: 1rem;
+/* Ensure form fields are properly spaced and responsive */
+.appointment-form .form-group {
+  margin-bottom: 1rem;
 }
 
 @media (max-width: 640px) {
@@ -155,17 +149,6 @@
 /* Ensure select dropdowns are visible and don't get cut off */
 .appointment-form .select-content {
   z-index: 1000;
-}
-
-/* Ensure form fields are properly spaced and responsive */
-.appointment-form .form-group {
-  margin-bottom: 1rem;
-}
-
-@media (max-width: 480px) {
-  .appointment-form .grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Custom styles for calendar events visibility */
@@ -282,4 +265,68 @@ body .fc .fc-view-harness .fc-view .fc-timegrid .fc-timegrid-slots .fc-timegrid-
   border-color: #dc2626 !important;
   border-left-color: #b91c1c !important;
   text-decoration: line-through !important;
+}
+
+/* Stili specifici per la vista giornaliera (timeGrid) */
+/* Forza la visibilità degli slot temporali */
+.fc-timegrid-slot {
+  height: 40px !important;
+  min-height: 40px !important;
+  overflow: visible !important;
+}
+
+/* Migliora la gestione degli eventi all'interno degli slot */
+.fc-timegrid-slot-lane {
+  position: relative !important;
+  overflow: visible !important;
+  min-height: 40px !important;
+}
+
+/* Nascondi qualsiasi overflow che potrebbe tagliare gli eventi */
+.fc-timegrid-body,
+.fc-timegrid-slots,
+.fc-timegrid-col-frame {
+  overflow: visible !important;
+}
+
+/* Stili specifici per gli eventi manuali creati via JavaScript */
+.manual-appointment-event {
+  position: absolute !important;
+  min-height: 24px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 1000 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  border-radius: 4px !important;
+  color: white !important;
+  padding: 4px !important;
+  margin: 0 4px !important;
+  overflow: hidden !important;
+  pointer-events: all !important;
+  cursor: pointer !important;
+}
+
+/* Nasconde gli eventi originali di FullCalendar nella vista giornaliera */
+.fc-timegrid-event {
+  opacity: 0.01 !important; /* Mantiene un valore minimo per evitare problemi */
+}
+
+/* Assicura che il layout del calendario non nasconda elementi */
+.fc-view-harness {
+  overflow: visible !important;
+  z-index: auto !important;
+  height: auto !important;
+}
+
+/* Fissa problemi di overflow nella vista giornaliera */
+.fc-scroller {
+  overflow: visible !important;
+}
+
+/* Assicura che la colonna di ogni staff sia correttamente configurata */
+.calendar-staff-col {
+  position: relative !important;
+  overflow: visible !important;
+  height: 100% !important;
 }
