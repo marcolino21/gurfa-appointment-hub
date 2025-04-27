@@ -1,14 +1,16 @@
 
 import { StaffMember, Service } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export const useDefaultResources = (visibleStaff: StaffMember[], services: Service[]) => {
   const { currentSalonId } = useAuth();
   const [displayedStaff, setDisplayedStaff] = useState<StaffMember[]>([]);
   const [displayedServices, setDisplayedServices] = useState<Service[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
+  // Funzione che aggiorna le risorse visualizzate
+  const updateDisplayedResources = useCallback(() => {
     // Crea sempre gli operatori disponibili, privilegiando quelli reali quando disponibili
     const staffToUse = visibleStaff && visibleStaff.length > 0 ? visibleStaff : [
       {
@@ -45,11 +47,23 @@ export const useDefaultResources = (visibleStaff: StaffMember[], services: Servi
 
     setDisplayedStaff(staffToUse);
     setDisplayedServices(servicesToUse);
-    
+    setIsLoaded(true);
   }, [visibleStaff, services, currentSalonId]);
 
+  // Aggiorna le risorse quando cambiano i dati di input
+  useEffect(() => {
+    updateDisplayedResources();
+  }, [visibleStaff, services, currentSalonId, updateDisplayedResources]);
+
+  // Forza l'aggiornamento delle risorse su richiesta
+  const refreshResources = () => {
+    updateDisplayedResources();
+  };
+  
   return {
     displayedStaff,
-    displayedServices
+    displayedServices,
+    isLoaded,
+    refreshResources
   };
 };

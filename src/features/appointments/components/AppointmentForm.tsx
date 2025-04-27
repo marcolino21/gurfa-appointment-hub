@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { useStaffAppointments } from '../hooks/useStaffAppointments';
+import { useDefaultResources } from '../hooks/dialog/useDefaultResources';
+import { useAppointmentClients } from '../hooks/dialog/useAppointmentClients';
 import { FormField } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -9,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -38,7 +40,32 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
   handleDurationChange,
   error
 }) => {
-  const { visibleStaff } = useStaffAppointments();
+  // Caricamento dello staff e dei servizi
+  const { visibleStaff, refreshVisibleStaff } = useStaffAppointments();
+  const { displayedStaff, displayedServices, isLoaded: resourcesLoaded, refreshResources } = useDefaultResources(visibleStaff, []);
+  const { availableClients, isLoaded: clientsLoaded, refreshClients } = useAppointmentClients();
+  
+  // Forza il caricamento dei dati se necessario
+  React.useEffect(() => {
+    if (!resourcesLoaded || !clientsLoaded) {
+      console.log("Forcing data load for appointment form");
+      refreshVisibleStaff();
+      refreshResources();
+      refreshClients();
+    }
+  }, [resourcesLoaded, clientsLoaded, refreshVisibleStaff, refreshResources, refreshClients]);
+  
+  // Stato di caricamento complessivo
+  const isLoading = !resourcesLoaded || !clientsLoaded;
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-lg">Caricamento dati in corso...</span>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-4 py-4">
@@ -163,7 +190,7 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
             <SelectValue placeholder="Seleziona operatore" />
           </SelectTrigger>
           <SelectContent>
-            {visibleStaff.map((staff) => (
+            {displayedStaff.map((staff) => (
               <SelectItem key={staff.id} value={staff.id}>
                 {staff.firstName} {staff.lastName}
               </SelectItem>

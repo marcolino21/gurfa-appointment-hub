@@ -12,7 +12,7 @@ interface AppointmentDialogProps {
 }
 
 const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChange }) => {
-  const { setCurrentAppointment } = useAppointments();
+  const { setCurrentAppointment, currentAppointment } = useAppointments();
   const { toast } = useToast();
   
   const handleClose = () => {
@@ -35,11 +35,20 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
     handleStatusChange,
     handleDurationChange,
     handleSubmit,
-    handleDelete
+    handleDelete,
+    resetForm
   } = useAppointmentDialog(handleClose);
   
   const isExistingAppointment = Boolean(formData.id);
 
+  // Resetta il form quando si riapre il dialog con un nuovo appuntamento
+  useEffect(() => {
+    if (open && currentAppointment) {
+      console.log("Dialog opened with appointment:", currentAppointment);
+      resetForm();
+    }
+  }, [open, currentAppointment, resetForm]);
+  
   useEffect(() => {
     if (error) {
       toast({

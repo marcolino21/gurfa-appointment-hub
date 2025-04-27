@@ -20,7 +20,7 @@ const Appointments: React.FC = () => {
   
   const { setFilters, currentAppointment, appointments, filteredAppointments } = useAppointments();
   const { currentSalonId } = useAuth();
-  const { visibleStaff, refreshVisibleStaff } = useStaffAppointments();
+  const { visibleStaff, refreshVisibleStaff, isLoading: staffLoading } = useStaffAppointments();
   const { events } = useAppointmentEvents();
   
   const {
@@ -56,13 +56,21 @@ const Appointments: React.FC = () => {
     }
   }, [refreshVisibleStaff, currentSalonId]);
   
+  // All'apertura della pagina, forza il caricamento dei dati necessari
+  useEffect(() => {
+    if (currentSalonId) {
+      refreshVisibleStaff(); 
+    }
+  }, [currentSalonId, refreshVisibleStaff]);
+  
   // Debug e validazione delle visualizzazioni
   useEffect(() => {
     console.log("Debug appuntamenti e staff:", {
       allAppointments: appointments.length,
       filteredAppointments: filteredAppointments.length,
       visibleStaff: visibleStaff.length,
-      eventsGenerated: events.length
+      eventsGenerated: events.length,
+      staffLoading
     });
     
     if (appointments.length > 0 && filteredAppointments.length === 0) {
@@ -82,14 +90,14 @@ const Appointments: React.FC = () => {
     console.log("Appuntamenti per stato:", appointmentsByStatus);
     
     // Notifica se non ci sono staff visibili
-    if (visibleStaff.length === 0 && currentSalonId) {
+    if (visibleStaff.length === 0 && currentSalonId && !staffLoading) {
       toast({
         title: "Nessuno staff visibile",
         description: "Vai alla pagina Staff e seleziona 'Visibile in agenda' per i membri che vuoi visualizzare.",
         variant: "default"
       });
     }
-  }, [visibleStaff, currentSalonId, toast, events, appointments, filteredAppointments, searchTerm, statusFilter]);
+  }, [visibleStaff, currentSalonId, toast, events, appointments, filteredAppointments, searchTerm, statusFilter, staffLoading]);
   
   return (
     <div className="space-y-4">

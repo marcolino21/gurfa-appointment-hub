@@ -12,10 +12,11 @@ export const useAppointmentClients = () => {
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Funzione per caricare i clienti del salone
-  const loadClients = useCallback(async () => {
-    if (!currentSalonId || isLoading) return;
+  const loadClients = useCallback(async (force: boolean = false) => {
+    if (!currentSalonId || (isLoading && !force)) return;
     
     setIsLoading(true);
     
@@ -44,6 +45,7 @@ export const useAppointmentClients = () => {
       }
       
       setAvailableClients(salonClients);
+      setIsLoaded(true);
       console.log("Loaded clients:", salonClients.length);
     } catch (error) {
       console.error("Error loading clients:", error);
@@ -55,12 +57,14 @@ export const useAppointmentClients = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentSalonId, toast, isLoading]);
+  }, [currentSalonId, toast]);
 
   // Carica clienti all'avvio o quando cambia il salone
   useEffect(() => {
-    loadClients();
-  }, [loadClients]);
+    if (currentSalonId && !isLoaded) {
+      loadClients(true);
+    }
+  }, [currentSalonId, loadClients, isLoaded]);
 
   // Filtra i clienti in base al termine di ricerca
   const filteredClients = clientSearchTerm === ''
@@ -78,6 +82,7 @@ export const useAppointmentClients = () => {
     setValidationError,
     filteredClients,
     isLoading,
-    refreshClients: loadClients
+    isLoaded,
+    refreshClients: () => loadClients(true)
   };
 };

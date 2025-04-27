@@ -11,18 +11,19 @@ export const useStaffAppointments = () => {
   const { currentSalonId } = useAuth();
   const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
   const [services, setServices] = useState<Service[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
   
   // Refs per controllare gli aggiornamenti
   const isUpdatingRef = useRef<boolean>(false);
   const previousSalonIdRef = useRef<string | null>(null);
   const mountedRef = useRef<boolean>(true);
+  const initialized = useRef<boolean>(false);
   
   // Funzione per ottenere staff e servizi visibili
   const fetchVisibleStaff = useCallback(async (forceRefresh: boolean = false) => {
     // Previene chiamate multiple o se il salone non è cambiato e non è forzato l'aggiornamento
-    if (isUpdatingRef.current || (!forceRefresh && currentSalonId === previousSalonIdRef.current)) {
+    if (isUpdatingRef.current || (!forceRefresh && currentSalonId === previousSalonIdRef.current && initialized.current)) {
       return;
     }
     
@@ -34,6 +35,7 @@ export const useStaffAppointments = () => {
       try {
         console.log("Fetching staff for salon:", currentSalonId);
         previousSalonIdRef.current = currentSalonId;
+        initialized.current = true;
         
         // Ottieni staff dal database
         const allStaff = await getSalonStaff(currentSalonId);
