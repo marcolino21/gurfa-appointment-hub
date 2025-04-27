@@ -46,28 +46,26 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     }, {} as Record<string, boolean>);
   }, [staffMembers, isStaffBlocked]);
 
-  // Debug log of events and staff
+  // Debug log di eventi e staff membri
   useEffect(() => {
-    console.log("StaffColumns - Staff members:", staffMembers.map(s => ({ id: s.id, name: getStaffName(s), showInCalendar: s.showInCalendar })));
-    console.log("StaffColumns - Available events:", events.length);
+    console.log("StaffColumns rendering with staffMembers:", staffMembers);
+    console.log("StaffColumns rendering with events:", events);
     
-    // Log event-to-staff matching
+    // Log degli eventi per ogni membro dello staff
     staffMembers.forEach(staff => {
       const staffEvents = events.filter(event => event.resourceId === staff.id);
-      console.log(`Staff ${getStaffName(staff)} (ID: ${staff.id}) has ${staffEvents.length} events:`, 
-        staffEvents.map(e => ({ id: e.id, title: e.title })));
+      console.log(`Staff ${getStaffName(staff)} (ID: ${staff.id}) has ${staffEvents.length} events`);
     });
     
-    // Log orphaned events (events with resourceId that doesn't match any staff)
+    // Log degli eventi senza resourceId o con resourceId non corrispondente
     const orphanedEvents = events.filter(
       event => event.resourceId && !staffMembers.some(staff => staff.id === event.resourceId)
     );
     
     if (orphanedEvents.length > 0) {
-      console.warn("Orphaned events (no matching staff):", orphanedEvents);
+      console.warn("Events with invalid resourceId:", orphanedEvents);
     }
     
-    // Log events with missing resourceId
     const eventsWithoutResource = events.filter(event => !event.resourceId);
     if (eventsWithoutResource.length > 0) {
       console.warn("Events without resourceId:", eventsWithoutResource);
@@ -95,8 +93,17 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       {staffMembers.map((staff, index) => {
         const isBlocked = blockedStaffStatus[staff.id] || false;
         
-        // Filter events for this specific staff member
-        const staffEvents = events.filter(event => event.resourceId === staff.id);
+        // Filtra gli eventi per questo membro dello staff specifico
+        const staffEvents = events.filter(event => {
+          const eventStaffId = String(event.resourceId);
+          const staffMatched = eventStaffId === staff.id;
+          if (!staffMatched && eventStaffId === staff.id) {
+            console.log(`Event ${event.id} has resourceId ${eventStaffId} that almost matches staff ${staff.id} but types differ`);
+          }
+          return staffMatched;
+        });
+        
+        console.log(`Rendering calendar for ${staff.firstName} ${staff.lastName} (ID: ${staff.id}) with ${staffEvents.length} events`);
         
         return (
           <div
@@ -128,6 +135,7 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
                 return [];
               }}
               eventDidMount={(info) => {
+                console.log(`Event mounted: ${info.event.title} for staff ${staff.firstName}`);
                 if (commonConfig.eventDidMount) {
                   commonConfig.eventDidMount(info);
                 }

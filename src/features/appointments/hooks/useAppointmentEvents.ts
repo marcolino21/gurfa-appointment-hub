@@ -1,96 +1,70 @@
 
 import { useMemo } from 'react';
 import { useAppointments } from '@/contexts/AppointmentContext';
-import { useStaffAppointments } from './useStaffAppointments';
 import { StaffMember } from '@/types';
-import { Appointment } from '@/types';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 export const useAppointmentEvents = () => {
   const { filteredAppointments } = useAppointments();
-  const { visibleStaff } = useStaffAppointments();
 
-  // Funzione di utility per normalizzare staffId
-  const normalizeStaffId = (staffId: any): string | undefined => {
-    if (staffId === null || staffId === undefined) return undefined;
-    
-    if (typeof staffId === 'object' && staffId !== null && 'value' in staffId) {
-      return staffId.value === 'undefined' ? undefined : String(staffId.value);
-    }
-    
-    if (Array.isArray(staffId) && staffId.length > 0) {
-      if (staffId[0] && typeof staffId[0] === 'object' && 'staffId' in staffId[0]) {
-        const firstStaffId = staffId[0].staffId;
-        return firstStaffId ? String(firstStaffId) : undefined;
-      }
-      return undefined;
-    }
-    
-    return staffId ? String(staffId) : undefined;
-  };
-
-  // Funzione per ottenere il colore corretto per lo stato dell'appuntamento
-  const getStatusColor = (status: string): string => {
-    switch(status) {
-      case 'confirmed': return '#10b981'; // green
-      case 'completed': return '#3b82f6'; // blue
-      case 'cancelled': return '#ef4444'; // red
-      case 'pending':
-      default: return '#f59e0b'; // amber
-    }
-  };
-
-  // Converti gli appuntamenti in eventi per il calendario
+  // Mappa gli appuntamenti in eventi per FullCalendar
   const events = useMemo(() => {
-    if (!filteredAppointments.length) return [];
+    console.log("Mapping appointments to calendar events:", filteredAppointments.length);
     
-    console.log("Converting appointments to events:", filteredAppointments);
-    
-    return filteredAppointments.map((appointment: Appointment) => {
-      const staffId = normalizeStaffId(appointment.staffId);
-      console.log(`Appointment ${appointment.id} has staffId: ${staffId}`);
-      
-      // Tenta di determinare lo staffId dalle serviceEntries
-      let eventStaffId = staffId;
-      if (!eventStaffId && appointment.serviceEntries && appointment.serviceEntries.length > 0) {
-        eventStaffId = appointment.serviceEntries[0].staffId;
-        console.log(`Using staffId from serviceEntries: ${eventStaffId}`);
-      }
-      
-      // Se ancora non abbiamo uno staffId valido e ci sono operatori disponibili, assegnamo il primo
-      if (!eventStaffId && visibleStaff.length > 0) {
-        eventStaffId = visibleStaff[0].id;
-        console.log(`Assigned default staffId: ${eventStaffId}`);
-      }
-      
-      // Trova il membro dello staff corrispondente
-      const staffMember: StaffMember | undefined = eventStaffId 
-        ? visibleStaff.find(staff => staff.id === eventStaffId) 
-        : undefined;
-      
-      // Assegna un colore appropriato in base allo stato
-      const borderColor = getStatusColor(appointment.status);
-      
-      return {
-        id: appointment.id,
-        title: appointment.title || appointment.service || "Appuntamento",
-        resourceId: eventStaffId, // Usa lo staffId normalizzato
-        start: appointment.start,
-        end: appointment.end,
-        backgroundColor: staffMember?.color || '#9b87f5',
-        textColor: '#ffffff',
-        borderColor,
-        borderLeft: `4px solid ${borderColor}`,
-        extendedProps: {
-          clientName: appointment.clientName,
-          clientPhone: appointment.clientPhone,
-          service: appointment.service,
-          status: appointment.status,
-          notes: appointment.notes,
-          staffName: staffMember ? `${staffMember.firstName} ${staffMember.lastName}` : ''
+    return filteredAppointments.map(appointment => {
+      try {
+        // Verifico che appointment.staffId sia definito
+        if (!appointment.staffId) {
+          console.warn(`Appointment ${appointment.id} has no staffId. It won't be visible in the calendar.`);
         }
-      };
-    });
-  }, [filteredAppointments, visibleStaff]);
+        
+        // Verifico che start e end siano validi
+        const start = new Date(appointment.start);
+        const end = new Date(appointment.end);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          console.error(`Invalid date for appointment ${appointment.id}`, { start: appointment.start, end: appointment.end });
+        }
+        
+        // Formatto il titolo dell'evento per il calendario
+        let title = appointment.clientName;
+        if (appointment.service) {
+          title += ` - ${appointment.service}`;
+        }
+        
+        // Fornisco informazioni di debug
+        console.log(`Creating calendar event for appointment ${appointment.id} with staffId ${appointment.staffId}`, {
+          id: appointment.id,
+          title: title,
+          start: format(start, 'yyyy-MM-dd HH:mm', { locale: it }),
+          end: format(end, 'yyyy-MM-dd HH:mm', { locale: it }),
+          resourceId: appointment.staffId
+        });
+        
+        // Creo l'evento del calendario
+        return {
+          id: appointment.id,
+          title: title,
+          start: start,
+          end: end,
+          resourceId: String(appointment.staffId),
+          extendedProps: {
+            clientName: appointment.clientName,
+            service: appointment.service || '',
+            status: appointment.status,
+            notes: appointment.notes || ''
+          },
+          classNames: [
+            `appointment-status-${appointment.status}`,
+            'calendar-appointment'
+          ]
+        };
+      } catch (error) {
+        console.error(`Error processing appointment ${appointment.id}:`, error);
+        return null;
+      }
+    }).filter(Boolean); // Rimuove eventuali eventi null
+  }, [filteredAppointments]);
 
   return { events };
 };

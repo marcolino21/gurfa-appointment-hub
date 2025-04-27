@@ -30,6 +30,9 @@ export const useUpdateAppointment = (
         }
       }
       
+      console.log("Original staffId for update:", appointment.staffId);
+      console.log("Processed staffId for update:", processedStaffId);
+      
       // Crea una versione aggiornata con staffId normalizzato
       const updatedAppointment: Appointment = {
         ...appointment,
@@ -46,7 +49,7 @@ export const useUpdateAppointment = (
       }
       
       console.log("Aggiornamento appuntamento:", updatedAppointment);
-      console.log("Staff assegnato:", processedStaffId);
+      console.log("Staff assegnato per update:", processedStaffId);
       
       dispatch({ type: 'UPDATE_APPOINTMENT', payload: updatedAppointment });
       

@@ -30,7 +30,10 @@ export const useAppointmentProvider = (): AppointmentContextType => {
     );
   };
 
+  // Modifichiamo questa funzione per aggiornare anche la lista filtrata
   const addAppointment = useAddAppointment(dispatch, isSlotAvailable);
+  
+  // Modifichiamo questa funzione per aggiornare anche la lista filtrata
   const updateAppointment = useUpdateAppointment(dispatch, isSlotAvailable);
 
   const deleteAppointment = async (id: string): Promise<void> => {
@@ -38,6 +41,12 @@ export const useAppointmentProvider = (): AppointmentContextType => {
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       dispatch({ type: 'DELETE_APPOINTMENT', payload: id });
+      
+      // Aggiorniamo anche gli appuntamenti filtrati
+      const updatedFiltered = state.appointments.filter(app => app.id !== id)
+        .filter(filterAppointments(state.filters));
+      dispatch({ type: 'SET_FILTERED_APPOINTMENTS', payload: updatedFiltered });
+      
       dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error: any) {
       dispatch({ type: 'SET_ERROR', payload: error.message });

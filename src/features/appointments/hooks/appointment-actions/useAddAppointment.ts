@@ -30,6 +30,9 @@ export const useAddAppointment = (
         }
       }
       
+      console.log("Original staffId:", appointment.staffId);
+      console.log("Processed staffId:", processedStaffId);
+      
       const newAppointment: Appointment = {
         ...appointment,
         staffId: processedStaffId,
@@ -49,6 +52,9 @@ export const useAddAppointment = (
       console.log("Staff assegnato:", processedStaffId);
       
       dispatch({ type: 'ADD_APPOINTMENT', payload: newAppointment });
+      
+      // Assicuriamoci che sia aggiunto anche alla lista filtrata
+      dispatch({ type: 'ADD_TO_FILTERED_APPOINTMENTS', payload: newAppointment });
       
       // Messaggio di conferma migliorato
       const formattedDate = format(new Date(newAppointment.start), 'EEEE d MMMM yyyy', { locale: it });
