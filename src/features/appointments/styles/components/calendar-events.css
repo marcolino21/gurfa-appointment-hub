@@ -140,38 +140,52 @@
   z-index: 10000 !important;
 }
 
-/* Nascondi completamente gli eventi nativi di FullCalendar */
+/* ---- RIPRISTINO VISIBILITÀ DELLA GRIGLIA ---- */
+/* Rendiamo nuovamente visibili gli elementi della griglia temporale */
 .fc-timegrid-event,
-.fc-timegrid-event-harness,
-.fc-daygrid-event,
-.fc-daygrid-event-harness,
-.fc-event {
-  display: none !important;
+.fc-timegrid-event-harness {
+  display: none !important; /* Nascondiamo solo gli eventi, non la griglia */
   visibility: hidden !important;
   opacity: 0 !important;
-  height: 0 !important;
-  width: 0 !important;
-  pointer-events: none !important;
-  overflow: hidden !important;
-  position: absolute !important;
-  top: -9999px !important;
-  left: -9999px !important;
 }
 
-/* Migliora la visibilità del contenitore degli slot temporali */
+/* NON nascondiamo completamente gli elementi della griglia */
 .fc-timegrid-body,
 .fc-timegrid-slots,
-.fc-timegrid-col-frame,
 .fc-timegrid-slot,
-.fc-timegrid-slot-lane {
+.fc-timegrid-slot-lane,
+.fc-timegrid-slot-minor,
+.fc-timegrid-cols,
+.fc-timegrid-col-frame {
+  display: block !important; /* Forza la visualizzazione */
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important; /* Importante per mantenere la struttura */
   overflow: visible !important;
-  position: relative !important;
+  z-index: 1 !important; /* Z-index basso ma visibile */
 }
 
-/* Assicura che gli slot abbiano altezza corretta e siano visibili */
+/* Ripristina la visibilità degli slot temporali */
 .fc-timegrid-slot {
   height: 40px !important;
   min-height: 40px !important;
+  border-color: #e5e7eb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: white !important;
+  visibility: visible !important;
+  display: table-row !important; /* Importante per mantenere la struttura */
+}
+
+/* Mantieni visibile la struttura del calendario */
+.fc-view-harness,
+.fc-view,
+.fc-timegrid {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: auto !important;
 }
 
 /* Configura correttamente lo scrolling */
@@ -180,15 +194,53 @@
   height: 100% !important;
 }
 
-/* Fix per lo z-index nella griglia temporale */
-.fc,
-.fc-view-harness,
-.fc-view,
-.fc-timegrid,
-.fc-timegrid-body,
-.fc-timegrid-slots,
-.fc-timegrid-cols,
-.fc-timegrid-col-frame {
-  z-index: auto !important;
-  overflow: visible !important;
+/* Assicura che le etichette delle ore siano visibili */
+.fc-timegrid-axis,
+.fc-timegrid-slot-label {
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Gestione migliore dello z-index */
+.fc .fc-timegrid-slot-label-frame {
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+
+/* Assicura visibilità delle linee orizzontali della griglia */
+.fc-timegrid-slot-minor {
+  border-top: 1px dashed #e5e7eb !important;
+  visibility: visible !important;
+  display: table-row !important;
+}
+
+/* Forcemen for legacy browsers */
+.fc-timegrid-slots table,
+.fc-timegrid-slots tr,
+.fc-timegrid-slots td {
+  display: table !important;
+  display: table-row !important;
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Adattamento per gli eventi React nello stesso contenitore */
+.react-appointment-event {
+  z-index: 100 !important; /* Alto ma non troppo da coprire UI elementi */
+}
+
+/* Migliore visibilità per le etichette del tempo */
+.time-slot-label {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  z-index: 2 !important;
+}
+
+/* Assicura spazio sufficiente per ogni slot temporale */
+.fc-timegrid-slot-lane {
+  height: 40px !important;
 }
