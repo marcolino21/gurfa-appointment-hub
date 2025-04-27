@@ -131,6 +131,16 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   }, [events, calendarApi]);
 
+  // Stile di base per il calendario
+  const calendarStyle = {
+    height: '100%',
+    minHeight: '500px',
+    backgroundColor: 'white',
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
   // Se non ci sono staffMembers visibili, mostra un messaggio
   if (staffMembers.length === 0) {
     return (
@@ -164,17 +174,19 @@ const StaffCalendar: React.FC<StaffCalendarProps> = ({
   }
 
   return (
-    <TimeGridView
-      staffMembers={staffMembers}
-      events={events}
-      view={view}
-      selectedDate={selectedDate}
-      commonConfig={commonConfig}
-      calendarRefs={calendarRefs}
-      setCalendarApi={setCalendarApi}
-      zoomLevel={zoomLevel}
-      onZoomChange={handleZoomChange}
-    />
+    <div style={calendarStyle}>
+      <TimeGridView
+        staffMembers={staffMembers}
+        events={events}
+        view={view}
+        selectedDate={selectedDate}
+        commonConfig={commonConfig}
+        calendarRefs={calendarRefs}
+        setCalendarApi={setCalendarApi}
+        zoomLevel={zoomLevel}
+        onZoomChange={handleZoomChange}
+      />
+    </div>
   );
 };
 

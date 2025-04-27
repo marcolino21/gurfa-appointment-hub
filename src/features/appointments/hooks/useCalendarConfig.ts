@@ -30,8 +30,22 @@ export const useCalendarConfig = (
     eventClick: onEventClick,
     editable: true,
     droppable: true,
+    eventDragStart: (info: any) => {
+      // Aggiunge una classe durante il trascinamento
+      info.el.classList.add('event-dragging');
+    },
+    eventDragStop: (info: any) => {
+      // Rimuove la classe dopo il trascinamento
+      info.el.classList.remove('event-dragging');
+    },
     eventDrop: onEventDrop,
-    // Nuovi config per resize
+    // Eventi per resize
+    eventResizeStart: (info: any) => {
+      info.el.classList.add('event-resizing');
+    },
+    eventResizeStop: (info: any) => {
+      info.el.classList.remove('event-resizing');
+    },
     eventResize: onEventDrop, // Riutilizziamo la stessa funzione per semplicità
     eventResizableFromStart: true, // Consente il ridimensionamento dall'inizio
     headerToolbar: false,

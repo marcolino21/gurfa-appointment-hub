@@ -8,6 +8,7 @@
   background-color: white;
   border: 2px solid #3b82f6;
   z-index: 10;
+  display: block !important;
 }
 
 .fc-event-resizer-start {
@@ -51,6 +52,7 @@
   border-color: #cbd5e0 !important;
   border-left-color: #94a3b8 !important;
   color: #475569 !important;
+  display: block !important;
 }
 
 /* Stili per animazioni fluide */
@@ -117,17 +119,23 @@
 /* Stili per apparenza migliorata degli appuntamenti */
 .fc-event-main {
   padding: 2px 4px !important;
+  display: block !important;
+  visibility: visible !important;
 }
 
 .fc-event-title {
   font-weight: 600 !important;
   font-size: 12px !important;
   line-height: 1.2 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 .fc-event-time {
   font-size: 10px !important;
   opacity: 0.9 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 /* Indicatori di stato più visibili */
@@ -155,4 +163,26 @@
 
 .fc-event.appointment-status-completed::after {
   background-color: #3b82f6;
+}
+
+/* Forza la visualizzazione degli elementi cruciali*/
+.fc-event-harness {
+  display: block !important;
+  visibility: visible !important;
+  position: absolute !important;
+}
+
+/* Assicurati che il contenitore principale del calendario sia visibile */
+.staff-calendar-block,
+.calendar-staff-col,
+.fc-view-harness,
+.fc-view,
+.fc-timegrid,
+.fc-timegrid-body,
+.fc-scrollgrid,
+.fc-scrollgrid-liquid {
+  visibility: visible !important;
+  display: block !important;
+  opacity: 1 !important;
+  min-height: 500px !important;
 }

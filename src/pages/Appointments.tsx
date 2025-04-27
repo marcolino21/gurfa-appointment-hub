@@ -111,15 +111,17 @@ const Appointments: React.FC = () => {
         setStatusFilter={setStatusFilter}
       />
       
-      <AppointmentCalendarView 
-        visibleStaff={visibleStaff}
-        events={events}
-        handleDateSelect={handleDateSelect}
-        handleEventClick={handleEventClick}
-        handleEventDrop={handleEventDrop}
-        handleEventResize={handleEventResize}
-        onViewChange={setCalendarView}
-      />
+      <div className="min-h-[600px]">
+        <AppointmentCalendarView 
+          visibleStaff={visibleStaff}
+          events={events}
+          handleDateSelect={handleDateSelect}
+          handleEventClick={handleEventClick}
+          handleEventDrop={handleEventDrop}
+          handleEventResize={handleEventResize}
+          onViewChange={setCalendarView}
+        />
+      </div>
       
       {isAppointmentDialogOpen && (
         <AppointmentDialog

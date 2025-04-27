@@ -63,6 +63,8 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
           if (appointmentCalendar) {
             appointmentCalendar.classList.add('calendar-scrollable');
           }
+          
+          console.log("Grid initialized for TimeGridView");
         } catch (error) {
           console.error("Error initializing grid layout:", error);
         }
@@ -77,9 +79,17 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
     }
   };
 
+  const containerStyle = {
+    minHeight: '500px',
+    height: '100%',
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px',
+    backgroundColor: 'white'
+  };
+
   return (
     <TooltipProvider>
-      <div className="h-[calc(100vh-320px)] min-h-[500px] staff-calendar-block">
+      <div className="h-[calc(100vh-320px)] min-h-[500px] staff-calendar-block" style={containerStyle}>
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
           <CalendarHeader selectedDate={validSelectedDate} />
           <div className="flex items-center space-x-4">
@@ -106,12 +116,12 @@ export const TimeGridView: React.FC<TimeGridViewProps> = ({
 
         <StaffHeader staffMembers={staffMembers} />
         
-        <div className="calendar-grid-body sync-scroll-container">
+        <div className="calendar-grid-body sync-scroll-container" style={{ minHeight: '450px' }}>
           <TimeColumn 
             selectedDate={validSelectedDate}
             commonConfig={commonConfig}
           />
-          <div className="calendar-staff-cols unified-calendar-content">
+          <div className="calendar-staff-cols unified-calendar-content" style={{ minHeight: '450px' }}>
             <StaffColumns
               staffMembers={staffMembers}
               events={allEvents}

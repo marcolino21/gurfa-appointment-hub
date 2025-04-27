@@ -1,4 +1,43 @@
 
+/* Event styles */
+.fc-event {
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 1px;
+  border: none;
+  cursor: pointer !important;
+  position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-radius: 4px !important;
+  z-index: 1000 !important;
+  font-size: 12px !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-left: 4px solid #1d4ed8 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  overflow: hidden !important;
+  pointer-events: all !important;
+  min-height: 25px !important;
+  transition: box-shadow 0.2s, transform 0.1s !important;
+}
+
+/* Month view event styles */
+.fc-dayGridMonth-view .fc-daygrid-event {
+  position: relative !important;
+}
+
+.fc-dayGridMonth-view .fc-daygrid-event .fc-event-title:before {
+  content: attr(data-staff-name) " - ";
+  font-weight: 500;
+}
+
+.fc-dayGridMonth-view .fc-event-title {
+  font-size: 0.75rem !important;
+}
+
 /* Stili per gli eventi manuali */
 .manual-event-wrapper {
   position: absolute;
@@ -201,6 +240,8 @@
   opacity: 1 !important;
   position: relative !important;
   z-index: 1 !important;
+  height: 100% !important;
+  min-height: 500px !important;
   overflow: auto !important;
 }
 
@@ -259,4 +300,10 @@
 /* Assicura spazio sufficiente per ogni slot temporale */
 .fc-timegrid-slot-lane {
   height: 40px !important;
+}
+
+/* Importante: visibilità del contenitore principale */
+.fc .fc-scrollgrid-liquid {
+  height: 100%;
+  min-height: 400px !important;
 }

@@ -5,22 +5,28 @@
 @import './components/calendar-header.css';
 @import './components/staff-columns.css';
 @import './components/time-column.css';
-@import './components/interactive-calendar.css'; /* Aggiungiamo i nuovi stili interattivi */
+@import './components/interactive-calendar.css';
+@import './calendar-views.css';
+@import './base-calendar.css';
 
 /* Stili generali per il calendario */
 .sync-scroll-container {
   display: flex;
   height: 100%;
+  border: 1px solid #e5e7eb;
+  background-color: white;
 }
 
 .unified-calendar-grid {
   display: flex;
   height: 100%;
+  min-height: 600px;
 }
 
 .unified-calendar-content {
   flex: 1;
   overflow: auto;
+  background-color: white;
 }
 
 /* Nasconde scrollbar su alcuni browser */
@@ -95,4 +101,47 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Assicuriamo che il calendario abbia un'altezza minima e sia visibile */
+.staff-calendar-block {
+  min-height: 500px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+}
+
+/* Forza la visibilità degli elementi FullCalendar */
+.fc .fc-view-harness {
+  flex-grow: 1;
+  position: relative;
+  border: 0;
+  overflow: visible;
+}
+
+.fc .fc-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Assicuriamo che i contenitori interni abbiano altezze corrette */
+.fc-view-harness,
+.fc-view,
+.fc-timegrid,
+.fc-timegrid-body {
+  height: 100% !important;
+  min-height: 500px !important;
+}
+
+/* Fix per evitare spazi vuoti indesiderati */
+.fc-scroller-liquid-absolute {
+  position: relative !important;
+  height: 100% !important;
 }
