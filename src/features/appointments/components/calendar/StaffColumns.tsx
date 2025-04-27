@@ -260,30 +260,6 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
       dateObserver.disconnect();
     };
   }, [createManualEvents, hideNativeEvents, events, selectedDate]);
-  
-  // Diagnosi eventi
-  useEffect(() => {
-    const diagnoseEvents = () => {
-      console.group('📊 Calendar Events Diagnosis');
-      
-      // Controlla eventi manuali
-      const manualEvents = document.querySelectorAll('.manual-appointment-event');
-      console.log(`Manual events created: ${manualEvents.length}`);
-      
-      if (manualEvents.length > 0) {
-        console.log('First manual event visible:', 
-          manualEvents[0] instanceof HTMLElement 
-          ? window.getComputedStyle(manualEvents[0]).display !== 'none' 
-          : false
-        );
-      }
-      
-      console.groupEnd();
-    };
-    
-    const timer = setTimeout(diagnoseEvents, 2000);
-    return () => clearTimeout(timer);
-  }, [events]);
 
   // Memoize blocked staff status to prevent unnecessary recalculations
   const blockedStaffStatus = useMemo(() => {

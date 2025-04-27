@@ -1,3 +1,4 @@
+
 import { Appointment } from '@/types';
 import { AppointmentState, AppointmentAction } from '../types/appointmentContext';
 import { filterAppointments } from '../utils/appointmentUtils';

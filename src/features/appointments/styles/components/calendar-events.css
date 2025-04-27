@@ -1,76 +1,5 @@
 
-/* Event styles */
-.fc-event {
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 1px;
-  border: none;
-  cursor: pointer !important;
-  min-height: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
-
-/* Ensure event content is visible */
-.fc-event-title {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.85rem;
-  line-height: 1.2;
-  font-weight: 500;
-}
-
-.fc-event-time {
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-/* Appointment status styling */
-.appointment-status-confirmed {
-  border-left: 3px solid #10b981 !important; /* verde */
-  background-color: rgba(16, 185, 129, 0.1) !important;
-}
-
-.appointment-status-pending {
-  border-left: 3px solid #f59e0b !important; /* giallo */
-  background-color: rgba(245, 158, 11, 0.1) !important;
-}
-
-.appointment-status-cancelled {
-  border-left: 3px solid #ef4444 !important; /* rosso */
-  background-color: rgba(239, 68, 68, 0.1) !important;
-  text-decoration: line-through !important;
-}
-
-.appointment-status-default {
-  border-left: 3px solid #3b82f6 !important; /* blu */
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-/* Month view event styles */
-.fc-dayGridMonth-view .fc-daygrid-event .fc-event-title:before {
-  content: attr(data-staff-name) " - ";
-  font-weight: 500;
-}
-
-.fc-dayGridMonth-view .fc-event-title {
-  font-size: 0.75rem !important;
-}
-
-/* Improve visibility of events */
-.calendar-appointment {
-  display: block !important;
-  opacity: 0.95 !important;
-  z-index: 5;
-}
-
-/* Ensure event harness sizes correctly */
-.fc-timegrid-event-harness {
-  margin: 0 2px;
-}
-
-/* Manual event styling */
+/* Nuovi stili ottimizzati per gli eventi manuali */
 .manual-event-wrapper {
   position: absolute;
   pointer-events: none;
@@ -96,4 +25,59 @@
   overflow: hidden;
   pointer-events: all;
   cursor: pointer;
+}
+
+/* Nasconde completamente gli eventi nativi di FullCalendar nella vista giornaliera */
+.fc-timegrid-event,
+.fc-timegrid-event-harness {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Migliora la visibilità del contenitore degli slot temporali */
+.fc-timegrid-body,
+.fc-timegrid-slots,
+.fc-timegrid-col-frame,
+.fc-timegrid-slot,
+.fc-timegrid-slot-lane {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Assicura che gli slot abbiano altezza corretta e siano visibili */
+.fc-timegrid-slot {
+  height: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Configura correttamente lo scrolling */
+.fc-scroller {
+  overflow: auto !important;
+  height: 100% !important;
+}
+
+/* Status-specific styles per eventi manuali */
+.manual-appointment-event.appointment-status-confirmed {
+  background-color: #10b981 !important; /* verde */
+  border-left: 4px solid #047857 !important;
+}
+
+.manual-appointment-event.appointment-status-pending {
+  background-color: #f59e0b !important; /* giallo */
+  border-left: 4px solid #b45309 !important;
+}
+
+.manual-appointment-event.appointment-status-cancelled {
+  background-color: #ef4444 !important; /* rosso */
+  border-left: 4px solid #b91c1c !important;
+  text-decoration: line-through !important;
+}
+
+.manual-appointment-event.appointment-status-completed {
+  background-color: #3b82f6 !important; /* blu */
+  border-left: 4px solid #1d4ed8 !important;
 }

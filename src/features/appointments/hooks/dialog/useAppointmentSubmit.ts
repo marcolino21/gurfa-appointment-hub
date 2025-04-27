@@ -1,3 +1,4 @@
+
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Appointment } from '@/types';
