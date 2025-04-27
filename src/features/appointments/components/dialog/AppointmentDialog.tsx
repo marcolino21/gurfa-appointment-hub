@@ -41,11 +41,22 @@ const AppointmentDialog: React.FC<AppointmentDialogProps> = ({ open, onOpenChang
   
   const isExistingAppointment = Boolean(formData.id);
 
-  // Reset the form when dialog opens with a new appointment
+  // Dialog opening management
   useEffect(() => {
-    if (open && currentAppointment) {
-      console.log("Dialog opened with appointment:", currentAppointment);
-      resetForm();
+    if (open) {
+      console.log("Dialog opened, currentAppointment:", currentAppointment);
+      
+      // If we're opening the dialog without an existing appointment (new appointment),
+      // or if the appointment is just an empty slot (with just date/time and staffId),
+      // make sure the form is clean
+      if (!currentAppointment || (currentAppointment && !currentAppointment.id)) {
+        console.log("Creating a new appointment, resetting form");
+        resetForm();
+      } else {
+        console.log("Editing existing appointment:", currentAppointment.id);
+        // No need to do anything here, as useAppointmentForm
+        // will populate the form with the current appointment data
+      }
     }
   }, [open, currentAppointment, resetForm]);
   
