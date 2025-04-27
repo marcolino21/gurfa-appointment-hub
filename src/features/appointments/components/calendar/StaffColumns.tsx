@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -34,11 +34,134 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
     return `${staff.firstName} ${staff.lastName}`.trim() || 'Operatore';
   };
   
+  // Enhanced force event visibility function that ensures events stay visible
+  const forceEventVisibility = useCallback(() => {
+    // Seleziona i contenitori degli eventi
+    document.querySelectorAll('.fc-timegrid-event-harness').forEach(harness => {
+      if (harness instanceof HTMLElement) {
+        harness.style.cssText = `
+          visibility: visible !important;
+          opacity: 1 !important;
+          z-index: 100 !important;
+          margin: 0 2px !important;
+          height: auto !important;
+          position: absolute !important;
+          right: 0 !important;
+          left: 0 !important;
+          display: block !important;
+        `;
+      }
+    });
+
+    // Seleziona gli eventi
+    document.querySelectorAll('.fc-event, .fc-timegrid-event, .calendar-appointment').forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.cssText = `
+          min-height: 30px !important;
+          height: auto !important;
+          max-height: none !important;
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          z-index: 100 !important;
+          padding: 4px !important;
+          background-color: #3b82f6 !important;
+          border: 1px solid #2563eb !important;
+          border-left: 4px solid #1d4ed8 !important;
+          color: white !important;
+          position: absolute !important;
+          left: 0 !important;
+          right: 0 !important;
+          top: 0 !important;
+          bottom: 0 !important;
+        `;
+        
+        // Assicura che il contenuto interno sia visibile
+        const mainEl = el.querySelector('.fc-event-main');
+        if (mainEl instanceof HTMLElement) {
+          mainEl.style.cssText = `
+            padding: 2px 4px !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            display: block !important;
+            overflow: visible !important;
+          `;
+        }
+        
+        const titleEl = el.querySelector('.fc-event-title');
+        if (titleEl instanceof HTMLElement) {
+          titleEl.style.cssText = `
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: white !important;
+            font-weight: bold !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          `;
+        }
+        
+        const timeEl = el.querySelector('.fc-event-time');
+        if (timeEl instanceof HTMLElement) {
+          timeEl.style.cssText = `
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: white !important;
+            font-weight: 600 !important;
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+          `;
+        }
+        
+        // Apply status-specific styling
+        if (el.classList.contains('appointment-status-confirmed')) {
+          el.style.backgroundColor = '#10b981 !important';  // verde
+          el.style.borderColor = '#059669 !important';
+          el.style.borderLeftColor = '#047857 !important';
+        } else if (el.classList.contains('appointment-status-pending')) {
+          el.style.backgroundColor = '#f59e0b !important';  // giallo
+          el.style.borderColor = '#d97706 !important';
+          el.style.borderLeftColor = '#b45309 !important';
+        } else if (el.classList.contains('appointment-status-cancelled')) {
+          el.style.backgroundColor = '#ef4444 !important';  // rosso
+          el.style.borderColor = '#dc2626 !important';
+          el.style.borderLeftColor = '#b91c1c !important';
+          el.style.textDecoration = 'line-through !important';
+        }
+      }
+    });
+  }, []);
+
   // Apply block time styles once after initial render
   useEffect(() => {
     const timer = setTimeout(applyBlockedTimeStyles, 300);
     return () => clearTimeout(timer);
   }, [applyBlockedTimeStyles]);
+  
+  // Force events visibility several times to ensure they remain visible
+  useEffect(() => {
+    // Apply immediately
+    forceEventVisibility();
+    
+    // Apply after short delays to catch any dynamic changes
+    const timer1 = setTimeout(forceEventVisibility, 300);
+    const timer2 = setTimeout(forceEventVisibility, 800);
+    const timer3 = setTimeout(forceEventVisibility, 1500);
+    
+    // Apply periodically to ensure continued visibility
+    const intervalTimer = setInterval(forceEventVisibility, 3000);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearInterval(intervalTimer);
+    };
+  }, [forceEventVisibility, events]);
 
   // Memoize blocked staff status to prevent unnecessary recalculations
   const blockedStaffStatus = useMemo(() => {
@@ -75,44 +198,33 @@ export const StaffColumns: React.FC<StaffColumnsProps> = ({
         );
       }
     });
-  }, [events, staffMembers, getStaffName]);
+  }, [events, staffMembers]);
 
-  // Force event visibility after render
+  // Add diagnostic function to help troubleshoot any remaining issues
   useEffect(() => {
-    const forceEventVisibility = () => {
-      document.querySelectorAll('.fc-event').forEach(el => {
-        if (el instanceof HTMLElement) {
-          // Ensure event has proper sizing
-          el.style.minHeight = '30px';
-          el.style.visibility = 'visible';
-          el.style.display = 'block';
-          el.style.opacity = '1';
-          
-          // Ensure title is visible
-          const titleEl = el.querySelector('.fc-event-title');
-          if (titleEl instanceof HTMLElement) {
-            titleEl.style.display = 'block';
-            titleEl.style.visibility = 'visible';
-          }
-          
-          // Ensure time is visible
-          const timeEl = el.querySelector('.fc-event-time');
-          if (timeEl instanceof HTMLElement) {
-            timeEl.style.display = 'block';
-            timeEl.style.visibility = 'visible';
-          }
+    const diagnoseEvents = () => {
+      console.group('📊 Calendar Events Diagnosis');
+      const eventElements = document.querySelectorAll('.fc-event');
+      console.log(`Found ${eventElements.length} event elements in DOM vs ${events.length} in data`);
+      
+      if (eventElements.length > 0) {
+        const firstEvent = eventElements[0];
+        if (firstEvent instanceof HTMLElement) {
+          console.log('First event styles:', {
+            height: firstEvent.offsetHeight,
+            width: firstEvent.offsetWidth,
+            display: window.getComputedStyle(firstEvent).display,
+            visibility: window.getComputedStyle(firstEvent).visibility,
+            opacity: window.getComputedStyle(firstEvent).opacity,
+            position: window.getComputedStyle(firstEvent).position
+          });
         }
-      });
+      }
+      console.groupEnd();
     };
     
-    // Apply after a delay and periodically
-    const initialTimer = setTimeout(forceEventVisibility, 500);
-    const intervalTimer = setInterval(forceEventVisibility, 2000);
-    
-    return () => {
-      clearTimeout(initialTimer);
-      clearInterval(intervalTimer);
-    };
+    const timer = setTimeout(diagnoseEvents, 2000);
+    return () => clearTimeout(timer);
   }, [events]);
 
   if (staffMembers.length === 0) {
