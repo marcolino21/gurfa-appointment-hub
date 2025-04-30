@@ -1,4 +1,3 @@
-
 import {
   LayoutDashboard, 
   CalendarDays, 
@@ -23,7 +22,8 @@ import {
   UserRound,
   ShoppingBag,
   ClipboardList,
-  Folders
+  Folders,
+  Calendar
 } from 'lucide-react';
 
 export const magazzinoSubItems = [
@@ -57,6 +57,11 @@ export const sidebarItems = [
     icon: CalendarDays, 
     label: "Appuntamenti", 
     href: "/appuntamenti"
+  },
+  { 
+    icon: Calendar, 
+    label: "Calendario", 
+    href: "/calendario"
   },
   { 
     icon: Users, 

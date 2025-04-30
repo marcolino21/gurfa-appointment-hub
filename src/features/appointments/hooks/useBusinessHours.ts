@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -59,7 +58,7 @@ export const useBusinessHours = (selectedDate: Date) => {
             }
           }
           
-          // IMPORTANT: FullCalendar requires at least one visible day
+          // IMPORTANT: Scheduler requires at least one visible day
           // If all days would be hidden, show Monday (index 1) as fallback
           if (hidden.length === 7) {
             console.log("All days would be hidden, showing Monday as fallback");

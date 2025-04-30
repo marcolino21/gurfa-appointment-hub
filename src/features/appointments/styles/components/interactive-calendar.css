@@ -1,4 +1,3 @@
-
 /* Stili per il ridimensionamento interattivo */
 .fc-event-resizer {
   position: absolute;
@@ -185,4 +184,39 @@
   display: block !important;
   opacity: 1 !important;
   min-height: 500px !important;
+}
+
+/* Stili per il drag-and-drop con @dnd-kit/core */
+.draggable-event {
+  position: relative;
+  cursor: grab;
+  transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+}
+
+.draggable-event.is-dragging {
+  opacity: 0.7;
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  cursor: grabbing;
+  z-index: 1000;
+}
+
+.droppable-staff-column {
+  transition: border 0.2s, background 0.2s, transform 0.2s;
+}
+
+.droppable-staff-column.is-over {
+  border: 2px solid #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.05);
+  transform: scale(1.01);
+}
+
+.drag-overlay-event {
+  padding: 5px 10px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+  pointer-events: none;
 }

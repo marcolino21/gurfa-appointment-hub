@@ -1,4 +1,3 @@
-
 export interface Appointment {
   id: string;
   title: string;
@@ -12,6 +11,7 @@ export interface Appointment {
   staffId?: string | null | { value: string };
   status: 'confirmed' | 'completed' | 'cancelled' | 'pending';
   serviceEntries?: ServiceEntry[];
+  color?: string;
 }
 
 interface ServiceEntry {

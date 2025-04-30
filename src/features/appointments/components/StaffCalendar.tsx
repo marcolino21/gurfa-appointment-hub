@@ -1,195 +1,116 @@
-
-import React, { useRef, useState, useEffect } from 'react';
-import { StaffMember } from '@/types';
-import { MonthView } from './calendar/MonthView';
-import { TimeGridView } from './calendar/TimeGridView';
-import { useCalendarSync } from '../hooks/useCalendarSync';
-import { useAutoScroll } from '../hooks/useAutoScroll';
+import React, { useState, useEffect } from 'react';
+import { Scheduler, SchedulerData, ViewTypes, DATE_FORMAT } from 'react-big-scheduler';
+import 'react-big-scheduler/lib/css/style.css';
+import '../styles/scheduler.css';
+import moment from 'moment';
+import { useStaffBlockTime } from '../hooks/useStaffBlockTime';
 import { useBusinessHours } from '../hooks/useBusinessHours';
-import { useCalendarConfig } from '../hooks/useCalendarConfig';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import '../styles/index.css';
+import { useAppointmentEvents } from '../hooks/useAppointmentEvents';
+import { StaffMember, getStaffMemberName } from '../../../types/staff';
+import { Appointment } from '../../../types/appointments';
 
 interface StaffCalendarProps {
   staffMembers: StaffMember[];
-  events: any[];
-  view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth';
-  onEventClick: (info: any) => void;
-  onEventDrop: (info: any) => void;
-  onDateSelect: (info: any) => void;
+  appointments: Appointment[];
+  onDateSelect: (info: DateSelectInfo) => void;
+  onEventClick: (event: CalendarEvent) => void;
 }
 
-const StaffCalendar: React.FC<StaffCalendarProps> = ({
+interface DateSelectInfo {
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  jsEvent: MouseEvent;
+  view: any;
+}
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  resourceId: string;
+  bgColor?: string;
+}
+
+export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   staffMembers,
-  events,
-  view,
+  appointments,
+  onDateSelect,
   onEventClick,
-  onEventDrop,
-  onDateSelect
 }) => {
-  const calendarRefs = useRef<any[]>([]);
-  const [calendarApi, setCalendarApi] = useState<any>(null);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [zoomLevel, setZoomLevel] = useState(1);
-
-  // Log events and staff per render for debugging
-  useEffect(() => {
-    console.log("StaffCalendar rendering with:", {
-      staffMembersCount: staffMembers.length,
-      eventsCount: events.length,
-      view,
-      staffIds: staffMembers.map(s => s.id),
-      firstFewEvents: events.slice(0, 3)
+  const [schedulerData, setSchedulerData] = useState(() => {
+    const data = new SchedulerData(moment().format(DATE_FORMAT), ViewTypes.Week, false, false, {
+      schedulerWidth: '100%',
+      schedulerMaxHeight: 0,
+      dayStartFrom: 8,
+      dayStopTo: 20,
+      eventItemHeight: 40,
+      eventItemLineHeight: 40,
+      nonWorkingTimeBodyBgColor: '#f0f0f0',
+      minuteStep: 30,
     });
-  }, [staffMembers, events, view]);
-
-  // Always ensure we have a valid date object
-  const validSelectedDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-    ? new Date(selectedDate.getTime())
-    : new Date();
-
-  // Custom hooks
-  const { hiddenDays, slotMinTime, slotMaxTime } = useBusinessHours(validSelectedDate);
-  const commonConfig = useCalendarConfig(
-    slotMinTime,
-    slotMaxTime,
-    hiddenDays,
-    onDateSelect,
-    onEventClick,
-    onEventDrop
-  );
-  
-  // Use custom hooks to enhance functionality
-  useCalendarSync(view);
-  useAutoScroll(calendarApi, view);
-
-  // Handle date selection from popover calendar
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date instanceof Date && !isNaN(date.getTime())) {
-      setSelectedDate(new Date(date.getTime()));
-
-      if (calendarApi) {
-        try {
-          calendarApi.gotoDate(date);
-        } catch (error) {
-          console.error("Error navigating to date:", error);
-        }
-      }
-      setDatePickerOpen(false);
-    }
-  };
-
-  // Function to handle zoom changes
-  const handleZoomChange = (level: number) => {
-    setZoomLevel(level);
     
-    // Apply zoom to calendars
-    if (calendarRefs.current.length > 0) {
-      try {
-        const slotHeight = 40 * level;
-        
-        calendarRefs.current.forEach(calRef => {
-          const api = calRef.getApi();
-          if (api) {
-            const calendarEl = api.el as HTMLElement;
-            const slotEls = calendarEl.querySelectorAll('.fc-timegrid-slot');
-            
-            slotEls.forEach((slotEl) => {
-              if (slotEl instanceof HTMLElement) {
-                slotEl.style.height = `${slotHeight}px`;
-                slotEl.style.minHeight = `${slotHeight}px`;
-              }
-            });
-          }
-        });
-      } catch (error) {
-        console.error("Error applying zoom:", error);
-      }
-    }
-  };
+    // Convert staff members to resources
+    const resources = staffMembers.map(staff => ({
+      id: staff.id,
+      name: getStaffMemberName(staff),
+      color: staff.color || '#4f46e5'
+    }));
+    
+    data.setResources(resources);
+    return data;
+  });
 
-  // Refresh calendar when events change
   useEffect(() => {
-    if (calendarApi && events.length >= 0) {
-      try {
-        console.log("Refreshing calendar with events:", events.length);
-        
-        setTimeout(() => {
-          calendarApi.removeAllEvents();
-          calendarApi.addEventSource(events);
-        }, 100);
-      } catch (error) {
-        console.error("Error refreshing calendar events:", error);
-      }
-    }
-  }, [events, calendarApi]);
+    // Convert appointments to events
+    const events = appointments.map(appointment => ({
+      id: appointment.id,
+      start: moment(appointment.start).format('YYYY-MM-DD HH:mm:ss'),
+      end: moment(appointment.end).format('YYYY-MM-DD HH:mm:ss'),
+      resourceId: appointment.staffId || '',
+      title: appointment.title || 'Appuntamento',
+      bgColor: '#4f46e5'
+    }));
 
-  // Base calendar style
-  const calendarStyle = {
-    height: '100%',
-    minHeight: '500px',
-    backgroundColor: 'white',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    overflow: 'hidden'
+    schedulerData.setEvents(events);
+    setSchedulerData(schedulerData);
+  }, [appointments, staffMembers]);
+
+  const prevClick = () => {
+    schedulerData.prev();
+    setSchedulerData(schedulerData);
   };
 
-  // Display alert if no staff members
-  if (staffMembers.length === 0) {
-    return (
-      <Alert className="m-6 border-yellow-300 bg-yellow-50">
-        <AlertCircle className="h-5 w-5 text-yellow-600" />
-        <AlertTitle className="text-yellow-800">Nessun operatore visibile</AlertTitle>
-        <AlertDescription className="text-yellow-700">
-          Vai alla pagina Staff e assicurati che ci siano operatori attivi e con l'opzione 
-          "Visibile in agenda" selezionata.
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  const nextClick = () => {
+    schedulerData.next();
+    setSchedulerData(schedulerData);
+  };
 
-  // Render appropriate view based on selected view
-  if (view === 'dayGridMonth') {
-    return (
-      <MonthView
-        staffMembers={staffMembers}
-        events={events}
-        selectedDate={selectedDate}
-        onDateSelect={handleDateSelect}
-        commonConfig={{
-          ...commonConfig,
-          // Standard FullCalendar month view options
-          height: 'auto',
-          dayMaxEventRows: true,
-          fixedWeekCount: false
-        }}
-        calendarRefs={calendarRefs}
-        setCalendarApi={setCalendarApi}
-        datePickerOpen={datePickerOpen}
-        setDatePickerOpen={setDatePickerOpen}
-        zoomLevel={zoomLevel}
-        onZoomChange={handleZoomChange}
-      />
-    );
-  }
+  const onSelectDate = (date: string) => {
+    schedulerData.setDate(date);
+    setSchedulerData(schedulerData);
+  };
+
+  const onViewChange = (viewType: ViewTypes) => {
+    schedulerData.setViewType(viewType, false, false);
+    setSchedulerData(schedulerData);
+  };
+
+  const eventClicked = (schedulerData: SchedulerData, event: CalendarEvent) => {
+    onEventClick(event);
+  };
 
   return (
-    <div style={calendarStyle}>
-      <TimeGridView
-        staffMembers={staffMembers}
-        events={events}
-        view={view}
-        selectedDate={selectedDate}
-        commonConfig={commonConfig}
-        calendarRefs={calendarRefs}
-        setCalendarApi={setCalendarApi}
-        zoomLevel={zoomLevel}
-        onZoomChange={handleZoomChange}
+    <div className="scheduler-container">
+      <Scheduler
+        schedulerData={schedulerData}
+        prevClick={prevClick}
+        nextClick={nextClick}
+        onSelectDate={onSelectDate}
+        onViewChange={onViewChange}
+        eventItemClick={eventClicked}
       />
     </div>
   );
 };
-
-export default StaffCalendar;

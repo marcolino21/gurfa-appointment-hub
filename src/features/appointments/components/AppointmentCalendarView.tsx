@@ -1,21 +1,49 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { StaffMember } from '@/types';
-import StaffCalendar from '@/features/appointments/components/StaffCalendar';
+import { StaffMember, getStaffMemberName } from '@/types';
+import { StaffCalendar } from '@/features/appointments/components/StaffCalendar';
+import CalendarErrorBoundary from '@/features/appointments/components/CalendarErrorBoundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import '../styles/index.css';
+import { CalendarEvent } from '../types';
+
+interface EventInfo {
+  event: CalendarEvent;
+  jsEvent: MouseEvent;
+  view: any;
+}
+
+interface DateSelectInfo {
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  jsEvent: MouseEvent;
+  view: any;
+}
+
+interface EventDropInfo {
+  event: CalendarEvent;
+  oldResource: string;
+  newResource: string;
+  revert: () => void;
+}
+
+interface EventResizeInfo {
+  event: CalendarEvent;
+  startDelta: number;
+  endDelta: number;
+  revert: () => void;
+}
 
 interface AppointmentCalendarViewProps {
   visibleStaff: StaffMember[];
-  events: any[];
-  handleDateSelect: (selectInfo: any) => void;
-  handleEventClick: (clickInfo: any) => void;
-  handleEventDrop: (dropInfo: any) => void;
-  onViewChange: (view: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => void;
-  handleEventResize?: (resizeInfo: any) => void;
+  events: CalendarEvent[];
+  handleDateSelect: (selectInfo: DateSelectInfo) => void;
+  handleEventClick: (clickInfo: EventInfo) => void;
+  handleEventDrop: (dropInfo: EventDropInfo) => void;
+  onViewChange: (view: 'day' | 'week' | 'month') => void;
+  handleEventResize?: (resizeInfo: EventResizeInfo) => void;
 }
 
 const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
@@ -27,7 +55,13 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   onViewChange,
   handleEventResize
 }) => {
-  const [activeTab, setActiveTab] = useState('week'); // Imposta la settimana come vista predefinita
+  const [activeTab, setActiveTab] = useState('week');
+
+  // Transform staff members to include name property
+  const transformedStaff = visibleStaff.map(staff => ({
+    ...staff,
+    name: getStaffMemberName(staff)
+  }));
 
   // Process events to add staff names for the month view
   const processedEvents = events.map(event => {
@@ -38,8 +72,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
     // Find associated staff member
     const staffMember = visibleStaff.find(staff => staff.id === event.resourceId);
     if (staffMember) {
-      event.extendedProps.staffName = `${staffMember.firstName} ${staffMember.lastName}`;
-      // This will be used by CSS to display staff name in month view
+      event.extendedProps.staffName = getStaffMemberName(staffMember);
       event.classNames = [...(event.classNames || []), 'has-staff-name'];
     }
     
@@ -50,9 +83,9 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     
-    if (value === 'day') onViewChange('timeGridDay');
-    else if (value === 'week') onViewChange('timeGridWeek');
-    else onViewChange('dayGridMonth');
+    if (value === 'day') onViewChange('day');
+    else if (value === 'week') onViewChange('week');
+    else onViewChange('month');
   };
 
   // Debug the visible staff to check if they're correctly passed
@@ -61,12 +94,17 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   }, [visibleStaff]);
 
   // Funzione per gestire il ridimensionamento degli eventi
-  const handleAppointmentResize = (resizeInfo: any) => {
+  const handleAppointmentResize = (resizeInfo: EventResizeInfo) => {
     if (handleEventResize) {
       handleEventResize(resizeInfo);
     } else {
       // Fallback: usa handleEventDrop come ultima risorsa
-      handleEventDrop(resizeInfo);
+      handleEventDrop({
+        event: resizeInfo.event,
+        oldResource: resizeInfo.event.staffId,
+        newResource: resizeInfo.event.staffId,
+        revert: resizeInfo.revert
+      });
     }
   };
 
@@ -98,36 +136,42 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
           ) : (
             <>
               <TabsContent value="day" className="m-0">
-                <StaffCalendar
-                  staffMembers={visibleStaff}
-                  events={processedEvents}
-                  view="timeGridDay"
-                  onEventClick={handleEventClick}
-                  onEventDrop={handleEventDrop}
-                  onDateSelect={handleDateSelect}
-                />
+                <CalendarErrorBoundary>
+                  <StaffCalendar
+                    staffMembers={transformedStaff}
+                    events={processedEvents}
+                    view="day"
+                    onEventClick={handleEventClick}
+                    onEventDrop={handleEventDrop}
+                    onDateSelect={handleDateSelect}
+                  />
+                </CalendarErrorBoundary>
               </TabsContent>
               
               <TabsContent value="week" className="m-0">
-                <StaffCalendar
-                  staffMembers={visibleStaff}
-                  events={processedEvents}
-                  view="timeGridWeek"
-                  onEventClick={handleEventClick}
-                  onEventDrop={handleEventDrop}
-                  onDateSelect={handleDateSelect}
-                />
+                <CalendarErrorBoundary>
+                  <StaffCalendar
+                    staffMembers={transformedStaff}
+                    events={processedEvents}
+                    view="week"
+                    onEventClick={handleEventClick}
+                    onEventDrop={handleEventDrop}
+                    onDateSelect={handleDateSelect}
+                  />
+                </CalendarErrorBoundary>
               </TabsContent>
               
               <TabsContent value="month" className="m-0">
-                <StaffCalendar
-                  staffMembers={visibleStaff}
-                  events={processedEvents}
-                  view="dayGridMonth"
-                  onEventClick={handleEventClick}
-                  onEventDrop={handleEventDrop}
-                  onDateSelect={handleDateSelect}
-                />
+                <CalendarErrorBoundary>
+                  <StaffCalendar
+                    staffMembers={transformedStaff}
+                    events={processedEvents}
+                    view="month"
+                    onEventClick={handleEventClick}
+                    onEventDrop={handleEventDrop}
+                    onDateSelect={handleDateSelect}
+                  />
+                </CalendarErrorBoundary>
               </TabsContent>
             </>
           )}

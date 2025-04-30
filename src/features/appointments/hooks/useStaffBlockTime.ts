@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { BlockTimeFormData } from '../components/calendar/BlockTimeForm';
 
@@ -78,37 +77,16 @@ export const useStaffBlockTime = () => {
     return isTimeBlocked(staffId, now, currentTime);
   }, [isTimeBlocked]);
 
-  // Convert block times to FullCalendar background events
-  const getBlockTimeEvents = useCallback(() => {
-    return blockTimes.map(blockTime => {
-      const startDateObj = new Date(blockTime.startDate);
-      const [startHours, startMinutes] = blockTime.startTime.split(':').map(Number);
-      startDateObj.setHours(startHours, startMinutes, 0, 0);
-      
-      const endDateObj = new Date(blockTime.endDate);
-      const [endHours, endMinutes] = blockTime.endTime.split(':').map(Number);
-      endDateObj.setHours(endHours, endMinutes, 0, 0);
-      
-      return {
-        id: `block-${blockTime.id}`,
-        resourceId: blockTime.staffId,
-        start: startDateObj.toISOString(),
-        end: endDateObj.toISOString(),
-        display: 'background',
-        rendering: 'background',
-        backgroundColor: 'rgba(211, 211, 211, 0.7)',
-        overlap: false,
-        className: 'blocked-time-event',
-        classNames: ['blocked-time-event'],
-        isBlockedTime: true,  // Add a direct property for easier identification
-        extendedProps: {
-          isBlockedTime: true,
-          reason: blockTime.reason,
-          blockTimeId: blockTime.id
-        }
-      };
-    });
-  }, [blockTimes]);
+  // Convert block times to background events for the scheduler
+  const blockTimeEvents = blockTimes.map(block => ({
+    id: `block-${block.id}`,
+    title: 'Blocco',
+    start: block.startTime,
+    end: block.endTime,
+    resourceId: block.staffId,
+    bgColor: '#f0f0f0',
+    showPopover: false
+  }));
 
   return {
     blockTimes,
@@ -116,7 +94,7 @@ export const useStaffBlockTime = () => {
     removeBlockTime,
     getStaffBlockTimes,
     isTimeBlocked,
-    getBlockTimeEvents,
+    blockTimeEvents,
     isStaffBlocked // Added the new function to the return object
   };
 };

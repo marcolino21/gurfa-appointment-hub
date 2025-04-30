@@ -1,4 +1,3 @@
-
 /* Import dei componenti CSS principali */
 @import './components/calendar-layout.css';
 @import './components/calendar-events.css';
@@ -15,18 +14,21 @@
   height: 100%;
   border: 1px solid #e5e7eb;
   background-color: white;
+  will-change: transform;
 }
 
 .unified-calendar-grid {
   display: flex;
   height: 100%;
   min-height: 600px;
+  will-change: transform;
 }
 
 .unified-calendar-content {
   flex: 1;
   overflow: auto;
   background-color: white;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Nasconde scrollbar su alcuni browser */
@@ -45,6 +47,7 @@
 /* Stile per la sincronizzazione dello scroll */
 .calendar-scrollable {
   scroll-behavior: smooth;
+  will-change: transform;
 }
 
 /* Stili per l'header mese */
@@ -54,6 +57,9 @@
   font-size: 1rem;
   border-bottom: 1px solid #e5e7eb;
   background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 /* Stili per le colonne dello staff nel month view */
@@ -66,21 +72,27 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 /* Styling per le celle del mese con contenuto ridotto */
 .fc-daygrid-day-events {
   min-height: 0 !important;
   padding: 1px !important;
+  will-change: transform;
 }
 
 /* Stile ottimizzato per la vista mensile */
 .custom-month-view .fc-daygrid-body {
   width: 100% !important;
+  will-change: transform;
 }
 
 .custom-month-view .fc-scrollgrid-sync-table {
   width: 100% !important;
+  will-change: transform;
 }
 
 /* Stile per gli eventi nella vista mensile */
@@ -88,6 +100,7 @@
   margin-top: 1px !important;
   margin-bottom: 1px !important;
   padding: 1px 4px !important;
+  will-change: transform;
 }
 
 /* Utility class per il calendario */
@@ -105,14 +118,16 @@
 
 /* Assicuriamo che il calendario abbia un'altezza minima e sia visibile */
 .staff-calendar-block {
-  min-height: 500px;
+  position: relative;
   height: 100%;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
   background-color: white;
+  will-change: transform;
 }
 
 /* Forza la visibilità degli elementi FullCalendar */
@@ -121,6 +136,7 @@
   position: relative;
   border: 0;
   overflow: visible;
+  will-change: transform;
 }
 
 .fc .fc-view {
@@ -129,6 +145,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  will-change: transform;
 }
 
 /* Assicuriamo che i contenitori interni abbiano altezze corrette */
@@ -138,10 +155,172 @@
 .fc-timegrid-body {
   height: 100% !important;
   min-height: 500px !important;
+  will-change: transform;
 }
 
 /* Fix per evitare spazi vuoti indesiderati */
 .fc-scroller-liquid-absolute {
   position: relative !important;
   height: 100% !important;
+  will-change: transform;
+}
+
+/* Stili per il drag and drop */
+.draggable-event {
+  cursor: grab;
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+
+.draggable-event.is-dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  will-change: transform;
+}
+
+.droppable-staff-column {
+  transition: background-color 0.2s ease;
+  will-change: transform;
+}
+
+.droppable-staff-column.is-over {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 2px dashed #3b82f6;
+  will-change: transform;
+}
+
+.drag-overlay-event {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 200px;
+  will-change: transform;
+}
+
+/* Stili per la vista time grid */
+.time-grid-view {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  will-change: transform;
+}
+
+.calendar-container {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  will-change: transform;
+}
+
+.fc {
+  height: 100% !important;
+  will-change: transform;
+}
+
+.fc .fc-view-harness {
+  height: 100% !important;
+  will-change: transform;
+}
+
+.fc .fc-scroller {
+  overflow: visible !important;
+  height: 100% !important;
+  will-change: transform;
+}
+
+.fc .fc-scroller-liquid-absolute {
+  position: relative !important;
+  height: 100% !important;
+  will-change: transform;
+}
+
+.fc .fc-scrollgrid-section > * {
+  position: relative !important;
+  will-change: transform;
+}
+
+.fc .fc-scrollgrid-section-header {
+  position: sticky !important;
+  top: 0;
+  z-index: 1;
+  will-change: transform;
+}
+
+.fc .fc-scrollgrid-section-body {
+  overflow: visible !important;
+  will-change: transform;
+}
+
+.fc .fc-timegrid-slot {
+  height: 2.5em !important;
+  will-change: transform;
+}
+
+.fc .fc-timegrid-slot-lane {
+  height: 2.5em !important;
+  will-change: transform;
+}
+
+.fc .fc-timegrid-slot-minor {
+  height: 1.25em !important;
+  will-change: transform;
+}
+
+.fc .fc-timegrid-slot-minor .fc-timegrid-slot-lane {
+  height: 1.25em !important;
+  will-change: transform;
+}
+
+/* Calendar Error Boundary Styles */
+.calendar-error-container {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  margin: 1rem;
+  padding: 1rem;
+  will-change: transform;
+}
+
+.calendar-error-container:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.calendar-error-container .alert {
+  animation: fadeIn 0.3s ease-in-out;
+  max-width: 600px;
+  width: 100%;
+}
+
+.calendar-error-container button {
+  transition: all 0.2s ease;
+  transform: translateY(0);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+}
+
+.calendar-error-container button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-error-container button:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
