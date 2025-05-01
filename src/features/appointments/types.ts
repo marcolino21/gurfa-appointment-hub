@@ -1,5 +1,4 @@
 import { Event } from 'react-big-scheduler';
-import { StaffResource } from './types';
 
 export interface StaffMember {
   id: string;

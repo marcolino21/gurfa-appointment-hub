@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { StaffResource } from '../types';
 import { useStaffMembers } from '../../staff/hooks/useStaffMembers';
 
-export const useStaffResources = () => {
+export const useStaffResources = (salonId: string | null) => {
   const [resources, setResources] = useState<StaffResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const { staffMembers, isLoading: isLoadingStaff, error: staffError } = useStaffMembers();
+  const { staffMembers, isLoading: isLoadingStaff } = useStaffMembers(salonId);
 
   useEffect(() => {
-    if (!isLoadingStaff && !staffError) {
+    if (!isLoadingStaff) {
       try {
         const formattedResources = staffMembers
           .filter(member => member.isActive)
@@ -26,16 +26,14 @@ export const useStaffResources = () => {
           }));
 
         setResources(formattedResources);
-        setIsLoading(false);
+        setError(null);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to format staff resources'));
+      } finally {
         setIsLoading(false);
       }
-    } else if (staffError) {
-      setError(staffError);
-      setIsLoading(false);
     }
-  }, [staffMembers, isLoadingStaff, staffError]);
+  }, [staffMembers, isLoadingStaff]);
 
   return { resources, isLoading, error };
 }; 

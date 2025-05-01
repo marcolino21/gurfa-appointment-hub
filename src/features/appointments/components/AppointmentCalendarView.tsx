@@ -5,10 +5,12 @@ import { useStaffResources } from '../hooks/useStaffResources';
 import { CalendarEvent } from '../types';
 import { ViewTypes } from 'react-big-scheduler';
 import moment from 'moment';
+import { useParams } from 'react-router-dom';
 
 export const AppointmentCalendarView: React.FC = () => {
+  const { salonId } = useParams<{ salonId: string }>();
   const { events, isLoading: isLoadingEvents, error: eventsError } = useAppointmentEvents();
-  const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources();
+  const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources(salonId);
   const [currentDate, setCurrentDate] = useState(moment());
   const [view, setView] = useState<ViewTypes>(ViewTypes.Week);
 
