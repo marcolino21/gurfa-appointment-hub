@@ -99,16 +99,12 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "ts-jest": "^29.1.2",
     "typescript": "^5.3.3",
-    "typescript-eslint": "^7.1.1",
-    "vite": "^6.3.4"
+    "vite": "^5.1.4"
   },
-  "peerDependencies": {
+  "resolutions": {
+    "@ant-design/icons": "^5.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
