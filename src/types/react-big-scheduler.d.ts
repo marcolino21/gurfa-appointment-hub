@@ -33,7 +33,7 @@ declare module 'react-big-scheduler' {
     resourceId: string;
     title: string;
     bgColor?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   export interface SchedulerConfig {
@@ -45,7 +45,7 @@ declare module 'react-big-scheduler' {
     eventItemLineHeight?: number;
     nonWorkingTimeBodyBgColor?: string;
     minuteStep?: number;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   export enum ViewTypes {
@@ -68,7 +68,7 @@ declare module 'react-big-scheduler' {
     onSelectDate?: (schedulerData: SchedulerData, date: string) => void;
     onViewChange?: (schedulerData: SchedulerData, view: ViewTypes) => void;
     eventItemClick?: (schedulerData: SchedulerData, event: Event) => void;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   export default class Scheduler extends Component<SchedulerProps> {}
