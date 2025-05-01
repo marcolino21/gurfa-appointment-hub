@@ -1,0 +1,62 @@
+/* Drag and drop styles */
+.drag-overlay-event {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.calendar-event.is-dragging {
+  opacity: 0.5;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.calendar-staff-col.is-over {
+  background-color: rgba(59, 130, 246, 0.05);
+  border: 2px solid #3b82f6;
+  transition: all 0.2s ease;
+}
+
+/* Drag handle styles */
+.calendar-event-drag-handle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  cursor: grab;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.calendar-event:hover .calendar-event-drag-handle {
+  opacity: 1;
+}
+
+/* Drop indicator styles */
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #3b82f6;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Drag preview styles */
+.drag-preview {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.8;
+  pointer-events: none;
+} 
