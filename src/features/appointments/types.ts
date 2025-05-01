@@ -9,6 +9,17 @@ export interface StaffMember {
   isActive?: boolean;
 }
 
+export interface StaffResource {
+  id: string;
+  name: string;
+  workingHours?: {
+    start: string;
+    end: string;
+  };
+  daysOff?: string[];
+  color?: string;
+}
+
 export interface CalendarEvent extends Event {
   id: string;
   title: string;
@@ -16,10 +27,10 @@ export interface CalendarEvent extends Event {
   end: string; // Format: 'YYYY-MM-DD HH:mm'
   resourceId: string;
   bgColor?: string;
-  status?: 'confirmed' | 'pending' | 'cancelled';
-  staffId?: string;
-  customerId?: string;
-  serviceId?: string;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  staffId: string;
+  customerId: string;
+  serviceId: string;
   notes?: string;
   clientName?: string;
   service?: string;

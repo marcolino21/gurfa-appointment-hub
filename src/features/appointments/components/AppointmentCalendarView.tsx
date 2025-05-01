@@ -1,67 +1,59 @@
-import React, { useState } from 'react';
-import { ViewTypes } from 'react-big-scheduler';
-import StaffCalendar from './StaffCalendar';
-import { CalendarEvent } from '../types';
+import React, { useState, useCallback } from 'react';
+import { StaffCalendar } from './StaffCalendar';
 import { useAppointmentEvents } from '../hooks/useAppointmentEvents';
 import { useStaffResources } from '../hooks/useStaffResources';
+import { CalendarEvent } from '../types';
+import { ViewTypes } from 'react-big-scheduler';
+import moment from 'moment';
 
-interface AppointmentCalendarViewProps {
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventDrop?: (event: CalendarEvent) => void;
-  onEventResize?: (event: CalendarEvent) => void;
-  onEventAdd?: (event: CalendarEvent) => void;
-  onEventDelete?: (event: CalendarEvent) => void;
-}
+export const AppointmentCalendarView: React.FC = () => {
+  const { events, isLoading: isLoadingEvents, error: eventsError } = useAppointmentEvents();
+  const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources();
+  const [currentDate, setCurrentDate] = useState(moment());
 
-const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
-  onEventClick,
-  onEventDrop,
-  onEventResize,
-  onEventAdd,
-  onEventDelete,
-}) => {
-  const [view, setView] = useState<ViewTypes>(ViewTypes.Week);
-  const { events, isLoading } = useAppointmentEvents();
-  const { resources, isLoading: isLoadingResources } = useStaffResources();
+  const handleEventClick = useCallback((event: CalendarEvent) => {
+    console.log('Event clicked:', event);
+    // TODO: Implement event click handler
+  }, []);
 
-  const handleViewChange = (newView: ViewTypes) => {
-    setView(newView);
-  };
+  const handleEventDrop = useCallback((event: CalendarEvent, newStart: string, newEnd: string) => {
+    console.log('Event dropped:', event, newStart, newEnd);
+    // TODO: Implement event drop handler
+  }, []);
 
-  const handleDateSelect = (date: string) => {
-    // Handle date selection if needed
-  };
+  const handleEventResize = useCallback((event: CalendarEvent, newStart: string, newEnd: string) => {
+    console.log('Event resized:', event, newStart, newEnd);
+    // TODO: Implement event resize handler
+  }, []);
 
-  const handleEventDrop = (event: CalendarEvent) => {
-    if (onEventDrop) {
-      onEventDrop(event);
-    }
-  };
+  const handleDateSelect = useCallback((start: string, end: string) => {
+    console.log('Date selected:', start, end);
+    // TODO: Implement date select handler
+  }, []);
 
-  const handleEventResize = (event: CalendarEvent) => {
-    if (onEventResize) {
-      onEventResize(event);
-    }
-  };
+  const handleDateChange = useCallback((date: moment.Moment) => {
+    setCurrentDate(date);
+  }, []);
 
-  if (isLoading || isLoadingResources) {
+  if (isLoadingEvents || isLoadingResources) {
     return <div>Loading...</div>;
+  }
+
+  if (eventsError || resourcesError) {
+    return <div>Error: {eventsError?.message || resourcesError?.message}</div>;
   }
 
   return (
     <StaffCalendar
       events={events}
       resources={resources}
-      view={view}
-      onEventClick={onEventClick}
+      currentDate={currentDate}
+      onEventClick={handleEventClick}
       onEventDrop={handleEventDrop}
       onEventResize={handleEventResize}
-      onEventAdd={onEventAdd}
-      onEventDelete={onEventDelete}
-      onViewChange={handleViewChange}
       onDateSelect={handleDateSelect}
+      onDateChange={handleDateChange}
+      view={ViewTypes.Week}
     />
   );
 };
-
-export default AppointmentCalendarView;
