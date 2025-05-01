@@ -3,9 +3,6 @@ import { Scheduler, SchedulerData, ViewTypes, DATE_FORMAT } from 'react-big-sche
 import 'react-big-scheduler/lib/css/style.css';
 import '../styles/scheduler.css';
 import moment from 'moment';
-import { useStaffBlockTime } from '../hooks/useStaffBlockTime';
-import { useBusinessHours } from '../hooks/useBusinessHours';
-import { useAppointmentEvents } from '../hooks/useAppointmentEvents';
 import { StaffMember, getStaffMemberName } from '../../../types/staff';
 import { Appointment } from '../../../types/appointments';
 
@@ -39,7 +36,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   onDateSelect,
   onEventClick,
 }) => {
-  const [schedulerData, setSchedulerData] = useState(() => {
+  const [schedulerData, setSchedulerData] = useState<SchedulerData>(() => {
     const data = new SchedulerData(moment().format(DATE_FORMAT), ViewTypes.Week, false, false, {
       schedulerWidth: '100%',
       schedulerMaxHeight: 0,
@@ -77,23 +74,23 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     setSchedulerData(schedulerData);
   }, [appointments, staffMembers]);
 
-  const prevClick = () => {
+  const prevClick = (schedulerData: SchedulerData) => {
     schedulerData.prev();
     setSchedulerData(schedulerData);
   };
 
-  const nextClick = () => {
+  const nextClick = (schedulerData: SchedulerData) => {
     schedulerData.next();
     setSchedulerData(schedulerData);
   };
 
-  const onSelectDate = (date: string) => {
+  const onSelectDate = (schedulerData: SchedulerData, date: string) => {
     schedulerData.setDate(date);
     setSchedulerData(schedulerData);
   };
 
-  const onViewChange = (viewType: ViewTypes) => {
-    schedulerData.setViewType(viewType, false, false);
+  const onViewChange = (schedulerData: SchedulerData, view: ViewTypes) => {
+    schedulerData.setViewType(view, false, false);
     setSchedulerData(schedulerData);
   };
 
