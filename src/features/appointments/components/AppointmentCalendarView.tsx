@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { StaffCalendar } from './StaffCalendar';
-import { useAppointmentEvents } from '../hooks/useAppointmentEvents';
-import { useStaffResources } from '../hooks/useStaffResources';
+import { useAppointmentEvents, useStaffResources } from '../hooks';
 import { CalendarEvent } from '../types';
 import { ViewTypes } from 'react-big-scheduler';
 import moment from 'moment';
