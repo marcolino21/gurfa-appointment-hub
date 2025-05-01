@@ -1,40 +1,41 @@
 import { useState, useEffect } from 'react';
 import { StaffResource } from '../types';
+import { useStaffMembers } from '../../staff/hooks/useStaffMembers';
 
 export const useStaffResources = () => {
   const [resources, setResources] = useState<StaffResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const { staffMembers, isLoading: isLoadingStaff, error: staffError } = useStaffMembers();
+
   useEffect(() => {
-    const fetchStaffResources = async () => {
+    if (!isLoadingStaff && !staffError) {
       try {
-        setIsLoading(true);
-        const response = await fetch('/api/staff');
-        const data = await response.json();
+        const formattedResources = staffMembers
+          .filter(member => member.isActive)
+          .map(member => ({
+            id: member.id,
+            name: member.name,
+            color: member.color || '#3b82f6',
+            workingHours: {
+              start: '09:00',
+              end: '18:00'
+            },
+            daysOff: []
+          }));
 
-        const transformedResources = data.map((staff: any) => ({
-          id: staff.id,
-          name: staff.name,
-          workingHours: staff.workingHours || {
-            start: '09:00',
-            end: '18:00',
-          },
-          daysOff: staff.daysOff || [],
-          color: staff.color || '#3b82f6',
-        }));
-
-        setResources(transformedResources);
-        setError(null);
+        setResources(formattedResources);
+        setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Errore nel caricamento delle risorse staff'));
-      } finally {
+        setError(err instanceof Error ? err : new Error('Failed to format staff resources'));
         setIsLoading(false);
       }
-    };
-
-    fetchStaffResources();
-  }, []);
+    } else if (staffError) {
+      setError(staffError);
+      setIsLoading(false);
+    }
+  }, [staffMembers, isLoadingStaff, staffError]);
 
   return { resources, isLoading, error };
 }; 

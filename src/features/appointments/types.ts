@@ -10,13 +10,7 @@ export interface StaffMember {
   isActive?: boolean;
 }
 
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  start: string; // Format: 'YYYY-MM-DD HH:mm'
-  end: string; // Format: 'YYYY-MM-DD HH:mm'
-  resourceId: string;
-  bgColor?: string;
+export interface CalendarEvent extends Event {
   status: 'confirmed' | 'pending' | 'cancelled';
   staffId: string;
   customerId: string;
@@ -24,13 +18,6 @@ export interface CalendarEvent {
   notes?: string;
   clientName?: string;
   service?: string;
-  color?: string;
-  isDraggable?: boolean;
-  isResizable?: boolean;
-  isAllDay?: boolean;
-  recurrenceRule?: string;
-  recurrenceId?: string;
-  recurrenceException?: string;
 }
 
 export interface StaffResource {
