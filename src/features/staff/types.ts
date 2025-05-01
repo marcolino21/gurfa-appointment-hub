@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const staffSchema = z.object({
@@ -43,4 +42,20 @@ export interface WorkScheduleDay {
   endTime?: string;
   breakStart?: string;
   breakEnd?: string;
+}
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  color?: string;
+  isVisible?: boolean;
+  role?: string;
+  department?: string;
+  workingHours?: {
+    start: string;
+    end: string;
+  };
+  daysOff?: string[];
 }

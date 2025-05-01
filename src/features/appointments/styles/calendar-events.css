@@ -1,4 +1,3 @@
-
 /* Event styles */
 .fc-event {
   border-radius: 4px;
@@ -20,5 +19,34 @@
 
 .fc-dayGridMonth-view .fc-event-title {
   font-size: 0.75rem !important;
+}
+
+.calendar-event {
+  position: relative;
+  border-radius: 4px;
+  padding: 4px;
+  margin: 1px 0;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #3b82f6;
+  color: white;
+}
+
+.calendar-day-grid-month-view .calendar-day-grid-event {
+  margin: 1px 2px;
+  padding: 2px 4px;
+}
+
+.calendar-day-grid-month-view .calendar-day-grid-event .calendar-event-title:before {
+  content: '•';
+  margin-right: 4px;
+}
+
+.calendar-day-grid-month-view .calendar-event-title {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 

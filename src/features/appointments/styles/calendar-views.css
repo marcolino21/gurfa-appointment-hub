@@ -1,18 +1,19 @@
-
 /* View specific styles */
 
 /* Week view - make it behave like day view */
-.fc-timeGridWeek-view .fc-col-header {
-  display: none !important;
+.time-grid-week-view .calendar-col-header {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 /* Month view */
-.custom-month-view .fc-col-header {
-  display: none !important;
+.custom-month-view .calendar-col-header {
+  background-color: white;
 }
 
-.custom-month-view .fc-daygrid-day-top {
-  display: none !important;
+.custom-month-view .calendar-day-top {
+  padding: 4px;
+  text-align: center;
 }
 
 /* Unified scrolling container con CSS Grid per allineamento perfetto */
@@ -53,17 +54,23 @@
 }
 
 /* Nasconde tutte le scrollbar individuali mantenendo la funzionalità di scorrimento */
-.fc-scroller-liquid-absolute {
-  overflow: auto !important;
-  scroll-behavior: smooth;
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-  contain: strict;
-  overscroll-behavior: none !important;
+.calendar-scroller-liquid-absolute {
+  position: relative;
+  height: 100%;
 }
 
-.fc-scroller-liquid-absolute::-webkit-scrollbar {
-  display: none !important;
+.calendar-scroller-liquid-absolute::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.calendar-scroller-liquid-absolute::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.calendar-scroller-liquid-absolute::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 3px;
 }
 
 /* Master scroller - solo questa ha lo scorrimento attivo */
@@ -83,55 +90,71 @@
 }
 
 /* Slave scrollers - il loro contenuto viene trasformato invece di scrollare */
-.calendar-staff-col .fc-scroller {
-  will-change: transform;
-  overflow: hidden !important;
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-  contain: content;
-  -webkit-transform-style: preserve-3d; /* Per Safari */
-  transform-style: preserve-3d;
+.calendar-staff-col .calendar-scroller {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f8fafc;
 }
 
-.calendar-staff-col .fc-scroller::-webkit-scrollbar {
-  display: none !important;
+.calendar-staff-col .calendar-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.calendar-staff-col .calendar-scroller::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.calendar-staff-col .calendar-scroller::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 3px;
 }
 
 /* Date headers */
-.week-view-date-header, 
-.month-view-date-header {
-  text-align: center;
-  padding: 10px 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-/* Migliore visibilità per gli slot di mezz'ora */
-.fc-timegrid-slots td {
+.time-grid-slots td {
+  height: 40px;
+  border-bottom: 1px solid #e5e7eb;
   position: relative;
-  height: 40px !important;
-  contain: layout style;
 }
 
-.fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor {
-  position: relative;
-  contain: layout style;
+.time-slot.time-slot-lane.time-slot-minor {
+  height: 20px;
 }
 
-.fc-timegrid-slot.fc-timegrid-slot-lane.fc-timegrid-slot-minor::before {
-  content: "";
+.time-slot.time-slot-lane.time-slot-minor::before {
+  content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
-  height: 1px;
-  background: repeating-linear-gradient(to right, #e5e7eb 0, #e5e7eb 4px, transparent 4px, transparent 8px);
-  z-index: 1;
+  top: 50%;
+  border-top: 1px dashed #e5e7eb;
 }
 
-/* Better visual for time slots */
-.fc-timegrid-slot-label-cushion {
-  font-weight: 500;
+.time-slot-label-cushion {
+  padding: 0 8px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.time-slot {
+  height: 40px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.time-grid-event-harness,
+.time-grid-event {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.is-scrolling .calendar-event-main-frame,
+.is-scrolling .calendar-event-time {
+  opacity: 0.7;
 }
 
 /* Unified grid layout for perfect alignment */
@@ -161,7 +184,7 @@
     scroll-snap-type: none;
   }
   
-  .fc-timegrid-slot {
+  .time-grid-slots td {
     scroll-snap-align: none;
   }
 }
@@ -176,13 +199,6 @@
 .calendar-staff-col {
   backface-visibility: hidden;
   transform-style: preserve-3d;
-}
-
-/* Evitare flickering durante lo scroll */
-.fc-timegrid-event-harness, 
-.fc-timegrid-event {
-  transform: translateZ(0);
-  transition: none !important;
 }
 
 /* Riduzione della complessità durante lo scrolling */

@@ -1,4 +1,3 @@
-
 import { SystemFeature } from '@/features/staff/types/permissions';
 
 export interface WorkScheduleDay {
@@ -12,18 +11,27 @@ export interface WorkScheduleDay {
 
 export interface StaffMember {
   id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  color?: string;
+  isVisible?: boolean;
+  role?: string;
+  department?: string;
+  workingHours?: {
+    start: string;
+    end: string;
+  }[];
+  daysOff?: string[];
   firstName: string;
   lastName: string;
-  email: string;
   isActive: boolean;
   showInCalendar: boolean;
   salonId: string;
-  phone?: string;
   additionalPhone?: string;
   country?: string;
   birthDate?: string;
   position?: string;
-  color?: string;
   assignedServiceIds?: string[];
   permissions?: SystemFeature[];
   workSchedule?: WorkScheduleDay[];

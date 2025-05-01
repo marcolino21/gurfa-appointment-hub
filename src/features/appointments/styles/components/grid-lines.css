@@ -1,14 +1,14 @@
-
 /* Better grid line visibility */
-.fc-timegrid-slot {
-  height: 40px !important;
-  border-color: #e5e7eb !important;
-  border-bottom: 1px solid #e5e7eb !important;
-  background: white;
+.time-slot {
+  height: 40px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
 }
 
 /* Half-hour slots */
-.fc-timegrid-slot-minor {
-  border-top: 1px dashed #e5e7eb !important;
+.time-slot-minor {
+  height: 20px;
+  border-bottom: 1px dashed #e5e7eb;
+  position: relative;
 }
 

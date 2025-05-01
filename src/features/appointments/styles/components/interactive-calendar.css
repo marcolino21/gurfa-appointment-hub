@@ -1,25 +1,120 @@
 /* Stili per il ridimensionamento interattivo */
-.fc-event-resizer {
+.calendar-event-resizer {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: white;
-  border: 2px solid #3b82f6;
-  z-index: 10;
-  display: block !important;
+  width: 100%;
+  height: 4px;
+  cursor: ns-resize;
+  z-index: 4;
 }
 
-.fc-event-resizer-start {
-  left: -4px;
-  top: calc(50% - 4px);
-  cursor: w-resize;
+.calendar-event-resizer-start {
+  top: 0;
 }
 
-.fc-event-resizer-end {
-  right: -4px;
-  top: calc(50% - 4px);
-  cursor: e-resize;
+.calendar-event-resizer-end {
+  bottom: 0;
+}
+
+.calendar-event {
+  position: relative;
+  border-radius: 4px;
+  padding: 4px;
+  margin: 1px 0;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-event.event-conflict {
+  opacity: 0.7;
+  border: 1px dashed #ef4444;
+}
+
+/* Zoom levels */
+.zoom-level-0-5 .time-slot {
+  height: 20px;
+}
+
+.zoom-level-0-75 .time-slot {
+  height: 30px;
+}
+
+.zoom-level-1 .time-slot {
+  height: 40px;
+}
+
+.zoom-level-1-5 .time-slot {
+  height: 60px;
+}
+
+.zoom-level-2 .time-slot {
+  height: 80px;
+}
+
+.calendar-event-mirror {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.8;
+  transform: rotate(2deg);
+}
+
+.calendar-event-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.calendar-event-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.calendar-event-time {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.calendar-event::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+}
+
+.calendar-event.appointment-status-confirmed::after {
+  background-color: #10b981;
+}
+
+.calendar-event.appointment-status-pending::after {
+  background-color: #f59e0b;
+}
+
+.calendar-event.appointment-status-cancelled::after {
+  background-color: #ef4444;
+}
+
+.calendar-event.appointment-status-completed::after {
+  background-color: #6b7280;
+}
+
+.calendar-event-harness {
+  position: relative;
+  height: 100%;
+  pointer-events: none;
+}
+
+.calendar-view-container,
+.calendar-view,
+.time-grid,
+.time-grid-body,
+.scroll-grid,
+.scroll-grid-liquid {
+  height: 100%;
+  min-height: 500px;
 }
 
 /* Tooltip per eventi */
@@ -70,12 +165,6 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-/* Stile per eventi con conflitti */
-.fc-event.event-conflict {
-  border: 2px dashed #ef4444 !important;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
-}
-
 /* Stili per migliorare la visualizzazione con zoom diversi */
 .zoom-level-0-5 .fc-timegrid-slot {
   height: 20px !important;
@@ -107,12 +196,6 @@
   opacity: 0.5;
   border: 2px dashed #3b82f6;
   background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-/* Indicatore per le posizioni possibili durante il trascinamento */
-.fc-event-mirror {
-  opacity: 0.8 !important;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Stili per apparenza migliorata degli appuntamenti */

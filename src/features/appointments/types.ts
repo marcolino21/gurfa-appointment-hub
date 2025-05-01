@@ -1,3 +1,5 @@
+import { Event } from 'react-big-scheduler';
+
 export interface StaffMember {
   id: string;
   name: string;
@@ -7,20 +9,19 @@ export interface StaffMember {
   isActive?: boolean;
 }
 
-export interface CalendarEvent {
+export interface CalendarEvent extends Event {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
-  staffId: string;
-  extendedProps?: {
-    staffName?: string;
-    [key: string]: any;
-  };
-  classNames?: string[];
-  resourceId?: string;
+  start: string;
+  end: string;
+  resourceId: string;
+  bgColor?: string;
+  status?: 'confirmed' | 'pending' | 'cancelled';
+  staffId?: string;
+  customerId?: string;
+  serviceId?: string;
+  notes?: string;
+  clientName?: string;
+  service?: string;
   color?: string;
-  backgroundColor?: string;
-  description?: string;
-  status?: 'pending' | 'confirmed' | 'cancelled';
 } 
