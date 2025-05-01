@@ -1,4 +1,5 @@
 import { Event } from 'react-big-scheduler';
+import { StaffResource } from './types';
 
 export interface StaffMember {
   id: string;
@@ -9,18 +10,7 @@ export interface StaffMember {
   isActive?: boolean;
 }
 
-export interface StaffResource {
-  id: string;
-  name: string;
-  workingHours?: {
-    start: string;
-    end: string;
-  };
-  daysOff?: string[];
-  color?: string;
-}
-
-export interface CalendarEvent extends Event {
+export interface CalendarEvent {
   id: string;
   title: string;
   start: string; // Format: 'YYYY-MM-DD HH:mm'
@@ -41,4 +31,15 @@ export interface CalendarEvent extends Event {
   recurrenceRule?: string;
   recurrenceId?: string;
   recurrenceException?: string;
+}
+
+export interface StaffResource {
+  id: string;
+  name: string;
+  workingHours?: {
+    start: string;
+    end: string;
+  };
+  daysOff?: string[];
+  color?: string;
 } 

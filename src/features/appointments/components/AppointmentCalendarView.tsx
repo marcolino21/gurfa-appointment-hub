@@ -53,12 +53,13 @@ export const AppointmentCalendarView: React.FC = () => {
       events={events}
       resources={resources}
       currentDate={currentDate}
+      view={view}
       onEventClick={handleEventClick}
       onEventDrop={handleEventDrop}
       onEventResize={handleEventResize}
       onDateSelect={handleDateSelect}
       onDateChange={handleDateChange}
-      view={view}
+      onViewChange={handleViewChange}
     />
   );
 };

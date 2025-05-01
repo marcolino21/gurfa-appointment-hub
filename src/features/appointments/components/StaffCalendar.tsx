@@ -7,24 +7,26 @@ interface StaffCalendarProps {
   events: CalendarEvent[];
   resources: StaffResource[];
   currentDate: moment.Moment;
+  view?: ViewTypes;
   onEventClick?: (event: CalendarEvent) => void;
   onEventDrop?: (event: CalendarEvent, newStart: string, newEnd: string) => void;
   onEventResize?: (event: CalendarEvent, newStart: string, newEnd: string) => void;
   onDateSelect?: (start: string, end: string) => void;
   onDateChange?: (date: moment.Moment) => void;
-  view?: ViewTypes;
+  onViewChange?: (view: ViewTypes) => void;
 }
 
 export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   events,
   resources,
   currentDate,
+  view = ViewTypes.Week,
   onEventClick,
   onEventDrop,
   onEventResize,
   onDateSelect,
   onDateChange,
-  view = ViewTypes.Week,
+  onViewChange,
 }) => {
   const [schedulerData] = useState(() => {
     const data = new SchedulerData(
@@ -80,9 +82,12 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   }, [onDateChange, currentDate]);
 
-  const handleViewChange = useCallback((schedulerData: SchedulerData, view: ViewTypes) => {
-    schedulerData.setViewType(view, view === ViewTypes.Week);
-  }, []);
+  const handleViewChange = useCallback((schedulerData: SchedulerData, newView: ViewTypes) => {
+    if (onViewChange) {
+      onViewChange(newView);
+    }
+    schedulerData.setViewType(newView, newView === ViewTypes.Week);
+  }, [onViewChange]);
 
   return (
     <div className="calendar-container">
