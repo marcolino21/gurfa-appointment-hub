@@ -10,6 +10,7 @@ export const AppointmentCalendarView: React.FC = () => {
   const { events, isLoading: isLoadingEvents, error: eventsError } = useAppointmentEvents();
   const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources();
   const [currentDate, setCurrentDate] = useState(moment());
+  const [view, setView] = useState<ViewTypes>(ViewTypes.Week);
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
     console.log('Event clicked:', event);
@@ -35,6 +36,10 @@ export const AppointmentCalendarView: React.FC = () => {
     setCurrentDate(date);
   }, []);
 
+  const handleViewChange = useCallback((newView: ViewTypes) => {
+    setView(newView);
+  }, []);
+
   if (isLoadingEvents || isLoadingResources) {
     return <div>Loading...</div>;
   }
@@ -53,7 +58,7 @@ export const AppointmentCalendarView: React.FC = () => {
       onEventResize={handleEventResize}
       onDateSelect={handleDateSelect}
       onDateChange={handleDateChange}
-      view={ViewTypes.Week}
+      view={view}
     />
   );
 };

@@ -36,6 +36,9 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         dayMaxEvents: true,
         weekMaxEvents: true,
         monthMaxEvents: true,
+        schedulerWidth: '100%',
+        schedulerMaxHeight: 600,
+        nonWorkingTimeBodyBgColor: '#f8fafc',
       }
     );
     data.setResources(resources);
@@ -71,7 +74,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   const handleDateChange = useCallback((schedulerData: SchedulerData) => {
     if (onDateChange) {
-      onDateChange(moment());
+      onDateChange(moment(schedulerData.startDate));
     }
   }, [onDateChange]);
 
@@ -81,16 +84,30 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
 
   return (
     <div className="calendar-container">
-      <Scheduler
-        schedulerData={schedulerData}
-        prevClick={handleDateChange}
-        nextClick={handleDateChange}
-        onSelectDate={handleDateSelect}
-        onViewChange={handleViewChange}
-        eventItemClick={handleEventClick}
-        eventItemDrop={handleEventDrop}
-        eventItemResize={handleEventResize}
-      />
+      <div className="scheduler-container">
+        <div className="scheduler-header">
+          <div className="scheduler-toolbar">
+            <button className="today-button" onClick={() => handleDateChange(schedulerData)}>
+              Today
+            </button>
+          </div>
+        </div>
+        <div className="scheduler-view">
+          <Scheduler
+            schedulerData={schedulerData}
+            prevClick={handleDateChange}
+            nextClick={handleDateChange}
+            onSelectDate={handleDateSelect}
+            onViewChange={handleViewChange}
+            eventItemClick={handleEventClick}
+            eventItemDrop={handleEventDrop}
+            eventItemResize={handleEventResize}
+            viewType={view}
+            showAgenda={false}
+            isEventPerspective={false}
+          />
+        </div>
+      </div>
     </div>
   );
 };
