@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, Salon } from '../types';
 import { authReducer, initialState } from '../reducers/authReducer';
 import { useAuthService } from '../hooks/useAuthService';
+import { MOCK_SALONS } from '../data/mock/auth';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
@@ -27,6 +27,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const restoreSession = () => {
       try {
+        console.log('Attempting to restore session...', {
+          hasSession: Boolean(localStorage.getItem('gurfa_session')),
+          hasToken: Boolean(localStorage.getItem('gurfa_token')),
+          savedSalonId: localStorage.getItem('currentSalonId')
+        });
+        
         // Check for saved session
         const savedSession = localStorage.getItem('gurfa_session');
         const savedToken = localStorage.getItem('gurfa_token');
@@ -35,22 +41,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { user } = JSON.parse(savedSession);
           
           if (user && savedToken) {
-            console.log('Restoring session for user:', user.name || user.email);
+            console.log('Found valid session for user:', {
+              userId: user.id,
+              email: user.email,
+              role: user.role
+            });
             
+            // Get user's salons
+            const userSalons = MOCK_SALONS[user.id] || [];
+            console.log('Available salons for user:', userSalons.map(s => ({ id: s.id, name: s.name })));
+            
+            // Get saved salon ID
+            const savedSalonId = localStorage.getItem('currentSalonId');
+            console.log('Saved salon ID:', savedSalonId);
+            
+            // Determine the correct salon ID to use
+            let effectiveSalonId = null;
+            if (savedSalonId && userSalons.some(s => s.id === savedSalonId)) {
+              console.log('Using saved salon ID:', savedSalonId);
+              effectiveSalonId = savedSalonId;
+            } else if (userSalons.length > 0) {
+              console.log('Using default salon ID:', userSalons[0].id);
+              effectiveSalonId = userSalons[0].id;
+              localStorage.setItem('currentSalonId', userSalons[0].id);
+              localStorage.setItem('salon_business_name', userSalons[0].name);
+            }
+            
+            // Dispatch login with all necessary data
             dispatch({ 
               type: 'LOGIN', 
               payload: { 
                 user, 
-                token: savedToken 
+                token: savedToken,
+                salons: userSalons,
+                currentSalonId: effectiveSalonId
               } 
             });
             
-            // Also restore salon selection if available
-            const currentSalon = localStorage.getItem('currentSalonId');
-            if (currentSalon) {
-              dispatch({ type: 'SET_CURRENT_SALON', payload: currentSalon });
+            if (effectiveSalonId) {
+              dispatch({ type: 'SET_CURRENT_SALON', payload: effectiveSalonId });
             }
           }
+        } else {
+          console.log('No saved session found');
         }
       } catch (error) {
         console.error('Error restoring session:', error);
@@ -58,25 +91,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('gurfa_session');
         localStorage.removeItem('gurfa_user');
         localStorage.removeItem('gurfa_token');
+        localStorage.removeItem('currentSalonId');
+        localStorage.removeItem('salon_business_name');
       }
     };
     
     restoreSession();
   }, []);
 
-  // Always use persistent login by default
   const login = async (email: string, password: string): Promise<void> => {
-    return loginService(email, password, dispatch, true);
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      console.log('Starting login process for:', email);
+      const loginResult = await loginService(email, password, dispatch, true);
+      console.log('Login successful, checking salons');
+      
+      // After successful login, ensure salon is selected
+      const userSalons = MOCK_SALONS[loginResult?.user?.id || ''] || [];
+      console.log('Available salons after login:', userSalons);
+      
+      if (userSalons.length > 0) {
+        const salonToUse = userSalons[0];
+        console.log('Setting initial salon:', salonToUse);
+        
+        dispatch({ type: 'SET_CURRENT_SALON', payload: salonToUse.id });
+        localStorage.setItem('currentSalonId', salonToUse.id);
+        localStorage.setItem('salon_business_name', salonToUse.name);
+      } else {
+        console.warn('No salons available for user after login');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
   };
 
   const logout = () => {
+    console.log('Logging out, clearing all session data');
     logoutService(dispatch);
-    // Clear business name and salon ID from localStorage on logout
+    // Clear all salon-related data
     localStorage.removeItem('salon_business_name');
     localStorage.removeItem('currentSalonId');
   };
 
   const setCurrentSalon = (salonId: string) => {
+    console.log('Setting current salon:', salonId);
+    if (!state.salons.some(s => s.id === salonId)) {
+      console.error('Attempted to set invalid salon ID:', salonId);
+      return;
+    }
+    
     dispatch({ type: 'SET_CURRENT_SALON', payload: salonId });
     
     // Store the current salon ID in localStorage
@@ -94,35 +160,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addSalon = (salon: Salon) => {
-    // Aggiungiamo un ID univoco se non presente
-    const salonToAdd = {
-      ...salon,
-      id: salon.id || `salon-${Date.now()}`,
-    };
-    dispatch({ type: 'ADD_SALON', payload: salonToAdd });
+    dispatch({ type: 'ADD_SALON', payload: salon });
   };
 
   const updateSalonInfo = (salonId: string, updatedSalon: Salon) => {
-    // Update the salon in the state
     dispatch({ 
       type: 'UPDATE_SALON', 
-      payload: { 
-        salonId,
-        updatedSalon
-      } 
+      payload: { salonId, updatedSalon } 
     });
   };
 
   return (
-    <AuthContext.Provider value={{
-      ...state,
-      login,
-      logout,
-      setCurrentSalon,
-      resetPassword,
-      addSalon,
-      updateSalonInfo
-    }}>
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        logout,
+        setCurrentSalon,
+        resetPassword,
+        addSalon,
+        updateSalonInfo
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

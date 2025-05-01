@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -132,7 +131,7 @@ export const PaymentMethodDialog: React.FC<PaymentMethodDialogProps> = ({
               />
             </div>
             <DialogFooter className="gap-2 flex justify-end">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              <Button type="button" onClick={onClose} disabled={isSubmitting}>
                 Annulla
               </Button>
               <Button type="submit" disabled={isSubmitting}>

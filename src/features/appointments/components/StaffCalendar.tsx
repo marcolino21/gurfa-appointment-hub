@@ -2,6 +2,43 @@ import React, { useState, useCallback } from 'react';
 import Scheduler, { SchedulerData, ViewTypes } from 'react-big-scheduler';
 import moment from 'moment';
 import { CalendarEvent, StaffResource } from '../types';
+import 'react-big-scheduler/lib/css/style.css';
+import 'antd/dist/reset.css';
+
+const styles = {
+  calendarContainer: {
+    width: '100%',
+    height: '100%',
+    padding: '1rem',
+  },
+  schedulerContainer: {
+    width: '100%',
+    height: '100%',
+    border: '1px solid #e2e8f0',
+    borderRadius: '0.5rem',
+    overflow: 'hidden',
+  },
+  schedulerHeader: {
+    padding: '0.5rem',
+    borderBottom: '1px solid #e2e8f0',
+  },
+  schedulerToolbar: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '0.5rem',
+  },
+  todayButton: {
+    padding: '0.5rem 1rem',
+    backgroundColor: '#3b82f6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '0.25rem',
+    cursor: 'pointer',
+  },
+  schedulerView: {
+    height: 'calc(100% - 3rem)',
+  },
+};
 
 interface StaffCalendarProps {
   events: CalendarEvent[];
@@ -28,19 +65,18 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   onDateChange,
   onViewChange,
 }) => {
-  const [schedulerData] = useState(() => {
+  const [schedulerData, setSchedulerData] = useState(() => {
     const data = new SchedulerData(
       currentDate.format('YYYY-MM-DD'),
       view,
       false,
       false,
       {
-        dayMaxEvents: true,
-        weekMaxEvents: true,
-        monthMaxEvents: true,
-        schedulerWidth: '100%',
-        schedulerMaxHeight: 600,
-        nonWorkingTimeBodyBgColor: '#f8fafc',
+        dayMaxEvents: 2,
+        weekMaxEvents: 4,
+        monthMaxEvents: 4,
+        quarterMaxEvents: 4,
+        yearMaxEvents: 4,
       }
     );
     data.setResources(resources);
@@ -48,70 +84,86 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     return data;
   });
 
-  const handleEventClick = useCallback((schedulerData: SchedulerData, event: CalendarEvent) => {
-    if (onEventClick) {
-      onEventClick(event);
-    }
-  }, [onEventClick]);
+  const handlePrevClick = useCallback(() => {
+    const newDate = moment(schedulerData.startDate);
+    newDate.subtract(1, 'week');
+    setSchedulerData(prev => {
+      const newData = prev.clone();
+      newData.setDate(newDate.format('YYYY-MM-DD'));
+      return newData;
+    });
+    onDateChange?.(newDate);
+  }, [schedulerData, onDateChange]);
 
-  const handleEventDrop = useCallback((schedulerData: SchedulerData, event: CalendarEvent, newStart: string, newEnd: string) => {
-    if (onEventDrop) {
-      onEventDrop(event, newStart, newEnd);
-    }
-  }, [onEventDrop]);
+  const handleNextClick = useCallback(() => {
+    const newDate = moment(schedulerData.startDate);
+    newDate.add(1, 'week');
+    setSchedulerData(prev => {
+      const newData = prev.clone();
+      newData.setDate(newDate.format('YYYY-MM-DD'));
+      return newData;
+    });
+    onDateChange?.(newDate);
+  }, [schedulerData, onDateChange]);
 
-  const handleEventResize = useCallback((schedulerData: SchedulerData, event: CalendarEvent, newStart: string, newEnd: string) => {
-    if (onEventResize) {
-      onEventResize(event, newStart, newEnd);
-    }
-  }, [onEventResize]);
-
-  const handleDateSelect = useCallback((schedulerData: SchedulerData, date: string) => {
-    if (onDateSelect) {
-      const start = moment(date).startOf('day').format('YYYY-MM-DD HH:mm');
-      const end = moment(date).endOf('day').format('YYYY-MM-DD HH:mm');
-      onDateSelect(start, end);
-    }
-  }, [onDateSelect]);
-
-  const handleDateChange = useCallback((schedulerData: SchedulerData, direction: 'prev' | 'next') => {
-    if (onDateChange) {
-      const newDate = moment(currentDate).add(direction === 'prev' ? -1 : 1, 'week');
-      onDateChange(newDate);
-      schedulerData.setDate(newDate.format('YYYY-MM-DD'));
-    }
-  }, [onDateChange, currentDate]);
+  const handleTodayClick = useCallback(() => {
+    const today = moment();
+    setSchedulerData(prev => {
+      const newData = prev.clone();
+      newData.setDate(today.format('YYYY-MM-DD'));
+      return newData;
+    });
+    onDateChange?.(today);
+  }, [onDateChange]);
 
   const handleViewChange = useCallback((schedulerData: SchedulerData, newView: ViewTypes) => {
-    if (onViewChange) {
-      onViewChange(newView);
-    }
-    schedulerData.setViewType(newView, newView === ViewTypes.Week);
+    setSchedulerData(prev => {
+      const newData = prev.clone();
+      newData.setViewType(newView);
+      return newData;
+    });
+    onViewChange?.(newView);
   }, [onViewChange]);
 
+  const handleEventClick = useCallback((schedulerData: SchedulerData, event: any) => {
+    onEventClick?.(event as CalendarEvent);
+  }, [onEventClick]);
+
+  const handleDateSelect = useCallback((schedulerData: SchedulerData, date: string) => {
+    const start = moment(date).startOf('day').format('YYYY-MM-DD HH:mm');
+    const end = moment(date).endOf('day').format('YYYY-MM-DD HH:mm');
+    onDateSelect?.(start, end);
+  }, [onDateSelect]);
+
   return (
-    <div className="calendar-container">
-      <div className="scheduler-container">
-        <div className="scheduler-header">
-          <div className="scheduler-toolbar">
-            <button className="today-button" onClick={() => handleDateChange(schedulerData, 'prev')}>
-              Today
+    <div style={styles.calendarContainer}>
+      <div style={styles.schedulerContainer}>
+        <div style={styles.schedulerHeader}>
+          <div style={styles.schedulerToolbar}>
+            <button style={styles.todayButton} onClick={handleTodayClick}>
+              Oggi
+            </button>
+            <button style={styles.todayButton} onClick={handlePrevClick}>
+              &lt;
+            </button>
+            <button style={styles.todayButton} onClick={handleNextClick}>
+              &gt;
             </button>
           </div>
         </div>
-        <div className="scheduler-view">
+        <div style={styles.schedulerView}>
           <Scheduler
             schedulerData={schedulerData}
-            prevClick={() => handleDateChange(schedulerData, 'prev')}
-            nextClick={() => handleDateChange(schedulerData, 'next')}
+            prevClick={handlePrevClick}
+            nextClick={handleNextClick}
             onSelectDate={handleDateSelect}
             onViewChange={handleViewChange}
             eventItemClick={handleEventClick}
-            eventItemDrop={handleEventDrop}
-            eventItemResize={handleEventResize}
-            viewType={view}
-            showAgenda={false}
-            isEventPerspective={false}
+            eventItemTemplateResolver={null}
+            eventItemPopoverTemplateResolver={null}
+            scrollToSpecialMomentEnabled={true}
+            nonAgendaCellHeaderTemplateResolver={null}
+            nonAgendaCellBodyTemplateResolver={null}
           />
         </div>
       </div>

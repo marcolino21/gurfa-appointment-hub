@@ -120,7 +120,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({ open, onOpenChange }) =
           </div>
           
           <DialogFooter className="pt-4">
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <Button type="button" onClick={() => onOpenChange(false)}>
               Annulla
             </Button>
             <Button type="submit">

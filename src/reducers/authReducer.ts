@@ -1,34 +1,8 @@
-
 import { AuthState } from '../types';
-
-// Modifica dei dati mock per includere Gurfa Beauty Concept
-export const MOCK_SALONS = {
-  // ID degli utenti come chiavi
-  'user-1': [
-    {
-      id: 'salon-1',
-      name: 'Gurfa Beauty Concept',
-      ownerId: 'user-1',
-      address: 'Via Fiume Giallo, 405, 00144 Roma, Italia',
-      phone: '+390654218124'
-    },
-    {
-      id: 'salon-2',
-      name: 'Studio Bellezza',
-      ownerId: 'user-1'
-    }
-  ],
-  'user-2': [
-    {
-      id: 'salon-3',
-      name: 'Freemind Hair',
-      ownerId: 'user-2'
-    }
-  ],
-};
+import { MOCK_SALONS } from '../data/mock/auth';
 
 export type AuthAction =
-  | { type: 'LOGIN'; payload: { user: any; token: string } }
+  | { type: 'LOGIN'; payload: { user: any; token: string; salons?: any[]; currentSalonId?: string | null } }
   | { type: 'LOGOUT' }
   | { type: 'SET_CURRENT_SALON'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -49,12 +23,13 @@ export const initialState: AuthState = {
 export const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'LOGIN':
+      const userSalons = action.payload.salons || MOCK_SALONS[action.payload.user.id] || [];
       return {
         ...state,
         user: action.payload.user,
         token: action.payload.token,
-        salons: MOCK_SALONS[action.payload.user.id] || [],
-        currentSalonId: MOCK_SALONS[action.payload.user.id]?.[0]?.id || null,
+        salons: userSalons,
+        currentSalonId: action.payload.currentSalonId || userSalons[0]?.id || null,
         loading: false,
         error: null
       };

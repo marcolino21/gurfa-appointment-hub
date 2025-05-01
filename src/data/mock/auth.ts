@@ -1,4 +1,3 @@
-
 import { User, Salon, UserRole } from '@/types';
 
 // Mock users for development
@@ -48,5 +47,8 @@ export const MOCK_SALONS: Record<string, Salon[]> = {
   ],
   '3': [
     { id: 'f1', name: 'Studio Personale', ownerId: '3', address: 'Via Napoli 789, Napoli', phone: '081123456' }
+  ],
+  '4': [
+    { id: 'sa1', name: 'Gurfa Beauty Concept', ownerId: '4', address: 'Via Fiume Giallo, 405, 00144 Roma, Italia', phone: '+390654218124' }
   ]
 };

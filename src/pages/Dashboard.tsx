@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppointments } from '@/contexts/AppointmentContext';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const DashboardCard: React.FC<{
   title: string;
@@ -29,8 +29,65 @@ const DashboardCard: React.FC<{
 };
 
 const Dashboard: React.FC = () => {
-  const { user, currentSalonId, salons } = useAuth();
+  const { user, currentSalonId, salons, loading } = useAuth();
   const { appointments } = useAppointments();
+  
+  // Debug logging
+  console.log('Dashboard render:', {
+    user: user?.email,
+    currentSalonId,
+    salons: salons?.length,
+    appointments: appointments?.length,
+    loading
+  });
+  
+  // Show loading state while authentication is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // If no user is logged in, show error
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription>
+            Sessione non valida. Per favore, effettua nuovamente il login.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // If no salon is selected but salons are available, show error
+  if (!currentSalonId && salons?.length > 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription>
+            Nessun salone selezionato. Seleziona un salone per visualizzare la dashboard.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // If no salons are available, show error
+  if (!salons?.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription>
+            Nessun salone disponibile per questo account.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
   
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
   

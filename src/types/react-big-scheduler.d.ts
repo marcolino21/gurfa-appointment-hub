@@ -1,3 +1,5 @@
+import { SchedulerData as OriginalSchedulerData } from 'react-big-scheduler';
+
 declare module 'react-big-scheduler' {
   import { Component } from 'react';
   import { Moment } from 'moment';
@@ -72,4 +74,8 @@ declare module 'react-big-scheduler' {
   }
 
   export default class Scheduler extends Component<SchedulerProps> {}
+
+  interface SchedulerData extends OriginalSchedulerData {
+    startDate: string;
+  }
 } 

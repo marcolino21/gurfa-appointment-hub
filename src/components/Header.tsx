@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -92,7 +91,7 @@ const Header: React.FC = () => {
             </span>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
+          <Button onClick={handleLogout}>
             <LogOut className="h-5 w-5" />
           </Button>
         </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -160,7 +159,6 @@ const BusinessUserDialog: React.FC<BusinessUserDialogProps> = ({
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-2 pt-3">
             <Button 
-              variant="outline" 
               type="button" 
               onClick={() => onOpenChange(false)} 
               disabled={isLoading}
