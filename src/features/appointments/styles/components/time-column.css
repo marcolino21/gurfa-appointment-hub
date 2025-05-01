@@ -111,3 +111,31 @@
   border-bottom: 1px solid #e5e7eb;
   position: relative;
 }
+
+/* Calendar time slots */
+.time-slot {
+  height: 40px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+/* Calendar zoom levels */
+.zoom-level-0-5 .time-slot {
+  height: 20px;
+}
+
+.zoom-level-0-75 .time-slot {
+  height: 30px;
+}
+
+.zoom-level-1 .time-slot {
+  height: 40px;
+}
+
+.zoom-level-1-5 .time-slot {
+  height: 60px;
+}
+
+.zoom-level-2 .time-slot {
+  height: 80px;
+}

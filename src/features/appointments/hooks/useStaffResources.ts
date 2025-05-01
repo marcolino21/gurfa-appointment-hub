@@ -7,28 +7,42 @@ interface StaffResource {
   name: string;
   color?: string;
   isVisible?: boolean;
+  workingHours?: {
+    start: string;
+    end: string;
+  };
+  daysOff?: string[];
 }
 
 export const useStaffResources = () => {
   const [resources, setResources] = useState<StaffResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { staffMembers, isLoading: isLoadingStaff } = useStaffMembers();
+  const [error, setError] = useState<Error | null>(null);
+  const { staffMembers, isLoading: isLoadingStaff } = useStaffMembers('current');
 
   useEffect(() => {
     if (!isLoadingStaff) {
-      const transformedResources = staffMembers
-        .filter(member => member.isActive && member.showInCalendar)
-        .map(member => ({
-          id: member.id,
-          name: `${member.firstName} ${member.lastName || ''}`.trim(),
-          color: member.color,
-          isVisible: member.showInCalendar
-        }));
-      
-      setResources(transformedResources);
-      setIsLoading(false);
+      try {
+        const transformedResources = staffMembers
+          .filter(member => member.isActive)
+          .map(member => ({
+            id: member.id,
+            name: member.name,
+            color: member.color,
+            isVisible: member.isActive,
+            workingHours: member.workingHours?.[0] || undefined,
+            daysOff: member.daysOff
+          }));
+        
+        setResources(transformedResources);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Errore nella trasformazione delle risorse'));
+      } finally {
+        setIsLoading(false);
+      }
     }
   }, [staffMembers, isLoadingStaff]);
 
-  return { resources, isLoading };
+  return { resources, isLoading, error };
 }; 

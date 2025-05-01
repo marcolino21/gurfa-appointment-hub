@@ -23,14 +23,67 @@
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  background-color: #3b82f6;
+  color: white;
 }
 
+.calendar-event-time {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.calendar-event-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+/* Calendar event status styles */
+.calendar-event.status-confirmed {
+  background-color: #10b981;
+}
+
+.calendar-event.status-pending {
+  background-color: #f59e0b;
+}
+
+.calendar-event.status-cancelled {
+  background-color: #ef4444;
+  text-decoration: line-through;
+}
+
+/* Calendar event interactions */
+.calendar-event:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.calendar-event.is-dragging {
+  opacity: 0.7;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Calendar event conflict */
 .calendar-event.event-conflict {
   opacity: 0.7;
   border: 1px dashed #ef4444;
 }
 
-/* Zoom levels */
+/* Calendar time slots */
+.time-slot {
+  height: 40px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.time-slot-label {
+  padding: 0 8px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Calendar zoom levels */
 .zoom-level-0-5 .time-slot {
   height: 20px;
 }
@@ -63,16 +116,6 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-}
-
-.calendar-event-title {
-  font-weight: 500;
-  margin-bottom: 2px;
-}
-
-.calendar-event-time {
-  font-size: 0.75rem;
-  opacity: 0.8;
 }
 
 .calendar-event::after {

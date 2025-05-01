@@ -12,8 +12,8 @@ export interface StaffMember {
 export interface CalendarEvent extends Event {
   id: string;
   title: string;
-  start: string;
-  end: string;
+  start: string; // Format: 'YYYY-MM-DD HH:mm'
+  end: string; // Format: 'YYYY-MM-DD HH:mm'
   resourceId: string;
   bgColor?: string;
   status?: 'confirmed' | 'pending' | 'cancelled';
@@ -24,4 +24,10 @@ export interface CalendarEvent extends Event {
   clientName?: string;
   service?: string;
   color?: string;
+  isDraggable?: boolean;
+  isResizable?: boolean;
+  isAllDay?: boolean;
+  recurrenceRule?: string;
+  recurrenceId?: string;
+  recurrenceException?: string;
 } 

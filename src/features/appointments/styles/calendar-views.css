@@ -211,3 +211,104 @@
 .calendar-grid-body {
   overscroll-behavior: none;
 }
+
+/* Calendar view specific styles */
+.calendar-day-grid-month-view .calendar-day-grid-event {
+  margin: 1px 2px;
+  padding: 2px 4px;
+}
+
+.calendar-day-grid-month-view .calendar-day-grid-event .calendar-event-title:before {
+  content: '•';
+  margin-right: 4px;
+}
+
+.calendar-day-grid-month-view .calendar-event-title {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Calendar view container */
+.calendar-view-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.calendar-view {
+  height: 100%;
+  position: relative;
+}
+
+/* Calendar grid styles */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  height: 100%;
+  overflow: hidden;
+}
+
+.calendar-grid-body {
+  overflow-y: auto;
+  overflow-x: auto;
+  height: 100%;
+}
+
+/* Calendar time slots */
+.time-slot {
+  height: 40px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.time-slot-label {
+  padding: 0 8px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Calendar scroll styles */
+.calendar-scroller {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f8fafc;
+}
+
+.calendar-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.calendar-scroller::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.calendar-scroller::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 3px;
+}
+
+/* Calendar zoom levels */
+.zoom-level-0-5 .time-slot {
+  height: 20px;
+}
+
+.zoom-level-0-75 .time-slot {
+  height: 30px;
+}
+
+.zoom-level-1 .time-slot {
+  height: 40px;
+}
+
+.zoom-level-1-5 .time-slot {
+  height: 60px;
+}
+
+.zoom-level-2 .time-slot {
+  height: 80px;
+}

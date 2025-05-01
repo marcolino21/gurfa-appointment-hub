@@ -21,6 +21,7 @@
   font-size: 0.75rem !important;
 }
 
+/* Calendar event styles */
 .calendar-event {
   position: relative;
   border-radius: 4px;
@@ -31,6 +32,64 @@
   transition: all 0.2s ease;
   background-color: #3b82f6;
   color: white;
+}
+
+.calendar-event-time {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.calendar-event-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+/* Calendar event status styles */
+.calendar-event.status-confirmed {
+  background-color: #10b981;
+}
+
+.calendar-event.status-pending {
+  background-color: #f59e0b;
+}
+
+.calendar-event.status-cancelled {
+  background-color: #ef4444;
+  text-decoration: line-through;
+}
+
+/* Calendar event interactions */
+.calendar-event:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.calendar-event.is-dragging {
+  opacity: 0.7;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Calendar event resizer */
+.calendar-event-resizer {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  cursor: ns-resize;
+  z-index: 4;
+}
+
+.calendar-event-resizer-start {
+  top: 0;
+}
+
+.calendar-event-resizer-end {
+  bottom: 0;
+}
+
+/* Calendar event conflict */
+.calendar-event.event-conflict {
+  opacity: 0.7;
+  border: 1px dashed #ef4444;
 }
 
 .calendar-day-grid-month-view .calendar-day-grid-event {
