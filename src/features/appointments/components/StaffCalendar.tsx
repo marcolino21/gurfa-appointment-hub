@@ -72,11 +72,13 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     }
   }, [onDateSelect]);
 
-  const handleDateChange = useCallback((schedulerData: SchedulerData) => {
+  const handleDateChange = useCallback((schedulerData: SchedulerData, direction: 'prev' | 'next') => {
     if (onDateChange) {
-      onDateChange(moment(schedulerData.startDate));
+      const newDate = moment(currentDate).add(direction === 'prev' ? -1 : 1, 'week');
+      onDateChange(newDate);
+      schedulerData.setDate(newDate.format('YYYY-MM-DD'));
     }
-  }, [onDateChange]);
+  }, [onDateChange, currentDate]);
 
   const handleViewChange = useCallback((schedulerData: SchedulerData, view: ViewTypes) => {
     schedulerData.setViewType(view, view === ViewTypes.Week);
@@ -87,7 +89,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
       <div className="scheduler-container">
         <div className="scheduler-header">
           <div className="scheduler-toolbar">
-            <button className="today-button" onClick={() => handleDateChange(schedulerData)}>
+            <button className="today-button" onClick={() => handleDateChange(schedulerData, 'prev')}>
               Today
             </button>
           </div>
@@ -95,8 +97,8 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         <div className="scheduler-view">
           <Scheduler
             schedulerData={schedulerData}
-            prevClick={handleDateChange}
-            nextClick={handleDateChange}
+            prevClick={() => handleDateChange(schedulerData, 'prev')}
+            nextClick={() => handleDateChange(schedulerData, 'next')}
             onSelectDate={handleDateSelect}
             onViewChange={handleViewChange}
             eventItemClick={handleEventClick}
