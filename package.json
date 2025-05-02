@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aldabil/react-scheduler": "^3.1.2",
     "@ant-design/cssinjs": "^1.23.0",
     "@ant-design/icons": "^5.6.1",
     "@dnd-kit/core": "^6.3.1",
@@ -53,7 +54,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
-    "date-fns": "^2.30.0",
+    "date-fns": "^4.1.0",
     "date-fns-tz": "^2.0.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.1.0",
@@ -62,7 +63,6 @@
     "moment": "^2.30.1",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
-    "react-big-scheduler": "^0.2.7",
     "react-day-picker": "^9.6.7",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
@@ -100,7 +100,7 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.8.3",
-    "vite": "^5.1.4"
+    "vite": "^6.3.4"
   },
   "resolutions": {
     "@ant-design/icons": "^5.6.1",
