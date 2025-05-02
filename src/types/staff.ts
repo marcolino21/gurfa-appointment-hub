@@ -11,30 +11,22 @@ export interface WorkScheduleDay {
 
 export interface StaffMember {
   id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  color?: string;
-  isVisible?: boolean;
-  role?: string;
-  department?: string;
-  workingHours?: {
-    start: string;
-    end: string;
-  }[];
-  daysOff?: string[];
   firstName: string;
   lastName: string;
+  email: string;
   isActive: boolean;
   showInCalendar: boolean;
-  salonId: string;
+  phone?: string;
   additionalPhone?: string;
   country?: string;
   birthDate?: string;
   position?: string;
-  assignedServiceIds?: string[];
-  permissions?: SystemFeature[];
+  color?: string;
+  assignedServiceIds: string[];
+  permissions: SystemFeature[];
   workSchedule?: WorkScheduleDay[];
+  salonId: string;
+  name: string;
 }
 
 // Helper function to get staff member's full name
@@ -45,9 +37,9 @@ export function getStaffMemberName(staff: StaffMember): string {
 }
 
 // Factory function to create a new staff member
-export function createStaffMember(data: Omit<StaffMember, 'id'>): StaffMember {
+export function createStaffMember(data: Omit<StaffMember, 'id' | 'name'>): Omit<StaffMember, 'id'> {
   return {
     ...data,
-    id: crypto.randomUUID()
+    name: `${data.firstName} ${data.lastName}`
   };
 }

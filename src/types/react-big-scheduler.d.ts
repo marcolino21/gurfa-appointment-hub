@@ -1,53 +1,24 @@
 import { SchedulerData as OriginalSchedulerData } from 'react-big-scheduler';
+import { Moment } from 'moment';
 
 declare module 'react-big-scheduler' {
-  import { Component } from 'react';
-  import { Moment } from 'moment';
-
-  export class SchedulerData {
-    constructor(
-      date: string,
-      viewType: ViewTypes,
-      showAgenda: boolean,
-      isEventPerspective: boolean,
-      config?: SchedulerConfig
-    );
-
-    setResources(resources: Resource[]): void;
-    setEvents(events: Event[]): void;
-    prev(): void;
-    next(): void;
-    setDate(date: string): void;
-    setViewType(viewType: ViewTypes, showAgenda?: boolean, isEventPerspective?: boolean): void;
+  export interface SchedulerData extends OriginalSchedulerData {
     clone(): SchedulerData;
+    setViewType(viewType: ViewTypes): void;
   }
 
-  export interface Resource {
-    id: string;
-    name: string;
-    color?: string;
+  export interface View {
+    viewType: ViewTypes;
   }
 
   export interface Event {
-    id: string;
-    start: string;
-    end: string;
-    resourceId: string;
+    id: number | string;
     title: string;
+    start: Date | string;
+    end: Date | string;
+    resourceId: string;
     bgColor?: string;
-    [key: string]: unknown;
-  }
-
-  export interface SchedulerConfig {
-    schedulerWidth?: string;
-    schedulerMaxHeight?: number;
-    dayStartFrom?: number;
-    dayStopTo?: number;
-    eventItemHeight?: number;
-    eventItemLineHeight?: number;
-    nonWorkingTimeBodyBgColor?: string;
-    minuteStep?: number;
-    [key: string]: unknown;
+    [key: string]: any;
   }
 
   export enum ViewTypes {
@@ -61,21 +32,36 @@ declare module 'react-big-scheduler' {
     Custom2 = 7
   }
 
-  export const DATE_FORMAT: string;
-
   export interface SchedulerProps {
     schedulerData: SchedulerData;
+    viewType?: ViewTypes;
+    showAgenda?: boolean;
+    isEventPerspective?: boolean;
     prevClick?: (schedulerData: SchedulerData) => void;
     nextClick?: (schedulerData: SchedulerData) => void;
+    onViewChange?: (schedulerData: SchedulerData, view: View) => void;
     onSelectDate?: (schedulerData: SchedulerData, date: string) => void;
-    onViewChange?: (schedulerData: SchedulerData, view: ViewTypes) => void;
-    eventItemClick?: (schedulerData: SchedulerData, event: Event) => void;
-    [key: string]: unknown;
+    onEventClick?: (schedulerData: SchedulerData, event: Event) => void;
+    eventItemTemplateResolver?: (
+      schedulerData: SchedulerData,
+      event: Event,
+      bgColor: string,
+      isStart: boolean,
+      isEnd: boolean,
+      mustAddCssClass: string,
+      mustBeHeight: number,
+      agendaMaxEventWidth: number
+    ) => React.ReactNode;
+    eventItemPopoverTemplateResolver?: (
+      schedulerData: SchedulerData,
+      eventItem: Event,
+      title: string,
+      start: Moment,
+      end: Moment,
+      statusColor: string
+    ) => React.ReactNode;
   }
 
-  export default class Scheduler extends Component<SchedulerProps> {}
-
-  interface SchedulerData extends OriginalSchedulerData {
-    startDate: string;
-  }
+  const Scheduler: React.FC<SchedulerProps>;
+  export default Scheduler;
 } 

@@ -1,8 +1,9 @@
 /* React Big Scheduler styles */
 .scheduler-container {
   height: 100%;
-  width: 100%;
-  position: relative;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .scheduler-view {
@@ -11,12 +12,9 @@
 }
 
 .scheduler-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  background-color: var(--muted);
-  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: white;
 }
 
 .scheduler-resource-header {
@@ -27,26 +25,28 @@
 }
 
 .scheduler-event {
-  background-color: var(--primary);
-  color: white;
   border-radius: 4px;
-  padding: 4px;
-  margin: 2px;
+  padding: 4px 8px;
+  margin: 1px 0;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .scheduler-event:hover {
-  background-color: var(--primary-hover);
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.scheduler-event-title {
+.scheduler-event .event-title {
   font-weight: 500;
-  margin-bottom: 2px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.scheduler-event-time {
-  font-size: 0.875rem;
+.scheduler-event .event-time {
+  font-size: 0.75rem;
   opacity: 0.9;
 }
 
@@ -59,17 +59,21 @@
   color: white;
 }
 
-/* Event status colors */
-.scheduler-event-status-pending {
-  background-color: var(--warning);
+/* Event status styles */
+.scheduler-event.status-confirmed {
+  background-color: #10b981;
+  color: white;
 }
 
-.scheduler-event-status-confirmed {
-  background-color: var(--success);
+.scheduler-event.status-pending {
+  background-color: #f59e0b;
+  color: white;
 }
 
-.scheduler-event-status-cancelled {
-  background-color: var(--danger);
+.scheduler-event.status-cancelled {
+  background-color: #ef4444;
+  color: white;
+  text-decoration: line-through;
 }
 
 /* Resource view styles */
@@ -108,23 +112,100 @@
   z-index: 1;
 }
 
-/* Event popover styles */
-.scheduler-event-popover {
-  position: absolute;
-  background-color: white;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+/* Event popover */
+.event-popover {
+  padding: 1rem;
+  min-width: 200px;
 }
 
-.scheduler-event-popover-title {
+.event-popover .event-title {
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 0.5rem;
 }
 
-.scheduler-event-popover-content {
+.event-popover .event-details {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+}
+
+.event-popover .event-details p {
+  margin: 0.25rem 0;
+}
+
+/* Resource cells */
+.resource-view {
+  border-right: 1px solid #e5e7eb;
+}
+
+.resource-cell {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+/* Time cells */
+.time-cell {
+  padding: 0.25rem;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+/* Header cells */
+.header-cell {
+  padding: 0.5rem;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  font-weight: 500;
+}
+
+/* Today highlight */
+.scheduler-cell.today {
+  background-color: #f0f9ff;
+}
+
+/* Drag and drop styles */
+.scheduler-event.dragging {
+  opacity: 0.5;
+}
+
+.scheduler-event.resize-handle {
+  position: relative;
+}
+
+.scheduler-event.resize-handle::before,
+.scheduler-event.resize-handle::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 100%;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: ew-resize;
+}
+
+.scheduler-event.resize-handle::before {
+  left: 0;
+}
+
+.scheduler-event.resize-handle::after {
+  right: 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .scheduler-event .event-title {
+    font-size: 0.75rem;
+  }
+
+  .scheduler-event .event-time {
+    font-size: 0.675rem;
+  }
+
+  .time-cell {
+    font-size: 0.675rem;
+  }
 } 

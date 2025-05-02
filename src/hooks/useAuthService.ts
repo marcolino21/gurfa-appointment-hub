@@ -16,7 +16,6 @@ export const useAuthService = () => {
     
     try {
       console.log('Starting login process for:', email);
-      await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseEmail = email.toLowerCase();
       const mockUser = MOCK_USERS[lowercaseEmail as keyof typeof MOCK_USERS];
@@ -46,17 +45,27 @@ export const useAuthService = () => {
         throw new Error('Nessun salone associato all\'account');
       }
       
-      const session = { user, token, salons: userSalons };
+      // Set default salon
+      const defaultSalon = userSalons[0];
       
-      // Store session data
+      // First dispatch the login action
+      dispatch({
+        type: 'LOGIN',
+        payload: { 
+          user, 
+          token,
+          salons: userSalons,
+          currentSalonId: defaultSalon.id
+        }
+      });
+
+      // Then store session data
       try {
+        const session = { user, token, salons: userSalons };
         localStorage.setItem('gurfa_session', JSON.stringify(session));
         localStorage.setItem('gurfa_user', JSON.stringify(user));
         localStorage.setItem('gurfa_token', token);
         localStorage.setItem('session_type', 'persistent');
-        
-        // Set default salon
-        const defaultSalon = userSalons[0];
         localStorage.setItem('currentSalonId', defaultSalon.id);
         localStorage.setItem('salon_business_name', defaultSalon.name);
         
@@ -68,20 +77,14 @@ export const useAuthService = () => {
         });
       } catch (storageError) {
         console.error('Error storing session data:', storageError);
+        // If storage fails, logout to maintain consistency
+        dispatch({ type: 'LOGOUT' });
         throw new Error('Errore nel salvataggio della sessione');
       }
-      
-      // Dispatch login action
-      dispatch({
-        type: 'LOGIN',
-        payload: { 
-          user, 
-          token,
-          salons: userSalons,
-          currentSalonId: userSalons[0].id
-        }
-      });
 
+      // Wait a bit before showing the success toast
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       toast({
         title: 'Login riuscito',
         description: `Benvenuto, ${user.name}!`,
@@ -105,14 +108,16 @@ export const useAuthService = () => {
   const logout = (dispatch: React.Dispatch<any>) => {
     console.log('Starting logout process');
     try {
+      // First dispatch logout
+      dispatch({ type: 'LOGOUT' });
+      
+      // Then clear storage
       localStorage.removeItem('gurfa_session');
       localStorage.removeItem('gurfa_user');
       localStorage.removeItem('gurfa_token');
       localStorage.removeItem('session_type');
       localStorage.removeItem('currentSalonId');
       localStorage.removeItem('salon_business_name');
-      
-      dispatch({ type: 'LOGOUT' });
       
       console.log('Logout completed successfully');
       
@@ -137,9 +142,6 @@ export const useAuthService = () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
-      console.log('Starting password reset for:', email);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
       const lowercaseEmail = email.toLowerCase();
       const userExists = !!MOCK_USERS[lowercaseEmail as keyof typeof MOCK_USERS];
       

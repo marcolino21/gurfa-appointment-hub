@@ -25,8 +25,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Enhanced session restoration with error handling
   useEffect(() => {
-    const restoreSession = () => {
+    const restoreSession = async () => {
       try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        
         console.log('Attempting to restore session...', {
           hasSession: Boolean(localStorage.getItem('gurfa_session')),
           hasToken: Boolean(localStorage.getItem('gurfa_token')),
@@ -37,53 +39,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const savedSession = localStorage.getItem('gurfa_session');
         const savedToken = localStorage.getItem('gurfa_token');
         
-        if (savedSession && savedToken) {
+        if (!savedSession || !savedToken) {
+          console.log('No saved session found');
+          dispatch({ type: 'SET_LOADING', payload: false });
+          return;
+        }
+
+        try {
           const { user } = JSON.parse(savedSession);
           
-          if (user && savedToken) {
-            console.log('Found valid session for user:', {
-              userId: user.id,
-              email: user.email,
-              role: user.role
-            });
-            
-            // Get user's salons
-            const userSalons = MOCK_SALONS[user.id] || [];
-            console.log('Available salons for user:', userSalons.map(s => ({ id: s.id, name: s.name })));
-            
-            // Get saved salon ID
-            const savedSalonId = localStorage.getItem('currentSalonId');
-            console.log('Saved salon ID:', savedSalonId);
-            
-            // Determine the correct salon ID to use
-            let effectiveSalonId = null;
-            if (savedSalonId && userSalons.some(s => s.id === savedSalonId)) {
-              console.log('Using saved salon ID:', savedSalonId);
-              effectiveSalonId = savedSalonId;
-            } else if (userSalons.length > 0) {
-              console.log('Using default salon ID:', userSalons[0].id);
-              effectiveSalonId = userSalons[0].id;
-              localStorage.setItem('currentSalonId', userSalons[0].id);
-              localStorage.setItem('salon_business_name', userSalons[0].name);
-            }
-            
-            // Dispatch login with all necessary data
-            dispatch({ 
-              type: 'LOGIN', 
-              payload: { 
-                user, 
-                token: savedToken,
-                salons: userSalons,
-                currentSalonId: effectiveSalonId
-              } 
-            });
-            
-            if (effectiveSalonId) {
-              dispatch({ type: 'SET_CURRENT_SALON', payload: effectiveSalonId });
-            }
+          if (!user || !user.id) {
+            throw new Error('Invalid user data in session');
           }
-        } else {
-          console.log('No saved session found');
+
+          console.log('Found valid session for user:', {
+            userId: user.id,
+            email: user.email,
+            role: user.role
+          });
+          
+          // Get user's salons
+          const userSalons = MOCK_SALONS[user.id] || [];
+          console.log('Available salons for user:', userSalons.map(s => ({ id: s.id, name: s.name })));
+          
+          if (userSalons.length === 0) {
+            throw new Error('No salons available for user');
+          }
+
+          // Get saved salon ID
+          const savedSalonId = localStorage.getItem('currentSalonId');
+          console.log('Saved salon ID:', savedSalonId);
+          
+          // Determine the correct salon ID to use
+          let effectiveSalonId = null;
+          if (savedSalonId && userSalons.some(s => s.id === savedSalonId)) {
+            console.log('Using saved salon ID:', savedSalonId);
+            effectiveSalonId = savedSalonId;
+          } else {
+            console.log('Using default salon ID:', userSalons[0].id);
+            effectiveSalonId = userSalons[0].id;
+            localStorage.setItem('currentSalonId', userSalons[0].id);
+            localStorage.setItem('salon_business_name', userSalons[0].name);
+          }
+          
+          // Dispatch login with all necessary data
+          dispatch({ 
+            type: 'LOGIN', 
+            payload: { 
+              user, 
+              token: savedToken,
+              salons: userSalons,
+              currentSalonId: effectiveSalonId
+            } 
+          });
+          
+          if (effectiveSalonId) {
+            dispatch({ type: 'SET_CURRENT_SALON', payload: effectiveSalonId });
+          }
+        } catch (parseError) {
+          console.error('Error parsing session data:', parseError);
+          throw parseError;
         }
       } catch (error) {
         console.error('Error restoring session:', error);
@@ -93,6 +108,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('gurfa_token');
         localStorage.removeItem('currentSalonId');
         localStorage.removeItem('salon_business_name');
+        dispatch({ type: 'LOGOUT' });
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
     
@@ -106,20 +124,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const loginResult = await loginService(email, password, dispatch, true);
       console.log('Login successful, checking salons');
       
+      if (!loginResult?.user?.id) {
+        throw new Error('Invalid login result');
+      }
+
       // After successful login, ensure salon is selected
-      const userSalons = MOCK_SALONS[loginResult?.user?.id || ''] || [];
+      const userSalons = MOCK_SALONS[loginResult.user.id] || [];
       console.log('Available salons after login:', userSalons);
       
-      if (userSalons.length > 0) {
-        const salonToUse = userSalons[0];
-        console.log('Setting initial salon:', salonToUse);
-        
-        dispatch({ type: 'SET_CURRENT_SALON', payload: salonToUse.id });
-        localStorage.setItem('currentSalonId', salonToUse.id);
-        localStorage.setItem('salon_business_name', salonToUse.name);
-      } else {
-        console.warn('No salons available for user after login');
+      if (userSalons.length === 0) {
+        throw new Error('No salons available for user');
       }
+
+      const salonToUse = userSalons[0];
+      console.log('Setting initial salon:', salonToUse);
+      
+      dispatch({ type: 'SET_CURRENT_SALON', payload: salonToUse.id });
+      localStorage.setItem('currentSalonId', salonToUse.id);
+      localStorage.setItem('salon_business_name', salonToUse.name);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
