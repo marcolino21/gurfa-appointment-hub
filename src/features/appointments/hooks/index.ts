@@ -1,6 +1,5 @@
-export * from './useAppointments';
-export * from './useStaffResources';
 export * from './useAppointmentEvents';
+export * from './useStaffResources';
 export * from './useAppointmentHandlers';
 export * from './useBusinessHours';
 export * from './useMasterSlaveScroll';

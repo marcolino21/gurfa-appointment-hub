@@ -7,6 +7,8 @@ export type AppointmentFilters = {
   staffId?: string;
 };
 
+// Qui puoi aggiungere altre funzioni o hook utili per la gestione degli appuntamenti
+
 export function useAppointmentEvents() {
   // ... implementazione mock o reale ...
   const [events, setEvents] = useState<CalendarEvent[]>([]);
