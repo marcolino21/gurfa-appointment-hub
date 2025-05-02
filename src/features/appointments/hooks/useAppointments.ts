@@ -1,28 +1,20 @@
 import { useState } from 'react';
-import { ViewTypes as SchedulerViewTypes } from 'react-big-scheduler';
 import { CalendarEvent } from '../types';
 
 export type AppointmentFilters = {
-  view: SchedulerViewTypes;
+  view: string;
   date?: Date;
   staffId?: string;
 };
 
-export const useAppointments = () => {
-  const [filters, setFilters] = useState<AppointmentFilters>({
-    view: SchedulerViewTypes.Week,
-  });
+export function useAppointmentEvents() {
+  // ... implementazione mock o reale ...
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  return { events, setEvents, isLoading: false, error: null };
+}
 
-  const [appointments, setAppointments] = useState<CalendarEvent[]>([]);
-  const [filteredAppointments, setFilteredAppointments] = useState<CalendarEvent[]>([]);
-
-  // Qui implementeremo la logica per filtrare gli appuntamenti
-  // basandoci sui filtri impostati
-
-  return {
-    filters,
-    setFilters,
-    appointments,
-    filteredAppointments,
-  };
-}; 
+export function useStaffResources(salonId: string | null) {
+  // ... implementazione mock o reale ...
+  const [resources, setResources] = useState<any[]>([]);
+  return { resources, setResources, isLoading: false, error: null };
+} 

@@ -2,42 +2,28 @@ import React, { useState, useCallback } from 'react';
 import { StaffCalendar } from './StaffCalendar';
 import { useAppointmentEvents, useStaffResources } from '../hooks';
 import { CalendarEvent } from '../types';
-import { ViewTypes } from 'react-big-scheduler';
 import moment from 'moment';
 import { useParams } from 'react-router-dom';
 
 export const AppointmentCalendarView: React.FC = () => {
   const { salonId } = useParams<{ salonId: string }>();
   const { events, isLoading: isLoadingEvents, error: eventsError } = useAppointmentEvents();
-  const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources(salonId);
+  const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources(salonId || null);
   const [currentDate, setCurrentDate] = useState(moment());
-  const [view, setView] = useState<ViewTypes>(ViewTypes.Week);
+  const [view, setView] = useState<string>('week');
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
     console.log('Event clicked:', event);
     // TODO: Implement event click handler
   }, []);
 
-  const handleEventDrop = useCallback((event: CalendarEvent, newStart: string, newEnd: string) => {
-    console.log('Event dropped:', event, newStart, newEnd);
-    // TODO: Implement event drop handler
-  }, []);
-
-  const handleEventResize = useCallback((event: CalendarEvent, newStart: string, newEnd: string) => {
-    console.log('Event resized:', event, newStart, newEnd);
-    // TODO: Implement event resize handler
-  }, []);
-
-  const handleDateSelect = useCallback((start: string, end: string) => {
-    console.log('Date selected:', start, end);
-    // TODO: Implement date select handler
-  }, []);
+  const handleEventDrop = useCallback(() => Promise.resolve(), []);
 
   const handleDateChange = useCallback((date: moment.Moment) => {
     setCurrentDate(date);
   }, []);
 
-  const handleViewChange = useCallback((newView: ViewTypes) => {
+  const handleViewChange = useCallback((newView: string) => {
     setView(newView);
   }, []);
 
@@ -53,13 +39,9 @@ export const AppointmentCalendarView: React.FC = () => {
     <StaffCalendar
       events={events}
       resources={resources}
-      currentDate={currentDate}
       view={view}
       onEventClick={handleEventClick}
       onEventDrop={handleEventDrop}
-      onEventResize={handleEventResize}
-      onDateSelect={handleDateSelect}
-      onDateChange={handleDateChange}
       onViewChange={handleViewChange}
     />
   );
