@@ -1,14 +1,20 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { Scheduler, SchedulerData, ViewTypes, DATE_FORMAT } from 'react-big-scheduler';
-import 'react-big-scheduler/lib/css/style.css';
-import '../styles/scheduler.css';
-import moment from 'moment';
-import { StaffMember } from '../../types';
-import { CalendarEvent } from '../types';
-
 interface StaffCalendarProps {
   staffMembers: StaffMember[];
+}
+interface DateSelectInfo {
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  jsEvent: MouseEvent;
+  view: any;
+}
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  resourceId: string;
+  bgColor?: string;
   events: CalendarEvent[];
   view?: 'day' | 'week' | 'month';
   onEventClick?: (event: any) => void;
@@ -16,7 +22,6 @@ interface StaffCalendarProps {
   onDateSelect?: (selectInfo: any) => void;
   onEventResize?: (resizeInfo: any) => void;
 }
-
 export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   staffMembers,
   events,
@@ -29,8 +34,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   const schedulerRef = useRef<any>(null);
   const [schedulerData, setSchedulerData] = useState(() => {
     const viewType = view === 'day' ? ViewTypes.Day : 
-                    view === 'month' ? ViewTypes.Month : ViewTypes.Week;
-                    
+                    view === 'month' ? ViewTypes.Month : ViewTypes.Week               
     const data = new SchedulerData(moment().format(DATE_FORMAT), viewType, false, false, {
       schedulerWidth: '100%',
       schedulerMaxHeight: 0,
@@ -40,40 +44,33 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
       eventItemLineHeight: 40,
       nonWorkingTimeBodyBgColor: '#f0f0f0',
       minuteStep: 30,
-    });
-    
+    }); 
     // Convert staff members to resources
     const resources = staffMembers.map(staff => ({
       id: staff.id,
       name: staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim(),
       color: staff.color || '#4f46e5'
     }));
-    
     data.setResources(resources);
     return data;
   });
-
   useEffect(() => {
     // Update view type when view prop changes
     const viewType = view === 'day' ? ViewTypes.Day : 
                     view === 'month' ? ViewTypes.Month : ViewTypes.Week;
-    
     schedulerData.setViewType(viewType, false, false);
     setSchedulerData({...schedulerData});
   }, [view]);
-
-  useEffect(() => {
+useEffect(() => {
     // Update resources when staffMembers change
     const resources = staffMembers.map(staff => ({
       id: staff.id,
       name: staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim(),
       color: staff.color || '#4f46e5'
     }));
-    
     schedulerData.setResources(resources);
     setSchedulerData({...schedulerData});
   }, [staffMembers]);
-
   useEffect(() => {
     // Convert calendar events to scheduler events
     const schedulerEvents = events.map(event => ({
@@ -85,31 +82,25 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
       bgColor: event.backgroundColor || event.color || '#4f46e5',
       status: event.status || 'pending'
     }));
-
     schedulerData.setEvents(schedulerEvents);
     setSchedulerData({...schedulerData});
   }, [events]);
-
   const prevClick = () => {
     schedulerData.prev();
     setSchedulerData({...schedulerData});
   };
-
   const nextClick = () => {
     schedulerData.next();
     setSchedulerData({...schedulerData});
   };
-
   const onSelectDate = (date: string) => {
     schedulerData.setDate(date);
     setSchedulerData({...schedulerData});
   };
-
   const onViewChange = (viewType: ViewTypes) => {
     schedulerData.setViewType(viewType, false, false);
     setSchedulerData({...schedulerData});
   };
-
   const eventClicked = (schedulerData: SchedulerData, event: any) => {
     if (onEventClick) {
       // Convert back to CalendarEvent format
@@ -124,7 +115,6 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         status: event.status,
         event: event, // Pass the original event for additional data
       };
-      
       onEventClick({
         event: calendarEvent,
         jsEvent: {} as MouseEvent, // Simulate jsEvent
@@ -132,7 +122,6 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
       });
     }
   };
-
   const moveEvent = (schedulerData: SchedulerData, event: any, slotId: string, slotName: string, start: string, end: string) => {
     if (onEventDrop) {
       // Handle event drop
@@ -146,7 +135,6 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         backgroundColor: event.bgColor,
         status: event.status,
       };
-      
       onEventDrop({
         event: calendarEvent,
         oldResource: event.resourceId,
@@ -158,23 +146,19 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         }
       });
     }
-    
     // Update local data
     schedulerData.moveEvent(event, slotId, slotName, start, end);
     setSchedulerData({...schedulerData});
   };
-
   const resizeEvent = (schedulerData: SchedulerData, event: any, start: string, end: string) => {
     if (onEventResize) {
       const startDate = moment(start);
       const endDate = moment(end);
       const originalStart = moment(event.start);
       const originalEnd = moment(event.end);
-      
       // Calculate time differences in minutes
       const startDelta = startDate.diff(originalStart, 'minutes');
       const endDelta = endDate.diff(originalEnd, 'minutes');
-      
       const calendarEvent = {
         id: event.id,
         title: event.title,
@@ -184,8 +168,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         resourceId: event.resourceId,
         backgroundColor: event.bgColor,
         status: event.status,
-      };
-      
+      }; 
       onEventResize({
         event: calendarEvent,
         startDelta,
@@ -197,12 +180,10 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         }
       });
     }
-    
     // Update local data
     schedulerData.updateEventEnd(event, end);
     setSchedulerData({...schedulerData});
   };
-
   const newEvent = (schedulerData: SchedulerData, slotId: string, slotName: string, start: string, end: string, type: string, item: any) => {
     if (onDateSelect) {
       onDateSelect({
@@ -218,8 +199,8 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
       });
     }
   };
-
   return (
+    <div className="scheduler-container">
     <div className="scheduler-container" ref={schedulerRef}>
       <Scheduler
         schedulerData={schedulerData}
@@ -236,5 +217,4 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     </div>
   );
 };
-
 export default StaffCalendar;
