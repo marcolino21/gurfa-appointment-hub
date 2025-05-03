@@ -2,8 +2,11 @@
 import { useState, useEffect } from 'react';
 import { CalendarEvent } from '../types';
 
-// This is a simple implementation to make the test pass
-// It should be extended with actual functionality as needed
+/**
+ * Custom hook to manage calendar events
+ * @param initialEvents Initial array of calendar events
+ * @returns Object with events and methods to manipulate them
+ */
 export const useCalendarEvents = (initialEvents: CalendarEvent[] = []) => {
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
   

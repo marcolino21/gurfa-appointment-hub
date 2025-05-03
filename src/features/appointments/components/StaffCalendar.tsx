@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import moment from 'moment';
 import { ViewTypes, DATE_FORMAT, SchedulerData } from 'react-big-scheduler';
@@ -215,8 +216,8 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
       });
     }
   };
+
   return (
-    <div className="scheduler-container">
     <div className="scheduler-container" ref={schedulerRef}>
       <Scheduler
         schedulerData={schedulerData}
@@ -233,4 +234,5 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     </div>
   );
 };
+
 export default StaffCalendar;
