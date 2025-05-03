@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -61,10 +60,10 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   const [activeTab, setActiveTab] = useState('week');
   const [currentView, setCurrentView] = useState<'day' | 'week' | 'month'>('week');
 
-  // Transform staff members to include name property
+  // Transform staff members to ensure they have a name property
   const transformedStaff = visibleStaff.map(staff => ({
     ...staff,
-    name: staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim()
+    name: staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim() || 'Unnamed Staff'
   }));
 
   // Process events to add staff names for the month view
@@ -76,8 +75,10 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
     // Find associated staff member
     const staffMember = visibleStaff.find(staff => staff.id === event.staffId || staff.id === event.resourceId);
     if (staffMember) {
-      event.extendedProps.staffName = staffMember.name || 
-        `${staffMember.firstName || ''} ${staffMember.lastName || ''}`.trim();
+      const staffName = staffMember.name || 
+        `${staffMember.firstName || ''} ${staffMember.lastName || ''}`.trim() || 'Unnamed Staff';
+      
+      event.extendedProps.staffName = staffName;
       event.classNames = [...(event.classNames || []), 'has-staff-name'];
     }
     

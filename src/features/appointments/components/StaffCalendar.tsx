@@ -1,6 +1,20 @@
+import React, { useState, useRef, useEffect } from 'react';
+import moment from 'moment';
+import { ViewTypes, DATE_FORMAT, SchedulerData } from 'react-big-scheduler';
+import Scheduler from 'react-big-scheduler';
+import { StaffMember } from '../types';
+import 'react-big-scheduler/lib/css/style.css';
+
 interface StaffCalendarProps {
   staffMembers: StaffMember[];
+  events: any[];
+  view?: 'day' | 'week' | 'month';
+  onEventClick?: (event: any) => void;
+  onEventDrop?: (dropInfo: any) => void;
+  onDateSelect?: (selectInfo: any) => void;
+  onEventResize?: (resizeInfo: any) => void;
 }
+
 interface DateSelectInfo {
   start: Date;
   end: Date;
@@ -8,6 +22,7 @@ interface DateSelectInfo {
   jsEvent: MouseEvent;
   view: any;
 }
+
 interface CalendarEvent {
   id: string;
   title: string;
@@ -22,6 +37,7 @@ interface CalendarEvent {
   onDateSelect?: (selectInfo: any) => void;
   onEventResize?: (resizeInfo: any) => void;
 }
+
 export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   staffMembers,
   events,
@@ -61,7 +77,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
     schedulerData.setViewType(viewType, false, false);
     setSchedulerData({...schedulerData});
   }, [view]);
-useEffect(() => {
+  useEffect(() => {
     // Update resources when staffMembers change
     const resources = staffMembers.map(staff => ({
       id: staff.id,

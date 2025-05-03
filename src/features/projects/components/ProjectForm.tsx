@@ -50,7 +50,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 pb-16 relative">
+      <form onSubmit={(e) => {
+        // Fix the typing issue by wrapping the form submission
+        e.preventDefault();
+        handleSubmit();
+      }} className="space-y-6 pb-16 relative">
         <ScrollArea className="h-[calc(100vh-16rem)] pr-4">
           <div className="space-y-6 pb-6">
             <ProjectTitle form={form} />

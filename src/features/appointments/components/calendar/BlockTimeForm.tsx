@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StaffMember } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -71,13 +70,14 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
 }) => {
   const today = new Date();
   
+  // Fix the type definition here - explicitly defining the form type
   const form = useForm<BlockTimeFormData>({
-    resolver: zodResolver(blockTimeSchema),
+    resolver: zodResolver<BlockTimeFormData>(blockTimeSchema),
     defaultValues: {
       staffId: staffMember?.id || '',
       startTime: '09:00',
       endTime: '18:00',
-      blockType: 'today',
+      blockType: 'today' as const,
       startDate: undefined,
       endDate: undefined,
       reason: ''
@@ -92,17 +92,17 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
 
   const blockType = form.watch('blockType');
 
-  const handleSubmit = (data: BlockTimeFormData) => {
+  const handleSubmit = form.handleSubmit((data: BlockTimeFormData) => {
     onSubmit({
       ...data,
       startDate: data.blockType === 'today' ? today : data.startDate,
       endDate: data.blockType === 'today' ? today : data.endDate
     });
-  };
+  });
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}

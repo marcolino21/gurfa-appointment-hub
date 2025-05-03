@@ -74,11 +74,13 @@ export const useProjectForm = ({
     getSubcategories
   });
 
-  const handleSubmit = (data: ProjectFormValues) => {
-    if (useCustomCategory && data.customCategory) {
-      data.categoryId = data.customCategory;
-    }
-    onSubmit(data);
+  const handleSubmit = () => {
+    form.handleSubmit((data: ProjectFormValues) => {
+      if (useCustomCategory && data.customCategory) {
+        data.categoryId = data.customCategory;
+      }
+      onSubmit(data);
+    })();
   };
 
   return {
