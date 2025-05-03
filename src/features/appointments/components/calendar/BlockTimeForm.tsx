@@ -21,42 +21,14 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Matcher } from 'react-day-picker';
+import { BlockTimeFormData } from '../types';
+import { blockTimeSchema } from '../schemas/blockTimeSchema';
 
 interface BlockTimeFormProps {
   staffMember: StaffMember | null;
   onCancel: () => void;
   onSubmit: (data: BlockTimeFormData) => void;
 }
-
-export interface BlockTimeFormData {
-  staffId: string;
-  startTime: string;
-  endTime: string;
-  blockType: 'today' | 'period';
-  startDate?: Date;
-  endDate?: Date;
-  reason?: string;
-}
-
-const blockTimeSchema = z.object({
-  staffId: z.string(),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario richiesto: HH:MM"),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario richiesto: HH:MM"),
-  blockType: z.enum(['today', 'period']),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  reason: z.string().optional()
-}).refine(data => {
-  if (data.blockType === 'period') {
-    return data.startDate && data.endDate;
-  }
-  return true;
-}, {
-  message: "Per il blocco periodico sono richiesti sia la data di inizio che di fine",
-  path: ["startDate", "endDate"]
-});
-
-type FormValues = z.infer<typeof blockTimeSchema>;
 
 export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({ 
   staffMember, 
@@ -65,7 +37,7 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
 }) => {
   const today = new Date();
   
-  const form = useForm<FormValues>({
+  const form = useForm<BlockTimeFormData>({
     resolver: zodResolver(blockTimeSchema),
     defaultValues: {
       staffId: staffMember?.id || '',
@@ -84,7 +56,7 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
 
   const blockType = form.watch('blockType');
 
-  const handleSubmit = (data: FormValues) => {
+  const handleSubmit = (data: BlockTimeFormData) => {
     onSubmit(data);
   };
 

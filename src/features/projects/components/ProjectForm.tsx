@@ -42,23 +42,19 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   const [selectedCategory, setSelectedCategory] = useState('');
   const [subcategories, setSubcategories] = useState<ProjectCategory[]>([]);
 
-  const form = useForm<FormValues>({
+  const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: '',
       clientId: '',
       categoryId: '',
-      subcategoryId: '',
       description: '',
-      objectives: [{ description: '', isCompleted: false }],
-      startDate: format(new Date(), 'yyyy-MM-dd'),
-      endDate: '',
+      objectives: [],
+      startDate: '',
       status: 'planning',
       progress: 0,
-      feedback: '',
       staffIds: [],
-      customFields: [],
-      customCategory: '',
+      customFields: []
     }
   });
 
