@@ -127,7 +127,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({ businessId }) => {
   }
 
   return (
-    <div className="calendar-container scheduler-container">
+    <div className="scheduler-container">
       <div className="calendar-toolbar">
         <div className="view-selector">
           <button
