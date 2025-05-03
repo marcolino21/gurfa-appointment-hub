@@ -1,7 +1,7 @@
 import React from 'react';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { StaffMember } from '@/types/staff';
-import { CalendarEvent, ProcessedEvent } from '../types';
+import { CalendarEvent, ProcessedEvent } from '../types/calendar';
 
 interface StaffResource {
   id: string;

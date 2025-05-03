@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { CalendarEvent } from '../types';
+import { CalendarEvent } from '../types/calendar';
 import { useToast } from '@/hooks/use-toast';
 
 interface CalendarApi {
@@ -22,7 +22,7 @@ export const useCalendarEvents = (calendarApi: CalendarApi) => {
     const events = calendarApi.getEvents();
     const overlappingEvent = events.find(e => 
       e.event_id !== info.event.event_id &&
-      e.resource_id === info.event.resource_id &&
+      e.resourceId === info.event.resourceId &&
       ((e.start <= info.event.start && e.end > info.event.start) ||
        (e.start < info.event.end && e.end >= info.event.end) ||
        (e.start >= info.event.start && e.end <= info.event.end))

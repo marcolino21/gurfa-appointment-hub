@@ -1,16 +1,3 @@
-export * from './appointmentContext';
-export * from './calendar';
-
-export interface BlockTimeFormData {
-  staffId: string;
-  startTime: string;
-  endTime: string;
-  blockType: 'today' | 'period';
-  startDate?: Date;
-  endDate?: Date;
-  reason?: string;
-}
-
 export interface CalendarEvent {
   event_id: string;
   title: string;
@@ -27,6 +14,4 @@ export interface CalendarEvent {
 
 export interface ProcessedEvent extends Omit<CalendarEvent, 'resourceId'> {
   resource_id?: string;
-}
-
-export type { ProcessedEvent };
+} 
