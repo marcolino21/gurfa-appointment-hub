@@ -6,18 +6,43 @@ interface CalendarApi {
   getEvents: () => CalendarEvent[];
 }
 
+interface DragInfo {
+  event: CalendarEvent;
+  el: HTMLElement;
+  preventDefault?: () => void;
+}
+
+interface DragStopInfo {
+  event: CalendarEvent;
+  revert: () => void;
+}
+
+interface ResizeInfo {
+  event: CalendarEvent;
+  el: HTMLElement;
+  preventDefault?: () => void;
+}
+
+interface ResizeStopInfo {
+  event: CalendarEvent;
+  revert: () => void;
+}
+
 export const useCalendarEvents = (calendarApi: CalendarApi) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const { toast } = useToast();
 
-  const handleEventDragStart = useCallback((info: { event: CalendarEvent; el: HTMLElement }) => {
+  const handleEventDragStart = useCallback((info: DragInfo) => {
     setIsDragging(true);
     info.el.style.opacity = '0.7';
     info.el.style.cursor = 'grabbing';
+    if (info.preventDefault) {
+      info.preventDefault();
+    }
   }, []);
 
-  const handleEventDragStop = useCallback((info: { event: CalendarEvent; revert: () => void }) => {
+  const handleEventDragStop = useCallback((info: DragStopInfo) => {
     setIsDragging(false);
     const events = calendarApi.getEvents();
     const overlappingEvent = events.find(e => 
@@ -38,12 +63,15 @@ export const useCalendarEvents = (calendarApi: CalendarApi) => {
     }
   }, [calendarApi, toast]);
 
-  const handleEventResizeStart = useCallback((info: { event: CalendarEvent; el: HTMLElement }) => {
+  const handleEventResizeStart = useCallback((info: ResizeInfo) => {
     setIsResizing(true);
     info.el.style.opacity = '0.7';
+    if (info.preventDefault) {
+      info.preventDefault();
+    }
   }, []);
 
-  const handleEventResizeStop = useCallback((info: { event: CalendarEvent; revert: () => void }) => {
+  const handleEventResizeStop = useCallback((info: ResizeStopInfo) => {
     setIsResizing(false);
     const duration = info.event.end.getTime() - info.event.start.getTime();
     const minDuration = 30 * 60 * 1000; // 30 minutes
