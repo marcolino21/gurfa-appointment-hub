@@ -1,3 +1,4 @@
+
 export interface StaffMember {
   id: string;
   name: string;
@@ -5,6 +6,9 @@ export interface StaffMember {
   phone?: string;
   color?: string;
   isActive?: boolean;
+  firstName?: string;
+  lastName?: string;
+  showInCalendar?: boolean;
 }
 
 export interface CalendarEvent {
@@ -22,5 +26,6 @@ export interface CalendarEvent {
   color?: string;
   backgroundColor?: string;
   description?: string;
-  status?: 'pending' | 'confirmed' | 'cancelled';
+  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  event?: any; // For passing original event data
 } 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -17,7 +18,9 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({ event, children 
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-    cursor: isDragging ? 'grabbing' : 'grab'
+    cursor: isDragging ? 'grabbing' : 'grab',
+    position: 'relative' as const,
+    zIndex: isDragging ? 1000 : 10,
   };
 
   return (
@@ -27,10 +30,11 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({ event, children 
       className={`draggable-event ${isDragging ? 'is-dragging' : ''}`}
       {...listeners}
       {...attributes}
+      data-event-id={event.id}
     >
       {children}
     </div>
   );
 };
 
-export default DraggableEvent; 
+export default DraggableEvent;

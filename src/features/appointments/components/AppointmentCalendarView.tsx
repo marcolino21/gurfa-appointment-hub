@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { StaffMember, getStaffMemberName } from '@/types';
+import { StaffMember } from '@/types';
 import { StaffCalendar } from '@/features/appointments/components/StaffCalendar';
 import CalendarErrorBoundary from '@/features/appointments/components/CalendarErrorBoundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -20,6 +21,8 @@ interface DateSelectInfo {
   allDay: boolean;
   jsEvent: MouseEvent;
   view: any;
+  resourceId?: string;
+  resource?: { id: string; title: string };
 }
 
 interface EventDropInfo {
@@ -56,11 +59,12 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   handleEventResize
 }) => {
   const [activeTab, setActiveTab] = useState('week');
+  const [currentView, setCurrentView] = useState<'day' | 'week' | 'month'>('week');
 
   // Transform staff members to include name property
   const transformedStaff = visibleStaff.map(staff => ({
     ...staff,
-    name: getStaffMemberName(staff)
+    name: staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim()
   }));
 
   // Process events to add staff names for the month view
@@ -70,9 +74,10 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
     }
 
     // Find associated staff member
-    const staffMember = visibleStaff.find(staff => staff.id === event.resourceId);
+    const staffMember = visibleStaff.find(staff => staff.id === event.staffId || staff.id === event.resourceId);
     if (staffMember) {
-      event.extendedProps.staffName = getStaffMemberName(staffMember);
+      event.extendedProps.staffName = staffMember.name || 
+        `${staffMember.firstName || ''} ${staffMember.lastName || ''}`.trim();
       event.classNames = [...(event.classNames || []), 'has-staff-name'];
     }
     
@@ -83,30 +88,24 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     
-    if (value === 'day') onViewChange('day');
-    else if (value === 'week') onViewChange('week');
-    else onViewChange('month');
+    if (value === 'day') {
+      setCurrentView('day');
+      onViewChange('day');
+    }
+    else if (value === 'week') {
+      setCurrentView('week');
+      onViewChange('week');
+    }
+    else {
+      setCurrentView('month');
+      onViewChange('month');
+    }
   };
 
   // Debug the visible staff to check if they're correctly passed
   useEffect(() => {
     console.log("Visible staff in AppointmentCalendarView:", visibleStaff);
   }, [visibleStaff]);
-
-  // Funzione per gestire il ridimensionamento degli eventi
-  const handleAppointmentResize = (resizeInfo: EventResizeInfo) => {
-    if (handleEventResize) {
-      handleEventResize(resizeInfo);
-    } else {
-      // Fallback: usa handleEventDrop come ultima risorsa
-      handleEventDrop({
-        event: resizeInfo.event,
-        oldResource: resizeInfo.event.staffId,
-        newResource: resizeInfo.event.staffId,
-        revert: resizeInfo.revert
-      });
-    }
-  };
 
   return (
     <Card className="shadow-md">
@@ -144,6 +143,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
                     onEventClick={handleEventClick}
                     onEventDrop={handleEventDrop}
                     onDateSelect={handleDateSelect}
+                    onEventResize={handleEventResize}
                   />
                 </CalendarErrorBoundary>
               </TabsContent>
@@ -157,6 +157,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
                     onEventClick={handleEventClick}
                     onEventDrop={handleEventDrop}
                     onDateSelect={handleDateSelect}
+                    onEventResize={handleEventResize}
                   />
                 </CalendarErrorBoundary>
               </TabsContent>
@@ -170,6 +171,7 @@ const AppointmentCalendarView: React.FC<AppointmentCalendarViewProps> = ({
                     onEventClick={handleEventClick}
                     onEventDrop={handleEventDrop}
                     onDateSelect={handleDateSelect}
+                    onEventResize={handleEventResize}
                   />
                 </CalendarErrorBoundary>
               </TabsContent>

@@ -529,6 +529,48 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          address: string | null
+          avatar_url: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_login: string | null
+          last_name: string | null
+          phone: string | null
+          postal_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_login?: string | null
+          last_name?: string | null
+          phone?: string | null
+          postal_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_login?: string | null
+          last_name?: string | null
+          phone?: string | null
+          postal_code?: string | null
+        }
+        Relationships: []
+      }
       project_categories: {
         Row: {
           created_at: string | null
