@@ -62,6 +62,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     onSubmit(data as ProjectFormValues);
   };
 
+  const transformedStaff = staffMembers.map(staff => ({
+    ...staff,
+    name: staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim() || 'Unnamed Staff'
+  }));
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -81,7 +86,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
             <ProjectDates form={form} />
             <ProjectStatus form={form} />
             <ProjectFeedback form={form} />
-            <ProjectStaffSelector form={form} staffMembers={staffMembers} />
+            <ProjectStaffSelector form={form} staffMembers={transformedStaff} />
           </div>
         </ScrollArea>
         <div className="flex justify-end space-x-2 p-4">
