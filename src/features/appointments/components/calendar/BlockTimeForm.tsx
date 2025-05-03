@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { StaffMember } from '@/types';
+import { StaffMember } from '@/types/staff';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +20,7 @@ import { it } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Matcher } from 'react-day-picker';
 
 interface BlockTimeFormProps {
   staffMember: StaffMember | null;
@@ -48,21 +48,15 @@ const blockTimeSchema = z.object({
   reason: z.string().optional()
 }).refine(data => {
   if (data.blockType === 'period') {
-    return !!data.startDate && !!data.endDate;
+    return data.startDate && data.endDate;
   }
   return true;
 }, {
-  message: "Seleziona le date del periodo",
-  path: ["startDate"]
-}).refine(data => {
-  if (data.blockType === 'period' && data.startDate && data.endDate) {
-    return data.endDate >= data.startDate;
-  }
-  return true;
-}, {
-  message: "La data di fine deve essere successiva alla data di inizio",
-  path: ["endDate"]
+  message: "Per il blocco periodico sono richiesti sia la data di inizio che di fine",
+  path: ["startDate", "endDate"]
 });
+
+type FormValues = z.infer<typeof blockTimeSchema>;
 
 export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({ 
   staffMember, 
@@ -71,15 +65,13 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
 }) => {
   const today = new Date();
   
-  const form = useForm<BlockTimeFormData>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(blockTimeSchema),
     defaultValues: {
       staffId: staffMember?.id || '',
-      startTime: '09:00',
-      endTime: '18:00',
+      startTime: '',
+      endTime: '',
       blockType: 'today',
-      startDate: undefined,
-      endDate: undefined,
       reason: ''
     }
   });
@@ -92,12 +84,18 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
 
   const blockType = form.watch('blockType');
 
-  const handleSubmit = (data: BlockTimeFormData) => {
-    onSubmit({
-      ...data,
-      startDate: data.blockType === 'today' ? today : data.startDate,
-      endDate: data.blockType === 'today' ? today : data.endDate
-    });
+  const handleSubmit = (data: FormValues) => {
+    onSubmit(data);
+  };
+
+  const disabledDate = (date: Date): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = form.getValues("startDate");
+    if (!startDate) {
+      return date < today;
+    }
+    return date < today || date < startDate;
   };
 
   return (
@@ -187,9 +185,7 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < today
-                        }
+                        disabled={{ before: new Date() }}
                         initialFocus
                         locale={it}
                       />
@@ -227,10 +223,7 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => {
-                          const startDate = form.getValues("startDate");
-                          return date < today || (startDate && date < startDate);
-                        }}
+                        disabled={{ before: form.getValues('startDate') || new Date() }}
                         initialFocus
                         locale={it}
                       />

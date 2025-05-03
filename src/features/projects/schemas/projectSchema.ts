@@ -1,13 +1,12 @@
-
 import { z } from 'zod';
 
 export const projectSchema = z.object({
   title: z.string().min(1, "Il titolo è obbligatorio"),
   clientId: z.string().min(1, "Il cliente è obbligatorio"),
-  categoryId: z.string().optional(),
+  categoryId: z.string(),
   customCategory: z.string().optional(),
   subcategoryId: z.string().optional(),
-  description: z.string().optional(),
+  description: z.string(),
   objectives: z.array(
     z.object({
       description: z.string(),
@@ -22,7 +21,7 @@ export const projectSchema = z.object({
   staffIds: z.array(z.string()).default([]),
   customFields: z.array(
     z.object({
-      id: z.string().optional(),
+      id: z.string(),
       name: z.string(),
       type: z.enum(['text', 'number', 'date', 'select', 'checkbox']),
       value: z.union([z.string(), z.number(), z.boolean(), z.date(), z.null()]),

@@ -1,14 +1,16 @@
 import React from 'react';
 import { Scheduler } from '@aldabil/react-scheduler';
+import { StaffMember } from '@/types/staff';
+import { CalendarEvent } from '../types';
 
 interface StaffCalendarProps {
-  events: any[];
-  resources: any[];
-  view?: any;
+  events: any[]; // Using any temporarily until we can find the correct type
+  resources: StaffMember[];
+  view?: 'day' | 'week' | 'month';
   onEventClick?: (event: any) => void;
   onEventDrop?: (...args: any[]) => Promise<void>;
   onEventResize?: (...args: any[]) => Promise<void>;
-  onViewChange?: (view: any) => void;
+  onViewChange?: (view: 'day' | 'week' | 'month') => void;
 }
 
 export const StaffCalendar: React.FC<StaffCalendarProps> = ({
@@ -18,11 +20,15 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   onEventClick,
   onEventDrop,
   onViewChange,
-}) => (
-  <div style={{ width: '100%', height: '100%' }}>
+}) => {
+  return (
     <Scheduler
       events={events}
-      resources={resources}
+      resources={resources.map(resource => ({
+        resource_id: resource.id,
+        title: resource.name,
+        color: resource.color,
+      }))}
       view={view}
       onEventClick={onEventClick}
       onEventDrop={onEventDrop}
@@ -69,7 +75,7 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
         loading: 'Caricamento...',
       }}
     />
-  </div>
-);
+  );
+};
 
 export default StaffCalendar;
