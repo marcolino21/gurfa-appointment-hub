@@ -1,7 +1,7 @@
 import React from 'react';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { StaffMember } from '@/types/staff';
-import { CalendarEvent } from '../types';
+import { CalendarEvent, ProcessedEvent } from '../types';
 
 interface StaffResource {
   id: string;
@@ -13,7 +13,7 @@ interface StaffCalendarProps {
   events: CalendarEvent[];
   resources: StaffResource[];
   view?: 'day' | 'week' | 'month';
-  onEventClick?: (event: CalendarEvent) => void;
+  onEventClick?: (event: ProcessedEvent) => void;
   onEventDrop?: (...args: any[]) => Promise<void>;
   onEventResize?: (...args: any[]) => Promise<void>;
   onViewChange?: (view: 'day' | 'week' | 'month') => void;
@@ -27,9 +27,16 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({
   onEventDrop,
   onViewChange,
 }) => {
+  const processedEvents: ProcessedEvent[] = events.map(event => ({
+    ...event,
+    resource_id: event.resourceId,
+    start: event.start instanceof Date ? event.start : new Date(event.start),
+    end: event.end instanceof Date ? event.end : new Date(event.end)
+  }));
+
   return (
     <Scheduler
-      events={events}
+      events={processedEvents}
       resources={resources.map(resource => ({
         resource_id: resource.id,
         title: resource.name,

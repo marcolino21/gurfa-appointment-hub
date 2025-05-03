@@ -11,15 +11,19 @@ export interface BlockTimeFormData {
 }
 
 export interface CalendarEvent {
-  event_id: string | number;
+  event_id: string;
   title: string;
   start: Date;
   end: Date;
-  resource_id?: string | number;
+  resourceId?: string;
   color?: string;
   description?: string;
   allDay?: boolean;
   draggable?: boolean;
   deletable?: boolean;
   resizable?: boolean;
+}
+
+export interface ProcessedEvent extends CalendarEvent {
+  resource_id?: string;
 }
