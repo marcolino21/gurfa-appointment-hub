@@ -3,11 +3,17 @@ import { Scheduler } from '@aldabil/react-scheduler';
 import { StaffMember } from '@/types/staff';
 import { CalendarEvent } from '../types';
 
+interface StaffResource {
+  id: string;
+  name: string;
+  color?: string;
+}
+
 interface StaffCalendarProps {
-  events: any[]; // Using any temporarily until we can find the correct type
-  resources: StaffMember[];
+  events: CalendarEvent[];
+  resources: StaffResource[];
   view?: 'day' | 'week' | 'month';
-  onEventClick?: (event: any) => void;
+  onEventClick?: (event: CalendarEvent) => void;
   onEventDrop?: (...args: any[]) => Promise<void>;
   onEventResize?: (...args: any[]) => Promise<void>;
   onViewChange?: (view: 'day' | 'week' | 'month') => void;

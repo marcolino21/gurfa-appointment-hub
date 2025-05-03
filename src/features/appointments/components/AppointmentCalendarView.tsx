@@ -6,6 +6,8 @@ import moment from 'moment';
 import { useParams } from 'react-router-dom';
 import { StaffMember } from '@/types/staff';
 
+type CalendarView = 'day' | 'week' | 'month';
+
 type StaffMemberWithName = StaffMember & {
   name: string;
 };
@@ -15,7 +17,7 @@ export const AppointmentCalendarView: React.FC = () => {
   const { events, isLoading: isLoadingEvents, error: eventsError } = useAppointmentEvents();
   const { resources, isLoading: isLoadingResources, error: resourcesError } = useStaffResources(salonId || null);
   const [currentDate, setCurrentDate] = useState(moment());
-  const [view, setView] = useState<string>('week');
+  const [view, setView] = useState<CalendarView>('week');
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
     console.log('Event clicked:', event);
@@ -28,7 +30,7 @@ export const AppointmentCalendarView: React.FC = () => {
     setCurrentDate(date);
   }, []);
 
-  const handleViewChange = useCallback((newView: string) => {
+  const handleViewChange = useCallback((newView: CalendarView) => {
     setView(newView);
   }, []);
 

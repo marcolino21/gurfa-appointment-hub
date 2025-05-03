@@ -1,3 +1,4 @@
+import React from 'react';
 
 export interface Communication {
   id: string;
