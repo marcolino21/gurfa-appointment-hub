@@ -1,58 +1,35 @@
 import { useState, useEffect } from 'react';
-import { StaffResource } from '../types';
-import { useStaffMembers } from '../../staff/hooks/useStaffMembers';
+import { StaffResource } from '../types/appointment';
 
-const mockStaffMembers = [
-  {
-    id: '1',
-    name: 'Maria Rossi',
-    email: 'maria.rossi@example.com',
-    phone: '1234567890',
-    color: '#3b82f6',
-    isActive: true
-  },
-  {
-    id: '2',
-    name: 'Giuseppe Verdi',
-    email: 'giuseppe.verdi@example.com',
-    phone: '0987654321',
-    color: '#f59e0b',
-    isActive: true
-  }
-];
-
-export const useStaffResources = (salonId: string | null) => {
+export const useStaffResources = (businessId: string) => {
   const [resources, setResources] = useState<StaffResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const { staffMembers = mockStaffMembers, isLoading: isLoadingStaff } = useStaffMembers(salonId);
 
   useEffect(() => {
-    if (!isLoadingStaff) {
+    const fetchResources = async () => {
       try {
-        const formattedResources = staffMembers
-          .filter(member => member.isActive)
-          .map(member => ({
-            id: member.id,
-            name: member.name,
-            color: member.color || '#3b82f6',
-            workingHours: {
-              start: '09:00',
-              end: '18:00'
-            },
-            daysOff: []
-          }));
-
-        setResources(formattedResources);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to format staff resources'));
+        setIsLoading(true);
+        // TODO: Implement API call to fetch staff resources
+        const mockResources: StaffResource[] = [
+          {
+            id: '1',
+            title: 'Operatore 1'
+          },
+          {
+            id: '2',
+            title: 'Operatore 2'
+          }
+        ];
+        setResources(mockResources);
+      } catch (error) {
+        console.error('Error fetching staff resources:', error);
       } finally {
         setIsLoading(false);
       }
-    }
-  }, [staffMembers, isLoadingStaff]);
+    };
 
-  return { resources, isLoading, error };
+    fetchResources();
+  }, [businessId]);
+
+  return { resources, isLoading };
 }; 

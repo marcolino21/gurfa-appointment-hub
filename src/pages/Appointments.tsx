@@ -3,35 +3,39 @@ import moment from 'moment';
 import { useAppointments, AppointmentFilters } from '@/features/appointments/hooks/useAppointments';
 import { StaffCalendar } from '@/features/appointments/components/StaffCalendar';
 import { StaffMember } from '@/types/staff';
-import { CalendarEvent, ViewTypes } from '@/features/appointments/types';
+import { CalendarEvent, ProcessedEvent } from '@/features/appointments/types/calendar';
 
 export const Appointments = () => {
   const { setFilters, appointments, filteredAppointments } = useAppointments();
-  const [visibleStaff, setVisibleStaff] = useState<StaffMember[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [currentDate, setCurrentDate] = useState(moment());
+  const [view, setView] = useState<'day' | 'week' | 'month'>('week');
 
-  const handleViewChange = (view: ViewTypes) => {
-    setFilters((prev: AppointmentFilters) => ({ ...prev, view }));
+  const handleViewChange = (newView: 'day' | 'week' | 'month') => {
+    setView(newView);
+    setFilters((prev: AppointmentFilters) => ({ ...prev, view: newView }));
   };
 
-  const handleEventClick = (event: CalendarEvent) => {
+  const handleEventClick = (event: ProcessedEvent) => {
     // Handle event click
   };
 
-  const handleDateSelect = (start: string, end: string) => {
-    // Handle date select
+  const handleEventDrop = async (...args: any[]) => {
+    // Handle event drop
+  };
+
+  const handleEventResize = async (...args: any[]) => {
+    // Handle event resize
   };
 
   return (
     <div className="appointments">
       <StaffCalendar
-        visibleStaff={visibleStaff}
         events={events}
         resources={[]}
-        currentDate={currentDate}
+        view={view}
         onEventClick={handleEventClick}
-        onDateSelect={handleDateSelect}
+        onEventDrop={handleEventDrop}
+        onEventResize={handleEventResize}
         onViewChange={handleViewChange}
       />
     </div>

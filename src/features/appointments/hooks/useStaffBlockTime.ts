@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { BlockTimeFormData } from '../components/calendar/BlockTimeForm';
+import { BlockTimeFormData } from '../types/calendar';
 
 export interface StaffBlockTime {
   id: string;

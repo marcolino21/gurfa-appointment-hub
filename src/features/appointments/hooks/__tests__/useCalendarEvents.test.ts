@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useCalendarEvents } from '../useCalendarEvents';
 import { useToast } from '@/hooks/use-toast';
+import { CalendarEvent } from '../../types/calendar';
 
 // Mock useToast
 jest.mock('@/hooks/use-toast', () => ({
@@ -21,28 +22,25 @@ describe('useCalendarEvents', () => {
   it('should handle event drag start correctly', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T10:00:00'),
       end: new Date('2024-03-20T11:00:00'),
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
+    mockEl.style.cursor = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: '',
-          cursor: ''
-        }
-      },
+      el: mockEl,
       preventDefault: jest.fn()
     };
 
@@ -60,42 +58,37 @@ describe('useCalendarEvents', () => {
   it('should prevent drag if there are overlapping events', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T10:00:00'),
       end: new Date('2024-03-20T11:00:00'),
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
 
-    const mockOverlappingEvent = {
-      id: '2',
+    const mockOverlappingEvent: CalendarEvent = {
+      event_id: '2',
       title: 'Overlapping Event',
       start: new Date('2024-03-20T10:30:00'),
       end: new Date('2024-03-20T11:30:00'),
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client 2',
-        serviceType: 'Test Service 2',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
+    mockEl.style.cursor = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: '',
-          cursor: ''
-        }
-      },
+      el: mockEl,
       preventDefault: jest.fn()
     };
 
@@ -116,28 +109,25 @@ describe('useCalendarEvents', () => {
   it('should handle event drag stop with invalid time', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T07:00:00'), // Before business hours
       end: new Date('2024-03-20T08:00:00'),
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
+    mockEl.style.cursor = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: '',
-          cursor: ''
-        }
-      },
+      el: mockEl,
       revert: jest.fn()
     };
 
@@ -157,28 +147,25 @@ describe('useCalendarEvents', () => {
   it('should handle event drag stop with valid time', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T10:00:00'),
       end: new Date('2024-03-20T11:00:00'),
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
+    mockEl.style.cursor = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: '',
-          cursor: ''
-        }
-      },
+      el: mockEl,
       revert: jest.fn()
     };
 
@@ -198,25 +185,24 @@ describe('useCalendarEvents', () => {
   it('should handle event resize start correctly', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
+      title: 'Test Event',
+      start: new Date('2024-03-20T10:00:00'),
+      end: new Date('2024-03-20T11:00:00'),
+      resourceId: 'staff1',
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
+    };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
+
     const mockInfo = {
-      event: {
-        id: '1',
-        title: 'Test Event',
-        start: new Date('2024-03-20T10:00:00'),
-        end: new Date('2024-03-20T11:00:00'),
-        resourceId: 'staff1',
-        extendedProps: {
-          clientName: 'Test Client',
-          serviceType: 'Test Service',
-          staffMember: 'Test Staff',
-          resourceId: 'staff1'
-        }
-      },
-      el: {
-        style: {
-          opacity: ''
-        }
-      }
+      event: mockEvent,
+      el: mockEl
     };
 
     act(() => {
@@ -230,27 +216,24 @@ describe('useCalendarEvents', () => {
   it('should handle event resize stop with invalid duration', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T10:00:00'),
       end: new Date('2024-03-20T15:00:00'), // 5 hours duration
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: ''
-        }
-      },
+      el: mockEl,
       revert: jest.fn()
     };
 
@@ -262,7 +245,7 @@ describe('useCalendarEvents', () => {
     expect(mockInfo.revert).toHaveBeenCalled();
     expect(mockToast).toHaveBeenCalledWith({
       title: "Validazione fallita",
-      description: "La durata massima di un appuntamento è di 4 ore.",
+      description: "La durata dell'appuntamento non può superare le 4 ore.",
       variant: "destructive"
     });
   });
@@ -270,27 +253,24 @@ describe('useCalendarEvents', () => {
   it('should handle event resize stop with valid duration', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T10:00:00'),
       end: new Date('2024-03-20T11:00:00'), // 1 hour duration
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: ''
-        }
-      },
+      el: mockEl,
       revert: jest.fn()
     };
 
@@ -310,27 +290,24 @@ describe('useCalendarEvents', () => {
   it('should handle event resize stop with too short duration', () => {
     const { result } = renderHook(() => useCalendarEvents(mockCalendarApi));
     
-    const mockEvent = {
-      id: '1',
+    const mockEvent: CalendarEvent = {
+      event_id: '1',
       title: 'Test Event',
       start: new Date('2024-03-20T10:00:00'),
       end: new Date('2024-03-20T10:15:00'), // 15 minutes duration
       resourceId: 'staff1',
-      extendedProps: {
-        clientName: 'Test Client',
-        serviceType: 'Test Service',
-        staffMember: 'Test Staff',
-        resourceId: 'staff1'
-      }
+      draggable: true,
+      resizable: true,
+      deletable: false,
+      allDay: false
     };
+
+    const mockEl = document.createElement('div');
+    mockEl.style.opacity = '';
 
     const mockInfo = {
       event: mockEvent,
-      el: {
-        style: {
-          opacity: ''
-        }
-      },
+      el: mockEl,
       revert: jest.fn()
     };
 

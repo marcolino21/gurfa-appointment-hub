@@ -21,8 +21,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Matcher } from 'react-day-picker';
-import { BlockTimeFormData } from '../types';
-import { blockTimeSchema } from '../schemas/blockTimeSchema';
+import { BlockTimeFormData } from '@/features/appointments/types/calendar';
+import { blockTimeSchema } from '../../schemas/blockTimeSchema';
 
 interface BlockTimeFormProps {
   staffMember: StaffMember | null;
@@ -157,7 +157,7 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={{ before: new Date() }}
+                        disabled={(date) => date < new Date()}
                         initialFocus
                         locale={it}
                       />
@@ -195,7 +195,10 @@ export const BlockTimeForm: React.FC<BlockTimeFormProps> = ({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={{ before: form.getValues('startDate') || new Date() }}
+                        disabled={(date) => {
+                          const startDate = form.getValues('startDate');
+                          return date < (startDate || new Date());
+                        }}
                         initialFocus
                         locale={it}
                       />

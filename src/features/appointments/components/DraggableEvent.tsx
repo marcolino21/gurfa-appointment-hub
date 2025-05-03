@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { CalendarEvent } from '../types';
+import { CalendarEvent } from '../types/calendar';
 
 interface DraggableEventProps {
   event: CalendarEvent;
@@ -10,7 +10,7 @@ interface DraggableEventProps {
 
 export const DraggableEvent: React.FC<DraggableEventProps> = ({ event, children }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: event.id,
+    id: event.event_id,
     data: event
   });
 
@@ -22,6 +22,14 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({ event, children 
     zIndex: isDragging ? 1000 : 1
   };
 
+  const eventData = {
+    event_id: event.event_id,
+    title: event.title,
+    start: event.start,
+    end: event.end,
+    resourceId: event.resourceId
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -29,6 +37,8 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({ event, children 
       {...listeners}
       {...attributes}
       className={`calendar-event ${isDragging ? 'is-dragging' : ''}`}
+      draggable
+      data-event={JSON.stringify(eventData)}
     >
       {children}
     </div>

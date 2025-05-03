@@ -28,5 +28,3 @@ export interface CalendarEvent {
 export interface ProcessedEvent extends Omit<CalendarEvent, 'resourceId'> {
   resource_id?: string;
 }
-
-export type { ProcessedEvent };

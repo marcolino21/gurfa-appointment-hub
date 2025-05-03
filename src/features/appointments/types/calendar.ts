@@ -1,3 +1,13 @@
+export interface BlockTimeFormData {
+  staffId: string;
+  startTime: string;
+  endTime: string;
+  blockType: 'today' | 'period';
+  startDate?: Date;
+  endDate?: Date;
+  reason?: string;
+}
+
 export interface CalendarEvent {
   event_id: string;
   title: string;

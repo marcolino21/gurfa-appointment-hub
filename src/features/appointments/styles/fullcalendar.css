@@ -1,0 +1,230 @@
+/* FullCalendar container */
+.calendar-container {
+  height: 100%;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Calendar toolbar */
+.calendar-toolbar {
+  padding: 1rem;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-button:hover {
+  background-color: #e5e7eb;
+}
+
+.view-button.active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #2563eb;
+}
+
+/* Calendar header */
+.fc-header-toolbar {
+  margin-bottom: 0 !important;
+  padding: 1rem;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Calendar buttons */
+.fc-button {
+  background-color: #f3f4f6 !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.375rem !important;
+}
+
+.fc-button:hover {
+  background-color: #e5e7eb !important;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #d1d5db !important;
+  border-color: #9ca3af !important;
+}
+
+/* Calendar events */
+.fc-event {
+  border-radius: 0.25rem !important;
+  border: none !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+.fc-event:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Event status colors */
+.fc-event.status-confirmed {
+  background-color: #10b981 !important;
+}
+
+.fc-event.status-pending {
+  background-color: #f59e0b !important;
+}
+
+.fc-event.status-completed {
+  background-color: #3b82f6 !important;
+}
+
+.fc-event.status-paid {
+  background-color: #8b5cf6 !important;
+}
+
+.fc-event.status-cancelled {
+  background-color: #ef4444 !important;
+  text-decoration: line-through;
+}
+
+/* Resource area */
+.fc-resource-area {
+  background-color: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.fc-resource-cell {
+  padding: 0.5rem !important;
+  font-weight: 500;
+}
+
+/* Time slots */
+.fc-timegrid-slot {
+  height: 60px !important;
+}
+
+.fc-timegrid-slot-label {
+  font-size: 0.75rem !important;
+  color: #6b7280 !important;
+}
+
+/* Today highlight */
+.fc-day-today {
+  background-color: #f0f9ff !important;
+}
+
+/* Business hours */
+.fc-non-business {
+  background-color: #f9fafb !important;
+}
+
+/* Drag and drop */
+.fc-event-dragging {
+  opacity: 0.7;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading state */
+.calendar-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .calendar-container {
+    background-color: #1f2937;
+  }
+
+  .calendar-toolbar,
+  .fc-header-toolbar {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .view-button {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .view-button:hover {
+    background-color: #4b5563;
+  }
+
+  .view-button.active {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .fc-resource-area {
+    background-color: #111827;
+    border-color: #374151;
+  }
+
+  .fc-non-business {
+    background-color: #111827;
+  }
+
+  .fc-timegrid-slot-label {
+    color: #9ca3af !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .fc-header-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fc-toolbar-chunk {
+    width: 100%;
+    text-align: center;
+  }
+
+  .fc-resource-area {
+    width: 30% !important;
+  }
+
+  .view-selector {
+    flex-wrap: wrap;
+  }
+
+  .view-button {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+  }
+} 
