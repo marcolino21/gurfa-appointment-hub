@@ -25,6 +25,7 @@ import Orders from "./pages/warehouse/Orders";
 import LowStock from "./pages/warehouse/LowStock";
 import NotFound from "./pages/NotFound";
 import Communications from "./pages/Communications";
+import Calendar from "./pages/Calendar";
 
 // Import delle pagine delle statistiche
 import StatisticsIndex from "./pages/statistics";
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="comunicazioni" element={<Communications />} />
               <Route path="spese" element={<Expenses />} />
               <Route path="impostazioni" element={<Settings />} />
+              <Route path="agenda" element={<Calendar />} />
               
               {/* Rotte statistiche */}
               <Route path="statistiche" element={<StatisticsIndex />} />

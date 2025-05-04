@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAppointments } from '@/contexts/AppointmentContext';
 
 const DashboardCard: React.FC<{
   title: string;
@@ -30,16 +29,15 @@ const DashboardCard: React.FC<{
 
 const Dashboard: React.FC = () => {
   const { user, currentSalonId, salons } = useAuth();
-  const { appointments } = useAppointments();
   
   const currentSalon = salons.find(salon => salon.id === currentSalonId);
   
-  const totalAppointments = appointments.length;
-  const completedAppointments = appointments.filter(app => app.status === 'completed').length;
-  const pendingAppointments = appointments.filter(app => app.status === 'pending').length;
-  const confirmedAppointments = appointments.filter(app => app.status === 'confirmed').length;
-  
-  const uniqueClients = [...new Set(appointments.map(app => app.clientName))].length;
+  // Mock data since AppointmentContext has been removed
+  const totalAppointments = 0;
+  const completedAppointments = 0;
+  const pendingAppointments = 0;
+  const confirmedAppointments = 0;
+  const uniqueClients = 0;
   
   return (
     <div className="space-y-6">
@@ -106,27 +104,9 @@ const Dashboard: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="max-h-72 overflow-auto">
-            {appointments
-              .filter(app => new Date(app.start) > new Date() && app.status !== 'cancelled')
-              .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-              .slice(0, 5)
-              .map(app => (
-                <div key={app.id} className="mb-4 p-3 border rounded-md">
-                  <div className="font-medium">{app.clientName}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(app.start).toLocaleDateString('it-IT')} - 
-                    {new Date(app.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                  <div className="text-sm">{app.service}</div>
-                </div>
-              ))}
-            {appointments
-              .filter(app => new Date(app.start) > new Date() && app.status !== 'cancelled')
-              .length === 0 && (
-              <div className="text-center p-6 text-muted-foreground">
-                Nessun appuntamento in programma
-              </div>
-            )}
+            <div className="text-center p-6 text-muted-foreground">
+              Nessun appuntamento in programma
+            </div>
           </CardContent>
         </Card>
       </div>
