@@ -152,84 +152,84 @@ export const StaffCalendar: React.FC<StaffCalendarProps> = ({ businessId }) => {
       </div>
       
       <div className="calendar-content">
-        <FullCalendar
-          plugins={[resourceTimelinePlugin, interactionPlugin, dayGridPlugin, timeGridPlugin]}
-          initialView={currentView.type}
-          schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: ''
-          }}
-          resources={resources}
-          events={calendarEvents}
-          editable={true}
-          droppable={true}
-          eventDrop={handleEventDrop}
-          eventClick={handleEventClickWithCheckout}
-          dateClick={handleDateClick}
-          resourceAreaWidth="20%"
-          slotMinTime={calendarConfig.minTime}
-          slotMaxTime={calendarConfig.maxTime}
-          businessHours={calendarConfig.businessHours}
-          height="100%"
-          resourceAreaHeaderContent="Staff"
-          resourceOrder="title"
-          resourceAreaColumns={[
-            {
-              field: 'title',
-              headerContent: 'Staff'
-            }
-          ]}
-          resourceLabelDidMount={({ el, resource }) => {
-            el.style.backgroundColor = '#f3f4f6';
-            el.style.padding = '0.5rem';
-            el.style.fontWeight = '500';
-          }}
-          eventDidMount={({ el, event }) => {
-            const status = event.extendedProps.status;
-            el.style.backgroundColor = status === 'confirmed' ? '#10b981' : 
-                                     status === 'pending' ? '#f59e0b' : 
-                                     status === 'completed' ? '#3b82f6' :
-                                     status === 'paid' ? '#8b5cf6' : '#ef4444';
-            el.style.borderRadius = '0.25rem';
-            el.style.border = 'none';
-            el.style.padding = '0.25rem 0.5rem';
-            el.style.fontSize = '0.875rem';
-            el.style.cursor = 'pointer';
-          }}
-          eventContent={({ event }) => (
-            <div>
-              <div className="font-medium">{event.title}</div>
-              <div className="text-xs">{event.extendedProps.customerName}</div>
-              <div className="text-xs">{event.extendedProps.serviceName}</div>
-              {event.extendedProps.price && (
-                <div className="text-xs font-bold">€{event.extendedProps.price.toFixed(2)}</div>
-              )}
-            </div>
-          )}
-          locale={calendarConfig.locale}
-          firstDay={calendarConfig.firstDay}
-          slotDuration={calendarConfig.slotDuration}
-          nowIndicator={true}
-          scrollTime={calendarConfig.minTime}
-          snapDuration={calendarConfig.snapDuration}
-          slotLabelFormat={{
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          }}
-          resourceLabelContent="Staff"
-          resourceGroupField="title"
-          resourcesInitiallyExpanded={true}
-          views={calendarConfig.views}
-          resourceAreaHeaderDidMount={({ el }) => {
-            el.style.backgroundColor = '#f3f4f6';
-            el.style.padding = '0.5rem';
-            el.style.fontWeight = '500';
-            el.style.borderBottom = '1px solid #e5e7eb';
-          }}
-        />
+      <FullCalendar
+        plugins={[resourceTimelinePlugin, interactionPlugin, dayGridPlugin, timeGridPlugin]}
+        initialView={currentView.type}
+        schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: ''
+        }}
+        resources={resources}
+        events={calendarEvents}
+        editable={true}
+        droppable={true}
+        eventDrop={handleEventDrop}
+        eventClick={handleEventClickWithCheckout}
+        dateClick={handleDateClick}
+        resourceAreaWidth="20%"
+        slotMinTime={calendarConfig.minTime}
+        slotMaxTime={calendarConfig.maxTime}
+        businessHours={calendarConfig.businessHours}
+        height="100%"
+        resourceAreaHeaderContent="Staff"
+        resourceOrder="title"
+        resourceAreaColumns={[
+          {
+            field: 'title',
+            headerContent: 'Staff'
+          }
+        ]}
+        resourceLabelDidMount={({ el, resource }) => {
+          el.style.backgroundColor = '#f3f4f6';
+          el.style.padding = '0.5rem';
+          el.style.fontWeight = '500';
+        }}
+        eventDidMount={({ el, event }) => {
+          const status = event.extendedProps.status;
+          el.style.backgroundColor = status === 'confirmed' ? '#10b981' : 
+                                   status === 'pending' ? '#f59e0b' : 
+                                   status === 'completed' ? '#3b82f6' :
+                                   status === 'paid' ? '#8b5cf6' : '#ef4444';
+          el.style.borderRadius = '0.25rem';
+          el.style.border = 'none';
+          el.style.padding = '0.25rem 0.5rem';
+          el.style.fontSize = '0.875rem';
+          el.style.cursor = 'pointer';
+        }}
+        eventContent={({ event }) => (
+          <div>
+            <div className="font-medium">{event.title}</div>
+            <div className="text-xs">{event.extendedProps.customerName}</div>
+            <div className="text-xs">{event.extendedProps.serviceName}</div>
+            {event.extendedProps.price && (
+              <div className="text-xs font-bold">€{event.extendedProps.price.toFixed(2)}</div>
+            )}
+          </div>
+        )}
+        locale={calendarConfig.locale}
+        firstDay={calendarConfig.firstDay}
+        slotDuration={calendarConfig.slotDuration}
+        nowIndicator={true}
+        scrollTime={calendarConfig.minTime}
+        snapDuration={calendarConfig.snapDuration}
+        slotLabelFormat={{
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }}
+        resourceLabelContent="Staff"
+        resourceGroupField="title"
+        resourcesInitiallyExpanded={true}
+        views={calendarConfig.views}
+        resourceAreaHeaderDidMount={({ el }) => {
+          el.style.backgroundColor = '#f3f4f6';
+          el.style.padding = '0.5rem';
+          el.style.fontWeight = '500';
+          el.style.borderBottom = '1px solid #e5e7eb';
+        }}
+      />
       </div>
 
       {selectedEvent && (
