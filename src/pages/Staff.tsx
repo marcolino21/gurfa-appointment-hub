@@ -49,13 +49,7 @@ const Staff = () => {
 
   const handleAddStaff = (data: StaffFormValues) => {
     const newStaff = addStaff(data);
-    if (newStaff) {
-      setIsAddDialogOpen(false);
-      toast({
-        title: "Membro aggiunto",
-        description: "Il nuovo membro dello staff è stato aggiunto con successo."
-      });
-    }
+    setIsAddDialogOpen(false);
   };
 
   const handleEditStaff = (data: StaffFormValues) => {

@@ -15,7 +15,7 @@ export const useStaffData = (salonId: string | null) => {
   const { toast } = useToast();
 
   const addStaff = (data: StaffFormValues) => {
-    if (!salonId) return;
+    if (!salonId) return null;
 
     // Create staff with required fields explicitly defined
     const newStaff: StaffMember = {
