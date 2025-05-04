@@ -33,24 +33,24 @@ export const useStaffData = (salonId: string | null) => {
       birthDate: data.birthDate,
       position: data.position, 
       color: data.color,
-      assignedServiceIds: data.assignedServiceIds,
+      assignedServiceIds: data.assignedServiceIds || [],
     };
 
-    // Update the staff members array with the new member
+    // Aggiorniamo lo state con il nuovo membro dello staff
     setStaffMembers(prevMembers => [...prevMembers, newStaff]);
     
-    // Show success toast
-    toast({
-      title: 'Membro dello staff aggiunto',
-      description: `${newStaff.firstName} ${newStaff.lastName} è stato aggiunto con successo`,
-    });
-    
-    // Also update the mock data to persist changes across page reloads
+    // Aggiorniamo anche i dati mock per mantenere la coerenza
     if (MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
     } else {
       MOCK_STAFF[salonId] = [newStaff];
     }
+    
+    // Mostriamo il toast di conferma
+    toast({
+      title: 'Membro dello staff aggiunto',
+      description: `${newStaff.firstName} ${newStaff.lastName} è stato aggiunto con successo`,
+    });
     
     return newStaff;
   };
@@ -70,11 +70,17 @@ export const useStaffData = (salonId: string | null) => {
         birthDate: data.birthDate,
         position: data.position,
         color: data.color,
-        assignedServiceIds: data.assignedServiceIds,
+        assignedServiceIds: data.assignedServiceIds || [],
       } : staff
     );
 
     setStaffMembers(updatedStaff);
+    
+    // Aggiorniamo anche i dati mock
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
+    
     toast({
       title: 'Membro dello staff modificato',
       description: `${data.firstName} ${data.lastName} è stato modificato con successo`,
@@ -84,6 +90,12 @@ export const useStaffData = (salonId: string | null) => {
   const deleteStaff = (staffId: string) => {
     const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
     setStaffMembers(updatedStaff);
+    
+    // Aggiorniamo anche i dati mock
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
+    
     toast({
       title: 'Membro dello staff eliminato',
       description: 'Il membro dello staff è stato eliminato con successo',
@@ -96,6 +108,11 @@ export const useStaffData = (salonId: string | null) => {
     );
     setStaffMembers(updatedStaff);
     
+    // Aggiorniamo anche i dati mock
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
+    
     toast({
       title: isActive ? 'Membro dello staff attivato' : 'Membro dello staff disattivato',
       description: `Il membro dello staff è stato ${isActive ? 'attivato' : 'disattivato'} con successo`,
@@ -107,6 +124,11 @@ export const useStaffData = (salonId: string | null) => {
       staff.id === staffId ? { ...staff, showInCalendar } : staff
     );
     setStaffMembers(updatedStaff);
+    
+    // Aggiorniamo anche i dati mock
+    if (salonId && MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = updatedStaff;
+    }
     
     toast({
       title: showInCalendar ? 'Visibile in agenda' : 'Nascosto dall\'agenda',
