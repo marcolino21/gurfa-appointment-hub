@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StaffMember, Service } from '@/types';
 import { MOCK_STAFF, MOCK_SERVICES } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,13 @@ export const useStaffData = (salonId: string | null) => {
     salonId ? (MOCK_SERVICES[salonId] || []) : []
   );
   const { toast } = useToast();
+
+  // Sincronizziamo lo stato locale con i dati mock
+  useEffect(() => {
+    if (salonId) {
+      setStaffMembers(MOCK_STAFF[salonId] || []);
+    }
+  }, [salonId]);
 
   const addStaff = (data: StaffFormValues) => {
     if (!salonId) return null;
@@ -36,15 +43,15 @@ export const useStaffData = (salonId: string | null) => {
       assignedServiceIds: data.assignedServiceIds || [],
     };
 
-    // Aggiorniamo lo state con il nuovo membro dello staff
-    setStaffMembers(prevMembers => [...prevMembers, newStaff]);
-    
-    // Aggiorniamo anche i dati mock per mantenere la coerenza
+    // Aggiorniamo i dati mock
     if (MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
     } else {
       MOCK_STAFF[salonId] = [newStaff];
     }
+    
+    // Aggiorniamo anche lo state con il nuovo membro dello staff
+    setStaffMembers(prev => [...prev, newStaff]);
     
     // Mostriamo il toast di conferma
     toast({
@@ -74,12 +81,13 @@ export const useStaffData = (salonId: string | null) => {
       } : staff
     );
 
-    setStaffMembers(updatedStaff);
-    
     // Aggiorniamo anche i dati mock
     if (salonId && MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
+    
+    // Aggiorniamo lo stato locale
+    setStaffMembers(updatedStaff);
     
     toast({
       title: 'Membro dello staff modificato',
@@ -89,12 +97,14 @@ export const useStaffData = (salonId: string | null) => {
 
   const deleteStaff = (staffId: string) => {
     const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
-    setStaffMembers(updatedStaff);
     
     // Aggiorniamo anche i dati mock
     if (salonId && MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
+    
+    // Aggiorniamo lo stato locale
+    setStaffMembers(updatedStaff);
     
     toast({
       title: 'Membro dello staff eliminato',
@@ -106,12 +116,14 @@ export const useStaffData = (salonId: string | null) => {
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, isActive } : staff
     );
-    setStaffMembers(updatedStaff);
     
     // Aggiorniamo anche i dati mock
     if (salonId && MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
+    
+    // Aggiorniamo lo stato locale
+    setStaffMembers(updatedStaff);
     
     toast({
       title: isActive ? 'Membro dello staff attivato' : 'Membro dello staff disattivato',
@@ -123,12 +135,14 @@ export const useStaffData = (salonId: string | null) => {
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, showInCalendar } : staff
     );
-    setStaffMembers(updatedStaff);
     
     // Aggiorniamo anche i dati mock
     if (salonId && MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
+    
+    // Aggiorniamo lo stato locale
+    setStaffMembers(updatedStaff);
     
     toast({
       title: showInCalendar ? 'Visibile in agenda' : 'Nascosto dall\'agenda',
