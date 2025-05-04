@@ -1,31 +1,6 @@
 
 import { AuthState } from '../types';
-
-// Modifica dei dati mock per includere Gurfa Beauty Concept
-export const MOCK_SALONS = {
-  // ID degli utenti come chiavi
-  'user-1': [
-    {
-      id: 'salon-1',
-      name: 'Gurfa Beauty Concept',
-      ownerId: 'user-1',
-      address: 'Via Fiume Giallo, 405, 00144 Roma, Italia',
-      phone: '+390654218124'
-    },
-    {
-      id: 'salon-2',
-      name: 'Studio Bellezza',
-      ownerId: 'user-1'
-    }
-  ],
-  'user-2': [
-    {
-      id: 'salon-3',
-      name: 'Freemind Hair',
-      ownerId: 'user-2'
-    }
-  ],
-};
+import { MOCK_SALONS } from '../data/mockData';
 
 export type AuthAction =
   | { type: 'LOGIN'; payload: { user: any; token: string } }
@@ -33,9 +8,7 @@ export type AuthAction =
   | { type: 'SET_CURRENT_SALON'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'SET_SALONS'; payload: any[] }
-  | { type: 'ADD_SALON'; payload: any }
-  | { type: 'UPDATE_SALON'; payload: { salonId: string; updatedSalon: any } };
+  | { type: 'SET_SALONS'; payload: any[] };
 
 export const initialState: AuthState = {
   user: null,
@@ -88,20 +61,6 @@ export const authReducer = (state: AuthState, action: AuthAction): AuthState => 
       return {
         ...state,
         salons: action.payload
-      };
-    case 'ADD_SALON':
-      return {
-        ...state,
-        salons: [...state.salons, action.payload],
-      };
-    case 'UPDATE_SALON':
-      return {
-        ...state,
-        salons: state.salons.map(salon => 
-          salon.id === action.payload.salonId 
-            ? { ...salon, ...action.payload.updatedSalon }
-            : salon
-        ),
       };
     default:
       return state;

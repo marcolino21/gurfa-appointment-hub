@@ -12,20 +12,41 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Check, X, Eye, Loader2, Plus, CreditCard } from 'lucide-react';
+import { Search, Check, X, Eye } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useFreelanceData } from '@/hooks/useFreelanceData';
-import { AddFreelanceDialog } from '@/features/freelance/components/AddFreelanceDialog';
-import PaymentMethodDialog from "@/components/PaymentMethodDialog";
+import { User } from '@/types';
+
+const MOCK_FREELANCES: User[] = [
+  {
+    id: '3',
+    email: 'freelance@gurfa.com',
+    name: 'Freelance Demo',
+    role: 'freelance',
+    isActive: true
+  },
+  {
+    id: '5',
+    email: 'freelance2@gurfa.com',
+    name: 'Secondo Freelance',
+    role: 'freelance',
+    isActive: false
+  },
+  {
+    id: '6',
+    email: 'freelance3@gurfa.com',
+    name: 'Terzo Freelance',
+    role: 'freelance',
+    isActive: true
+  }
+];
 
 const Freelance: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const { freelancers, isLoading, toggleFreelancerStatus, fetchFreelancers } = useFreelanceData();
+  const [freelances, setFreelances] = useState(MOCK_FREELANCES);
   
+  // Se non sei super admin, reindirizza alla dashboard
   React.useEffect(() => {
     if (user?.role !== 'super_admin') {
       navigate('/dashboard');
@@ -36,34 +57,25 @@ const Freelance: React.FC = () => {
     setSearchTerm(e.target.value);
   };
   
-  const filteredFreelances = freelancers.filter(freelance => 
+  const toggleUserActive = (id: string) => {
+    setFreelances(freelances.map(freelance => 
+      freelance.id === id ? { ...freelance, isActive: !freelance.isActive } : freelance
+    ));
+  };
+  
+  // Filtra i freelance in base alla ricerca
+  const filteredFreelances = freelances.filter(freelance => 
     freelance.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     freelance.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center gap-2 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Freelance</h1>
-          <p className="text-muted-foreground">
-            Gestisci i professionisti freelance
-          </p>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Aggiungi Freelance
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsPaymentDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <CreditCard className="h-4 w-4" />
-            Aggiungi Metodo di Pagamento
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Freelance</h1>
+        <p className="text-muted-foreground">
+          Gestisci i professionisti freelance
+        </p>
       </div>
       
       <div className="flex items-center">
@@ -93,56 +105,46 @@ const Freelance: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    <div className="flex justify-center items-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              {filteredFreelances.map((freelance) => (
+                <TableRow key={freelance.id}>
+                  <TableCell>{freelance.name}</TableCell>
+                  <TableCell>{freelance.email}</TableCell>
+                  <TableCell>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      freelance.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {freelance.isActive ? (
+                        <>
+                          <Check className="w-3 h-3 mr-1" />
+                          Attivo
+                        </>
+                      ) : (
+                        <>
+                          <X className="w-3 h-3 mr-1" />
+                          Inattivo
+                        </>
+                      )}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Link to={`/appuntamenti?freelance=${freelance.id}`}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-1" /> Agenda
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant={freelance.isActive ? "destructive" : "outline"} 
+                        size="sm"
+                        onClick={() => toggleUserActive(freelance.id)}
+                      >
+                        {freelance.isActive ? 'Disattiva' : 'Attiva'}
+                      </Button>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">Caricamento freelance...</p>
                   </TableCell>
                 </TableRow>
-              ) : filteredFreelances.length > 0 ? (
-                filteredFreelances.map((freelance) => (
-                  <TableRow key={freelance.id}>
-                    <TableCell>{freelance.name}</TableCell>
-                    <TableCell>{freelance.email}</TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        freelance.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {freelance.isActive ? (
-                          <>
-                            <Check className="w-3 h-3 mr-1" />
-                            Attivo
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-3 h-3 mr-1" />
-                            Inattivo
-                          </>
-                        )}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Link to={`/appuntamenti?freelance=${freelance.id}`}>
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-1" /> Agenda
-                          </Button>
-                        </Link>
-                        <Button 
-                          variant={freelance.isActive ? "destructive" : "outline"} 
-                          size="sm"
-                          onClick={() => toggleFreelancerStatus(freelance.id, freelance.isActive)}
-                        >
-                          {freelance.isActive ? 'Disattiva' : 'Attiva'}
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
+              ))}
+              {filteredFreelances.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
                     Nessun freelance trovato
@@ -153,24 +155,8 @@ const Freelance: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
-
-      <AddFreelanceDialog 
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
-        onSuccess={() => {
-          fetchFreelancers();
-        }}
-      />
-      <PaymentMethodDialog 
-        isOpen={isPaymentDialogOpen}
-        onClose={() => setIsPaymentDialogOpen(false)}
-        onSubmit={(data) => {
-          console.log("Dati carta freelance:", data);
-        }}
-      />
     </div>
   );
 };
 
 export default Freelance;
-

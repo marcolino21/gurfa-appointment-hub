@@ -57,7 +57,6 @@ export interface ProjectFormValues {
   title: string;
   clientId: string;
   categoryId: string;
-  customCategory?: string;
   subcategoryId?: string;
   description: string;
   objectives: { description: string; isCompleted: boolean }[];

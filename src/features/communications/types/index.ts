@@ -1,62 +1,38 @@
 
-import React from 'react';
-
-export interface CommunicationTemplate {
+export interface Communication {
   id: string;
-  title: string;
-  content: string;
-  type: 'sms' | 'email';
-  previewText?: string;
-}
-
-export interface EmailTemplate extends CommunicationTemplate {
-  type: 'email';
+  type: 'email' | 'sms' | 'whatsapp';
+  sender: string;
   subject: string;
-  htmlContent: React.ReactNode;
+  content: string;
+  recipientCount: number;
+  openRate: number;
+  clickRate: number;
+  sentAt: string;
+  salonId: string;
 }
 
-export interface SmsTemplate extends CommunicationTemplate {
-  type: 'sms';
-}
-
-export type TemplateType = 'sms' | 'email';
-
-export interface CommunicationStats {
-  totalSent: number;
-  delivered: number;
-  opened: number;
-  clicked: number;
+export interface CommunicationTemplateType {
+  id: string;
+  name: string;
+  description: string;
+  icon: JSX.Element;
 }
 
 export interface CreditPackage {
   id: string;
   name: string;
-  creditsAmount: number;
-  price: number;
-  isPopular?: boolean;
-}
-
-export interface CurrentCredits {
-  availableCredits: number;
-  usedCredits: number;
-  creditsHistory: CreditHistoryEntry[];
-}
-
-export interface CreditHistoryEntry {
-  date: Date;
-  action: 'purchase' | 'usage';
-  amount: number;
   description: string;
+  type: 'email' | 'sms' | 'whatsapp';
+  credits: number;
+  price: number;
+  discount?: number;
 }
 
-export interface Communication {
+export interface CommunicationRecipient {
   id: string;
-  title: string;
-  content: string;
-  type: 'sms' | 'email';
-  recipients: number;
-  sentDate: Date;
-  status: 'draft' | 'sent' | 'failed' | 'scheduled';
-  scheduledDate?: Date;
-  stats?: CommunicationStats;
+  name: string;
+  email?: string;
+  phone?: string;
+  hasWhatsapp?: boolean;
 }

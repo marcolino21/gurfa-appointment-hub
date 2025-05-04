@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -79,11 +80,13 @@ const NewCommunicationDialog: React.FC<NewCommunicationDialogProps> = ({
   };
 
   const handleSend = () => {
+    // Simula invio della comunicazione
     toast({
       title: "Comunicazione inviata",
       description: `La tua comunicazione è stata inviata a ${selectedClients.length} destinatari.`,
     });
     
+    // Reset and close
     resetForm();
     onOpenChange(false);
   };
@@ -98,7 +101,7 @@ const NewCommunicationDialog: React.FC<NewCommunicationDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-[95%] max-h-[90vh] overflow-y-auto p-4 md:p-6">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nuova Comunicazione</DialogTitle>
           <DialogDescription>

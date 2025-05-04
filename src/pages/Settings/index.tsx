@@ -1,20 +1,16 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import ProfileSettings from './ProfileSettings';
 import BillingSettings from './BillingSettings';
 import GeneralSettings from './GeneralSettings';
 import ShowcaseSettings from './ShowcaseSettings';
 import UsersSettings from './UsersSettings';
 import { useAuth } from '@/contexts/AuthContext';
-import ActivityDialog from '@/components/ActivityDialog';
 
 const Settings = () => {
   const { user } = useAuth();
-  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -27,15 +23,8 @@ const Settings = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Tabs defaultValue="activity" className="w-full">
+          <Tabs defaultValue="profile" className="w-full">
             <TabsList className="w-full justify-start border-b rounded-none px-4 bg-transparent h-auto">
-              <Button 
-                variant="ghost" 
-                className="mr-4 py-3" 
-                onClick={() => setIsActivityDialogOpen(true)}
-              >
-                <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi attività
-              </Button>
               <TabsTrigger value="profile" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
                 Profilo
               </TabsTrigger>
@@ -53,12 +42,6 @@ const Settings = () => {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="activity" className="p-6">
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Clicca sul pulsante "Aggiungi attività" per iniziare</p>
-              </div>
-            </TabsContent>
-
             <TabsContent value="profile" className="p-6">
               <ProfileSettings />
             </TabsContent>
@@ -81,11 +64,6 @@ const Settings = () => {
           </Tabs>
         </CardContent>
       </Card>
-
-      <ActivityDialog 
-        open={isActivityDialogOpen} 
-        onOpenChange={setIsActivityDialogOpen} 
-      />
     </div>
   );
 };

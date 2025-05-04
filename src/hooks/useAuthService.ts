@@ -1,3 +1,4 @@
+
 import { useToast } from './use-toast';
 import { MOCK_USERS } from '../data/mockData';
 
@@ -7,13 +8,13 @@ export const useAuthService = () => {
   const login = async (
     email: string, 
     password: string, 
-    dispatch: React.Dispatch<any>,
-    stayLoggedIn: boolean = true
+    dispatch: React.Dispatch<any>
   ): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
     
     try {
+      // Simulate an API request
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseEmail = email.toLowerCase();
@@ -27,16 +28,16 @@ export const useAuthService = () => {
         throw new Error('Account disattivato. Contatta l\'amministratore.');
       }
       
+      // Create a user object without the password
       const { password: _, ...userWithoutPassword } = mockUser;
       const user = userWithoutPassword;
+      
+      // Generate a fake token
       const token = `mock_token_${Date.now()}`;
       
-      const session = { user, token };
-      
-      localStorage.setItem('gurfa_session', JSON.stringify(session));
+      // Save to local storage
       localStorage.setItem('gurfa_user', JSON.stringify(user));
       localStorage.setItem('gurfa_token', token);
-      localStorage.setItem('session_type', 'persistent');
       
       dispatch({
         type: 'LOGIN',
@@ -58,10 +59,8 @@ export const useAuthService = () => {
   };
 
   const logout = (dispatch: React.Dispatch<any>) => {
-    localStorage.removeItem('gurfa_session');
     localStorage.removeItem('gurfa_user');
     localStorage.removeItem('gurfa_token');
-    localStorage.removeItem('session_type');
     dispatch({ type: 'LOGOUT' });
     toast({
       title: 'Logout effettuato',
@@ -76,6 +75,7 @@ export const useAuthService = () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
+      // Simulate an API request
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseEmail = email.toLowerCase();
@@ -85,6 +85,7 @@ export const useAuthService = () => {
         throw new Error('Email non trovata');
       }
       
+      // In a real app, we would send a reset email here
       toast({
         title: 'Email inviata',
         description: 'Se l\'indirizzo esiste nel nostro sistema, riceverai un\'email con le istruzioni per reimpostare la password.'
