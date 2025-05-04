@@ -1,4 +1,3 @@
-
 import { StaffMember } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { StaffFormValues } from '../../types';
@@ -46,12 +45,19 @@ export const useStaffAddActions = (
         color: data.color || '#9b87f5',
         assignedServiceIds: Array.isArray(data.assignedServiceIds) ? data.assignedServiceIds : [],
         workSchedule,
-        salonId
+        salonId,
+        permissions: []
       });
 
       const savedStaff = await addStaffMember(salonId, newStaffMember);
       
       setStaffMembers(prev => [...prev, savedStaff]);
+      
+      // Dispatch event to force refresh in all listeners
+      const event = new CustomEvent('staffDataUpdated', {
+        detail: { salonId, type: 'add' }
+      });
+      window.dispatchEvent(event);
       
       toast({
         title: 'Membro dello staff aggiunto',
