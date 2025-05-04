@@ -7,10 +7,10 @@ import { StaffFormValues } from '../types';
 
 export const useStaffData = (salonId: string | null) => {
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(
-    salonId ? MOCK_STAFF[salonId] || [] : []
+    salonId ? (MOCK_STAFF[salonId] || []) : []
   );
   const [services, setServices] = useState<Service[]>(
-    salonId ? MOCK_SERVICES[salonId] || [] : []
+    salonId ? (MOCK_SERVICES[salonId] || []) : []
   );
   const { toast } = useToast();
 
@@ -36,11 +36,21 @@ export const useStaffData = (salonId: string | null) => {
       assignedServiceIds: data.assignedServiceIds,
     };
 
-    setStaffMembers([...staffMembers, newStaff]);
+    // Update the staff members array with the new member
+    setStaffMembers(prevMembers => [...prevMembers, newStaff]);
+    
+    // Show success toast
     toast({
       title: 'Membro dello staff aggiunto',
       description: `${newStaff.firstName} ${newStaff.lastName} è stato aggiunto con successo`,
     });
+    
+    // Also update the mock data to persist changes across page reloads
+    if (MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
+    } else {
+      MOCK_STAFF[salonId] = [newStaff];
+    }
     
     return newStaff;
   };

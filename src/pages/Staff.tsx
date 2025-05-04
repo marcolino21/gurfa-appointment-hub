@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -22,6 +22,7 @@ import StaffForm from '@/features/staff/components/StaffForm';
 import StaffTable from '@/features/staff/components/StaffTable';
 import { useStaffData } from '@/features/staff/hooks/useStaffData';
 import { StaffFormValues } from '@/features/staff/types';
+import { useToast } from '@/hooks/use-toast';
 
 const Staff = () => {
   const { currentSalonId } = useAuth();
@@ -34,10 +35,12 @@ const Staff = () => {
     toggleStaffStatus, 
     toggleCalendarVisibility 
   } = useStaffData(currentSalonId);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const { toast } = useToast();
 
   const filteredStaff = staffMembers.filter(staff => {
     const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
@@ -45,8 +48,14 @@ const Staff = () => {
   });
 
   const handleAddStaff = (data: StaffFormValues) => {
-    addStaff(data);
-    setIsAddDialogOpen(false);
+    const newStaff = addStaff(data);
+    if (newStaff) {
+      setIsAddDialogOpen(false);
+      toast({
+        title: "Membro aggiunto",
+        description: "Il nuovo membro dello staff è stato aggiunto con successo."
+      });
+    }
   };
 
   const handleEditStaff = (data: StaffFormValues) => {

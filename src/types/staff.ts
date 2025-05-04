@@ -15,4 +15,7 @@ export interface StaffMember {
   showInCalendar: boolean;
   assignedServiceIds: string[];
   avatar?: string;
+  // Aggiungiamo questi campi per compatibilità con il database
+  permissions?: string[];
+  work_schedule?: any;
 }

@@ -41,7 +41,7 @@ const StaffTable: React.FC<StaffTableProps> = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {staffMembers.length > 0 ? (
+        {staffMembers && staffMembers.length > 0 ? (
           staffMembers.map((staffMember) => (
             <TableRow key={staffMember.id}>
               <TableCell>
