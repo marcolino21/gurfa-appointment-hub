@@ -15,8 +15,10 @@ export const useStaffData = (salonId: string | null) => {
   const { toast } = useToast();
 
   // Sincronizziamo lo stato locale con i dati mock
+  // Questo è cruciale per assicurarci che lo stato rifletta sempre i dati mock
   useEffect(() => {
     if (salonId) {
+      console.log("Syncing staff data from mock:", MOCK_STAFF[salonId]);
       setStaffMembers(MOCK_STAFF[salonId] || []);
     }
   }, [salonId]);
@@ -43,12 +45,16 @@ export const useStaffData = (salonId: string | null) => {
       assignedServiceIds: data.assignedServiceIds || [],
     };
 
+    console.log("Adding new staff member:", newStaff);
+
     // Aggiorniamo i dati mock
-    if (MOCK_STAFF[salonId]) {
-      MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
-    } else {
-      MOCK_STAFF[salonId] = [newStaff];
+    if (!MOCK_STAFF[salonId]) {
+      MOCK_STAFF[salonId] = [];
     }
+    
+    // Aggiungiamo il nuovo membro ai dati mock
+    MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
+    console.log("Updated mock staff data:", MOCK_STAFF[salonId]);
     
     // Aggiorniamo anche lo state con il nuovo membro dello staff
     setStaffMembers(prev => [...prev, newStaff]);
@@ -81,9 +87,12 @@ export const useStaffData = (salonId: string | null) => {
       } : staff
     );
 
+    console.log("Editing staff member, updated list:", updatedStaff);
+
     // Aggiorniamo anche i dati mock
-    if (salonId && MOCK_STAFF[salonId]) {
+    if (salonId) {
       MOCK_STAFF[salonId] = updatedStaff;
+      console.log("Updated mock staff data after edit:", MOCK_STAFF[salonId]);
     }
     
     // Aggiorniamo lo stato locale
@@ -97,10 +106,12 @@ export const useStaffData = (salonId: string | null) => {
 
   const deleteStaff = (staffId: string) => {
     const updatedStaff = staffMembers.filter(staff => staff.id !== staffId);
+    console.log("Deleting staff member, updated list:", updatedStaff);
     
     // Aggiorniamo anche i dati mock
-    if (salonId && MOCK_STAFF[salonId]) {
+    if (salonId) {
       MOCK_STAFF[salonId] = updatedStaff;
+      console.log("Updated mock staff data after delete:", MOCK_STAFF[salonId]);
     }
     
     // Aggiorniamo lo stato locale
@@ -116,9 +127,10 @@ export const useStaffData = (salonId: string | null) => {
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, isActive } : staff
     );
+    console.log("Toggling staff status, updated list:", updatedStaff);
     
     // Aggiorniamo anche i dati mock
-    if (salonId && MOCK_STAFF[salonId]) {
+    if (salonId) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
     
@@ -135,9 +147,10 @@ export const useStaffData = (salonId: string | null) => {
     const updatedStaff = staffMembers.map(staff => 
       staff.id === staffId ? { ...staff, showInCalendar } : staff
     );
+    console.log("Toggling calendar visibility, updated list:", updatedStaff);
     
     // Aggiorniamo anche i dati mock
-    if (salonId && MOCK_STAFF[salonId]) {
+    if (salonId) {
       MOCK_STAFF[salonId] = updatedStaff;
     }
     

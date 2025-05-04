@@ -40,6 +40,7 @@ const Staff = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0); // Add a refresh key to force re-render
   const { toast } = useToast();
 
   const filteredStaff = staffMembers.filter(staff => {
@@ -48,8 +49,10 @@ const Staff = () => {
   });
 
   const handleAddStaff = (data: StaffFormValues) => {
-    addStaff(data);
+    const newStaff = addStaff(data);
     setIsAddDialogOpen(false);
+    // Increment the refresh key to trigger a re-render
+    setRefreshKey(prevKey => prevKey + 1);
     toast({
       title: "Membro aggiunto",
       description: "Il nuovo membro dello staff è stato aggiunto con successo."
@@ -60,6 +63,8 @@ const Staff = () => {
     if (selectedStaff) {
       editStaff(selectedStaff.id, data);
       setIsEditDialogOpen(false);
+      // Increment the refresh key to trigger a re-render
+      setRefreshKey(prevKey => prevKey + 1);
     }
   };
 
@@ -67,6 +72,11 @@ const Staff = () => {
     setSelectedStaff(staff);
     setIsEditDialogOpen(true);
   };
+
+  // Log the staff members for debugging
+  useEffect(() => {
+    console.log("Current staff members:", staffMembers);
+  }, [staffMembers, refreshKey]);
 
   return (
     <div className="container mx-auto py-6">
@@ -95,9 +105,21 @@ const Staff = () => {
           <StaffTable 
             staffMembers={filteredStaff}
             onEdit={openEditDialog}
-            onDelete={deleteStaff}
-            onToggleStatus={toggleStaffStatus}
-            onToggleCalendarVisibility={toggleCalendarVisibility}
+            onDelete={(staffId) => {
+              deleteStaff(staffId);
+              // Increment the refresh key to trigger a re-render
+              setRefreshKey(prevKey => prevKey + 1);
+            }}
+            onToggleStatus={(staffId, isActive) => {
+              toggleStaffStatus(staffId, isActive);
+              // Increment the refresh key to trigger a re-render
+              setRefreshKey(prevKey => prevKey + 1);
+            }}
+            onToggleCalendarVisibility={(staffId, showInCalendar) => {
+              toggleCalendarVisibility(staffId, showInCalendar);
+              // Increment the refresh key to trigger a re-render
+              setRefreshKey(prevKey => prevKey + 1);
+            }}
           />
         </CardContent>
       </Card>
