@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS staff (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id),
   name TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('admin', 'manager', 'receptionist', 'stylist', 'therapist', 'collaborator')),
+  role TEXT,
   availability JSONB DEFAULT '{}',
   color_code TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -98,4 +98,13 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_end_time_trigger
   BEFORE INSERT OR UPDATE ON appointments
   FOR EACH ROW
-  EXECUTE FUNCTION update_appointment_end_time(); 
+  EXECUTE FUNCTION update_appointment_end_time();
+
+-- Add constraint to staff table
+ALTER TABLE staff
+  ADD CONSTRAINT staff_role_check
+  CHECK (role IN ('admin', 'manager', 'receptionist', 'stylist', 'therapist', 'collaborator'));
+
+UPDATE staff SET role = 'admin' WHERE id = 'INSERISCI_ID_STAFF';
+UPDATE staff SET role = 'stylist' WHERE id = 'INSERISCI_ID_STAFF2';
+-- Ripeti per ogni membro dello staff 
