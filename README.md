@@ -1,73 +1,77 @@
-# Welcome to your Lovable project
+# Gurfa Appointment Hub
 
-## Project info
+Sistema di gestione appuntamenti con calendario personalizzato e integrazione Supabase.
 
-**URL**: https://lovable.dev/projects/e8a604a3-04d4-4b47-b0c6-715e005f3bc0
+## Configurazione
 
-## How can I edit this code?
+1. Clona il repository:
+```bash
+git clone https://github.com/marcolino21/gurfa-appointment-hub.git
+cd gurfa-appointment-hub
+```
 
-There are several ways of editing your application.
+2. Installa le dipendenze:
+```bash
+npm install --legacy-peer-deps
+```
 
-**Use Lovable**
+3. Crea un file `.env` nella root del progetto con le seguenti variabili:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e8a604a3-04d4-4b47-b0c6-715e005f3bc0) and start prompting.
+4. Configura il database Supabase:
+- Vai al tuo progetto Supabase
+- Apri l'editor SQL
+- Copia e incolla il contenuto del file `supabase/migrations/20240505_init.sql`
+- Esegui le query
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+5. Avvia il server di sviluppo:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Struttura del Progetto
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `src/features/calendar/`: Componenti del calendario
+  - `components/`: Componenti React
+    - `CalendarView.tsx`: Vista principale del calendario
+    - `AppointmentModal.tsx`: Modal per la creazione/modifica degli appuntamenti
+    - `DraggableEvent.tsx`: Componente per gli eventi trascinabili
+- `src/lib/`: Utility e configurazioni
+  - `supabase.ts`: Configurazione client Supabase
+- `src/types/`: Definizioni TypeScript
+  - `calendar.ts`: Tipi per il calendario e gli appuntamenti
 
-**Use GitHub Codespaces**
+## Funzionalità
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Vista calendario giornaliera, settimanale e mensile
+- Drag & drop degli appuntamenti
+- Creazione e modifica appuntamenti
+- Integrazione real-time con Supabase
+- Gestione staff e servizi
+- Sistema di ruoli e permessi
+- Notifiche in tempo reale
 
-## What technologies are used for this project?
+## Sviluppo
 
-This project is built with:
+Per contribuire al progetto:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Crea un nuovo branch:
+```bash
+git checkout -b feature/nome-feature
+```
 
-## How can I deploy this project?
+2. Fai le tue modifiche e committa:
+```bash
+git add .
+git commit -m "feat: descrizione delle modifiche"
+```
 
-Simply open [Lovable](https://lovable.dev/projects/e8a604a3-04d4-4b47-b0c6-715e005f3bc0) and click on Share -> Publish.
+3. Pusha le modifiche:
+```bash
+git push origin feature/nome-feature
+```
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+4. Apri una Pull Request su GitHub
