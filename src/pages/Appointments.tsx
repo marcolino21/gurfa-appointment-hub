@@ -5,3 +5,5 @@ import { CalendarView } from '@/features/calendar/components/CalendarView';
 export const Appuntamenti = () => {
   return <CalendarView />;
 };
+
+export default Appuntamenti;

@@ -1,6 +1,8 @@
 import { useToast } from './use-toast';
-import { MOCK_USERS } from '../data/mockData';
-import { MOCK_SALONS } from '../data/mock/auth';
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Salon = Tables<'salon_profiles'>;
 
 export const useAuthService = () => {
   const { toast } = useToast();
@@ -10,64 +12,63 @@ export const useAuthService = () => {
     password: string, 
     dispatch: React.Dispatch<any>,
     stayLoggedIn: boolean = true
-  ): Promise<{ user: any; salons: any[] } | null> => {
+  ): Promise<{ user: any; salons: Salon[] } | null> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
     
     try {
       console.log('Starting login process for:', email);
       
-      const lowercaseEmail = email.toLowerCase();
-      const mockUser = MOCK_USERS[lowercaseEmail as keyof typeof MOCK_USERS];
-      
-      if (!mockUser || mockUser.password !== password) {
-        throw new Error('Credenziali non valide');
-      }
-
-      if (!mockUser.isActive) {
-        throw new Error('Account disattivato. Contatta l\'amministratore.');
-      }
-      
-      const { password: _, ...userWithoutPassword } = mockUser;
-      const user = userWithoutPassword;
-      const token = `mock_token_${Date.now()}`;
-      
-      // Get user's salons
-      const userSalons = MOCK_SALONS[user.id] || [];
-      console.log('Login - Found salons for user:', {
-        userId: user.id,
-        salonCount: userSalons.length,
-        salons: userSalons.map(s => ({ id: s.id, name: s.name }))
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
       
-      if (userSalons.length === 0) {
-        console.warn('No salons found for user:', user.id);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data.user) {
+        throw new Error('Invalid login result');
+      }
+
+      // Get user's salons from the database
+      const { data: salons, error: salonsError } = await supabase
+        .from('salon_profiles')
+        .select('*')
+        .eq('user_id', data.user.id);
+
+      if (salonsError) {
+        throw new Error('Error fetching salons');
+      }
+
+      if (!salons || salons.length === 0) {
         throw new Error('Nessun salone associato all\'account');
       }
-      
+
       // Set default salon
-      const defaultSalon = userSalons[0];
+      const defaultSalon = salons[0];
       
       // First dispatch the login action
       dispatch({
         type: 'LOGIN',
         payload: { 
-          user, 
-          token,
-          salons: userSalons,
+          user: data.user, 
+          token: data.session?.access_token,
+          salons,
           currentSalonId: defaultSalon.id
         }
       });
 
       // Then store session data
       try {
-        const session = { user, token, salons: userSalons };
+        const session = { user: data.user, token: data.session?.access_token, salons };
         localStorage.setItem('gurfa_session', JSON.stringify(session));
-        localStorage.setItem('gurfa_user', JSON.stringify(user));
-        localStorage.setItem('gurfa_token', token);
+        localStorage.setItem('gurfa_user', JSON.stringify(data.user));
+        localStorage.setItem('gurfa_token', data.session?.access_token || '');
         localStorage.setItem('session_type', 'persistent');
         localStorage.setItem('currentSalonId', defaultSalon.id);
-        localStorage.setItem('salon_business_name', defaultSalon.name);
+        localStorage.setItem('salon_business_name', defaultSalon.business_name);
         
         console.log('Session data stored successfully:', {
           hasSession: true,
@@ -87,10 +88,10 @@ export const useAuthService = () => {
       
       toast({
         title: 'Login riuscito',
-        description: `Benvenuto, ${user.name}!`,
+        description: `Benvenuto, ${data.user.email}!`,
       });
       
-      return { user, salons: userSalons };
+      return { user: data.user, salons };
     } catch (error: any) {
       console.error('Login error:', error);
       dispatch({ type: 'SET_ERROR', payload: error.message });
@@ -105,9 +106,15 @@ export const useAuthService = () => {
     }
   };
 
-  const logout = (dispatch: React.Dispatch<any>) => {
+  const logout = async (dispatch: React.Dispatch<any>) => {
     console.log('Starting logout process');
     try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+
       // First dispatch logout
       dispatch({ type: 'LOGOUT' });
       
@@ -142,11 +149,12 @@ export const useAuthService = () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
-      const lowercaseEmail = email.toLowerCase();
-      const userExists = !!MOCK_USERS[lowercaseEmail as keyof typeof MOCK_USERS];
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
       
-      if (!userExists) {
-        throw new Error('Email non trovata');
+      if (error) {
+        throw error;
       }
       
       toast({
