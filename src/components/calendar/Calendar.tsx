@@ -42,7 +42,7 @@ const Calendar = () => {
   // Filter to get active staff that should show in calendar
   const activeStaff = staffMembers.filter(staff => {
     console.log("Staff member:", staff.firstName, staff.lastName, "isActive:", staff.isActive, "showInCalendar:", staff.showInCalendar);
-    return staff.isActive && staff.showInCalendar;
+    return staff.isActive && staff.showInCalendar === true;
   });
 
   console.log("Active staff in Calendar component:", activeStaff);

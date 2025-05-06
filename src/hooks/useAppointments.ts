@@ -9,7 +9,7 @@ export const useAppointments = (salonId?: string) => {
   const { user, currentSalonId } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const activeSalonId = salonId || currentSalonId || 'salon1'; // Default to salon1 for testing
+  const activeSalonId = salonId || currentSalonId || 'sa1'; // Default to sa1 for testing
 
   // Function to fetch appointments
   const fetchAppointments = useCallback(async () => {

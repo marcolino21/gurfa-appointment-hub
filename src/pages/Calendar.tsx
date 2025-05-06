@@ -17,12 +17,12 @@ const CalendarPage = () => {
   
   // Count active staff members that are displayed in calendar
   const activeStaffCount = staffMembers.filter(staff => 
-    staff.isActive && staff.showInCalendar
+    staff.isActive === true && staff.showInCalendar === true
   ).length;
 
   console.log("Active staff count:", activeStaffCount);
   console.log("Staff members in CalendarPage:", staffMembers);
-  console.log("Staff with showInCalendar enabled:", staffMembers.filter(s => s.showInCalendar));
+  console.log("Staff with showInCalendar enabled:", staffMembers.filter(s => s.showInCalendar === true));
 
   return (
     <div className="space-y-4 p-4">
