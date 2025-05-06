@@ -31,13 +31,12 @@ const Calendar = () => {
   } = useAppointmentStore();
   
   const { user, currentSalonId } = useAuth();
-  const activeSalonId = currentSalonId || 'sa1'; // Changed default from 'salon1' to 'sa1'
+  const activeSalonId = currentSalonId || 'sa1'; 
   const { appointments, isLoading } = useAppointments(activeSalonId);
   
   // Fetch active staff members
   const { staffMembers, isLoading: isLoadingStaff } = useStaffData(activeSalonId);
   
-  // Debug staff members data
   console.log("All staff members in Calendar.tsx:", staffMembers);
   
   // Filter to get active staff that should show in calendar
@@ -75,7 +74,7 @@ const Calendar = () => {
           return format(date, 'EEE dd', { locale: it });
         }
         
-        // Get the weekday index (0-6, where 0 is Sunday)
+        // Get the day index (0-6, where 0 is Sunday)
         const dayIndex = date.getDay();
         
         // Find the corresponding staff member for this column
@@ -106,6 +105,35 @@ const Calendar = () => {
     }
   };
 
+  // Create custom views based on staff members
+  const views = {
+    day: true,
+    week: true,
+    month: true,
+    // Custom view for staff (one column per staff member)
+    staff: {
+      type: 'week',
+      week: true,
+      getNow: () => new Date(),
+      getDrilldownView: () => null,
+    }
+  };
+
+  // Generate the staff week header (one column per staff)
+  const formats = {
+    dayFormat: (date: Date, culture: string, localizer: any) => {
+      // Custom format for staff view
+      if (view === 'staff' && activeStaff.length > 0) {
+        const dayIndex = date.getDay();
+        if (dayIndex < activeStaff.length) {
+          const staff = activeStaff[dayIndex];
+          return staff ? `${staff.firstName} ${staff.lastName}` : format(date, 'EEE dd', { locale: it });
+        }
+      }
+      return format(date, 'EEE dd', { locale: it });
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-180px)]">
       {(isLoading || isLoadingStaff) ? (
@@ -129,10 +157,12 @@ const Calendar = () => {
           selectable
           popup
           date={selectedDate}
-          view={view}
+          view={activeStaff.length > 0 ? 'staff' : view} // Use staff view when staff members exist
+          views={views}
           onNavigate={handleNavigate}
           onView={handleViewChange}
           components={components}
+          formats={formats}
           messages={{
             today: 'Oggi',
             previous: 'Indietro',
@@ -149,7 +179,8 @@ const Calendar = () => {
             work_week: 'Settimana lavorativa',
             yesterday: 'Ieri',
             tomorrow: 'Domani',
-            showMore: (total) => `+ ${total} altri`
+            showMore: (total) => `+ ${total} altri`,
+            staff: 'Staff', // Add label for staff view
           }}
           eventPropGetter={(event) => {
             const style: React.CSSProperties = {
