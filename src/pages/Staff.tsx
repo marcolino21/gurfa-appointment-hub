@@ -23,12 +23,12 @@ import StaffTable from '@/features/staff/components/StaffTable';
 import { useStaffData } from '@/features/staff/hooks/useStaffData';
 import { StaffFormValues } from '@/features/staff/types';
 import { useToast } from '@/hooks/use-toast';
-import { MOCK_STAFF } from '@/data/mockData';
+import { filterStaffMembers, debugStaffData } from '@/features/staff/utils/staffUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 const Staff = () => {
   const { currentSalonId } = useAuth();
   console.log("Staff component rendering with currentSalonId:", currentSalonId);
-  console.log("Current MOCK_STAFF data:", MOCK_STAFF);
   
   const { 
     staffMembers, 
@@ -37,7 +37,9 @@ const Staff = () => {
     editStaff, 
     deleteStaff, 
     toggleStaffStatus, 
-    toggleCalendarVisibility 
+    toggleCalendarVisibility,
+    isLoading,
+    error
   } = useStaffData(currentSalonId);
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,42 +49,57 @@ const Staff = () => {
   const [filteredStaff, setFilteredStaff] = useState<StaffMember[]>([]);
   const { toast } = useToast();
 
+  // Debug: fetch staff data directly from Supabase
+  useEffect(() => {
+    const checkSupabaseData = async () => {
+      if (currentSalonId) {
+        try {
+          console.log("Checking Supabase staff data for salonId:", currentSalonId);
+          const { data, error } = await supabase
+            .from('staff')
+            .select('*')
+            .eq('salon_id', currentSalonId);
+          
+          if (error) {
+            console.error("Supabase query error:", error);
+          } else {
+            console.log("Direct Supabase staff query result:", data);
+          }
+        } catch (e) {
+          console.error("Error checking Supabase data:", e);
+        }
+      }
+    };
+    
+    checkSupabaseData();
+  }, [currentSalonId]);
+
   // Log when staffMembers changes
   useEffect(() => {
     console.log("staffMembers changed in Staff component:", staffMembers);
     
     // Filter staff based on search term
-    const filtered = staffMembers.filter(staff => {
-      const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
-      return fullName.includes(searchTerm.toLowerCase());
-    });
-    
+    const filtered = filterStaffMembers(staffMembers, searchTerm);
     setFilteredStaff(filtered);
   }, [staffMembers, searchTerm]);
 
-  // Update filtered staff when search term changes
-  useEffect(() => {
-    const filtered = staffMembers.filter(staff => {
-      const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
-      return fullName.includes(searchTerm.toLowerCase());
-    });
-    setFilteredStaff(filtered);
-  }, [searchTerm]);
-
-  const handleAddStaff = (data: StaffFormValues) => {
+  const handleAddStaff = async (data: StaffFormValues) => {
     console.log("handleAddStaff called with data:", data);
     console.log("Current salonId when adding staff:", currentSalonId);
     
-    const newStaff = addStaff(data);
+    // Call debugStaffData before adding
+    await debugStaffData(currentSalonId, "Before adding staff");
+    
+    const newStaff = await addStaff(data);
+    
     if (newStaff) {
       console.log("New staff member added:", newStaff);
+      // Call debugStaffData after adding
+      await debugStaffData(currentSalonId, "After adding staff");
+      setIsAddDialogOpen(false);
+    } else {
+      console.error("Failed to add staff member");
     }
-    
-    setIsAddDialogOpen(false);
-    toast({
-      title: "Membro aggiunto",
-      description: "Il nuovo membro dello staff è stato aggiunto con successo."
-    });
   };
 
   const handleEditStaff = (data: StaffFormValues) => {
@@ -96,6 +113,44 @@ const Staff = () => {
     setSelectedStaff(staff);
     setIsEditDialogOpen(true);
   };
+
+  // Show error if any
+  if (error) {
+    return (
+      <div className="container mx-auto py-6">
+        <Card className="border-red-500">
+          <CardContent className="py-6">
+            <div className="flex flex-col items-center justify-center text-center">
+              <h2 className="text-xl font-bold text-red-600 mb-2">Errore</h2>
+              <p className="text-gray-700">{error}</p>
+              <Button 
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Riprova
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6">
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+              <p className="text-gray-700">Caricamento membri dello staff...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6">
