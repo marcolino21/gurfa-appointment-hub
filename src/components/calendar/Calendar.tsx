@@ -80,7 +80,7 @@ const Calendar = () => {
           if (staff) {
             return (
               <div className="staff-header">
-                <div className="staff-name">{staff.firstName || staff.first_name} {staff.lastName || staff.last_name}</div>
+                <div className="staff-name">{staff.firstName} {staff.lastName}</div>
                 {staff.color && (
                   <div 
                     className="staff-color-indicator" 
