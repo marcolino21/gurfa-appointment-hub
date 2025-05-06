@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { StaffMember } from '@/types';
 import { Search, Plus } from 'lucide-react';
-import StaffForm from '@/features/staff/components/StaffForm';
+import StaffForm from '@/features/staff/components/staff-form';
 import StaffTable from '@/features/staff/components/StaffTable';
 import { useStaffData } from '@/features/staff/hooks/useStaffData';
 import { StaffFormValues } from '@/features/staff/types';
