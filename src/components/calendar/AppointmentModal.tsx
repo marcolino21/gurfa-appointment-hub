@@ -10,63 +10,88 @@ import { Appointment, AppointmentFormData } from '@/types/appointments';
 import { useAppointmentStore } from '@/store/appointmentStore';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useAuth } from '@/contexts/AuthContext';
-
-// We'll use temporary mock data until we connect to real data
-const MOCK_CLIENTS = [
-  { id: 'client1', name: 'Mario Rossi' },
-  { id: 'client2', name: 'Laura Bianchi' },
-];
-
-const MOCK_SERVICES = [
-  { id: 'service1', name: 'Taglio', duration: 30, price: 25 },
-  { id: 'service2', name: 'Colorazione', duration: 60, price: 50 },
-];
-
-const MOCK_STAFF = [
-  { id: 'staff1', name: 'Carlo', color: '#3b82f6' },
-  { id: 'staff2', name: 'Francesca', color: '#8b5cf6' },
-];
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 const AppointmentModal = () => {
   const { toast } = useToast();
   const { currentSalonId } = useAuth();
+  const activeSalonId = currentSalonId || 'salon1'; // Default to salon1 for testing
   const { isModalOpen, closeModal, selectedSlot, selectedAppointment } = useAppointmentStore();
-  const { createAppointment, updateAppointment, deleteAppointment } = useAppointments(currentSalonId);
+  const { createAppointment, updateAppointment, deleteAppointment } = useAppointments(activeSalonId);
 
   // Form state
-  const [title, setTitle] = useState('');
   const [clientName, setClientName] = useState('');
-  const [service, setService] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [serviceId, setServiceId] = useState('');
+  const [staffId, setStaffId] = useState('');
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<'confirmed' | 'completed' | 'cancelled' | 'pending'>('pending');
 
+  // Fetch services from Supabase
+  const { data: services = [] } = useQuery({
+    queryKey: ['services', activeSalonId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('salon_id', activeSalonId);
+      
+      if (error) {
+        console.error('Error fetching services:', error);
+        return [];
+      }
+      return data;
+    }
+  });
+
+  // Fetch staff from Supabase
+  const { data: staffMembers = [] } = useQuery({
+    queryKey: ['staff', activeSalonId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .eq('salon_id', activeSalonId);
+      
+      if (error) {
+        console.error('Error fetching staff:', error);
+        return [];
+      }
+      return data;
+    }
+  });
+
   // Initialize form when modal opens or selected appointment changes
   useEffect(() => {
     if (selectedAppointment) {
       // Edit mode
-      setTitle(selectedAppointment.title || '');
-      setClientName(selectedAppointment.clientName || '');
-      setService(selectedAppointment.serviceName || '');
+      setClientName(selectedAppointment.client_name || '');
+      setClientPhone(selectedAppointment.client_phone || '');
+      setServiceId(selectedAppointment.service_id || '');
+      setStaffId(selectedAppointment.staff_id || '');
       setStartTime(selectedAppointment.start_time || '');
       setEndTime(selectedAppointment.end_time || '');
       setNotes(selectedAppointment.notes || '');
       setStatus(selectedAppointment.status || 'pending');
     } else if (selectedSlot) {
       // Create mode with selected slot
-      setTitle('');
       setClientName('');
-      setService('');
+      setClientPhone('');
+      setServiceId('');
+      setStaffId('');
       setStartTime(selectedSlot.start.toISOString());
       setEndTime(selectedSlot.end.toISOString());
       setNotes('');
       setStatus('pending');
     } else {
       // Default create mode
-      setTitle('');
       setClientName('');
-      setService('');
+      setClientPhone('');
+      setServiceId('');
+      setStaffId('');
       setStartTime(new Date().toISOString());
       setEndTime(new Date(Date.now() + 30 * 60 * 1000).toISOString());
       setNotes('');
@@ -76,20 +101,20 @@ const AppointmentModal = () => {
 
   // Calculate end time when service changes
   useEffect(() => {
-    if (service && startTime) {
-      const selectedService = MOCK_SERVICES.find(s => s.id === service);
+    if (serviceId && startTime) {
+      const selectedService = services.find(s => s.id === serviceId);
       if (selectedService) {
         const start = new Date(startTime);
         const end = new Date(start.getTime() + selectedService.duration * 60 * 1000);
         setEndTime(end.toISOString());
       }
     }
-  }, [service, startTime]);
+  }, [serviceId, startTime, services]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !clientName || !startTime || !endTime) {
+    if (!clientName || !startTime || !endTime) {
       toast({
         title: 'Dati mancanti',
         description: 'Inserisci tutti i campi richiesti',
@@ -98,17 +123,16 @@ const AppointmentModal = () => {
       return;
     }
     
-    const appointmentData: AppointmentFormData & { title: string; client_name: string } = {
-      title,
+    const appointmentData: AppointmentFormData = {
+      salon_id: activeSalonId,
       client_name: clientName,
-      service,
+      client_phone: clientPhone,
+      service_id: serviceId,
+      staff_id: staffId,
       start_time: startTime,
       end_time: endTime,
       notes,
       status,
-      client_id: '', // In this simplified version we're not using these
-      service_id: '',
-      staff_id: '',
     };
     
     try {
@@ -147,16 +171,6 @@ const AppointmentModal = () => {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* Titolo */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Titolo</label>
-            <Input 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Titolo appuntamento"
-            />
-          </div>
-          
           {/* Cliente */}
           <div>
             <label className="block text-sm font-medium mb-1">Cliente</label>
@@ -167,17 +181,44 @@ const AppointmentModal = () => {
             />
           </div>
           
+          {/* Telefono Cliente */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Telefono</label>
+            <Input 
+              value={clientPhone} 
+              onChange={(e) => setClientPhone(e.target.value)}
+              placeholder="Telefono cliente"
+            />
+          </div>
+          
           {/* Servizio */}
           <div>
             <label className="block text-sm font-medium mb-1">Servizio</label>
-            <Select value={service} onValueChange={setService}>
+            <Select value={serviceId} onValueChange={setServiceId}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona servizio" />
               </SelectTrigger>
               <SelectContent>
-                {MOCK_SERVICES.map(service => (
+                {services.map(service => (
                   <SelectItem key={service.id} value={service.id}>
                     {service.name} - €{service.price} ({service.duration}min)
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Staff */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Staff</label>
+            <Select value={staffId} onValueChange={setStaffId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleziona staff" />
+              </SelectTrigger>
+              <SelectContent>
+                {staffMembers.map(staff => (
+                  <SelectItem key={staff.id} value={staff.id}>
+                    {staff.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -215,7 +256,7 @@ const AppointmentModal = () => {
             <label className="block text-sm font-medium mb-1">Stato</label>
             <Select 
               value={status} 
-              onValueChange={(value) => setStatus(value as any)}
+              onValueChange={(value) => setStatus(value as 'confirmed' | 'completed' | 'cancelled' | 'pending')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona stato" />

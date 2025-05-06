@@ -1,5 +1,5 @@
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -30,7 +30,8 @@ const Calendar = () => {
   } = useAppointmentStore();
   
   const { user, currentSalonId } = useAuth();
-  const { appointments, isLoading } = useAppointments(currentSalonId);
+  const activeSalonId = currentSalonId || 'salon1'; // Default to salon1 for testing
+  const { appointments, isLoading } = useAppointments(activeSalonId);
 
   // Event handlers
   const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
@@ -59,7 +60,12 @@ const Calendar = () => {
       ) : (
         <BigCalendar
           localizer={localizer}
-          events={appointments}
+          events={appointments.map(appointment => ({
+            ...appointment,
+            title: appointment.client_name || 'Appuntamento',
+            start: appointment.start || new Date(appointment.start_time),
+            end: appointment.end || new Date(appointment.end_time),
+          }))}
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}
@@ -91,7 +97,7 @@ const Calendar = () => {
           }}
           eventPropGetter={(event) => {
             const style: React.CSSProperties = {
-              backgroundColor: event.color || '#3174ad',
+              backgroundColor: '#3174ad',
               borderRadius: '4px',
             };
             
@@ -103,6 +109,8 @@ const Calendar = () => {
               style.textDecoration = 'line-through';
             } else if (event.status === 'pending') {
               style.backgroundColor = '#f59e0b';
+            } else if (event.status === 'confirmed') {
+              style.backgroundColor = '#3b82f6';
             }
             
             return { style };

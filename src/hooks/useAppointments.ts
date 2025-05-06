@@ -10,16 +10,15 @@ export const useAppointments = (salonId?: string) => {
   const { user, currentSalonId } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const activeSalonId = salonId || currentSalonId || 'salon1'; // Default to salon1 for testing
 
   // Function to fetch appointments
   const fetchAppointments = useCallback(async () => {
-    if (!salonId && !currentSalonId) return [];
-
     try {
       const { data, error } = await supabase
         .from('appointments')
         .select(`*`)
-        .eq('salon_id', salonId || currentSalonId);
+        .eq('salon_id', activeSalonId);
 
       if (error) {
         console.error('Error fetching appointments:', error);
@@ -28,23 +27,8 @@ export const useAppointments = (salonId?: string) => {
 
       // Transform data for React Big Calendar
       return data.map((appointment: any): Appointment => ({
-        id: appointment.id,
-        client_id: appointment.client_id || '',
-        service_id: appointment.service_id || '',
-        staff_id: appointment.staff_id || '',
-        start_time: appointment.start_time,
-        end_time: appointment.end_time,
-        status: appointment.status || 'pending',
-        notes: appointment.notes,
-        price: appointment.price || 0,
-        payment_status: appointment.payment_status || 'pending',
-        created_at: appointment.created_at,
-        
-        // Derived properties
-        title: appointment.title || appointment.client_name || 'Appuntamento',
-        clientName: appointment.client_name || '',
-        serviceName: appointment.service || '',
-        staffName: '',
+        ...appointment,
+        title: appointment.client_name || 'Appointment',
         start: new Date(appointment.start_time),
         end: new Date(appointment.end_time),
       }));
@@ -52,32 +36,30 @@ export const useAppointments = (salonId?: string) => {
       console.error('Error in fetchAppointments:', error);
       return [];
     }
-  }, [salonId, currentSalonId]);
+  }, [activeSalonId]);
 
   // Use React Query to fetch and cache appointments
   const { data: appointments = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['appointments', salonId, currentSalonId],
+    queryKey: ['appointments', activeSalonId],
     queryFn: fetchAppointments,
-    enabled: !!salonId || !!currentSalonId
+    enabled: !!activeSalonId
   });
 
   // Set up realtime subscription
   useEffect(() => {
-    if (!salonId && !currentSalonId) return;
-
     const channel = supabase
       .channel('appointment_changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'appointments' }, 
         () => {
-          queryClient.invalidateQueries({ queryKey: ['appointments', salonId, currentSalonId] });
+          queryClient.invalidateQueries({ queryKey: ['appointments', activeSalonId] });
         })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [salonId, currentSalonId, queryClient]);
+  }, [activeSalonId, queryClient]);
 
   // Create appointment mutation
   const createAppointment = useMutation({
@@ -86,9 +68,8 @@ export const useAppointments = (salonId?: string) => {
         .from('appointments')
         .insert([{
           ...appointmentData,
-          salon_id: salonId || currentSalonId,
-          status: appointmentData.status || 'pending',
-          payment_status: 'pending'
+          salon_id: activeSalonId,
+          status: appointmentData.status || 'pending'
         }])
         .select();
 
@@ -100,7 +81,7 @@ export const useAppointments = (salonId?: string) => {
         title: 'Appuntamento creato',
         description: 'L\'appuntamento è stato creato con successo',
       });
-      queryClient.invalidateQueries({ queryKey: ['appointments', salonId, currentSalonId] });
+      queryClient.invalidateQueries({ queryKey: ['appointments', activeSalonId] });
     },
     onError: (error) => {
       console.error('Error creating appointment:', error);
@@ -129,7 +110,7 @@ export const useAppointments = (salonId?: string) => {
         title: 'Appuntamento aggiornato',
         description: 'L\'appuntamento è stato aggiornato con successo',
       });
-      queryClient.invalidateQueries({ queryKey: ['appointments', salonId, currentSalonId] });
+      queryClient.invalidateQueries({ queryKey: ['appointments', activeSalonId] });
     },
     onError: (error) => {
       console.error('Error updating appointment:', error);
@@ -157,7 +138,7 @@ export const useAppointments = (salonId?: string) => {
         title: 'Appuntamento eliminato',
         description: 'L\'appuntamento è stato eliminato con successo',
       });
-      queryClient.invalidateQueries({ queryKey: ['appointments', salonId, currentSalonId] });
+      queryClient.invalidateQueries({ queryKey: ['appointments', activeSalonId] });
     },
     onError: (error) => {
       console.error('Error deleting appointment:', error);
