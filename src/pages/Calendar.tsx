@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Calendar from '@/components/calendar/Calendar';
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import AppointmentModal from '@/components/calendar/AppointmentModal';
@@ -14,6 +14,16 @@ const CalendarPage = () => {
   const { currentSalonId } = useAuth();
   const activeSalonId = currentSalonId || 'sa1'; // Changed default from 'salon1' to 'sa1'
   const { staffMembers, isLoading } = useStaffData(activeSalonId);
+  
+  // Add effect to log staff data when it changes
+  useEffect(() => {
+    console.log("Staff data in CalendarPage:", staffMembers);
+    
+    // Debug specific fields
+    staffMembers.forEach(staff => {
+      console.log(`Staff member ${staff.firstName} ${staff.lastName}: isActive=${staff.isActive}, showInCalendar=${staff.showInCalendar}`);
+    });
+  }, [staffMembers]);
   
   // Count active staff members that are displayed in calendar
   const activeStaffCount = staffMembers.filter(staff => 

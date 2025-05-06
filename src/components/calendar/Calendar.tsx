@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -37,12 +37,17 @@ const Calendar = () => {
   // Fetch active staff members
   const { staffMembers, isLoading: isLoadingStaff } = useStaffData(activeSalonId);
   
-  console.log("All staff members in Calendar.tsx:", staffMembers);
+  // Debug logs for staff members
+  useEffect(() => {
+    console.log("All staff members in Calendar.tsx:", staffMembers);
+    const calendarEligibleStaff = staffMembers.filter(s => s.isActive === true && s.showInCalendar === true);
+    console.log("Staff eligible for calendar display:", calendarEligibleStaff);
+  }, [staffMembers]);
   
   // Filter to get active staff that should show in calendar
   const activeStaff = staffMembers.filter(staff => {
     console.log("Staff member:", staff.firstName, staff.lastName, "isActive:", staff.isActive, "showInCalendar:", staff.showInCalendar);
-    return staff.isActive && staff.showInCalendar === true;
+    return staff.isActive === true && staff.showInCalendar === true;
   });
 
   console.log("Active staff in Calendar component:", activeStaff);
@@ -137,7 +142,7 @@ const Calendar = () => {
   // Process appointments for display
   const calendarEvents = appointments.map(appointment => ({
     ...appointment,
-    title: appointment.client_name || 'Appuntamento', // Use as string, not as function
+    title: typeof appointment.client_name === 'string' ? appointment.client_name : 'Appuntamento', // Ensure title is a string
     start: appointment.start || new Date(appointment.start_time),
     end: appointment.end || new Date(appointment.end_time),
   }));

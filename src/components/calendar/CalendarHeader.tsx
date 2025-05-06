@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAppointmentStore, CalendarView } from '@/store/appointmentStore';
 import { format } from 'date-fns';
@@ -18,8 +18,17 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
   const activeSalonId = currentSalonId || 'sa1';
   const { staffMembers } = useStaffData(activeSalonId);
   
+  // Debug logs for staff data in header
+  useEffect(() => {
+    console.log("Staff data in CalendarHeader:", staffMembers);
+  }, [staffMembers]);
+  
   // Filter active staff members that should be displayed in the calendar
-  const activeStaff = staffMembers.filter(staff => staff.isActive && staff.showInCalendar);
+  const activeStaff = staffMembers.filter(staff => staff.isActive === true && staff.showInCalendar === true);
+  
+  useEffect(() => {
+    console.log("Active staff for display in calendar tabs:", activeStaff);
+  }, [activeStaff]);
   
   // Format the current selected date
   const formattedDate = format(selectedDate, 'MMMM yyyy', { locale: it });
@@ -56,7 +65,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
             variant={view === 'month' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setView('month')}
-            className="rounded-l-none"
+            className="rounded-l-none border-r"
           >
             Mese
           </Button>
@@ -65,7 +74,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
               variant={view === 'staff' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setView('staff')}
-              className="rounded-l-none border-l"
+              className="rounded-l-none"
             >
               Staff
             </Button>
