@@ -29,4 +29,7 @@ export interface AppointmentFormData {
   end_time: string;    // ISO string
   notes?: string;
   status?: 'confirmed' | 'completed' | 'cancelled' | 'pending';
+  title?: string;
+  client_name?: string;
+  service?: string;
 }

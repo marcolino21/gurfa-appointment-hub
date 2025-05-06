@@ -708,6 +708,7 @@ export type Database = {
           salon_id: string
           sede_legale: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -724,6 +725,7 @@ export type Database = {
           salon_id: string
           sede_legale?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -740,6 +742,7 @@ export type Database = {
           salon_id?: string
           sede_legale?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -828,9 +831,11 @@ export type Database = {
           permissions: string[] | null
           phone: string | null
           position: string | null
+          role: string | null
           salon_id: string
           show_in_calendar: boolean | null
           updated_at: string | null
+          user_id: string | null
           work_schedule: Json | null
         }
         Insert: {
@@ -848,9 +853,11 @@ export type Database = {
           permissions?: string[] | null
           phone?: string | null
           position?: string | null
+          role?: string | null
           salon_id: string
           show_in_calendar?: boolean | null
           updated_at?: string | null
+          user_id?: string | null
           work_schedule?: Json | null
         }
         Update: {
@@ -868,9 +875,11 @@ export type Database = {
           permissions?: string[] | null
           phone?: string | null
           position?: string | null
+          role?: string | null
           salon_id?: string
           show_in_calendar?: boolean | null
           updated_at?: string | null
+          user_id?: string | null
           work_schedule?: Json | null
         }
         Relationships: []

@@ -11,7 +11,7 @@ import { useAppointmentStore } from '@/store/appointmentStore';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Mock client, service, staff data - replace with real data fetching
+// We'll use temporary mock data until we connect to real data
 const MOCK_CLIENTS = [
   { id: 'client1', name: 'Mario Rossi' },
   { id: 'client2', name: 'Laura Bianchi' },
@@ -29,14 +29,14 @@ const MOCK_STAFF = [
 
 const AppointmentModal = () => {
   const { toast } = useToast();
-  const { user, currentSalonId } = useAuth();
+  const { currentSalonId } = useAuth();
   const { isModalOpen, closeModal, selectedSlot, selectedAppointment } = useAppointmentStore();
   const { createAppointment, updateAppointment, deleteAppointment } = useAppointments(currentSalonId);
 
   // Form state
-  const [clientId, setClientId] = useState('');
-  const [serviceId, setServiceId] = useState('');
-  const [staffId, setStaffId] = useState('');
+  const [title, setTitle] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [service, setService] = useState('');
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
   const [notes, setNotes] = useState('');
@@ -46,27 +46,27 @@ const AppointmentModal = () => {
   useEffect(() => {
     if (selectedAppointment) {
       // Edit mode
-      setClientId(selectedAppointment.client_id || '');
-      setServiceId(selectedAppointment.service_id || '');
-      setStaffId(selectedAppointment.staff_id || '');
+      setTitle(selectedAppointment.title || '');
+      setClientName(selectedAppointment.clientName || '');
+      setService(selectedAppointment.serviceName || '');
       setStartTime(selectedAppointment.start_time || '');
       setEndTime(selectedAppointment.end_time || '');
       setNotes(selectedAppointment.notes || '');
       setStatus(selectedAppointment.status || 'pending');
     } else if (selectedSlot) {
       // Create mode with selected slot
-      setClientId('');
-      setServiceId('');
-      setStaffId('');
+      setTitle('');
+      setClientName('');
+      setService('');
       setStartTime(selectedSlot.start.toISOString());
       setEndTime(selectedSlot.end.toISOString());
       setNotes('');
       setStatus('pending');
     } else {
       // Default create mode
-      setClientId('');
-      setServiceId('');
-      setStaffId('');
+      setTitle('');
+      setClientName('');
+      setService('');
       setStartTime(new Date().toISOString());
       setEndTime(new Date(Date.now() + 30 * 60 * 1000).toISOString());
       setNotes('');
@@ -76,20 +76,20 @@ const AppointmentModal = () => {
 
   // Calculate end time when service changes
   useEffect(() => {
-    if (serviceId && startTime) {
-      const service = MOCK_SERVICES.find(s => s.id === serviceId);
-      if (service) {
+    if (service && startTime) {
+      const selectedService = MOCK_SERVICES.find(s => s.id === service);
+      if (selectedService) {
         const start = new Date(startTime);
-        const end = new Date(start.getTime() + service.duration * 60 * 1000);
+        const end = new Date(start.getTime() + selectedService.duration * 60 * 1000);
         setEndTime(end.toISOString());
       }
     }
-  }, [serviceId, startTime]);
+  }, [service, startTime]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!clientId || !serviceId || !staffId || !startTime || !endTime) {
+    if (!title || !clientName || !startTime || !endTime) {
       toast({
         title: 'Dati mancanti',
         description: 'Inserisci tutti i campi richiesti',
@@ -98,14 +98,17 @@ const AppointmentModal = () => {
       return;
     }
     
-    const appointmentData: AppointmentFormData = {
-      client_id: clientId,
-      service_id: serviceId,
-      staff_id: staffId,
+    const appointmentData: AppointmentFormData & { title: string; client_name: string } = {
+      title,
+      client_name: clientName,
+      service,
       start_time: startTime,
       end_time: endTime,
       notes,
       status,
+      client_id: '', // In this simplified version we're not using these
+      service_id: '',
+      staff_id: '',
     };
     
     try {
@@ -144,27 +147,30 @@ const AppointmentModal = () => {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          {/* Titolo */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Titolo</label>
+            <Input 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Titolo appuntamento"
+            />
+          </div>
+          
           {/* Cliente */}
           <div>
             <label className="block text-sm font-medium mb-1">Cliente</label>
-            <Select value={clientId} onValueChange={setClientId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleziona cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {MOCK_CLIENTS.map(client => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input 
+              value={clientName} 
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="Nome cliente"
+            />
           </div>
           
           {/* Servizio */}
           <div>
             <label className="block text-sm font-medium mb-1">Servizio</label>
-            <Select value={serviceId} onValueChange={setServiceId}>
+            <Select value={service} onValueChange={setService}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona servizio" />
               </SelectTrigger>
@@ -172,23 +178,6 @@ const AppointmentModal = () => {
                 {MOCK_SERVICES.map(service => (
                   <SelectItem key={service.id} value={service.id}>
                     {service.name} - €{service.price} ({service.duration}min)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Staff */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Operatore</label>
-            <Select value={staffId} onValueChange={setStaffId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleziona operatore" />
-              </SelectTrigger>
-              <SelectContent>
-                {MOCK_STAFF.map(staff => (
-                  <SelectItem key={staff.id} value={staff.id}>
-                    {staff.name}
                   </SelectItem>
                 ))}
               </SelectContent>
