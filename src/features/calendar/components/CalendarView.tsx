@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
-import it from 'date-fns/locale/it';
+import { it } from 'date-fns/locale/it';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { DndContext } from '@dnd-kit/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AppointmentModal } from './AppointmentModal';
 import { DraggableEvent } from './DraggableEvent';
 import { Appointment } from '@/types/calendar';
+import { useServicesAndStaff } from '@/features/appointments/hooks/useServicesAndStaff';
 
 const localizer = dateFnsLocalizer({
   format,
@@ -38,6 +39,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { staff } = useServicesAndStaff();
+  const visibleStaff = Array.isArray(staff) ? staff.filter((s: any) => s.showInCalendar) : [];
 
   // Fetch appointments
   const { data: appointments = [], isLoading } = useQuery({
@@ -107,6 +110,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     };
   }, [queryClient]);
 
+  // Correggo la gestione della view per React Big Calendar
+  const handleViewChange = (view: any) => {
+    setCurrentView(view);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -121,20 +129,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             start: new Date(appointment.start_time),
             end: new Date(appointment.end_time),
             title: `${appointment.clients.name} - ${appointment.services.name}`,
+            resourceId: appointment.staff_id,
           }))}
-          startAccessor="start"
-          endAccessor="end"
+          startAccessor={(event) => new Date(event.start_time)}
+          endAccessor={(event) => new Date(event.end_time)}
           style={{ height: '100%' }}
           view={currentView}
-          onView={setCurrentView}
+          onView={handleViewChange}
           date={currentDate}
           onNavigate={setCurrentDate}
           selectable
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
-          components={{
-            event: DraggableEvent,
-          }}
+          resources={visibleStaff}
+          resourceIdAccessor="id"
+          resourceTitleAccessor="name"
           messages={{
             next: 'Prossimo',
             previous: 'Precedente',
