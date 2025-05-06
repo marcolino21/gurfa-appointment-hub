@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,13 +24,20 @@ export const useAppointments = (salonId?: string) => {
         return [];
       }
 
-      // Transform data for React Big Calendar
-      return data.map((appointment: any): Appointment => ({
-        ...appointment,
-        title: appointment.client_name || 'Appointment',
-        start: new Date(appointment.start_time),
-        end: new Date(appointment.end_time),
-      }));
+      // Transform data for React Big Calendar - ensure title is a string, not a function
+      return data.map((appointment: any): Appointment => {
+        // Make sure title is a string value, not a function
+        const appointmentTitle = typeof appointment.client_name === 'string' 
+          ? appointment.client_name 
+          : 'Appuntamento';
+        
+        return {
+          ...appointment,
+          title: appointmentTitle,
+          start: new Date(appointment.start_time),
+          end: new Date(appointment.end_time),
+        };
+      });
     } catch (error) {
       console.error('Error in fetchAppointments:', error);
       return [];

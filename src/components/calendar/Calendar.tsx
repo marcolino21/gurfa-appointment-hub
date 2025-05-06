@@ -134,6 +134,14 @@ const Calendar = () => {
     }
   };
 
+  // Process appointments for display
+  const calendarEvents = appointments.map(appointment => ({
+    ...appointment,
+    title: appointment.client_name || 'Appuntamento', // Use as string, not as function
+    start: appointment.start || new Date(appointment.start_time),
+    end: appointment.end || new Date(appointment.end_time),
+  }));
+
   return (
     <div className="h-[calc(100vh-180px)]">
       {(isLoading || isLoadingStaff) ? (
@@ -143,12 +151,7 @@ const Calendar = () => {
       ) : (
         <BigCalendar
           localizer={localizer}
-          events={appointments.map(appointment => ({
-            ...appointment,
-            title: appointment.client_name || 'Appuntamento',
-            start: appointment.start || new Date(appointment.start_time),
-            end: appointment.end || new Date(appointment.end_time),
-          }))}
+          events={calendarEvents}
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}
