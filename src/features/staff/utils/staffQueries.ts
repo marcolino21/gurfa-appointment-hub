@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { StaffMember } from '@/types';
 import { mapDbToStaffMember, mapStaffMemberToDb } from './staffConverters';
@@ -72,7 +71,9 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
 
   const dbStaffMember = {
     ...mapStaffMemberToDb(staffMember),
-    salon_id: salonId
+    salon_id: salonId,
+    name: `${staffMember.firstName} ${staffMember.lastName || ''}`.trim(),
+    role: (staffMember as any).role || 'stylist',
   };
 
   const { data, error } = await supabase
