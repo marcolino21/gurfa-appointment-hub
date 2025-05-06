@@ -31,12 +31,18 @@ const StaffForm: React.FC<StaffFormProps> = ({
       isActive: true,
       showInCalendar: true,
       assignedServiceIds: [],
-    }
+    },
+    mode: 'onChange' // Enable validation on change
   });
+
+  const handleSubmit = async (data: StaffFormValues) => {
+    console.log('Submitting form with data:', data);
+    await onSubmit(data);
+  };
 
   return (
     <Form {...staffForm}>
-      <form onSubmit={staffForm.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={staffForm.handleSubmit(handleSubmit)} className="space-y-4">
         <FormTabs 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 

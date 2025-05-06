@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { UseFormReturn } from 'react-hook-form';
@@ -11,8 +11,26 @@ interface FormFooterProps {
 }
 
 const FormFooter: React.FC<FormFooterProps> = ({ isEdit, form }) => {
-  const isFormValid = !Object.keys(form.formState.errors).length;
+  const [isFormDisabled, setIsFormDisabled] = useState(true);
   const isSubmitting = form.formState.isSubmitting;
+  const { errors, isDirty } = form.formState;
+  
+  // Check form validity whenever form state changes
+  useEffect(() => {
+    const hasErrors = Object.keys(errors).length > 0;
+    // In edit mode, also check if form has been modified (isDirty)
+    const shouldDisable = isSubmitting || (isEdit && !isDirty) || hasErrors;
+    setIsFormDisabled(shouldDisable);
+    
+    // Debug logs
+    console.log('Form state:', { 
+      hasErrors, 
+      isSubmitting, 
+      isDirty,
+      shouldDisable,
+      errors
+    });
+  }, [errors, isSubmitting, isDirty, isEdit]);
   
   return (
     <DialogFooter>
@@ -21,7 +39,7 @@ const FormFooter: React.FC<FormFooterProps> = ({ isEdit, form }) => {
       </DialogClose>
       <Button 
         type="submit" 
-        disabled={isSubmitting || !isFormValid}
+        disabled={isFormDisabled}
       >
         {isEdit ? 'Salva modifiche' : 'Aggiungi membro'}
       </Button>
