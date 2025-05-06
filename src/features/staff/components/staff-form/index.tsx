@@ -43,7 +43,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           form={staffForm} 
           services={services} 
         />
-        <FormFooter isEdit={isEdit} />
+        <FormFooter isEdit={isEdit} form={staffForm} />
       </form>
     </Form>
   );
