@@ -18,6 +18,8 @@ const CalendarPage = () => {
     staff.isActive && staff.showInCalendar
   ).length;
 
+  console.log("Active staff count:", activeStaffCount, "Staff members:", staffMembers);
+
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-2xl font-bold tracking-tight">Agenda</h1>

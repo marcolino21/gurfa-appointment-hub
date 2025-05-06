@@ -38,6 +38,8 @@ const Calendar = () => {
   const { staffMembers, isLoading: isLoadingStaff } = useStaffData(activeSalonId);
   const activeStaff = staffMembers.filter(staff => staff.isActive && staff.showInCalendar);
 
+  console.log("Active staff in Calendar component:", activeStaff);
+
   // Event handlers
   const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
     openModal({ start, end });
@@ -59,24 +61,35 @@ const Calendar = () => {
   // Custom components for the calendar
   const components = {
     week: {
-      header: ({ date }: { date: Date }) => {
-        // Find the day index (0-6)
+      header: ({ date, localizer }: { date: Date; localizer: any }) => {
+        if (view !== 'week') {
+          // For non-week views, use the default date formatting
+          return format(date, 'EEE dd', { locale: it });
+        }
+        
+        // Get the weekday index (0-6, where 0 is Sunday)
         const dayIndex = date.getDay();
         
-        // If we have staff members, display staff name instead of day
-        if (activeStaff.length > dayIndex) {
-          const staff = activeStaff[dayIndex];
-          return (
-            <div className="staff-header">
-              <div className="staff-name">{staff.firstName} {staff.lastName}</div>
-              {staff.color && (
-                <div 
-                  className="staff-color-indicator" 
-                  style={{ backgroundColor: staff.color }}
-                />
-              )}
-            </div>
-          );
+        // Find the corresponding staff member for this column
+        // Make sure we only try to access staff members that exist
+        if (activeStaff.length > 0) {
+          // Use modulo to loop through staff if we have fewer staff than days
+          const staffIndex = dayIndex % activeStaff.length;
+          const staff = activeStaff[staffIndex];
+          
+          if (staff) {
+            return (
+              <div className="staff-header">
+                <div className="staff-name">{staff.firstName || staff.first_name} {staff.lastName || staff.last_name}</div>
+                {staff.color && (
+                  <div 
+                    className="staff-color-indicator" 
+                    style={{ backgroundColor: staff.color }}
+                  />
+                )}
+              </div>
+            );
+          }
         }
         
         // Fallback to normal day format if no staff for this position
