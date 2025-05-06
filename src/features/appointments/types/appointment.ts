@@ -79,4 +79,19 @@ export interface CalendarExportOptions {
     end: Date;
   };
   include: string[];
+}
+
+export interface Appointment {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  clientName: string;
+  clientPhone: string;
+  staffName: string;
+  serviceName: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  notes?: string;
+  staffId?: string;
+  serviceId?: string;
 } 
