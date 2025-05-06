@@ -47,7 +47,29 @@ export const useStaffData = (salonId: string | null) => {
           setStaffMembers(MOCK_STAFF[effectiveSalonId]);
         } else {
           console.log("Successfully fetched staff data from Supabase:", staffData);
-          setStaffMembers(staffData || []);
+          
+          // Map database field names to our StaffMember type
+          const mappedStaffData = staffData?.map(staff => ({
+            id: staff.id,
+            firstName: staff.first_name,
+            lastName: staff.last_name,
+            email: staff.email,
+            phone: staff.phone,
+            additionalPhone: staff.additional_phone,
+            country: staff.country,
+            birthDate: staff.birth_date,
+            position: staff.position,
+            color: staff.color,
+            salonId: staff.salon_id,
+            isActive: staff.is_active,
+            showInCalendar: staff.show_in_calendar,
+            assignedServiceIds: staff.assigned_service_ids || [],
+            permissions: staff.permissions,
+            work_schedule: staff.work_schedule,
+          } as StaffMember)) || [];
+          
+          setStaffMembers(mappedStaffData);
+          console.log("Mapped staff data:", mappedStaffData);
         }
         
         // For services, continue using mock data for now
@@ -94,6 +116,8 @@ export const useStaffData = (salonId: string | null) => {
     };
 
     try {
+      console.log("Inserting staff with showInCalendar:", data.showInCalendar);
+      
       // Insert into Supabase
       const { data: insertedData, error: insertError } = await supabase
         .from('staff')
@@ -148,6 +172,9 @@ export const useStaffData = (salonId: string | null) => {
         work_schedule: insertedData[0].work_schedule,
       } : newStaff;
 
+      // Debug the inserted staff member
+      console.log("Mapped inserted staff:", insertedStaff);
+
       // Update local state
       setStaffMembers(prevStaff => [...prevStaff, insertedStaff]);
       
@@ -173,6 +200,9 @@ export const useStaffData = (salonId: string | null) => {
 
   const editStaff = async (staffId: string, data: StaffFormValues) => {
     try {
+      console.log("Editing staff member with ID:", staffId, "Data:", data);
+      console.log("showInCalendar value:", data.showInCalendar);
+      
       const { error: updateError } = await supabase
         .from('staff')
         .update({
@@ -201,6 +231,8 @@ export const useStaffData = (salonId: string | null) => {
         return;
       }
 
+      console.log("Staff update successful");
+
       // Update local state
       const updatedStaff = staffMembers.map(staff => 
         staff.id === staffId ? {
@@ -220,6 +252,7 @@ export const useStaffData = (salonId: string | null) => {
         } : staff
       );
 
+      console.log("Updated staff state:", updatedStaff);
       setStaffMembers(updatedStaff);
       
       toast({

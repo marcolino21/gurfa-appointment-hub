@@ -6,6 +6,8 @@ import AppointmentModal from '@/components/calendar/AppointmentModal';
 import { useAppointmentStore } from '@/store/appointmentStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStaffData } from '@/features/staff/hooks/useStaffData';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const CalendarPage = () => {
   const { openModal } = useAppointmentStore();
@@ -18,7 +20,9 @@ const CalendarPage = () => {
     staff.isActive && staff.showInCalendar
   ).length;
 
-  console.log("Active staff count:", activeStaffCount, "Staff members:", staffMembers);
+  console.log("Active staff count:", activeStaffCount);
+  console.log("Staff members in CalendarPage:", staffMembers);
+  console.log("Staff with showInCalendar enabled:", staffMembers.filter(s => s.showInCalendar));
 
   return (
     <div className="space-y-4 p-4">
@@ -31,7 +35,10 @@ const CalendarPage = () => {
       ) : activeStaffCount === 0 ? (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-250px)] text-center">
           <p className="text-muted-foreground mb-2">Non ci sono membri del team attivi e visibili in agenda.</p>
-          <p className="text-muted-foreground">Vai alla sezione <b>Staff</b> per aggiungere o attivare membri del team.</p>
+          <p className="text-muted-foreground mb-6">Vai alla sezione <b>Staff</b> per aggiungere o attivare membri del team.</p>
+          <Button asChild>
+            <Link to="/staff">Vai alla sezione Staff</Link>
+          </Button>
         </div>
       ) : (
         <Calendar />

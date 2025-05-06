@@ -36,7 +36,15 @@ const Calendar = () => {
   
   // Fetch active staff members
   const { staffMembers, isLoading: isLoadingStaff } = useStaffData(activeSalonId);
-  const activeStaff = staffMembers.filter(staff => staff.isActive && staff.showInCalendar);
+  
+  // Debug staff members data
+  console.log("All staff members:", staffMembers);
+  
+  // Filter to get active staff that should show in calendar
+  const activeStaff = staffMembers.filter(staff => {
+    console.log("Staff member:", staff.firstName, staff.lastName, "isActive:", staff.isActive, "showInCalendar:", staff.showInCalendar);
+    return staff.isActive && staff.showInCalendar;
+  });
 
   console.log("Active staff in Calendar component:", activeStaff);
 
