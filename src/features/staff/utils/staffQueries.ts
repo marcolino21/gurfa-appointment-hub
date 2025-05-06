@@ -69,6 +69,8 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     }
   }
 
+  // DEBUG: Loggo il valore di salonId
+  console.log('DEBUG - Inserimento staff con salonId:', salonId);
   // Preparo solo i campi esistenti nella tabella staff
   const dbStaffMember = {
     first_name: staffMember.firstName,
@@ -85,7 +87,7 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     assigned_service_ids: staffMember.assignedServiceIds || [],
     permissions: staffMember.permissions || [],
     work_schedule: staffMember.workSchedule || [],
-    salon_id: staffMember.salonId,
+    salon_id: salonId || 'salon1', // Forzo salon_id a 'salon1' per debug
   };
 
   const { data, error } = await supabase
