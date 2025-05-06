@@ -31,14 +31,14 @@ const Calendar = () => {
   } = useAppointmentStore();
   
   const { user, currentSalonId } = useAuth();
-  const activeSalonId = currentSalonId || 'salon1'; // Default to salon1 for testing
+  const activeSalonId = currentSalonId || 'sa1'; // Changed default from 'salon1' to 'sa1'
   const { appointments, isLoading } = useAppointments(activeSalonId);
   
   // Fetch active staff members
   const { staffMembers, isLoading: isLoadingStaff } = useStaffData(activeSalonId);
   
   // Debug staff members data
-  console.log("All staff members:", staffMembers);
+  console.log("All staff members in Calendar.tsx:", staffMembers);
   
   // Filter to get active staff that should show in calendar
   const activeStaff = staffMembers.filter(staff => {

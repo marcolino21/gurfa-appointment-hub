@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 const CalendarPage = () => {
   const { openModal } = useAppointmentStore();
   const { currentSalonId } = useAuth();
-  const activeSalonId = currentSalonId || 'salon1'; // Default to salon1 for testing
+  const activeSalonId = currentSalonId || 'sa1'; // Changed default from 'salon1' to 'sa1'
   const { staffMembers, isLoading } = useStaffData(activeSalonId);
   
   // Count active staff members that are displayed in calendar
