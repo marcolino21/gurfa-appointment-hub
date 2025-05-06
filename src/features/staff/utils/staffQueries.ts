@@ -69,11 +69,13 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     }
   }
 
+  // Preparo solo i campi esistenti nella tabella staff
   const dbStaffMember = {
-    ...mapStaffMemberToDb(staffMember),
-    salon_id: salonId,
     name: `${staffMember.firstName} ${staffMember.lastName || ''}`.trim(),
     role: (staffMember as any).role || 'stylist',
+    user_id: (staffMember as any).user_id || null,
+    availability: (staffMember as any).availability || {},
+    color_code: (staffMember as any).color || '#9b87f5',
   };
 
   const { data, error } = await supabase
@@ -83,6 +85,7 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
     .single();
 
   if (error) {
+    alert("Errore Supabase: " + error.message); // Mostra l'errore a schermo
     console.error("Error adding staff:", error);
     // Check if it's a duplicate email error from the database
     if (error.code === '23505' && error.message.includes('staff_email_key')) {
