@@ -17,6 +17,7 @@ const StaffHeader: React.FC<StaffHeaderProps> = ({
   setSearchTerm,
   onAddStaffClick
 }) => {
+  console.log('DEBUG - StaffHeader render');
   const [businessName, setBusinessName] = useState<string | null>(null);
   const { currentSalonId } = useAuth();
   const { toast } = useToast();
