@@ -23,6 +23,7 @@ import StaffTable from '@/features/staff/components/StaffTable';
 import { useStaffData } from '@/features/staff/hooks/useStaffData';
 import { StaffFormValues } from '@/features/staff/types';
 import { useToast } from '@/hooks/use-toast';
+import { MOCK_STAFF } from '@/data/mockData';
 
 const Staff = () => {
   const { currentSalonId } = useAuth();
@@ -40,19 +41,35 @@ const Staff = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0); // Add a refresh key to force re-render
+  const [localStaffMembers, setLocalStaffMembers] = useState<StaffMember[]>([]);
   const { toast } = useToast();
 
-  const filteredStaff = staffMembers.filter(staff => {
+  // Sincronizza lo stato locale con i membri dello staff dal hook
+  useEffect(() => {
+    if (currentSalonId && staffMembers) {
+      console.log("Staff members updated:", staffMembers);
+      setLocalStaffMembers(staffMembers);
+    }
+  }, [staffMembers, currentSalonId]);
+
+  // Debug per verificare lo stato dei dati mock
+  useEffect(() => {
+    if (currentSalonId) {
+      console.log("Current mock data for salon:", currentSalonId, MOCK_STAFF[currentSalonId]);
+    }
+  }, [currentSalonId]);
+
+  const filteredStaff = localStaffMembers.filter(staff => {
     const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
     return fullName.includes(searchTerm.toLowerCase());
   });
 
   const handleAddStaff = (data: StaffFormValues) => {
     const newStaff = addStaff(data);
+    if (newStaff) {
+      setLocalStaffMembers(prev => [...prev, newStaff]);
+    }
     setIsAddDialogOpen(false);
-    // Increment the refresh key to trigger a re-render
-    setRefreshKey(prevKey => prevKey + 1);
     toast({
       title: "Membro aggiunto",
       description: "Il nuovo membro dello staff è stato aggiunto con successo."
@@ -63,8 +80,6 @@ const Staff = () => {
     if (selectedStaff) {
       editStaff(selectedStaff.id, data);
       setIsEditDialogOpen(false);
-      // Increment the refresh key to trigger a re-render
-      setRefreshKey(prevKey => prevKey + 1);
     }
   };
 
@@ -72,11 +87,6 @@ const Staff = () => {
     setSelectedStaff(staff);
     setIsEditDialogOpen(true);
   };
-
-  // Log the staff members for debugging
-  useEffect(() => {
-    console.log("Current staff members:", staffMembers);
-  }, [staffMembers, refreshKey]);
 
   return (
     <div className="container mx-auto py-6">
@@ -102,25 +112,32 @@ const Staff = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <StaffTable 
-            staffMembers={filteredStaff}
-            onEdit={openEditDialog}
-            onDelete={(staffId) => {
-              deleteStaff(staffId);
-              // Increment the refresh key to trigger a re-render
-              setRefreshKey(prevKey => prevKey + 1);
-            }}
-            onToggleStatus={(staffId, isActive) => {
-              toggleStaffStatus(staffId, isActive);
-              // Increment the refresh key to trigger a re-render
-              setRefreshKey(prevKey => prevKey + 1);
-            }}
-            onToggleCalendarVisibility={(staffId, showInCalendar) => {
-              toggleCalendarVisibility(staffId, showInCalendar);
-              // Increment the refresh key to trigger a re-render
-              setRefreshKey(prevKey => prevKey + 1);
-            }}
-          />
+          {localStaffMembers.length > 0 ? (
+            <StaffTable 
+              staffMembers={filteredStaff}
+              onEdit={openEditDialog}
+              onDelete={(staffId) => {
+                deleteStaff(staffId);
+                setLocalStaffMembers(prev => prev.filter(staff => staff.id !== staffId));
+              }}
+              onToggleStatus={(staffId, isActive) => {
+                toggleStaffStatus(staffId, isActive);
+                setLocalStaffMembers(prev => prev.map(staff => 
+                  staff.id === staffId ? { ...staff, isActive } : staff
+                ));
+              }}
+              onToggleCalendarVisibility={(staffId, showInCalendar) => {
+                toggleCalendarVisibility(staffId, showInCalendar);
+                setLocalStaffMembers(prev => prev.map(staff => 
+                  staff.id === staffId ? { ...staff, showInCalendar } : staff
+                ));
+              }}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Nessun membro dello staff disponibile. Aggiungi il tuo primo membro!
+            </div>
+          )}
         </CardContent>
       </Card>
 

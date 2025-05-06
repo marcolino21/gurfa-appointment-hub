@@ -6,20 +6,26 @@ import { useToast } from '@/hooks/use-toast';
 import { StaffFormValues } from '../types';
 
 export const useStaffData = (salonId: string | null) => {
-  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(
-    salonId ? (MOCK_STAFF[salonId] || []) : []
-  );
-  const [services, setServices] = useState<Service[]>(
-    salonId ? (MOCK_SERVICES[salonId] || []) : []
-  );
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
 
-  // Sincronizziamo lo stato locale con i dati mock
-  // Questo è cruciale per assicurarci che lo stato rifletta sempre i dati mock
+  // Sincronizziamo lo stato locale con i dati mock all'inizializzazione
+  // e quando cambia il salonId
   useEffect(() => {
     if (salonId) {
+      // Verifichiamo se esiste l'elemento per il salonId
+      if (!MOCK_STAFF[salonId]) {
+        MOCK_STAFF[salonId] = [];
+      }
+
+      if (!MOCK_SERVICES[salonId]) {
+        MOCK_SERVICES[salonId] = [];
+      }
+      
       console.log("Syncing staff data from mock:", MOCK_STAFF[salonId]);
       setStaffMembers(MOCK_STAFF[salonId] || []);
+      setServices(MOCK_SERVICES[salonId] || []);
     }
   }, [salonId]);
 
@@ -47,7 +53,7 @@ export const useStaffData = (salonId: string | null) => {
 
     console.log("Adding new staff member:", newStaff);
 
-    // Aggiorniamo i dati mock
+    // Inizializziamo l'array se non esiste
     if (!MOCK_STAFF[salonId]) {
       MOCK_STAFF[salonId] = [];
     }
@@ -57,7 +63,7 @@ export const useStaffData = (salonId: string | null) => {
     console.log("Updated mock staff data:", MOCK_STAFF[salonId]);
     
     // Aggiorniamo anche lo state con il nuovo membro dello staff
-    setStaffMembers(prev => [...prev, newStaff]);
+    setStaffMembers(prevStaff => [...prevStaff, newStaff]);
     
     // Mostriamo il toast di conferma
     toast({
