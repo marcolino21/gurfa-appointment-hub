@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { StaffProvider } from '@/features/staff/contexts/StaffContext';
@@ -9,6 +8,7 @@ import { useStaff } from '@/features/staff/contexts/StaffContext';
 
 // This component is wrapped with StaffProvider
 const StaffPageContent = () => {
+  console.log('DEBUG - StaffPageContent render');
   const {
     staffMembers,
     searchTerm,
