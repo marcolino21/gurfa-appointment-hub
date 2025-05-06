@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { StaffMember } from '@/types';
 import { StaffFormValues } from '../types';
@@ -25,9 +24,14 @@ export const useStaffProvider = (salonId: string | null) => {
   }, []);
 
   // Handle Add Staff
-  const handleAddStaff = (data: StaffFormValues) => {
-    addStaff(data);
-    setIsAddDialogOpen(false);
+  const handleAddStaff = async (data: StaffFormValues) => {
+    try {
+      await addStaff(data);
+      setIsAddDialogOpen(false);
+    } catch (error: any) {
+      // Il toast di errore viene già gestito dentro addStaff
+      console.error("Errore durante l'aggiunta dello staff:", error);
+    }
   };
 
   // Handle Edit Staff
