@@ -42,6 +42,7 @@ const StaffHeader: React.FC<StaffHeaderProps> = ({
   }, []);
   
   const handleAddClick = () => {
+    console.log('DEBUG - handleAddClick chiamato');
     let debugSalonId = currentSalonId || 'salon1';
     console.log('DEBUG - currentSalonId:', debugSalonId);
     if (!currentSalonId) {
