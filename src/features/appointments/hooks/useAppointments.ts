@@ -30,11 +30,13 @@ export const useAppointments = () => {
         start: new Date(appointment.start_time),
         end: new Date(appointment.end_time),
         clientName: appointment.client_name,
-        clientPhone: appointment.client_phone,
+        clientPhone: appointment.client_phone || '',
         staffName: appointment.staff?.name || 'Staff',
         serviceName: appointment.service?.name || 'Servizio',
-        status: appointment.status,
-        notes: appointment.notes,
+        status: appointment.status as 'pending' | 'confirmed' | 'completed' | 'cancelled',
+        notes: appointment.notes || '',
+        staffId: appointment.staff_id || undefined,
+        serviceId: appointment.service_id || undefined,
       })) || [];
 
       setAppointments(transformedAppointments);
