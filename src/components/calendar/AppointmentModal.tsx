@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 const AppointmentModal = () => {
   const { toast } = useToast();
   const { currentSalonId } = useAuth();
-  const activeSalonId = currentSalonId || 'salon1'; // Default to salon1 for testing
+  const activeSalonId = currentSalonId || 'sa1'; // Use sa1 consistently
   const { isModalOpen, closeModal, selectedSlot, selectedAppointment } = useAppointmentStore();
   const { createAppointment, updateAppointment, deleteAppointment } = useAppointments(activeSalonId);
 
@@ -60,6 +59,8 @@ const AppointmentModal = () => {
         console.error('Error fetching staff:', error);
         return [];
       }
+      
+      console.log("Staff data fetched in AppointmentModal:", data);
       return data;
     }
   });
@@ -218,7 +219,7 @@ const AppointmentModal = () => {
               <SelectContent>
                 {staffMembers.map(staff => (
                   <SelectItem key={staff.id} value={staff.id}>
-                    {staff.name}
+                    {staff.firstName} {staff.lastName}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
@@ -140,12 +139,19 @@ const Calendar = () => {
   };
 
   // Process appointments for display
-  const calendarEvents = appointments.map(appointment => ({
-    ...appointment,
-    title: typeof appointment.client_name === 'string' ? appointment.client_name : 'Appuntamento', // Ensure title is a string
-    start: appointment.start || new Date(appointment.start_time),
-    end: appointment.end || new Date(appointment.end_time),
-  }));
+  const calendarEvents = appointments.map(appointment => {
+    // Ensure title is always a string, not a function
+    const title = typeof appointment.client_name === 'string' 
+      ? appointment.client_name 
+      : 'Appuntamento';
+    
+    return {
+      ...appointment,
+      title, // Always use a string, never a function
+      start: appointment.start || new Date(appointment.start_time),
+      end: appointment.end || new Date(appointment.end_time),
+    };
+  });
 
   return (
     <div className="h-[calc(100vh-180px)]">

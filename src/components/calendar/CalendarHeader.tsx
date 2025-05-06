@@ -24,7 +24,10 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
   }, [staffMembers]);
   
   // Filter active staff members that should be displayed in the calendar
-  const activeStaff = staffMembers.filter(staff => staff.isActive === true && staff.showInCalendar === true);
+  const activeStaff = staffMembers.filter(staff => {
+    console.log("CalendarHeader filtering staff:", staff.firstName, staff.lastName, staff.isActive, staff.showInCalendar);
+    return staff.isActive === true && staff.showInCalendar === true;
+  });
   
   useEffect(() => {
     console.log("Active staff for display in calendar tabs:", activeStaff);
