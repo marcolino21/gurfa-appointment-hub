@@ -6,6 +6,7 @@ import { it } from 'date-fns/locale';
 import { useAppointmentStore } from '@/store/appointmentStore';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useAuth } from '@/contexts/AuthContext';
+import { useStaffData } from '@/features/staff/hooks/useStaffData';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar.css';
 
@@ -32,6 +33,10 @@ const Calendar = () => {
   const { user, currentSalonId } = useAuth();
   const activeSalonId = currentSalonId || 'salon1'; // Default to salon1 for testing
   const { appointments, isLoading } = useAppointments(activeSalonId);
+  
+  // Fetch active staff members
+  const { staffMembers, isLoading: isLoadingStaff } = useStaffData(activeSalonId);
+  const activeStaff = staffMembers.filter(staff => staff.isActive && staff.showInCalendar);
 
   // Event handlers
   const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
@@ -51,9 +56,38 @@ const Calendar = () => {
     setView(newView as 'day' | 'week' | 'month');
   }, [setView]);
 
+  // Custom components for the calendar
+  const components = {
+    week: {
+      header: ({ date }: { date: Date }) => {
+        // Find the day index (0-6)
+        const dayIndex = date.getDay();
+        
+        // If we have staff members, display staff name instead of day
+        if (activeStaff.length > dayIndex) {
+          const staff = activeStaff[dayIndex];
+          return (
+            <div className="staff-header">
+              <div className="staff-name">{staff.firstName} {staff.lastName}</div>
+              {staff.color && (
+                <div 
+                  className="staff-color-indicator" 
+                  style={{ backgroundColor: staff.color }}
+                />
+              )}
+            </div>
+          );
+        }
+        
+        // Fallback to normal day format if no staff for this position
+        return format(date, 'EEE dd', { locale: it });
+      }
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-180px)]">
-      {isLoading ? (
+      {(isLoading || isLoadingStaff) ? (
         <div className="flex items-center justify-center h-full">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
@@ -77,6 +111,7 @@ const Calendar = () => {
           view={view}
           onNavigate={handleNavigate}
           onView={handleViewChange}
+          components={components}
           messages={{
             today: 'Oggi',
             previous: 'Indietro',
@@ -111,6 +146,14 @@ const Calendar = () => {
               style.backgroundColor = '#f59e0b';
             } else if (event.status === 'confirmed') {
               style.backgroundColor = '#3b82f6';
+            }
+            
+            // Use staff color if present
+            if (event.staff_id && activeStaff.length > 0) {
+              const staffMember = activeStaff.find(staff => staff.id === event.staff_id);
+              if (staffMember?.color) {
+                style.backgroundColor = staffMember.color;
+              }
             }
             
             return { style };
