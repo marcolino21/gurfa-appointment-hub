@@ -1,4 +1,3 @@
-
 export type UserRole = 'super_admin' | 'azienda' | 'freelance';
 
 export interface User {
@@ -12,6 +11,7 @@ export interface User {
 export interface Salon {
   id: string;
   name: string;
+  business_name?: string;
   ownerId: string;
   address?: string;
   phone?: string;

@@ -23,7 +23,7 @@ export const initialState: AuthState = {
 export const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'LOGIN':
-      const userSalons = action.payload.salons || MOCK_SALONS[action.payload.user.id] || [];
+      const userSalons = action.payload.salons || [];
       return {
         ...state,
         user: action.payload.user,

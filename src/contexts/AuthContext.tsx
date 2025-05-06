@@ -2,7 +2,6 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, Salon } from '../types';
 import { authReducer, initialState } from '../reducers/authReducer';
 import { useAuthService } from '../hooks/useAuthService';
-import { MOCK_SALONS } from '../data/mock/auth';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
@@ -28,81 +27,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const restoreSession = async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        
-        console.log('Attempting to restore session...', {
-          hasSession: Boolean(localStorage.getItem('gurfa_session')),
-          hasToken: Boolean(localStorage.getItem('gurfa_token')),
-          savedSalonId: localStorage.getItem('currentSalonId')
-        });
-        
-        // Check for saved session
         const savedSession = localStorage.getItem('gurfa_session');
         const savedToken = localStorage.getItem('gurfa_token');
-        
         if (!savedSession || !savedToken) {
-          console.log('No saved session found');
           dispatch({ type: 'SET_LOADING', payload: false });
           return;
         }
-
-        try {
-          const { user } = JSON.parse(savedSession);
-          
-          if (!user || !user.id) {
-            throw new Error('Invalid user data in session');
-          }
-
-          console.log('Found valid session for user:', {
-            userId: user.id,
-            email: user.email,
-            role: user.role
-          });
-          
-          // Get user's salons
-          const userSalons = MOCK_SALONS[user.id] || [];
-          console.log('Available salons for user:', userSalons.map(s => ({ id: s.id, name: s.name })));
-          
-          if (userSalons.length === 0) {
-            throw new Error('No salons available for user');
-          }
-
-          // Get saved salon ID
-          const savedSalonId = localStorage.getItem('currentSalonId');
-          console.log('Saved salon ID:', savedSalonId);
-          
-          // Determine the correct salon ID to use
-          let effectiveSalonId = null;
-          if (savedSalonId && userSalons.some(s => s.id === savedSalonId)) {
-            console.log('Using saved salon ID:', savedSalonId);
-            effectiveSalonId = savedSalonId;
-          } else {
-            console.log('Using default salon ID:', userSalons[0].id);
-            effectiveSalonId = userSalons[0].id;
-            localStorage.setItem('currentSalonId', userSalons[0].id);
-            localStorage.setItem('salon_business_name', userSalons[0].name);
-          }
-          
-          // Dispatch login with all necessary data
-          dispatch({ 
-            type: 'LOGIN', 
-            payload: { 
-              user, 
-              token: savedToken,
-              salons: userSalons,
-              currentSalonId: effectiveSalonId
-            } 
-          });
-          
-          if (effectiveSalonId) {
-            dispatch({ type: 'SET_CURRENT_SALON', payload: effectiveSalonId });
-          }
-        } catch (parseError) {
-          console.error('Error parsing session data:', parseError);
-          throw parseError;
+        const { user, salons } = JSON.parse(savedSession);
+        if (!user || !user.id) throw new Error('Invalid user data in session');
+        if (!salons || salons.length === 0) throw new Error('No salons available for user');
+        const savedSalonId = localStorage.getItem('currentSalonId');
+        let effectiveSalonId = null;
+        if (savedSalonId && salons.some((s: any) => s.id === savedSalonId)) {
+          effectiveSalonId = savedSalonId;
+        } else {
+          effectiveSalonId = salons[0].id;
+          localStorage.setItem('currentSalonId', salons[0].id);
+          localStorage.setItem('salon_business_name', salons[0].business_name);
+        }
+        dispatch({
+          type: 'LOGIN',
+          payload: {
+            user,
+            token: savedToken,
+            salons,
+            currentSalonId: effectiveSalonId,
+          },
+        });
+        if (effectiveSalonId) {
+          dispatch({ type: 'SET_CURRENT_SALON', payload: effectiveSalonId });
         }
       } catch (error) {
-        console.error('Error restoring session:', error);
-        // Clear potentially corrupted session data
         localStorage.removeItem('gurfa_session');
         localStorage.removeItem('gurfa_user');
         localStorage.removeItem('gurfa_token');
@@ -113,37 +68,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
-    
     restoreSession();
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      console.log('Starting login process for:', email);
       const loginResult = await loginService(email, password, dispatch, true);
-      console.log('Login successful, checking salons');
-      
-      if (!loginResult?.user?.id) {
-        throw new Error('Invalid login result');
-      }
-
-      // After successful login, ensure salon is selected
-      const userSalons = MOCK_SALONS[loginResult.user.id] || [];
-      console.log('Available salons after login:', userSalons);
-      
-      if (userSalons.length === 0) {
-        throw new Error('No salons available for user');
-      }
-
-      const salonToUse = userSalons[0];
-      console.log('Setting initial salon:', salonToUse);
-      
+      if (!loginResult?.user?.id) throw new Error('Invalid login result');
+      if (!loginResult.salons || loginResult.salons.length === 0) throw new Error('No salons available for user');
+      const salonToUse = loginResult.salons[0];
       dispatch({ type: 'SET_CURRENT_SALON', payload: salonToUse.id });
       localStorage.setItem('currentSalonId', salonToUse.id);
-      localStorage.setItem('salon_business_name', salonToUse.name);
+      localStorage.setItem('salon_business_name', salonToUse.business_name);
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -173,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Update the business name in localStorage when changing salons
     const salon = state.salons.find(s => s.id === salonId);
     if (salon) {
-      localStorage.setItem('salon_business_name', salon.name);
+      localStorage.setItem('salon_business_name', salon.business_name);
     }
   };
 
