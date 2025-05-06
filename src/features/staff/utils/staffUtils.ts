@@ -42,3 +42,16 @@ export const getDefaultStaffColor = (): string => {
   // Scegli un colore casuale dalla lista
   return colors[Math.floor(Math.random() * colors.length)];
 };
+
+/**
+ * Debug utility per verificare i dati dello staff
+ */
+export const debugStaffData = (salonId: string | null, message: string): void => {
+  console.log(`DEBUG [${message}] - SalonID:`, salonId);
+  if (salonId) {
+    const staffData = require('@/data/mockData').MOCK_STAFF[salonId];
+    console.log(`Staff data for salon ${salonId}:`, staffData);
+  } else {
+    console.log('No salon ID provided for debugStaffData');
+  }
+};

@@ -5,32 +5,41 @@ import { MOCK_STAFF, MOCK_SERVICES } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 import { StaffFormValues } from '../types';
 
+// Default salon ID for testing purposes when currentSalonId is null
+const DEFAULT_SALON_ID = 'sa1';
+
 export const useStaffData = (salonId: string | null) => {
+  // Use default salon ID if none provided
+  const effectiveSalonId = salonId || DEFAULT_SALON_ID;
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
 
+  console.log("useStaffData hook initialized with salonId:", salonId, "effectiveSalonId:", effectiveSalonId);
+
   // Sincronizziamo lo stato locale con i dati mock all'inizializzazione
   // e quando cambia il salonId
   useEffect(() => {
-    if (salonId) {
-      // Verifichiamo se esiste l'elemento per il salonId
-      if (!MOCK_STAFF[salonId]) {
-        MOCK_STAFF[salonId] = [];
-      }
-
-      if (!MOCK_SERVICES[salonId]) {
-        MOCK_SERVICES[salonId] = [];
-      }
-      
-      console.log("Syncing staff data from mock:", MOCK_STAFF[salonId]);
-      setStaffMembers(MOCK_STAFF[salonId] || []);
-      setServices(MOCK_SERVICES[salonId] || []);
+    console.log("useStaffData effect running with effectiveSalonId:", effectiveSalonId);
+    
+    // Ensure the data structures exist for this salon ID
+    if (!MOCK_STAFF[effectiveSalonId]) {
+      console.log("Initializing empty MOCK_STAFF array for salon:", effectiveSalonId);
+      MOCK_STAFF[effectiveSalonId] = [];
     }
-  }, [salonId]);
+
+    if (!MOCK_SERVICES[effectiveSalonId]) {
+      MOCK_SERVICES[effectiveSalonId] = [];
+    }
+    
+    console.log("Syncing staff data from mock:", MOCK_STAFF[effectiveSalonId]);
+    setStaffMembers(MOCK_STAFF[effectiveSalonId] || []);
+    setServices(MOCK_SERVICES[effectiveSalonId] || []);
+  }, [effectiveSalonId]);
 
   const addStaff = (data: StaffFormValues) => {
-    if (!salonId) return null;
+    // Always use effectiveSalonId to ensure we have a valid salon ID
+    console.log("Adding staff with salon ID:", effectiveSalonId, "Data:", data);
 
     // Create staff with required fields explicitly defined
     const newStaff: StaffMember = {
@@ -40,7 +49,7 @@ export const useStaffData = (salonId: string | null) => {
       email: data.email,
       isActive: data.isActive,
       showInCalendar: data.showInCalendar, 
-      salonId: salonId,
+      salonId: effectiveSalonId, // Use effective salon ID here
       // Optional fields
       phone: data.phone,
       additionalPhone: data.additionalPhone,
@@ -51,19 +60,21 @@ export const useStaffData = (salonId: string | null) => {
       assignedServiceIds: data.assignedServiceIds || [],
     };
 
-    console.log("Adding new staff member:", newStaff);
+    console.log("Created new staff member object:", newStaff);
 
     // Inizializziamo l'array se non esiste
-    if (!MOCK_STAFF[salonId]) {
-      MOCK_STAFF[salonId] = [];
+    if (!MOCK_STAFF[effectiveSalonId]) {
+      console.log("Initializing MOCK_STAFF for salon:", effectiveSalonId);
+      MOCK_STAFF[effectiveSalonId] = [];
     }
     
     // Aggiungiamo il nuovo membro ai dati mock
-    MOCK_STAFF[salonId] = [...MOCK_STAFF[salonId], newStaff];
-    console.log("Updated mock staff data:", MOCK_STAFF[salonId]);
+    MOCK_STAFF[effectiveSalonId] = [...MOCK_STAFF[effectiveSalonId], newStaff];
+    console.log("Updated mock staff data:", MOCK_STAFF[effectiveSalonId]);
     
     // Aggiorniamo anche lo state con il nuovo membro dello staff
     setStaffMembers(prevStaff => [...prevStaff, newStaff]);
+    console.log("Updated local staff state, new length:", [...staffMembers, newStaff].length);
     
     // Mostriamo il toast di conferma
     toast({

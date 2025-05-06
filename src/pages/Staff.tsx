@@ -27,6 +27,9 @@ import { MOCK_STAFF } from '@/data/mockData';
 
 const Staff = () => {
   const { currentSalonId } = useAuth();
+  console.log("Staff component rendering with currentSalonId:", currentSalonId);
+  console.log("Current MOCK_STAFF data:", MOCK_STAFF);
+  
   const { 
     staffMembers, 
     services, 
@@ -41,34 +44,40 @@ const Staff = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
-  const [localStaffMembers, setLocalStaffMembers] = useState<StaffMember[]>([]);
+  const [filteredStaff, setFilteredStaff] = useState<StaffMember[]>([]);
   const { toast } = useToast();
 
-  // Sincronizza lo stato locale con i membri dello staff dal hook
+  // Log when staffMembers changes
   useEffect(() => {
-    if (currentSalonId && staffMembers) {
-      console.log("Staff members updated:", staffMembers);
-      setLocalStaffMembers(staffMembers);
-    }
-  }, [staffMembers, currentSalonId]);
+    console.log("staffMembers changed in Staff component:", staffMembers);
+    
+    // Filter staff based on search term
+    const filtered = staffMembers.filter(staff => {
+      const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
+      return fullName.includes(searchTerm.toLowerCase());
+    });
+    
+    setFilteredStaff(filtered);
+  }, [staffMembers, searchTerm]);
 
-  // Debug per verificare lo stato dei dati mock
+  // Update filtered staff when search term changes
   useEffect(() => {
-    if (currentSalonId) {
-      console.log("Current mock data for salon:", currentSalonId, MOCK_STAFF[currentSalonId]);
-    }
-  }, [currentSalonId]);
-
-  const filteredStaff = localStaffMembers.filter(staff => {
-    const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
-    return fullName.includes(searchTerm.toLowerCase());
-  });
+    const filtered = staffMembers.filter(staff => {
+      const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
+      return fullName.includes(searchTerm.toLowerCase());
+    });
+    setFilteredStaff(filtered);
+  }, [searchTerm]);
 
   const handleAddStaff = (data: StaffFormValues) => {
+    console.log("handleAddStaff called with data:", data);
+    console.log("Current salonId when adding staff:", currentSalonId);
+    
     const newStaff = addStaff(data);
     if (newStaff) {
-      setLocalStaffMembers(prev => [...prev, newStaff]);
+      console.log("New staff member added:", newStaff);
     }
+    
     setIsAddDialogOpen(false);
     toast({
       title: "Membro aggiunto",
@@ -112,25 +121,18 @@ const Staff = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {localStaffMembers.length > 0 ? (
+          {staffMembers.length > 0 ? (
             <StaffTable 
               staffMembers={filteredStaff}
               onEdit={openEditDialog}
               onDelete={(staffId) => {
                 deleteStaff(staffId);
-                setLocalStaffMembers(prev => prev.filter(staff => staff.id !== staffId));
               }}
               onToggleStatus={(staffId, isActive) => {
                 toggleStaffStatus(staffId, isActive);
-                setLocalStaffMembers(prev => prev.map(staff => 
-                  staff.id === staffId ? { ...staff, isActive } : staff
-                ));
               }}
               onToggleCalendarVisibility={(staffId, showInCalendar) => {
                 toggleCalendarVisibility(staffId, showInCalendar);
-                setLocalStaffMembers(prev => prev.map(staff => 
-                  staff.id === staffId ? { ...staff, showInCalendar } : staff
-                ));
               }}
             />
           ) : (
