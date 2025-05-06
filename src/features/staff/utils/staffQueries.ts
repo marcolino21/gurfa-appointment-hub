@@ -71,11 +71,21 @@ export const addStaffMember = async (salonId: string, staffMember: Omit<StaffMem
 
   // Preparo solo i campi esistenti nella tabella staff
   const dbStaffMember = {
-    name: `${staffMember.firstName} ${staffMember.lastName || ''}`.trim(),
-    role: (staffMember as any).role || 'stylist',
-    user_id: (staffMember as any).user_id || null,
-    availability: (staffMember as any).availability || {},
-    color_code: (staffMember as any).color || '#9b87f5',
+    first_name: staffMember.firstName,
+    last_name: staffMember.lastName || '',
+    email: staffMember.email,
+    is_active: staffMember.isActive ?? true,
+    show_in_calendar: staffMember.showInCalendar ?? true,
+    phone: staffMember.phone || '',
+    additional_phone: staffMember.additionalPhone || '',
+    country: staffMember.country || 'Italia',
+    birth_date: staffMember.birthDate || '',
+    position: staffMember.position || '',
+    color: staffMember.color || '#9b87f5',
+    assigned_service_ids: staffMember.assignedServiceIds || [],
+    permissions: staffMember.permissions || [],
+    work_schedule: staffMember.workSchedule || [],
+    salon_id: staffMember.salonId,
   };
 
   const { data, error } = await supabase
