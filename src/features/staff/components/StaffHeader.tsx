@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -43,13 +42,14 @@ const StaffHeader: React.FC<StaffHeaderProps> = ({
   }, []);
   
   const handleAddClick = () => {
+    let debugSalonId = currentSalonId || 'salon1';
+    console.log('DEBUG - currentSalonId:', debugSalonId);
     if (!currentSalonId) {
       toast({
         title: 'Attenzione',
-        description: 'Nessun salone selezionato. Seleziona un salone dall\'header in alto prima di aggiungere membri dello staff.',
+        description: 'Nessun salone selezionato. Seleziona un salone dall\'header in alto prima di aggiungere membri dello staff. Verrà usato salon1 per debug.',
         variant: 'destructive',
       });
-      return;
     }
     onAddStaffClick();
   };
