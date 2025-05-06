@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { Appointment } from '@/types/appointments';
 
-export type CalendarView = 'day' | 'week' | 'month';
+export type CalendarView = 'day' | 'week' | 'month' | 'staff';
 
 interface AppointmentStore {
   appointments: Appointment[];

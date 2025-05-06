@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { useAppointmentStore } from '@/store/appointmentStore';
+import { useAppointmentStore, CalendarView } from '@/store/appointmentStore';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStaffData } from '@/features/staff/hooks/useStaffData';
@@ -62,15 +62,15 @@ const Calendar = () => {
   }, [setSelectedDate]);
 
   const handleViewChange = useCallback((newView: string) => {
-    setView(newView as 'day' | 'week' | 'month');
+    setView(newView as CalendarView);
   }, [setView]);
 
   // Custom components for the calendar
   const components = {
     week: {
       header: ({ date, localizer }: { date: Date; localizer: any }) => {
-        if (view !== 'week') {
-          // For non-week views, use the default date formatting
+        if (view !== 'staff') {
+          // For non-staff views, use the default date formatting
           return format(date, 'EEE dd', { locale: it });
         }
         
@@ -157,7 +157,7 @@ const Calendar = () => {
           selectable
           popup
           date={selectedDate}
-          view={activeStaff.length > 0 ? 'staff' : view} // Use staff view when staff members exist
+          view={view}
           views={views}
           onNavigate={handleNavigate}
           onView={handleViewChange}

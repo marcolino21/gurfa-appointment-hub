@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useAppointmentStore } from '@/store/appointmentStore';
+import { useAppointmentStore, CalendarView } from '@/store/appointmentStore';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Plus } from 'lucide-react';
@@ -64,7 +64,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
             <Button
               variant={view === 'staff' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setView('staff' as any)}
+              onClick={() => setView('staff')}
               className="rounded-l-none border-l"
             >
               Staff
