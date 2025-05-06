@@ -28,6 +28,7 @@ import LowStock from "./pages/warehouse/LowStock";
 import NotFound from "./pages/NotFound";
 import Communications from "./pages/Communications";
 import Calendar from "./pages/Calendar";
+import { ChakraUIProvider } from './providers/ChakraProvider';
 
 // Import delle pagine delle statistiche
 import StatisticsIndex from "./pages/statistics";
@@ -46,60 +47,62 @@ const App = () => (
           <CalendarProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="appuntamenti" element={<Appointments />} />
-                  <Route path="calendario" element={<Calendar />} />
-                  <Route path="clienti" element={<Clients />} />
-                  <Route path="progetti" element={<Projects />} />
-                  <Route path="progetti/nuovo" element={<NewProject />} />
-                  <Route path="servizi" element={<Services />} />
-                  <Route path="abbonamenti" element={<Subscriptions />} />
-                  <Route path="staff" element={<Staff />} />
-                  <Route path="professionisti" element={<Professionals />} />
-                  <Route path="comunicazioni" element={<Communications />} />
-                  <Route path="spese" element={<Expenses />} />
-                  <Route path="impostazioni" element={<Settings />} />
-                  
-                  {/* Rotte statistiche */}
-                  <Route path="statistiche" element={<StatisticsIndex />} />
-                  <Route path="statistiche/analisi-andamento" element={<AnalisiAndamento />} />
-                  <Route path="statistiche/report-azienda" element={<ReportAzienda />} />
-                  <Route path="statistiche/corrispettivi" element={<Corrispettivi />} />
-                  <Route 
-                    path="statistiche/collaboratori" 
-                    element={<ReportPlaceholder title="Report Collaboratori" description="Analisi delle performance dei collaboratori" />} 
-                  />
-                  <Route 
-                    path="statistiche/clienti" 
-                    element={<ReportPlaceholder title="Report Clienti" description="Analisi dei dati relativi ai clienti" />} 
-                  />
-                  <Route 
-                    path="statistiche/magazzino" 
-                    element={<ReportPlaceholder title="Report Magazzino" description="Analisi dei dati relativi al magazzino" />} 
-                  />
-                  <Route 
-                    path="statistiche/inventario" 
-                    element={<ReportPlaceholder title="Report Inventario" description="Analisi dell'inventario" />} 
-                  />
+            <ChakraUIProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="appuntamenti" element={<Appointments />} />
+                    <Route path="calendario" element={<Calendar />} />
+                    <Route path="clienti" element={<Clients />} />
+                    <Route path="progetti" element={<Projects />} />
+                    <Route path="progetti/nuovo" element={<NewProject />} />
+                    <Route path="servizi" element={<Services />} />
+                    <Route path="abbonamenti" element={<Subscriptions />} />
+                    <Route path="staff" element={<Staff />} />
+                    <Route path="professionisti" element={<Professionals />} />
+                    <Route path="comunicazioni" element={<Communications />} />
+                    <Route path="spese" element={<Expenses />} />
+                    <Route path="impostazioni" element={<Settings />} />
+                    
+                    {/* Rotte statistiche */}
+                    <Route path="statistiche" element={<StatisticsIndex />} />
+                    <Route path="statistiche/analisi-andamento" element={<AnalisiAndamento />} />
+                    <Route path="statistiche/report-azienda" element={<ReportAzienda />} />
+                    <Route path="statistiche/corrispettivi" element={<Corrispettivi />} />
+                    <Route 
+                      path="statistiche/collaboratori" 
+                      element={<ReportPlaceholder title="Report Collaboratori" description="Analisi delle performance dei collaboratori" />} 
+                    />
+                    <Route 
+                      path="statistiche/clienti" 
+                      element={<ReportPlaceholder title="Report Clienti" description="Analisi dei dati relativi ai clienti" />} 
+                    />
+                    <Route 
+                      path="statistiche/magazzino" 
+                      element={<ReportPlaceholder title="Report Magazzino" description="Analisi dei dati relativi al magazzino" />} 
+                    />
+                    <Route 
+                      path="statistiche/inventario" 
+                      element={<ReportPlaceholder title="Report Inventario" description="Analisi dell'inventario" />} 
+                    />
 
-                  {/* Rotte magazzino */}
-                  <Route path="magazzino" element={<WarehouseIndex />} />
-                  <Route path="magazzino/prodotti" element={<Products />} />
-                  <Route path="magazzino/ordini" element={<Orders />} />
-                  <Route path="magazzino/sottoscorta" element={<LowStock />} />
-                  
-                  <Route path="utenti" element={<Users />} />
-                  <Route path="freelance" element={<Freelance />} />
-                  {/* Altri percorsi da aggiungere nelle fasi future */}
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+                    {/* Rotte magazzino */}
+                    <Route path="magazzino" element={<WarehouseIndex />} />
+                    <Route path="magazzino/prodotti" element={<Products />} />
+                    <Route path="magazzino/ordini" element={<Orders />} />
+                    <Route path="magazzino/sottoscorta" element={<LowStock />} />
+                    
+                    <Route path="utenti" element={<Users />} />
+                    <Route path="freelance" element={<Freelance />} />
+                    {/* Altri percorsi da aggiungere nelle fasi future */}
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </ChakraUIProvider>
           </CalendarProvider>
         </AppointmentProvider>
       </AuthProvider>
