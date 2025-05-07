@@ -18,7 +18,11 @@ export const useAppointments = (salonId?: string) => {
       console.log("Fetching appointments for salon:", activeSalonId);
       const { data, error } = await supabase
         .from('appointments')
-        .select(`*`)
+        .select(`
+          *,
+          services:service_id (name),
+          staff:staff_id (first_name, last_name)
+        `)
         .eq('salon_id', activeSalonId);
 
       if (error) {
@@ -33,11 +37,18 @@ export const useAppointments = (salonId?: string) => {
         // Make sure title is a primitive string value
         const titleString = appointment.client_name ? String(appointment.client_name) : 'Appuntamento';
         
+        // Extract service name if available
+        const serviceName = appointment.services ? appointment.services.name : '';
+        
         return {
           ...appointment,
           title: titleString, // Force string type
+          service: serviceName || appointment.service || '',
           start: new Date(appointment.start_time),
           end: new Date(appointment.end_time),
+          // Include staff info with proper naming
+          staff_name: appointment.staff ? 
+            `${appointment.staff.first_name} ${appointment.staff.last_name}` : ''
         };
       });
 

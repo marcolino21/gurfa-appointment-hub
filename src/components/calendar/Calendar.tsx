@@ -110,6 +110,19 @@ const Calendar = () => {
         // Fallback to normal day format if no staff for this position
         return format(date, 'EEE dd', { locale: it });
       }
+    },
+    event: ({ event }: { event: any }) => {
+      // Display staff name in the event if available
+      const staffMember = event.staff_id ? activeStaff.find(staff => staff.id === event.staff_id) : null;
+      const staffName = staffMember ? `${staffMember.firstName} ${staffMember.lastName}` : '';
+      
+      return (
+        <div className="event-container">
+          <div className="event-title">{event.title}</div>
+          {staffName && <div className="event-staff-name">{staffName}</div>}
+          {event.service && <div className="event-service">{event.service}</div>}
+        </div>
+      );
     }
   };
 
