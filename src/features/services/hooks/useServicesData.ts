@@ -20,7 +20,8 @@ export const useServicesData = () => {
     setSelectedService,
     activeTab,
     setActiveTab,
-    currentSalonId
+    currentSalonId,
+    isLoading
   } = useServicesState();
 
   const { filteredServices, getCategoryName } = useServiceFilters(services, categories, searchTerm);
@@ -56,6 +57,7 @@ export const useServicesData = () => {
     getCategoryName,
     handleAddService,
     handleEditService,
-    handleDeleteService
+    handleDeleteService,
+    isLoading
   };
 };

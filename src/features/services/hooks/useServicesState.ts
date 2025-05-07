@@ -1,17 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { MOCK_SERVICES, MOCK_SERVICE_CATEGORIES, MOCK_STAFF } from '@/data/mockData';
+import { MOCK_SERVICE_CATEGORIES, MOCK_STAFF } from '@/data/mockData';
 import { Service, ServiceCategory, StaffMember } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * Hook for managing the state of services, categories, and staff data
  */
 export const useServicesState = () => {
   const { currentSalonId } = useAuth();
-  const [services, setServices] = useState<Service[]>(
-    currentSalonId ? MOCK_SERVICES[currentSalonId] || [] : []
-  );
+  const { toast } = useToast();
+  const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>(
     currentSalonId ? MOCK_SERVICE_CATEGORIES[currentSalonId] || [] : []
   );
@@ -23,6 +24,41 @@ export const useServicesState = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [activeTab, setActiveTab] = useState('dettagli');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      if (!currentSalonId) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('services')
+          .select('*')
+          .eq('salon_id', currentSalonId);
+          
+        if (error) {
+          throw error;
+        }
+        
+        setServices(data || []);
+      } catch (error) {
+        console.error('Errore durante il recupero dei servizi:', error);
+        toast({
+          title: 'Errore',
+          description: 'Impossibile caricare i servizi.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, [currentSalonId, toast]);
 
   return {
     services,
@@ -39,6 +75,7 @@ export const useServicesState = () => {
     setSelectedService,
     activeTab,
     setActiveTab,
-    currentSalonId
+    currentSalonId,
+    isLoading
   };
 };

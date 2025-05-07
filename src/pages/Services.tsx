@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, Search } from 'lucide-react';
+import { Loader2, Plus, Search } from 'lucide-react';
 import { useServicesData } from '@/features/services/hooks/useServicesData';
 import { ServicesTable } from '@/features/services/components/ServicesTable';
 import { ServiceForm } from '@/features/services/components/service-form';
@@ -38,7 +38,8 @@ const Services = () => {
     getCategoryName,
     handleAddService,
     handleEditService,
-    handleDeleteService
+    handleDeleteService,
+    isLoading
   } = useServicesData();
 
   return (
@@ -66,16 +67,23 @@ const Services = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <ServicesTable 
-            services={filteredServices} 
-            getCategoryName={getCategoryName}
-            onEdit={(service) => {
-              setSelectedService(service);
-              setActiveTab('dettagli');
-              setIsEditDialogOpen(true);
-            }}
-            onDelete={handleDeleteService}
-          />
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-lg">Caricamento servizi...</span>
+            </div>
+          ) : (
+            <ServicesTable 
+              services={filteredServices} 
+              getCategoryName={getCategoryName}
+              onEdit={(service) => {
+                setSelectedService(service);
+                setActiveTab('dettagli');
+                setIsEditDialogOpen(true);
+              }}
+              onDelete={handleDeleteService}
+            />
+          )}
         </CardContent>
       </Card>
 

@@ -2,6 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { Service } from '@/types/services';
 import { ServiceFormValues } from '../types';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Hook for service CRUD operations
@@ -15,17 +16,23 @@ export const useServiceOperations = (
 ) => {
   const { toast } = useToast();
 
-  const handleAddService = (data: ServiceFormValues) => {
-    if (!currentSalonId) return;
+  const handleAddService = async (data: ServiceFormValues) => {
+    if (!currentSalonId) {
+      toast({
+        title: 'Errore',
+        description: 'Nessun salone selezionato',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    // For custom category, use the customCategory value instead
+    // Per la categoria personalizzata, usa il valore di customCategory
     const categoryValue = data.customCategory && data.customCategory.trim() !== '' 
       ? data.customCategory 
       : data.category;
 
-    // Create service with required fields explicitly defined
-    const newService: Service = {
-      id: `s${Math.random().toString(36).substr(2, 9)}`,
+    // Crea servizio con tutti i campi richiesti
+    const newService: Omit<Service, 'id'> = {
       name: data.name,
       category: categoryValue, 
       duration: data.duration,
@@ -35,57 +42,111 @@ export const useServiceOperations = (
       salonId: currentSalonId,
       assignedStaffIds: data.assignedStaffIds || [],
       assignedServiceIds: [],
-      // Optional fields
+      // Campi opzionali
       description: data.description,
     };
 
-    setServices([...services, newService]);
-    toast({
-      title: 'Servizio aggiunto',
-      description: `${newService.name} è stato aggiunto con successo`,
-    });
-    setIsAddDialogOpen(false);
+    try {
+      const { data: insertedService, error } = await supabase
+        .from('services')
+        .insert(newService)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setServices(prevServices => [...prevServices, insertedService]);
+      toast({
+        title: 'Servizio aggiunto',
+        description: `${newService.name} è stato aggiunto con successo`,
+      });
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error('Errore durante l\'aggiunta del servizio:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiungere il servizio.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleEditService = (data: ServiceFormValues, selectedService: Service) => {
-    if (!selectedService) return;
+  const handleEditService = async (data: ServiceFormValues, selectedService: Service) => {
+    if (!selectedService || !currentSalonId) return;
 
-    // For custom category, use the customCategory value instead
+    // Per la categoria personalizzata, usa il valore di customCategory
     const categoryValue = data.customCategory && data.customCategory.trim() !== '' 
       ? data.customCategory 
       : data.category;
 
-    const updatedServices = services.map(service => 
-      service.id === selectedService.id ? { 
-        ...service,
-        name: data.name,
-        category: categoryValue,
-        duration: data.duration,
-        tempoDiPosa: data.tempoDiPosa,
-        price: data.price,
-        color: data.color,
-        description: data.description,
-        assignedStaffIds: data.assignedStaffIds,
-        // Keep the existing assignedServiceIds
-        assignedServiceIds: service.assignedServiceIds,
-      } : service
-    );
+    const updatedService = { 
+      name: data.name,
+      category: categoryValue,
+      duration: data.duration,
+      tempoDiPosa: data.tempoDiPosa,
+      price: data.price,
+      color: data.color,
+      description: data.description,
+      assignedStaffIds: data.assignedStaffIds,
+      // Mantieni gli assignedServiceIds esistenti
+      assignedServiceIds: selectedService.assignedServiceIds,
+    };
 
-    setServices(updatedServices);
-    toast({
-      title: 'Servizio modificato',
-      description: `${data.name} è stato modificato con successo`,
-    });
-    setIsEditDialogOpen(false);
+    try {
+      const { error } = await supabase
+        .from('services')
+        .update(updatedService)
+        .eq('id', selectedService.id)
+        .eq('salon_id', currentSalonId);
+
+      if (error) throw error;
+
+      setServices(prevServices => 
+        prevServices.map(service => 
+          service.id === selectedService.id ? { ...service, ...updatedService } : service
+        )
+      );
+      
+      toast({
+        title: 'Servizio modificato',
+        description: `${data.name} è stato modificato con successo`,
+      });
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Errore durante la modifica del servizio:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile modificare il servizio.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleDeleteService = (serviceId: string) => {
-    const updatedServices = services.filter(service => service.id !== serviceId);
-    setServices(updatedServices);
-    toast({
-      title: 'Servizio eliminato',
-      description: 'Il servizio è stato eliminato con successo',
-    });
+  const handleDeleteService = async (serviceId: string) => {
+    if (!currentSalonId) return;
+
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', serviceId)
+        .eq('salon_id', currentSalonId);
+
+      if (error) throw error;
+
+      setServices(prevServices => prevServices.filter(service => service.id !== serviceId));
+      toast({
+        title: 'Servizio eliminato',
+        description: 'Il servizio è stato eliminato con successo',
+      });
+    } catch (error) {
+      console.error('Errore durante l\'eliminazione del servizio:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il servizio.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return {
