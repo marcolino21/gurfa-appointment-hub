@@ -19,6 +19,8 @@ export type Database = {
           notes: string | null
           salon_id: string
           service: string | null
+          service_id: string | null
+          staff_id: string | null
           start_time: string
           status: string | null
           title: string
@@ -33,6 +35,8 @@ export type Database = {
           notes?: string | null
           salon_id: string
           service?: string | null
+          service_id?: string | null
+          staff_id?: string | null
           start_time: string
           status?: string | null
           title: string
@@ -47,6 +51,8 @@ export type Database = {
           notes?: string | null
           salon_id?: string
           service?: string | null
+          service_id?: string | null
+          staff_id?: string | null
           start_time?: string
           status?: string | null
           title?: string

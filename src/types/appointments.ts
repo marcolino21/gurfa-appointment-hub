@@ -18,6 +18,7 @@ export interface Appointment {
   service?: string;
   start?: Date;        // For React Big Calendar
   end?: Date;          // For React Big Calendar
+  staff_name?: string; // Derived from staff relation
 }
 
 export interface AppointmentFormData {

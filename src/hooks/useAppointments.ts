@@ -38,12 +38,12 @@ export const useAppointments = (salonId?: string) => {
         const titleString = appointment.client_name ? String(appointment.client_name) : 'Appuntamento';
         
         // Extract service name if available
-        const serviceName = appointment.services ? appointment.services.name : '';
+        const serviceName = appointment.services ? appointment.services.name : appointment.service || '';
         
         return {
           ...appointment,
           title: titleString, // Force string type
-          service: serviceName || appointment.service || '',
+          service: serviceName,
           start: new Date(appointment.start_time),
           end: new Date(appointment.end_time),
           // Include staff info with proper naming
@@ -86,6 +86,8 @@ export const useAppointments = (salonId?: string) => {
   // Create appointment mutation
   const createAppointment = useMutation({
     mutationFn: async (appointmentData: AppointmentFormData) => {
+      console.log("Creating appointment with data:", appointmentData);
+      
       const { data, error } = await supabase
         .from('appointments')
         .insert([{
@@ -118,6 +120,8 @@ export const useAppointments = (salonId?: string) => {
   // Update appointment mutation
   const updateAppointment = useMutation({
     mutationFn: async ({ id, ...appointmentData }: AppointmentFormData & { id: string }) => {
+      console.log("Updating appointment with data:", appointmentData);
+      
       const { data, error } = await supabase
         .from('appointments')
         .update(appointmentData)
@@ -182,3 +186,4 @@ export const useAppointments = (salonId?: string) => {
     deleteAppointment
   };
 };
+
