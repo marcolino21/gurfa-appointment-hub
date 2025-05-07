@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, addHours } from 'date-fns';
+import { AppointmentFormData } from '@/types/appointments';
 
 const AppointmentModal = () => {
   const { toast } = useToast();
@@ -23,8 +24,8 @@ const AppointmentModal = () => {
 
   const isEditing = !!selectedAppointment;
 
-  // Form state
-  const [formData, setFormData] = useState({
+  // Form state with proper type for status
+  const [formData, setFormData] = useState<AppointmentFormData>({
     client_name: '',
     client_phone: '',
     service_id: '',
@@ -98,7 +99,7 @@ const AppointmentModal = () => {
           start_time: format(new Date(selectedAppointment.start_time), "yyyy-MM-dd'T'HH:mm"),
           end_time: format(new Date(selectedAppointment.end_time), "yyyy-MM-dd'T'HH:mm"),
           notes: selectedAppointment.notes || '',
-          status: selectedAppointment.status || 'pending',
+          status: (selectedAppointment.status as "confirmed" | "completed" | "cancelled" | "pending") || 'pending',
           salon_id: activeSalonId,
         });
       } else if (selectedSlot) {
@@ -125,7 +126,13 @@ const AppointmentModal = () => {
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    // For the status field, ensure we only accept valid values
+    if (name === 'status') {
+      const validStatus = value as "confirmed" | "completed" | "cancelled" | "pending";
+      setFormData(prev => ({ ...prev, [name]: validStatus }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -284,7 +291,7 @@ const AppointmentModal = () => {
             <Label htmlFor="status">Stato</Label>
             <Select
               value={formData.status}
-              onValueChange={(value) => handleSelectChange('status', value)}
+              onValueChange={(value: "confirmed" | "completed" | "cancelled" | "pending") => handleSelectChange('status', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona stato" />
