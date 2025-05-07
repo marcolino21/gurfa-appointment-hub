@@ -18,11 +18,16 @@ export const useServiceOperations = (
   const handleAddService = (data: ServiceFormValues) => {
     if (!currentSalonId) return;
 
+    // For custom category, use the customCategory value instead
+    const categoryValue = data.customCategory && data.customCategory.trim() !== '' 
+      ? data.customCategory 
+      : data.category;
+
     // Create service with required fields explicitly defined
     const newService: Service = {
       id: `s${Math.random().toString(36).substr(2, 9)}`,
       name: data.name,
-      category: data.category, 
+      category: categoryValue, 
       duration: data.duration,
       tempoDiPosa: data.tempoDiPosa,
       price: data.price,
@@ -45,11 +50,16 @@ export const useServiceOperations = (
   const handleEditService = (data: ServiceFormValues, selectedService: Service) => {
     if (!selectedService) return;
 
+    // For custom category, use the customCategory value instead
+    const categoryValue = data.customCategory && data.customCategory.trim() !== '' 
+      ? data.customCategory 
+      : data.category;
+
     const updatedServices = services.map(service => 
       service.id === selectedService.id ? { 
         ...service,
         name: data.name,
-        category: data.category,
+        category: categoryValue,
         duration: data.duration,
         tempoDiPosa: data.tempoDiPosa,
         price: data.price,
