@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
@@ -45,11 +46,13 @@ const Calendar = () => {
   
   // Filter to get active staff that should show in calendar
   const activeStaff = staffMembers.filter(staff => {
-    console.log("Staff member:", staff.firstName, staff.lastName, "isActive:", staff.isActive, "showInCalendar:", staff.showInCalendar);
+    console.log("Staff member:", staff.firstName, staff.lastName, 
+                "isActive:", staff.isActive, "showInCalendar:", staff.showInCalendar);
     return staff.isActive === true && staff.showInCalendar === true;
   });
 
   console.log("Active staff in Calendar component:", activeStaff);
+  console.log("Current calendar view:", view);
 
   // Event handlers
   const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
@@ -57,6 +60,7 @@ const Calendar = () => {
   }, [openModal]);
 
   const handleSelectEvent = useCallback((event: any) => {
+    console.log("Selected event:", event);
     setSelectedAppointment(event);
     openModal();
   }, [setSelectedAppointment, openModal]);
@@ -114,7 +118,6 @@ const Calendar = () => {
     day: true,
     week: true,
     month: true,
-    // Custom view for staff (one column per staff member)
     staff: {
       type: 'week',
       week: true,
@@ -140,18 +143,24 @@ const Calendar = () => {
 
   // Process appointments for display
   const calendarEvents = appointments.map(appointment => {
-    // Ensure title is always a string, not a function
-    const title = typeof appointment.client_name === 'string' 
-      ? appointment.client_name 
-      : 'Appuntamento';
+    // CRITICAL: Ensure title is ALWAYS a primitive string value
+    const titleAsString = appointment.client_name ? String(appointment.client_name) : 'Appuntamento';
+    
+    console.log(`Appointment ${appointment.id} title:`, titleAsString, 
+                "type:", typeof titleAsString);
     
     return {
       ...appointment,
-      title, // Always use a string, never a function
+      title: titleAsString, // Ensure this is a primitive string
       start: appointment.start || new Date(appointment.start_time),
       end: appointment.end || new Date(appointment.end_time),
     };
   });
+
+  // Debug the events we're passing to the calendar
+  useEffect(() => {
+    console.log("Calendar events being rendered:", calendarEvents);
+  }, [calendarEvents]);
 
   return (
     <div className="h-[calc(100vh-180px)]">

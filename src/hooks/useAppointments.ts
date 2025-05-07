@@ -15,6 +15,7 @@ export const useAppointments = (salonId?: string) => {
   // Function to fetch appointments
   const fetchAppointments = useCallback(async () => {
     try {
+      console.log("Fetching appointments for salon:", activeSalonId);
       const { data, error } = await supabase
         .from('appointments')
         .select(`*`)
@@ -25,20 +26,23 @@ export const useAppointments = (salonId?: string) => {
         return [];
       }
 
+      console.log("Raw appointments data:", data);
+
       // Transform data for React Big Calendar - ensure title is a string, not a function
-      return data.map((appointment: any): Appointment => {
-        // Make sure title is a string value
-        const clientName = typeof appointment.client_name === 'string' 
-          ? appointment.client_name 
-          : 'Appuntamento';
+      const transformedAppointments = data.map((appointment: any): Appointment => {
+        // Make sure title is a primitive string value
+        const titleString = appointment.client_name ? String(appointment.client_name) : 'Appuntamento';
         
         return {
           ...appointment,
-          title: clientName, // Always ensure title is a string
+          title: titleString, // Force string type
           start: new Date(appointment.start_time),
           end: new Date(appointment.end_time),
         };
       });
+
+      console.log("Transformed appointments:", transformedAppointments);
+      return transformedAppointments;
     } catch (error) {
       console.error('Error in fetchAppointments:', error);
       return [];

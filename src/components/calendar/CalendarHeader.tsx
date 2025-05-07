@@ -16,21 +16,29 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
   const { selectedDate, view, setView } = useAppointmentStore();
   const { currentSalonId } = useAuth();
   const activeSalonId = currentSalonId || 'sa1';
-  const { staffMembers } = useStaffData(activeSalonId);
+  const { staffMembers, isLoading } = useStaffData(activeSalonId);
   
   // Debug logs for staff data in header
   useEffect(() => {
     console.log("Staff data in CalendarHeader:", staffMembers);
-  }, [staffMembers]);
+    console.log("Current view in CalendarHeader:", view);
+  }, [staffMembers, view]);
   
   // Filter active staff members that should be displayed in the calendar
+  // Use explicit boolean comparison for reliability
   const activeStaff = staffMembers.filter(staff => {
-    console.log("CalendarHeader filtering staff:", staff.firstName, staff.lastName, staff.isActive, staff.showInCalendar);
+    console.log(`Staff member ${staff.firstName} ${staff.lastName}:`, 
+                `isActive=${staff.isActive}`, 
+                `showInCalendar=${staff.showInCalendar}`,
+                `Types: ${typeof staff.isActive}, ${typeof staff.showInCalendar}`);
+                
+    // Explicit boolean comparison to ensure correct filtering
     return staff.isActive === true && staff.showInCalendar === true;
   });
   
   useEffect(() => {
     console.log("Active staff for display in calendar tabs:", activeStaff);
+    console.log("Active staff count:", activeStaff.length);
   }, [activeStaff]);
   
   // Format the current selected date
@@ -79,7 +87,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onCreateAppointment }) 
               onClick={() => setView('staff')}
               className="rounded-l-none"
             >
-              Staff
+              Staff ({activeStaff.length})
             </Button>
           )}
         </div>
