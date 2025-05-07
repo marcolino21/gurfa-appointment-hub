@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
@@ -134,6 +133,9 @@ const Calendar = () => {
     staff: {
       type: 'week',
       week: true,
+      title: (date: Date, { localizer }: any) => {
+        return `Staff View: ${format(date, 'MMMM yyyy', { locale: it })}`;
+      },
       getNow: () => new Date(),
       getDrilldownView: () => null,
     }
