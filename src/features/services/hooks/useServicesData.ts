@@ -31,11 +31,23 @@ export const useServicesData = () => {
 
   const handleAddService = async (data: ServiceFormValues) => {
     console.log('Handling add service in useServicesData:', data);
+    
+    if (!currentSalonId) {
+      console.error('No salon ID available when trying to add a service');
+      return;
+    }
+    
     await addService(data);
   };
 
   const handleEditService = async (data: ServiceFormValues) => {
     console.log('Handling edit service in useServicesData:', data);
+    
+    if (!currentSalonId) {
+      console.error('No salon ID available when trying to edit a service');
+      return;
+    }
+    
     if (selectedService) {
       await editService(data, selectedService);
     }
@@ -60,6 +72,7 @@ export const useServicesData = () => {
     handleAddService,
     handleEditService,
     handleDeleteService,
-    isLoading
+    isLoading,
+    currentSalonId
   };
 };

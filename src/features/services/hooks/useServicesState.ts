@@ -26,9 +26,16 @@ export const useServicesState = () => {
   const [activeTab, setActiveTab] = useState('dettagli');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Log the current salon ID to help diagnose the issue
+  useEffect(() => {
+    console.log('Current salon ID in useServicesState:', currentSalonId);
+  }, [currentSalonId]);
+
   useEffect(() => {
     const fetchServices = async () => {
       if (!currentSalonId) {
+        console.warn('No salon selected. Unable to fetch services.');
+        setServices([]);
         setIsLoading(false);
         return;
       }

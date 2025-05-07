@@ -15,12 +15,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, Search } from 'lucide-react';
+import { AlertTriangle, Loader2, Plus, Search } from 'lucide-react';
 import { useServicesData } from '@/features/services/hooks/useServicesData';
 import { ServicesTable } from '@/features/services/components/ServicesTable';
 import { ServiceForm } from '@/features/services/components/service-form';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Services = () => {
+  const { currentSalonId } = useAuth();
   const {
     filteredServices,
     categories,
@@ -41,6 +44,30 @@ const Services = () => {
     handleDeleteService,
     isLoading
   } = useServicesData();
+
+  // Render a message if no salon is selected
+  if (!currentSalonId) {
+    return (
+      <div className="container mx-auto py-6">
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Nessun salone selezionato</AlertTitle>
+          <AlertDescription>
+            Seleziona un salone dall'intestazione per visualizzare e gestire i servizi.
+          </AlertDescription>
+        </Alert>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Servizi</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-12">
+            <p>Per gestire i servizi, è necessario prima selezionare un salone.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6">

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,12 +11,21 @@ const Header: React.FC = () => {
   const { user, logout, currentSalonId, salons, setCurrentSalon } = useAuth();
   const navigate = useNavigate();
 
+  // Auto-select the first salon if none is selected and salons are available
+  useEffect(() => {
+    if (salons.length > 0 && !currentSalonId) {
+      console.log('Auto-selecting first salon:', salons[0].id);
+      setCurrentSalon(salons[0].id);
+    }
+  }, [salons, currentSalonId, setCurrentSalon]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   const handleSalonChange = (value: string) => {
+    console.log('Changing salon to:', value);
     setCurrentSalon(value);
   };
 
