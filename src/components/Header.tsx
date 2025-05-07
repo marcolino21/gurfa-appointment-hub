@@ -48,13 +48,13 @@ const Header: React.FC = () => {
     <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b bg-white">
       <div className="flex items-center gap-4">
         {salons.length > 0 && (
-          <div className="flex items-center gap-2 border rounded-md p-1 bg-slate-50">
+          <div className="flex items-center gap-2 border rounded-md p-1 bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors">
             <Store className="h-5 w-5 text-primary ml-2" />
             <Select value={currentSalonId || undefined} onValueChange={handleSalonChange}>
               <SelectTrigger className="w-60 border-none bg-transparent focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder="Seleziona un salone" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {salons.map((salon: Salon) => (
                   <SelectItem key={salon.id} value={salon.id}>
                     {salon.name}
