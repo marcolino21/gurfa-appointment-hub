@@ -26,25 +26,28 @@ export const useServiceOperations = (
       return;
     }
 
+    console.log('Adding service with data:', data);
+
     // Per la categoria personalizzata, usa il valore di customCategory
     const categoryValue = data.customCategory && data.customCategory.trim() !== '' 
       ? data.customCategory 
       : data.category;
 
     // Crea servizio con tutti i campi richiesti
-    const newService: Omit<Service, 'id'> = {
+    const newService = {
       name: data.name,
       category: categoryValue, 
       duration: data.duration,
-      tempoDiPosa: data.tempoDiPosa,
+      tempo_di_posa: data.tempoDiPosa, // Field name adjusted for database column
       price: data.price,
       color: data.color,
-      salonId: currentSalonId,
-      assignedStaffIds: data.assignedStaffIds || [],
-      assignedServiceIds: [],
-      // Campi opzionali
-      description: data.description,
+      salon_id: currentSalonId, // Field name adjusted for database column
+      assigned_staff_ids: data.assignedStaffIds || [], // Field name adjusted for database column
+      assigned_service_ids: [], // Field name adjusted for database column
+      description: data.description || '',
     };
+
+    console.log('Sending to Supabase:', newService);
 
     try {
       const { data: insertedService, error } = await supabase
@@ -53,9 +56,29 @@ export const useServiceOperations = (
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error response:', error);
+        throw error;
+      }
 
-      setServices(prevServices => [...prevServices, insertedService]);
+      console.log('Received from Supabase:', insertedService);
+
+      // Transform the database format back to app format
+      const formattedService: Service = {
+        id: insertedService.id,
+        name: insertedService.name,
+        category: insertedService.category,
+        description: insertedService.description,
+        duration: insertedService.duration,
+        tempoDiPosa: insertedService.tempo_di_posa,
+        price: insertedService.price,
+        color: insertedService.color,
+        salonId: insertedService.salon_id,
+        assignedStaffIds: insertedService.assigned_staff_ids,
+        assignedServiceIds: insertedService.assigned_service_ids,
+      };
+
+      setServices(prevServices => [...prevServices, formattedService]);
       toast({
         title: 'Servizio aggiunto',
         description: `${newService.name} è stato aggiunto con successo`,
@@ -74,36 +97,54 @@ export const useServiceOperations = (
   const handleEditService = async (data: ServiceFormValues, selectedService: Service) => {
     if (!selectedService || !currentSalonId) return;
 
+    console.log('Editing service with data:', data);
+
     // Per la categoria personalizzata, usa il valore di customCategory
     const categoryValue = data.customCategory && data.customCategory.trim() !== '' 
       ? data.customCategory 
       : data.category;
 
-    const updatedService = { 
+    const updatedServiceDb = { 
       name: data.name,
       category: categoryValue,
       duration: data.duration,
-      tempoDiPosa: data.tempoDiPosa,
+      tempo_di_posa: data.tempoDiPosa, // Field name adjusted for database column
       price: data.price,
       color: data.color,
-      description: data.description,
-      assignedStaffIds: data.assignedStaffIds,
-      // Mantieni gli assignedServiceIds esistenti
-      assignedServiceIds: selectedService.assignedServiceIds,
+      description: data.description || '',
+      assigned_staff_ids: data.assignedStaffIds || [], // Field name adjusted for database column
     };
+
+    console.log('Sending to Supabase update:', updatedServiceDb);
 
     try {
       const { error } = await supabase
         .from('services')
-        .update(updatedService)
+        .update(updatedServiceDb)
         .eq('id', selectedService.id)
         .eq('salon_id', currentSalonId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
+
+      // Update the local state with transformed data
+      const updatedService = { 
+        ...selectedService,
+        name: data.name,
+        category: categoryValue,
+        duration: data.duration,
+        tempoDiPosa: data.tempoDiPosa,
+        price: data.price,
+        color: data.color,
+        description: data.description,
+        assignedStaffIds: data.assignedStaffIds,
+      };
 
       setServices(prevServices => 
         prevServices.map(service => 
-          service.id === selectedService.id ? { ...service, ...updatedService } : service
+          service.id === selectedService.id ? updatedService : service
         )
       );
       
@@ -125,6 +166,8 @@ export const useServiceOperations = (
   const handleDeleteService = async (serviceId: string) => {
     if (!currentSalonId) return;
 
+    console.log('Deleting service with ID:', serviceId);
+
     try {
       const { error } = await supabase
         .from('services')
@@ -132,7 +175,10 @@ export const useServiceOperations = (
         .eq('id', serviceId)
         .eq('salon_id', currentSalonId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
 
       setServices(prevServices => prevServices.filter(service => service.id !== serviceId));
       toast({

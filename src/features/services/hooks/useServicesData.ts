@@ -29,13 +29,15 @@ export const useServicesData = () => {
   const { handleAddService: addService, handleEditService: editService, handleDeleteService } = 
     useServiceOperations(services, setServices, currentSalonId, setIsAddDialogOpen, setIsEditDialogOpen);
 
-  const handleAddService = (data: ServiceFormValues) => {
-    addService(data);
+  const handleAddService = async (data: ServiceFormValues) => {
+    console.log('Handling add service in useServicesData:', data);
+    await addService(data);
   };
 
-  const handleEditService = (data: ServiceFormValues) => {
+  const handleEditService = async (data: ServiceFormValues) => {
+    console.log('Handling edit service in useServicesData:', data);
     if (selectedService) {
-      editService(data, selectedService);
+      await editService(data, selectedService);
     }
   };
 

@@ -34,6 +34,8 @@ export const useServicesState = () => {
       }
       
       setIsLoading(true);
+      console.log('Fetching services for salon ID:', currentSalonId);
+      
       try {
         const { data, error } = await supabase
           .from('services')
@@ -41,10 +43,28 @@ export const useServicesState = () => {
           .eq('salon_id', currentSalonId);
           
         if (error) {
+          console.error('Supabase fetch error:', error);
           throw error;
         }
         
-        setServices(data || []);
+        console.log('Services fetched from Supabase:', data);
+        
+        // Transform the data from database format to app format
+        const transformedServices: Service[] = data?.map(item => ({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          description: item.description,
+          duration: item.duration,
+          tempoDiPosa: item.tempo_di_posa,
+          price: item.price,
+          color: item.color,
+          salonId: item.salon_id,
+          assignedStaffIds: item.assigned_staff_ids || [],
+          assignedServiceIds: item.assigned_service_ids || [],
+        })) || [];
+        
+        setServices(transformedServices);
       } catch (error) {
         console.error('Errore durante il recupero dei servizi:', error);
         toast({
